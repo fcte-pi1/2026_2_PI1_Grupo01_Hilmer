@@ -1,14 +1,32 @@
 # Estrutura Analítica de Produto
 
 | **ID** | **Componente** | **Descrição** | **Dados Técnicos** | **Comentários** |
-|:------:|----------------|---------------|--------------------|-----------------|
-| 1 | **Sub-sistema: Estrutura** | | | |
-| 1.1 | Chassi | | | |
-| 1.2 | Suporte | | | |
-| 1.3 | Carenagem | | | |
-| 1.4 | Atuadores | | | |
-| 1.5 | Transmissão | | | |
-| 1.6 | Rodas/Hélices | | | |
+|:-------|:---------------|:--------------|:-------------------|:----------------|
+| 1 | **Sub-sistema: Chassi** | Desenvolvimento da base física e locomoção do micromouse | | |
+| 1.1 | Estrutura Mecânica | Foco no corpo principal e na sustentação base do robô | | |
+| 1.1.1 | Projeto conceitual | Definição inicial do formato, dimensões e requisitos do chassi. | | |
+| 1.1.2 | Modelagem (CAD) | Criação dos modelos 3D computacionais preliminares da base. | | |
+| 1.1.3 | Análise e refinamento | Avaliação do modelo (centro de gravidade, peso, resistência) e ajustes. | | |
+| 1.1.4 | Desenho técnico | Geração das plantas 2D com cotas e tolerâncias para manufatura. | | |
+| 1.1.5 | Seleção de materiais | Especificação dos insumos da base (ex: acrílico, PLA, etc.). | | |
+| 1.1.6 | Prototipagem | Fabricação rápida para validar volume, dimensões e encaixes. | | |
+| 1.1.7 | Fabricação | Manufatura definitiva das peças que compõem a carcaça. | | |
+| 1.2 | Sistema de Tração | Conjunto responsável por dar movimento ao robô | | |
+| 1.2.1 | Dimensionamento mecânico | Cálculos para definir torque, velocidade e tipo de motor. | | |
+| 1.2.2 | Modelagem (CAD) | Desenho 3D de rodas, eixos, buchas e suportes para motores. | | |
+| 1.2.3 | Desenho técnico | Detalhamento 2D das peças de tração e tolerâncias de encaixe. | | |
+| 1.2.4 | Seleção de materiais | Escolha de materiais focados em atrito (pneus) e eixos. | | |
+| 1.2.5 | Fabricação | Produção, usinagem ou impressão 3D dos componentes de tração. | | |
+| 1.2.6 | Testes de tração/motores | Ensaios de bancada para validar aderência, elétrica e torque. | | |
+| 1.3 | Integração | União das partes mecânicas, eletrônica e calibração final | | |
+| 1.3.1 | Projeto de suportes | Planejamento da fixação das placas (PCBs), bateria e sensores. | | |
+| 1.3.2 | Modelagem (CAD) | Adição dos suportes e volume dos eletrônicos no modelo 3D. | | |
+| 1.3.3 | Análise e refinamento | Checagem virtual de estabilidade e posicionamento dos sensores. | | |
+| 1.3.4 | Desenho técnico | Planta final das pequenas peças de fixação e apoios de hardware. | | |
+| 1.3.5 | Fabricação | Produção das estruturas de suporte, espaçadores e conectores. | | |
+| 1.3.6 | Montagem | Acoplamento físico do chassi, motores, bateria, fiação e placas lógicas. | | |
+| 1.3.7 | Validação estrutural | Checagem de robustez física para garantir que não há peças soltas. | | |
+| 1.3.8 | Testes | Ensaios mecânicos na pista para verificar estabilidade em curvas e retas. | | |
 | 2 | **Sub-sistema: Fonte Energética** | | | |
 | 2.1 | Alimentação | | | |
 | 2.2 | Eletrônica de Potência | | | |
