@@ -15,7 +15,7 @@
 | 2.3 | Proteções | | | |
 | 2.4 | Gerenciamento de Energia | | | |
 | 3 | **Sub-sistema: Hardware** | | | |
-| 3.1 | Processamento | | | |
+| 3.1 | Processamento esp 32(em pesquisa) e STM32(em pesquisa)| | | |
 | 3.2 | Sensor 1 | | | |
 | 3.3 | Sensor 2 | | | |
 | 3.4 | Controle 1 | | | |
