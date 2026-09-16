@@ -14,68 +14,23 @@
 | 2.2 | Eletrônica de Potência | | | |
 | 2.3 | Proteções | | | |
 | 2.4 | Gerenciamento de Energia | | | |
-| **3** | **SUB-SISTEMA: HARDWARE** | | |
-| 3.1 | **Seleção de componentes** | | |
-| 3.1.1 | Microcontrolador (ESP32 / STM32) | | |
-| 3.1.2 | Sensores de parede/distância | | |
-| 3.1.3 | Motores | | |
-| 3.1.4 | Driver de motores | | |
-| 3.1.5 | Encoders | | |
-| 3.1.6 | Conectores e componentes auxiliares | | |
-| 3.1.7 | Sistema de alimentação | | |
-| 3.1.8 | Reguladores de tensão | | |
-| 3.1.9 | Definição das tensões de operação | | |
-| 3.1.10 | Definição dos protocolos de comunicação | | |
-| 3.2 | **Esquemático elétrico** | | |
-| 3.2.1 | Alimentação e distribuição | | |
-| 3.2.2 | Microcontrolador | | |
-| 3.2.3 | Sensores | | |
-| 3.2.4 | Driver de motores | | |
-| 3.2.5 | Motores | | |
-| 3.2.6 | Encoders | | |
-| 3.2.7 | Reguladores de tensão | | |
-| 3.2.8 | Proteções elétricas | | |
-| 3.2.9 | Conectores e interfaces | | |
-| 3.2.10 | Comunicação / telemetria | | |
-| 3.3 | **Projeto e montagem do circuito** | | |
-| 3.3.1 | Montagem do protótipo | | |
-| 3.3.2 | Protoboard de teste | | |
-| 3.3.3 | Projeto da PCB | | |
-| 3.3.4 | Layout da PCB | | |
-| 3.3.5 | Dimensionamento das trilhas | | |
-| 3.3.6 | Soldagem | | |
-| 3.3.7 | Cabeamento | | |
-| 3.3.8 | Conectores | | |
-| 3.3.9 | Inspeção da montagem | | |
-| 3.4 | **Integração dos componentes** | | |
-| 3.4.1 | Sensores → MCU | | |
-| 3.4.2 | Encoders → MCU | | |
-| 3.4.3 | MCU → Driver | | |
-| 3.4.4 | Driver → Motores | | |
-| 3.4.5 | Alimentação → Sistema | | |
-| 3.4.6 | Comunicação → MCU | | |
-| 3.4.7 | Integração da telemetria | | |
-| 3.4.8 | Integração elétrica completa | | |
-| 3.5 | **Testes de Hardware** | | |
-| 3.5.1 | Teste do microcontrolador | | |
-| 3.5.2 | Teste dos sensores | | |
-| 3.5.3 | Teste dos motores | | |
-| 3.5.4 | Teste do driver | | |
-| 3.5.5 | Teste dos encoders | | |
-| 3.5.6 | Teste de alimentação | | |
-| 3.5.7 | Teste dos reguladores | | |
-| 3.5.8 | Teste de comunicação | | |
-| 3.5.9 | Teste da PCB | | |
-| 3.5.10 | Teste integrado | | |
-| 3.6 | **Validação do Hardware** | | |
-| 3.6.1 | Verificação dos requisitos | | |
-| 3.6.2 | Verificação das tensões | | |
-| 3.6.3 | Verificação dos sinais | | |
-| 3.6.4 | Identificação de falhas | | |
-| 3.6.5 | Correção de falhas | | |
-| 3.6.6 | Validação do funcionamento | | |
-| 3.6.7 | Documentação dos resultados | | |
-| 3.6.8 | Aprovação do Hardware para integração com Software | | |
+| 3 | **Sub-sistema: Hardware** | Conjunto de componentes eletrônicos responsáveis pelo processamento, sensoriamento, acionamento, comunicação, alimentação e integração do Micromouse. | | |
+| 3.1 | **Processamento** | Microcontrolador responsável por processar os dados provenientes dos sensores e executar as funções de controle do robô. | ESP32 / STM32 (em pesquisa) | Definir o microcontrolador após análise dos requisitos. |
+| 3.2 | **Sensores de parede/distância** | Componentes responsáveis por detectar as paredes do labirinto e fornecer informações de distância utilizadas na percepção, localização e navegação do Micromouse. | Tipo, alcance, tensão e quantidade em definição | Definir modelo e quantidade dos sensores. |
+| 3.3 | **Motores** | Atuadores responsáveis por gerar o movimento necessário para deslocar as rodas do Micromouse durante a navegação pelo labirinto. | Tensão, corrente, torque e RPM em definição | Selecionar conforme os requisitos de movimentação. |
+| 3.4 | **Driver de motores** | Circuito responsável por receber os sinais de controle do microcontrolador e fornecer a potência necessária para o acionamento dos motores. | Tensão, corrente e canais em definição | Deve ser compatível com os motores e com o microcontrolador. |
+| 3.5 | **Encoders** | Componentes responsáveis por medir a rotação das rodas, fornecendo informações utilizadas para determinar velocidade, deslocamento e auxiliar na odometria do robô. | Tipo, resolução e tensão em definição | Utilizados no controle dos motores e na localização. |
+| 3.6 | **Comunicação** | Sistema responsável pela troca de informações entre os componentes eletrônicos e pela comunicação do Micromouse com sistemas externos de telemetria. | Protocolos em definição | Definir os protocolos e interfaces de comunicação. |
+| 3.7 | **Alimentação e distribuição** | Sistema responsável por fornecer energia elétrica ao Micromouse e distribuir a alimentação adequada para os diferentes componentes eletrônicos. | Bateria, tensão e corrente em definição | Definir bateria e arquitetura de distribuição de energia. |
+| 3.8 | **Reguladores de tensão** | Componentes responsáveis por converter ou regular a tensão fornecida pela fonte para os níveis de tensão necessários ao funcionamento dos circuitos eletrônicos. | Tensões de entrada e saída em definição | Definir os reguladores de acordo com os componentes selecionados. |
+| 3.9 | **Proteções elétricas** | Conjunto de componentes e medidas destinadas a proteger o circuito contra condições elétricas que possam causar danos aos componentes ou interromper o funcionamento do sistema. | Em definição | Definir as proteções necessárias após o dimensionamento da alimentação. |
+| 3.10 | **Conectores e cabeamento** | Componentes responsáveis por realizar as conexões elétricas entre os módulos, permitindo uma montagem organizada, segura e confiável do sistema. | Tipos, bitolas e quantidade em definição | Definir conectores e cabeamento conforme a montagem final. |
+| 3.11 | **Protótipo e montagem** | Etapa destinada à montagem experimental dos componentes eletrônicos para verificar as conexões e validar o funcionamento do circuito antes da fabricação da PCB. | Protoboard de teste | Utilizar o protótipo para identificar problemas antes da PCB definitiva. |
+| 3.12 | **PCB** | Placa de circuito impresso destinada a organizar, interligar e fixar os componentes eletrônicos do Micromouse em uma solução integrada. | Dimensões, número de camadas e layout em definição | Desenvolver após a validação do circuito em protótipo. |
+| 3.13 | **Esquemático elétrico** | Representação das conexões elétricas entre alimentação, microcontrolador, sensores, driver, motores e encoders, servindo como referência para montagem e desenvolvimento da PCB. | Em desenvolvimento | Deve contemplar todos os componentes e conexões do sistema. |
+| 3.14 | **Integração dos componentes** | Etapa responsável por conectar e integrar os componentes eletrônicos para formar o sistema de Hardware completo do Micromouse. | Em desenvolvimento | Sensores → MCU; Encoders → MCU; MCU → Driver; Driver → Motores; Alimentação → Sistema. |
+| 3.15 | **Testes de Hardware** | Conjunto de testes realizados individualmente e de forma integrada para verificar o funcionamento dos componentes e do circuito eletrônico. | Critérios de teste em definição | Inclui testes do MCU, sensores, motores, driver, encoders, alimentação e sistema integrado. |
+| 3.16 | **Validação do Hardware** | Etapa final destinada a verificar se o Hardware atende aos requisitos definidos para o projeto e está preparado para integração com o Software. | Critérios de validação em definição | Identificar e corrigir falhas e validar o funcionamento do Hardware. |
 | 4 | **Releases de Software** | | | |
 | 4.1 | Módulo de Percepção e Mapeamento | | | |
 | 4.1.1 | Reconhecimento de ambiente | Identificar os diferentes elementos físicos presentes no labirinto, como paredes e piso. Essa etapa de codificação ficará sob sua responsabilidade direta para garantir a correta percepção do espaço. | | |
