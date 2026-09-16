@@ -14,14 +14,68 @@
 | 2.2 | Eletrônica de Potência | | | |
 | 2.3 | Proteções | | | |
 | 2.4 | Gerenciamento de Energia | | | |
-| 3 | **Sub-sistema: Hardware** | | | |
-| 3.1 | Processamento esp 32(em pesquisa) e STM32(em pesquisa)| | | |
-| 3.2 | Sensor 1 | | | |
-| 3.3 | Sensor 2 | | | |
-| 3.4 | Controle 1 | | | |
-| 3.5 | Controle 2 | | | |
-| 3.6 | Comunicação 1 | | | |
-| 3.7 | Comunicação 2 | | | |
+| **3** | **SUB-SISTEMA: HARDWARE** | | |
+| 3.1 | **Seleção de componentes** | | |
+| 3.1.1 | Microcontrolador (ESP32 / STM32) | | |
+| 3.1.2 | Sensores de parede/distância | | |
+| 3.1.3 | Motores | | |
+| 3.1.4 | Driver de motores | | |
+| 3.1.5 | Encoders | | |
+| 3.1.6 | Conectores e componentes auxiliares | | |
+| 3.1.7 | Sistema de alimentação | | |
+| 3.1.8 | Reguladores de tensão | | |
+| 3.1.9 | Definição das tensões de operação | | |
+| 3.1.10 | Definição dos protocolos de comunicação | | |
+| 3.2 | **Esquemático elétrico** | | |
+| 3.2.1 | Alimentação e distribuição | | |
+| 3.2.2 | Microcontrolador | | |
+| 3.2.3 | Sensores | | |
+| 3.2.4 | Driver de motores | | |
+| 3.2.5 | Motores | | |
+| 3.2.6 | Encoders | | |
+| 3.2.7 | Reguladores de tensão | | |
+| 3.2.8 | Proteções elétricas | | |
+| 3.2.9 | Conectores e interfaces | | |
+| 3.2.10 | Comunicação / telemetria | | |
+| 3.3 | **Projeto e montagem do circuito** | | |
+| 3.3.1 | Montagem do protótipo | | |
+| 3.3.2 | Protoboard de teste | | |
+| 3.3.3 | Projeto da PCB | | |
+| 3.3.4 | Layout da PCB | | |
+| 3.3.5 | Dimensionamento das trilhas | | |
+| 3.3.6 | Soldagem | | |
+| 3.3.7 | Cabeamento | | |
+| 3.3.8 | Conectores | | |
+| 3.3.9 | Inspeção da montagem | | |
+| 3.4 | **Integração dos componentes** | | |
+| 3.4.1 | Sensores → MCU | | |
+| 3.4.2 | Encoders → MCU | | |
+| 3.4.3 | MCU → Driver | | |
+| 3.4.4 | Driver → Motores | | |
+| 3.4.5 | Alimentação → Sistema | | |
+| 3.4.6 | Comunicação → MCU | | |
+| 3.4.7 | Integração da telemetria | | |
+| 3.4.8 | Integração elétrica completa | | |
+| 3.5 | **Testes de Hardware** | | |
+| 3.5.1 | Teste do microcontrolador | | |
+| 3.5.2 | Teste dos sensores | | |
+| 3.5.3 | Teste dos motores | | |
+| 3.5.4 | Teste do driver | | |
+| 3.5.5 | Teste dos encoders | | |
+| 3.5.6 | Teste de alimentação | | |
+| 3.5.7 | Teste dos reguladores | | |
+| 3.5.8 | Teste de comunicação | | |
+| 3.5.9 | Teste da PCB | | |
+| 3.5.10 | Teste integrado | | |
+| 3.6 | **Validação do Hardware** | | |
+| 3.6.1 | Verificação dos requisitos | | |
+| 3.6.2 | Verificação das tensões | | |
+| 3.6.3 | Verificação dos sinais | | |
+| 3.6.4 | Identificação de falhas | | |
+| 3.6.5 | Correção de falhas | | |
+| 3.6.6 | Validação do funcionamento | | |
+| 3.6.7 | Documentação dos resultados | | |
+| 3.6.8 | Aprovação do Hardware para integração com Software | | |
 | 4 | **Releases de Software** | | | |
 | 4.1 | Módulo de Percepção e Mapeamento | | | |
 | 4.1.1 | Reconhecimento de ambiente | Identificar os diferentes elementos físicos presentes no labirinto, como paredes e piso. Essa etapa de codificação ficará sob sua responsabilidade direta para garantir a correta percepção do espaço. | | |
