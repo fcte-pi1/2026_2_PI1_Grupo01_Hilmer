@@ -29,7 +29,7 @@
 | 1.3.8 | Testes | Ensaios mecânicos na pista para verificar estabilidade em curvas e retas. | | |
 | 2 | **Sub-sistema: Fonte Energética** | | | |
 | 2.1 | Alimentação |O sistema deverá fornecer tensão e corrente compatíveis com todos os subsistemas elétricos do robô. | | |
-| 2.2 | Capacidade Energética |A fonte energética deverá possuir capacidade suficiente para permitir a execução completa de uma tentativa no labirinto sem interrupção por descarga. | | |
+| 2.2 | Capacidade Energética |A fonte energética deverá possuir capacidade suficiente para permitir a execução completa do labirinto sem interrupção por descarga. | | |
 | 2.2 | Eletrônica de Potência |O circuito de potência deverá ser capaz de fornecer a corrente necessária aos motores durante acelerações e manobras. | | |
 | 3 | **Sub-sistema: Hardware** | | | |
 | 3.1 | **Seleção de Componentes** | | | |
