@@ -1,5 +1,9 @@
 # Estrutura Analítica de Produto
 
+A EAP representa a decomposição hierárquica do escopo total do trabalho a ser executado pela equipe do projeto a fim de alcançar os objetivos e criar entregas exigidas.
+
+![EAP-GRUPO01-HILMER](figs/eap-grupo01-hilmer.png)
+
 | **ID** | **Componente** | **Descrição** | **Dados Técnicos** | **Comentários** |
 |:-------|:---------------|:--------------|:-------------------|:----------------|
 | 1 | **Sub-sistema: Chassi** | Desenvolvimento da base física e locomoção do micromouse | | |
