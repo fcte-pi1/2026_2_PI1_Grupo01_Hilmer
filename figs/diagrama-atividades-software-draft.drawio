@@ -1,0 +1,169 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net">
+  <diagram id="softwareActivityDiagram" name="Diagrama de Atividades - Software">
+    <mxGraphModel dx="1400" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1240" pageHeight="1900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="id2" value="USUÁRIO / OPERADOR" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fontStyle=1;fontSize=15;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="40" y="60" width="280" height="1780" as="geometry" />
+        </mxCell>
+        <mxCell id="id3" value="MICROMOUSE (FIRMWARE EMBARCADO)" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fontStyle=1;fontSize=15;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="340" y="60" width="440" height="1780" as="geometry" />
+        </mxCell>
+        <mxCell id="id4" value="SISTEMA WEB (BACKEND + DASHBOARD)" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fontStyle=1;fontSize=15;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="800" y="60" width="360" height="1780" as="geometry" />
+        </mxCell>
+        <mxCell id="id5" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="165" y="120" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="id6" value="Posicionar o micromouse no labirinto e iniciar o desafio" style="rounded=1;whiteSpace=wrap;html=1;arcSize=30;fillColor=#ffffff;strokeColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="80" y="210" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="id8" value="Executar autocalibração de sensores de distância e IMU&#10;(RF13 / RNF8)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=30;fillColor=#ffffff;strokeColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="460" y="210" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="id10" value="Calibração&#10;bem-sucedida?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="490" y="330" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="id13" value="Sinalizar sistema pronto para o desafio&#10;(RNF9)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=30;fillColor=#ffffff;strokeColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="460" y="460" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="id15" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="400" y="545" width="340" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="id17" value="Reconhecer ambiente: detectar paredes ao redor&#10;(RF2)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=30;fillColor=#ffffff;strokeColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="380" y="610" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="id19" value="Atualizar localização (odometria) e mapa do labirinto&#10;(RF3, RF5)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=30;fillColor=#ffffff;strokeColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="380" y="700" width="200" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="id21" value="Colisão com&#10;parede detectada?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="400" y="800" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="id23" value="Tratar colisão e recuperar trajeto sem perder o mapeamento já capturado&#10;(RF12, RF17)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=30;fillColor=#ffffff;strokeColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="380" y="920" width="200" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="id26" value="Piso irregular /&#10;obstáculo no solo?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="400" y="1030" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="id28" value="Sobrepujar condição irregular do solo&#10;(RF11)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=30;fillColor=#ffffff;strokeColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="380" y="1150" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="id31" value="Calcular e executar o próximo movimento no labirinto&#10;(RF1)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=30;fillColor=#ffffff;strokeColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="380" y="1250" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="id33" value="Célula objetivo&#10;alcançada?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="400" y="1350" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="id36" value="Armazenar mapa final do labirinto percorrido&#10;(RF4)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=30;fillColor=#ffffff;strokeColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="380" y="1480" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="id38" value="Coletar e transmitir telemetria em tempo real: posição, velocidade, bateria&#10;(RF8)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=30;fillColor=#ffffff;strokeColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="620" y="610" width="200" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="id40" value="Receber telemetria e armazenar em buffer (estabilização)&#10;(RF16)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=30;fillColor=#ffffff;strokeColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="870" y="720" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="id42" value="Persistir telemetria vinculada à corrida no banco de dados&#10;(RF9, RF15)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=30;fillColor=#ffffff;strokeColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="870" y="820" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="id44" value="Atualizar dashboard: mapa 2D, trajeto, velocidade média e bateria&#10;(RF6, RF14)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=30;fillColor=#ffffff;strokeColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="870" y="920" width="220" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="id47" value="Encerrar registro da corrida&#10;(RF15)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=30;fillColor=#ffffff;strokeColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="870" y="1480" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="id49" value="Disponibilizar labirinto/corrida no histórico de consulta&#10;(RF10)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=30;fillColor=#ffffff;strokeColor=#000000;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="870" y="1580" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="id51" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;shape=doubleEllipse;" vertex="1" parent="1">
+          <mxGeometry x="965" y="1690" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="id7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;" edge="1" parent="1" source="id5" target="id6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="id9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;" edge="1" parent="1" source="id6" target="id8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="id11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;" edge="1" parent="1" source="id8" target="id10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="id12" value="Não" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="id10" target="id8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="id14" value="Sim" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;" edge="1" parent="1" source="id10" target="id13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="id16" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;" edge="1" parent="1" source="id13" target="id15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="id18" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;" edge="1" parent="1" source="id15" target="id17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="id20" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;" edge="1" parent="1" source="id17" target="id19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="id22" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;" edge="1" parent="1" source="id19" target="id21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="id24" value="Sim" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;" edge="1" parent="1" source="id21" target="id23">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="id25" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="id23" target="id17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="id27" value="Não" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;" edge="1" parent="1" source="id21" target="id26">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="id29" value="Sim" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;" edge="1" parent="1" source="id26" target="id28">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="id30" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.7;entryDx=0;entryDy=0;" edge="1" parent="1" source="id28" target="id17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="id32" value="Não" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;" edge="1" parent="1" source="id26" target="id31">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="id34" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;" edge="1" parent="1" source="id31" target="id33">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="id35" value="Não" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.9;entryDx=0;entryDy=0;" edge="1" parent="1" source="id33" target="id17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="id37" value="Sim" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;" edge="1" parent="1" source="id33" target="id36">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="id39" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;" edge="1" parent="1" source="id15" target="id38">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="id41" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;" edge="1" parent="1" source="id38" target="id40">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="id43" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;" edge="1" parent="1" source="id40" target="id42">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="id45" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;" edge="1" parent="1" source="id42" target="id44">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="id46" value="enquanto a corrida estiver ativa" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="id44" target="id38">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1150" y="955" />
+              <mxPoint x="1150" y="645" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="id48" value="fim da corrida" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;" edge="1" parent="1" source="id36" target="id47">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="id50" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;" edge="1" parent="1" source="id47" target="id49">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="id52" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;" edge="1" parent="1" source="id49" target="id51">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
