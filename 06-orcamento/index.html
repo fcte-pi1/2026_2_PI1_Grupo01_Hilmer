@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#orcamento" class="md-skip">
+        <a href="#lista-de-compras-micromouse-pi1" class="md-skip">
           Pular para conteúdo
         </a>
       
@@ -657,6 +657,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6. Orçamento
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -673,6 +691,36 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#lista-de-componentes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lista de componentes
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -971,6 +1019,25 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#lista-de-componentes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lista de componentes
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -994,94 +1061,512 @@
   
 
 
-<h1 id="orcamento">Orçamento<a class="headerlink" href="#orcamento" title="Permanent link">&para;</a></h1>
-<blockquote>
-<p>Obs.: o custo da mão de obra deve considerar o valor da hora de um estudante da UnB.</p>
-</blockquote>
-<ul>
-<li>Fonte:</li>
-</ul>
+<h1 id="lista-de-compras-micromouse-pi1">Lista de Compras — Micromouse PI1<a class="headerlink" href="#lista-de-compras-micromouse-pi1" title="Permanent link">&para;</a></h1>
+<h2 id="lista-de-componentes">Lista de componentes<a class="headerlink" href="#lista-de-componentes" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th><strong>Item de Custo</strong></th>
-<th><strong>Qtde.</strong></th>
-<th><strong>Previsto (R$)</strong></th>
-<th><strong>Realizado (R$)</strong></th>
+<th style="text-align: right;">ID</th>
+<th>Categoria</th>
+<th>Componente</th>
+<th style="text-align: right;">Qtd.</th>
+<th>Especificação / Requisito</th>
+<th>Modelo sugerido</th>
+<th style="text-align: right;">Preço (R$)</th>
+<th>Status</th>
+<th>Observações</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><span style="color: yellow;"><strong>Mão de Obra</strong></span></td>
+<td style="text-align: right;">1</td>
+<td>Alimentação</td>
+<td>Bateria Li-ion 2S</td>
+<td style="text-align: right;">1</td>
+<td>7,4 V nominal; 8,4 V máximo</td>
+<td>Bateria 18650 7,4 V 2200 mAh 2S Li-ion com BMS</td>
+<td style="text-align: right;">45,00</td>
+<td>🛒 Comprar</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td>Alimentação</td>
+<td>Chave de potência</td>
+<td style="text-align: right;">1</td>
+<td>Liga/desliga; corrente adequada ao sistema</td>
+<td>Mini rocker KCD1 — SPST ON/OFF — 2 terminais</td>
+<td style="text-align: right;">9,40</td>
+<td>🛒 Comprar</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td>Alimentação</td>
+<td>Buck converter 6 V</td>
+<td style="text-align: right;">1</td>
+<td>Entrada 7,4–8,4 V; saída ajustável para 6,0 V</td>
+<td>LM2596 Step-Down DC-DC 3 A</td>
+<td style="text-align: right;">21,90</td>
+<td>🛒 Comprar</td>
+<td>Alimentação dos motores</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td>Alimentação</td>
+<td>Buck converter 5 V</td>
+<td style="text-align: right;">1</td>
+<td>Entrada compatível com 8,4 V; saída 5 V</td>
+<td>LM2596 Step-Down DC-DC ajustável</td>
+<td style="text-align: right;">14,50</td>
+<td>🛒 Comprar</td>
+<td>Alimentação do LiDAR</td>
+</tr>
+<tr>
+<td style="text-align: right;">5</td>
+<td>Alimentação</td>
+<td>Buck converter 3,3 V</td>
+<td style="text-align: right;">1</td>
+<td>Entrada compatível com 8,4 V; saída 3,3 V</td>
+<td>MP1584EN — Buck DC-DC ajustável</td>
+<td style="text-align: right;">17,18</td>
+<td>🛒 Comprar</td>
+<td>Alimentação do ESP32</td>
+</tr>
+<tr>
+<td style="text-align: right;">6</td>
+<td>Alimentação</td>
+<td>Carregador 2S</td>
+<td style="text-align: right;">1</td>
+<td>Carregador para Li-ion 2S / 8,4 V</td>
+<td>Carregador Li-ion 2S — 8,4 V / 1 A</td>
+<td style="text-align: right;">49,99</td>
+<td>🛒 Comprar</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: right;">7</td>
+<td>Controle</td>
+<td>ESP32-C3-MINI-1 / placa de desenvolvimento</td>
+<td style="text-align: right;">1</td>
+<td>MCU; alimentação 3,0–3,6 V</td>
+<td>ESP32-C3-DevKitM-1 — 4 MB Flash</td>
+<td style="text-align: right;">58,13</td>
+<td>🛒 Comprar</td>
+<td>Projeto atual usa ESP32-C3-MINI-1</td>
+</tr>
+<tr>
+<td style="text-align: right;">8</td>
+<td>Controle</td>
+<td>Driver de motores</td>
+<td style="text-align: right;">1</td>
+<td>DRV8833; ponte H dupla</td>
+<td>DRV8833</td>
+<td style="text-align: right;">19,00</td>
+<td>🛒 Comprar</td>
+<td>Dois motores DC</td>
+</tr>
+<tr>
+<td style="text-align: right;">9</td>
+<td>Atuação</td>
+<td>Motor DC com encoder</td>
+<td style="text-align: right;">2</td>
+<td>6 V nominal; encoder incremental em quadratura</td>
+<td>GA12-N20-S0310D-E / N20 + caixa GA12</td>
+<td style="text-align: right;">39,31</td>
+<td>🛒 Comprar</td>
+<td>Corrente e compatibilidade com 8,4 V ainda precisam ser validadas</td>
+</tr>
+<tr>
+<td style="text-align: right;">10</td>
+<td>Atuação</td>
+<td>Roda</td>
+<td style="text-align: right;">2</td>
+<td>Compatível com eixo do motor</td>
+<td>—</td>
+<td style="text-align: right;">—</td>
+<td>⚠️ Validar</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: right;">11</td>
+<td>Atuação</td>
+<td>Suporte de motor</td>
+<td style="text-align: right;">2</td>
+<td>Compatível com motores e chassi</td>
+<td>Suporte de motor N20 — 2 furos</td>
+<td style="text-align: right;">12,90</td>
+<td>🛒 Comprar</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: right;">12</td>
+<td>Sensoriamento</td>
+<td>LiDAR</td>
+<td style="text-align: right;">1</td>
+<td>Alimentação e UART conforme datasheet</td>
+<td>ST-L50B2</td>
+<td style="text-align: right;">64,59</td>
+<td>✅ Comprado</td>
+<td>Validar alimentação, protocolo e níveis UART</td>
+</tr>
+<tr>
+<td style="text-align: right;">13</td>
+<td>Sensoriamento</td>
+<td>Resistor R1</td>
+<td style="text-align: right;">1</td>
+<td>Valor a definir conforme interface UART</td>
+<td>—</td>
+<td style="text-align: right;">—</td>
+<td>⚠️ Validar</td>
+<td>Não comprar valor definitivo antes da validação</td>
+</tr>
+<tr>
+<td style="text-align: right;">14</td>
+<td>Sensoriamento</td>
+<td>Resistor R2</td>
+<td style="text-align: right;">1</td>
+<td>Valor a definir conforme interface UART</td>
+<td>—</td>
+<td style="text-align: right;">—</td>
+<td>⚠️ Validar</td>
+<td>Não comprar valor definitivo antes da validação</td>
+</tr>
+<tr>
+<td style="text-align: right;">15</td>
+<td>Sensoriamento</td>
+<td>Resistores de pull-up</td>
+<td style="text-align: right;">1</td>
+<td>Valores a definir conforme encoders</td>
+<td>Kit com 10 resistores</td>
+<td style="text-align: right;">10,00</td>
+<td>🛒 Comprar</td>
+<td>Validar níveis lógicos e necessidade</td>
+</tr>
+<tr>
+<td style="text-align: right;">16</td>
+<td>Filtragem</td>
+<td>Capacitor cerâmico</td>
+<td style="text-align: right;">1</td>
+<td>100 nF; desacoplamento</td>
+<td>Kit com 10 × 100 nF / 50 V</td>
+<td style="text-align: right;">9,60</td>
+<td>🛒 Comprar</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: right;">17</td>
+<td>Filtragem</td>
+<td>Capacitor eletrolítico</td>
+<td style="text-align: right;">1</td>
+<td>Valor a dimensionar; filtragem de alimentação</td>
+<td>Capacitor 100 µF — kit com 10</td>
+<td style="text-align: right;">12,99</td>
+<td>🛒 Comprar</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: right;">18</td>
+<td>Filtragem</td>
+<td>Capacitor eletrolítico de maior capacidade</td>
+<td style="text-align: right;">1</td>
+<td>Ex.: 470 µF; valor final a dimensionar</td>
+<td>Capacitor 470 µF — kit com 10</td>
+<td style="text-align: right;">19,92</td>
+<td>⚠️ Validar</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: right;">21</td>
+<td>Conectores</td>
+<td>Conector para LiDAR</td>
+<td style="text-align: right;">1</td>
+<td>Conforme conector do módulo</td>
+<td>Direto à PCB</td>
+<td style="text-align: right;">—</td>
+<td>⏳ Depois</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: right;">22</td>
+<td>Conectores</td>
+<td>Headers 2,54 mm</td>
+<td style="text-align: right;">1</td>
+<td>Macho/fêmea conforme montagem</td>
+<td>Barra de pinos 2,54 mm 1×40</td>
+<td style="text-align: right;">19,00</td>
+<td>🛒 Comprar</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: right;">23</td>
+<td>Montagem</td>
+<td>Fios para PCB</td>
+<td style="text-align: right;">1</td>
+<td>Bitola adequada às correntes do projeto</td>
+<td>Kit 20 m de fio flexível 0,50 mm</td>
+<td style="text-align: right;">41,83</td>
+<td>🛒 Comprar</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: right;">24</td>
+<td>Montagem</td>
+<td>Termo-retrátil</td>
+<td style="text-align: right;">1</td>
+<td>Diversos diâmetros</td>
+<td>Kit de tubo termo-retrátil</td>
+<td style="text-align: right;">19,68</td>
+<td>🛒 Comprar</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: right;">25</td>
+<td>Montagem</td>
+<td>Abraçadeiras pequenas</td>
+<td style="text-align: right;">1</td>
+<td>Fixação e organização dos cabos</td>
+<td>Abraçadeiras de nylon 2,5 × 100 mm</td>
+<td style="text-align: right;">8,30</td>
+<td>🛒 Comprar</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: right;">26</td>
+<td>Estrutura</td>
+<td>Chassi</td>
+<td style="text-align: right;">1</td>
+<td>Estrutura do Micromouse</td>
+<td>—</td>
+<td style="text-align: right;">200,00</td>
+<td>🛒 Comprar/Fabricar</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: right;">27</td>
+<td>PCB</td>
+<td>PCB do projeto</td>
+<td style="text-align: right;">1</td>
+<td>Após validação do esquemático</td>
+<td>—</td>
+<td style="text-align: right;">—</td>
+<td>⏳ Depois</td>
+<td>Fabricar somente após fechar o esquemático</td>
+</tr>
+<tr>
+<td style="text-align: right;">28</td>
+<td>Consumíveis</td>
+<td>Fluxo de solda</td>
+<td style="text-align: right;">1</td>
+<td>Fluxo para soldagem eletrônica</td>
+<td>Pasta para solda 110 g</td>
+<td style="text-align: right;">16,15</td>
+<td>🛒 Comprar</td>
+<td>Melhorar molhabilidade das soldas</td>
+</tr>
+<tr>
+<td style="text-align: right;">29</td>
+<td>Consumíveis</td>
+<td>Malha dessoldadora</td>
+<td style="text-align: right;">1</td>
+<td>2–3 mm</td>
+<td>Malha de cobre 3 mm × 1,5 m</td>
+<td style="text-align: right;">18,86</td>
+<td>🛒 Comprar</td>
+<td>Retrabalho e correção de soldas</td>
+</tr>
+<tr>
+<td style="text-align: right;">30</td>
+<td>Consumíveis</td>
+<td>Álcool isopropílico</td>
+<td style="text-align: right;">1</td>
+<td>Preferencialmente ≥ 90%</td>
+<td>Álcool isopropílico 99,8% — 1 L</td>
+<td style="text-align: right;">23,35</td>
+<td>🛒 Comprar</td>
+<td>Limpeza de PCB e resíduos de fluxo</td>
+</tr>
+<tr>
+<td style="text-align: right;">31</td>
+<td>Ferramentas</td>
+<td>Alicate de bico</td>
+<td style="text-align: right;">1</td>
+<td>Pequeno</td>
+<td>Mini alicate de bico longo</td>
+<td style="text-align: right;">21,90</td>
+<td>⚠️ Validar</td>
+<td>Montagem e dobra de terminais</td>
+</tr>
+<tr>
+<td style="text-align: right;">32</td>
+<td>Ferramentas</td>
+<td>Alicate de corte</td>
+<td style="text-align: right;">1</td>
+<td>Pequeno, para corte de fios e terminais</td>
+<td>Alicate de corte 6"</td>
+<td style="text-align: right;">22,13</td>
+<td>⚠️ Validar</td>
+<td>Montagem</td>
+</tr>
+<tr>
+<td style="text-align: right;">33</td>
+<td>Ferramentas</td>
+<td>Cabos de teste/jacaré</td>
+<td style="text-align: right;">1</td>
+<td>Kit de pontas/cabos para multímetro e fonte</td>
+<td>Kit com 10 fios garra jacaré</td>
+<td style="text-align: right;">19,00</td>
+<td>🛒 Comprar</td>
+<td>Medições e testes</td>
+</tr>
+<tr>
+<td style="text-align: right;">34</td>
+<td>Ferramentas</td>
+<td>Decapador de fios</td>
+<td style="text-align: right;">1</td>
+<td>Compatível com bitolas usadas no projeto</td>
+<td>Alicate desencapador/crimpador 5 em 1</td>
+<td style="text-align: right;">21,90</td>
+<td>⚠️ Validar</td>
+<td>Preparação dos fios</td>
+</tr>
+<tr>
+<td style="text-align: right;">35</td>
+<td>Ferramentas</td>
+<td>Fonte de bancada</td>
+<td style="text-align: right;">1</td>
+<td>Fonte DC ajustável com limitação de corrente</td>
+<td>Yaxun 1502DD — 15 V / 5 A</td>
+<td style="text-align: right;">199,00</td>
+<td>⚠️ Validar</td>
+<td>Testes iniciais com corrente limitada</td>
+</tr>
+<tr>
+<td style="text-align: right;">36</td>
+<td>Ferramentas</td>
+<td>Kit de jumpers</td>
+<td style="text-align: right;">1</td>
+<td>Macho-macho, macho-fêmea e fêmea-fêmea</td>
+<td>Kit 120 unidades</td>
+<td style="text-align: right;">23,96</td>
+<td>🛒 Comprar</td>
+<td>Testes em protoboard</td>
+</tr>
+<tr>
+<td style="text-align: right;">37</td>
+<td>Ferramentas</td>
+<td>Multímetro</td>
+<td style="text-align: right;">1</td>
+<td>Tensão, continuidade, resistência e corrente</td>
+<td>Multímetro digital</td>
+<td style="text-align: right;">59,99</td>
+<td>⚠️ Validar</td>
+<td>Teste elétrico e verificação antes de energizar</td>
+</tr>
+<tr>
+<td style="text-align: right;">38</td>
+<td>Ferramentas</td>
+<td>Pinça</td>
+<td style="text-align: right;">1</td>
+<td>Pinça para eletrônica</td>
+<td>Kit de pinças ESD</td>
+<td style="text-align: right;">19,59</td>
+<td>🛒 Comprar</td>
+<td>Manipulação de componentes</td>
+</tr>
+<tr>
+<td style="text-align: right;">39</td>
+<td>Ferramentas</td>
+<td>Protoboard</td>
+<td style="text-align: right;">1</td>
+<td>Protoboard pequena para testes preliminares</td>
+<td>Protoboard MB-102 — 830 pontos</td>
+<td style="text-align: right;">15,70</td>
+<td>🛒 Comprar</td>
+<td>Protótipo antes da PCB</td>
+</tr>
+<tr>
+<td style="text-align: right;">40</td>
+<td>Ferramentas</td>
+<td>Suporte para ferro de solda</td>
+<td style="text-align: right;">1</td>
+<td>Com suporte e limpeza de ponta</td>
+<td>Suporte com mola e esponja</td>
+<td style="text-align: right;">22,97</td>
+<td>⚠️ Validar</td>
+<td>Segurança na bancada</td>
+</tr>
+<tr>
+<td style="text-align: right;">41</td>
+<td>Ferramentas</td>
+<td>Terceira mão</td>
+<td style="text-align: right;">1</td>
+<td>Suporte para soldagem</td>
+<td>Lupa com garras e suporte</td>
+<td style="text-align: right;">42,79</td>
+<td>⚠️ Validar</td>
+<td>Fixação durante soldagem</td>
+</tr>
+<tr>
+<td style="text-align: right;">42</td>
+<td>Mão de obra</td>
+<td>Montagem e soldagem da eletrônica</td>
+<td style="text-align: right;">1</td>
+<td>Montagem dos componentes, soldagem, cabeamento e organização</td>
+<td>Serviço de montagem eletrônica</td>
+<td style="text-align: right;">—</td>
+<td>⚠️ A definir</td>
+<td>Considerar montagem, soldagem, testes e acabamento</td>
+</tr>
+<tr>
+<td style="text-align: right;">---</td>
 <td></td>
+<td></td>
+<td style="text-align: right;"></td>
+<td></td>
+<td></td>
+<td style="text-align: right;"></td>
 <td></td>
 <td></td>
 </tr>
+</tbody>
+</table>
+<h1 id="resumo">Resumo<a class="headerlink" href="#resumo" title="Permanent link">&para;</a></h1>
+<table>
+<thead>
 <tr>
-<td>Estudante</td>
-<td></td>
-<td></td>
-<td></td>
+<th>Informação</th>
+<th style="text-align: right;">Quantidade</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Total de itens</td>
+<td style="text-align: right;">39</td>
 </tr>
 <tr>
-<td><span style="color: yellow;"><strong>Serviços</strong></span></td>
-<td></td>
-<td></td>
-<td></td>
+<td>Itens para comprar</td>
+<td style="text-align: right;">—</td>
 </tr>
 <tr>
-<td>Impressão 3D</td>
-<td></td>
-<td></td>
-<td></td>
+<td>Itens para validar</td>
+<td style="text-align: right;">—</td>
 </tr>
 <tr>
-<td>Marcenaria</td>
-<td></td>
-<td></td>
-<td></td>
+<td>Itens já comprados</td>
+<td style="text-align: right;">1</td>
 </tr>
 <tr>
-<td>…</td>
-<td></td>
-<td></td>
-<td></td>
+<td>Itens para comprar/fabricar</td>
+<td style="text-align: right;">1</td>
 </tr>
 <tr>
-<td><span style="color: yellow;"><strong><em>*Equipamentos e Materiais</em></strong>*</span></td>
-<td></td>
-<td></td>
-<td></td>
+<td>Itens para fazer depois</td>
+<td style="text-align: right;">2</td>
 </tr>
 <tr>
-<td>Madeira</td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>Sensor XXXX</td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>Bateria XXXX</td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>…</td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><span style="color: blue;"><strong>TOTAL</strong></span></td>
-<td></td>
-<td></td>
-<td></td>
+<td>Custo estimado dos itens com preço informado</td>
+<td style="text-align: right;"><strong>R$ 1.184,56</strong></td>
 </tr>
 </tbody>
 </table>
