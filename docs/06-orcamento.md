@@ -43,8 +43,39 @@
 | 39 | Ferramentas | Protoboard | 1 | Protoboard pequena para testes preliminares | Protoboard MB-102 — 830 pontos | 15,70 | 🛒 Comprar | Protótipo antes da PCB |
 | 40 | Ferramentas | Suporte para ferro de solda | 1 | Com suporte e limpeza de ponta | Suporte com mola e esponja | 22,97 | ⚠️ Validar | Segurança na bancada |
 | 41 | Ferramentas | Terceira mão | 1 | Suporte para soldagem | Lupa com garras e suporte | 42,79 | ⚠️ Validar | Fixação durante soldagem |
-| 42 | Mão de obra | Montagem e soldagem da eletrônica | 1 | Montagem dos componentes, soldagem, cabeamento e organização | Serviço de montagem eletrônica | — | ⚠️ A definir | Considerar montagem, soldagem, testes e acabamento |
+| 42 | Mão de obra | Montagem e soldagem da eletrônica | 1 | Montagem dos componentes, soldagem, cabeamento e organização | Serviço de montagem eletrônica | — | ⏳ Falta estimar horas | Valor da hora definido (R$ 59,03, ver metodologia abaixo); falta a equipe estimar quantas horas a tarefa leva para fechar o custo total |
 ---
+
+## Metodologia de custo de mão de obra
+
+O custo da mão de obra considera o valor da hora de um estudante da UnB, em vez de um
+salário de mercado. O valor é obtido a partir do orçamento público investido por
+estudante, proporcional aos créditos da disciplina e às horas de dedicação previstas no
+TAP.
+
+| Variável | Valor | Fonte |
+|---|---:|---|
+| Dotação atualizada da UnB em 2026 | R$ 2.700.943.579,00 | Painel Gestão UnB |
+| Total oficial de estudantes regulares | 50.843 | Anuário Estatístico 2025 da UnB (tabela 2.18), DPO/UnB |
+| Créditos anuais de referência | 40 créditos | — |
+| Créditos da disciplina | 4 créditos | — |
+| Horas de dedicação por aluno no projeto | 90 h | [TAP do projeto](01-tap.md), seção 4.3 |
+
+```
+Orçamento por estudante/ano   = R$ 2.700.943.579,00 ÷ 50.843            = R$ 53.123,21
+Orçamento da disciplina/aluno = R$ 53.123,21 ÷ 40 créditos × 4 créditos = R$ 5.312,32
+Valor da hora do estudante    = R$ 5.312,32 ÷ 90 h                      = R$ 59,03/hora
+```
+
+**Valor da hora do estudante da UnB: R$ 59,03.**
+
+> **Nota sobre as fontes:** os valores de dotação orçamentária e de total de estudantes
+> não foram reconferidos por nós diretamente nas fontes primárias. Antes de uma entrega
+> final, vale a pena confirmar esses dois números direto no Painel Gestão UnB e no
+> Anuário Estatístico vigente.
+
+Para fechar o custo de qualquer item de mão de obra do orçamento (como o item 42, acima),
+basta multiplicar as horas estimadas da tarefa por R$ 59,03.
 
 # Resumo
 
