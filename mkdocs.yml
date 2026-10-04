@@ -89,6 +89,7 @@ nav:
       - 4.3.1 Diagramas de hardware: 04-projeto-conceitual/hardware-diagramas.md
       - 4.3.2 Justificativa dos componentes: 04-projeto-conceitual/justificativa-componentes.md
       - 4.4 Software: 04-projeto-conceitual/software.md
+      - "4.4.1 Firmware: implementação": 04-projeto-conceitual/firmware.md
   - 5. Cronograma: 05-cronograma.md
   - 6. Orçamento: 06-orcamento.md
   - 7. Testes:
