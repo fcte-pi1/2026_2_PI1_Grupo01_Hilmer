@@ -1330,8 +1330,8 @@
 <tbody>
 <tr>
 <td style="text-align: left;"><code>test_percepcao</code></td>
-<td style="text-align: left;">5</td>
-<td style="text-align: left;"><strong>5 aprovados</strong></td>
+<td style="text-align: left;">6</td>
+<td style="text-align: left;"><strong>6 aprovados</strong></td>
 <td style="text-align: left;">0,80 s</td>
 </tr>
 </tbody>
@@ -1367,6 +1367,12 @@
 <td style="text-align: left;">Aprovado</td>
 </tr>
 <tr>
+<td style="text-align: left;"><code>test_classificador_limiar_configuravel</code></td>
+<td style="text-align: left;">Alteração e consulta do limiar dinâmico em tempo de execução</td>
+<td style="text-align: left;">HU-02 (#174)</td>
+<td style="text-align: left;">Aprovado</td>
+</tr>
+<tr>
 <td style="text-align: left;"><code>test_classificador_leituras_com_ruido</code></td>
 <td style="text-align: left;">Atenuação de picos isolados de ruído via média de amostras</td>
 <td style="text-align: left;">HU-02 (#174)</td>
@@ -1374,7 +1380,7 @@
 </tr>
 <tr>
 <td style="text-align: left;"><code>test_classificador_vetor_vazio</code></td>
-<td style="text-align: left;">Vetor de amostras vazio assume Parede por segurança (<em>fail-safe</em>)</td>
+<td style="text-align: left;">Vetor de amostras vazio assume Desconhecido por segurança (<em>fail-safe</em>)</td>
 <td style="text-align: left;">HU-02 (#174)</td>
 <td style="text-align: left;">Aprovado</td>
 </tr>
@@ -1387,11 +1393,12 @@ Processing test_percepcao in native environment
 test/test_percepcao/test_classificador.cpp: test_classificador_parede_proxima [PASSED]
 test/test_percepcao/test_classificador.cpp: test_classificador_passagem_livre [PASSED]
 test/test_percepcao/test_classificador.cpp: test_classificador_valor_no_limiar [PASSED]
+test/test_percepcao/test_classificador.cpp: test_classificador_limiar_configuravel [PASSED]
 test/test_percepcao/test_classificador.cpp: test_classificador_leituras_com_ruido [PASSED]
 test/test_percepcao/test_classificador.cpp: test_classificador_vetor_vazio [PASSED]</p>
 <hr />
 <h2 id="nativetest_percepcao-passed-took-080-seconds">native:test_percepcao [PASSED] Took 0.80 seconds<a class="headerlink" href="#nativetest_percepcao-passed-took-080-seconds" title="Permanent link">&para;</a></h2>
-<p>=================================== 5 test cases: 5 succeeded in 00:00:00.800 ===================================</p>
+<p>=================================== 6 test cases: 6 succeeded in 00:00:00.800 ===================================</p>
 
 
 
