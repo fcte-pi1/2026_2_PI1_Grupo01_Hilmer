@@ -184,6 +184,55 @@ lidar.enfileirarLeitura({90, 90, 270});     // depois, parede à frente e à esq
 ILidar& sensor = lidar;                     // a lógica recebe só a interface
 ```
 
+## Labirinto simulado: `LabirintoSimulado`
+
+> **Em desenvolvimento** ([#224](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/224), branch `feat/labirinto-simulado`). A interface, os labirintos de exemplo e o esqueleto dos testes estão prontos; a implementação e o modo labirinto do `LidarSimulado` estão em andamento.
+
+O `LabirintoSimulado` (`lib/simulacao`) é um labirinto com todas as paredes conhecidas, usado como verdade de referência nos testes. Com ele, o `LidarSimulado` deixa de depender de leituras digitadas à mão: basta posicionar o robô numa célula, e o sensor simulado devolve o que o LiDAR real veria ali. Isso permite testar a classificação de paredes ([#174](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/174)) e a atualização do mapa ([#177](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/177)) num labirinto inteiro, sem hardware.
+
+**Formato do labirinto.** O labirinto é escrito em texto, no formato clássico de micromouse. Cada célula ocupa 4 colunas e 2 linhas de texto; `+` marca os cantos, `---` uma parede horizontal e `|` uma parede vertical. A primeira linha é a borda Norte, e a partida (0, 0) é a célula do canto inferior esquerdo, com as mesmas convenções do `Mapa` e de `Direcao.h`.
+
+```text
++---+---+---+---+
+|       |       |
++   +---+   +   +
+|   |       |   |
++   +   +---+   +
+|       |       |
++   +---+   +---+
+|   |           |
++---+---+---+---+
+```
+
+**Figura 4.** Labirinto 4×4 de exemplo (`LABIRINTO_4X4`), com a partida (0, 0) no canto inferior esquerdo.
+
+Cada parede aparece uma única vez no texto, entre as duas células que ela separa. Por isso, o lado leste de uma célula e o lado oeste da vizinha nunca discordam. Ao carregar o texto, o `LabirintoSimulado` recusa:
+
+| Resultado de `carregar` | Quando acontece |
+|---|---|
+| `Carregado` | Texto válido |
+| `TamanhoInvalido` | O tamanho não é 4×4, 8×4 nem 12×4, ou as linhas têm larguras diferentes |
+| `CaractereInvalido` | Caractere fora do formato |
+| `ParedeIncompleta` | Parede pela metade, como `- -` |
+| `PerimetroAberto` | Falta parede na borda externa |
+
+**Distâncias.** Com o robô no centro da célula, a parede da própria célula está a 90 mm, e cada célula livre no caminho soma 180 mm (`TAMANHO_CELULA_MM`). No labirinto acima, com o robô em (0, 0) virado para o Norte, há três células livres à frente e paredes dos dois lados:
+
+| Pose | Frente | Esquerda | Direita |
+|---|:-:|:-:|:-:|
+| (0, 0) Norte | 630 mm | 90 mm | 90 mm |
+| (1, 0) Norte | 450 mm | 90 mm | 270 mm |
+| (3, 0) Leste | 270 mm | 90 mm | 630 mm |
+
+| Operação | O que faz |
+|---|---|
+| `carregar(texto)` | Lê o labirinto; se o texto for inválido, mantém o anterior |
+| `temParede(celula, direcao)` | Se há parede naquele lado da célula (fora do labirinto conta como parede) |
+| `distancias(pose, saida)` | Distâncias à frente, à esquerda e à direita para a pose |
+| `LidarSimulado::usarLabirinto` e `posicionar(pose)` | Modo labirinto: a leitura passa a vir do labirinto, depois da falha e da fila e antes da leitura fixa (a implementar) |
+
+Os testes ficam em `test/test_labirinto_simulado/`, com um labirinto de exemplo de cada tamanho da competição (4×4, 8×4 e 12×4) em `LabirintosExemplo.h`. Os três foram conferidos: perímetro fechado e todas as células alcançáveis a partir da partida.
+
 ## Percepção: classificação de paredes
 
 O módulo de percepção (`lib/percepcao`) implementa a classe `ClassificadorParede`, responsável por classificar se cada lado ao redor do robô está desimpedido (`Livre`) ou obstruído (`Parede`) com base nas leituras de distância do LiDAR.
@@ -271,10 +320,11 @@ Ao investigar uma falha, compare o esperado com o obtido: ou o código tem um er
 | `PERIODO_TELEMETRIA_MS`, `tarefaTelemetria` | Épico 03 (envio e *buffer*) | [HU-08](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/45), [HU-16](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/46) (RF08, RF16, RNF05) |
 | `LIMITE_TEMPO_CORRIDA_MS` | Épico 02 (encerramento por tempo) | [HU-01](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/42) (RNF03) |
 | `lib/percepcao` (`ClassificadorParede`) | [#174](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/174) Classificação parede/livre | [HU-02](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/36) (RF02) |
+| `lib/simulacao` (`LabirintoSimulado`) | [#224](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/224) Simulador de labirinto (em desenvolvimento) | [HU-02](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/36) (RF02) |
 
 ## Próximos passos
 
-- **Simulador de labirinto** ([#224](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/224)): `LabirintoSimulado` em `lib/simulacao`, para o `LidarSimulado` gerar as leituras a partir da posição do robô.
-- **CI do firmware** ([#223](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/223)): testes nativos e build a cada PR que altera `src/firmware`.
+- **Simulador de labirinto** ([#224](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/224)), em andamento: falta implementar o `LabirintoSimulado`, o modo labirinto do `LidarSimulado` e os testes (veja [Labirinto simulado](#labirinto-simulado-labirintosimulado)).
+- **CI do firmware** ([#223](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/223)), concluído no PR [#295](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/295): todo PR para a `main` roda os testes nativos com cobertura mínima de 80% e o build do ESP32-C3. Falta o administrador do repositório proteger a `main` exigindo os dois checks.
 - **Tarefas da Sprint 2:** driver do LiDAR, classificação `parede`/`livre`, estrutura do mapa e armazenamento em memória, cada uma na pasta da sua camada e com testes em `test/`.
 - **Validar com o hardware:** o conflito dos pinos da UART0 e o primeiro teste gravado na placa (o projeto base foi compilado, mas ainda não gravado).

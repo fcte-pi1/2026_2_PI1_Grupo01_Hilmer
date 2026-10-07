@@ -226,3 +226,68 @@ test/test_percepcao/test_classificador.cpp: test_classificador_vetor_vazio [PASS
 native:test_percepcao [PASSED] Took 0.80 seconds
 ----------------------------------
 =================================== 6 test cases: 6 succeeded in 00:00:00.800 ===================================
+```
+
+### Sprint 2 · Simulador de labirinto (início)
+
+| Item | Valor |
+|---|---|
+| Tarefa | [#224 Simulador de labirinto (LabirintoSimulado)](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/224) |
+| História de usuário | HU-02 · Reconhecimento de ambiente ([#36](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/36)), RF02 |
+| Código testado | `src/firmware` (branch `feat/labirinto-simulado`) |
+| Data da execução | 07/10/2026 |
+| Executado por | Ana Carolina Fialho |
+| Documentação do código | [Labirinto simulado](../04-projeto-conceitual/firmware.md#labirinto-simulado-labirintosimulado) |
+
+Esta etapa definiu a interface do `LabirintoSimulado`, os labirintos de exemplo e o esqueleto dos testes. A execução confere que o início da tarefa não quebra o que já existe; os testes do simulador entram com a implementação.
+
+**Ambiente de execução:** o mesmo da Sprint 2 (macOS, PlatformIO Core 6.2.0, `native` 1.2.1, Unity 2.6.1, Espressif 32 7.1.3), com `gcovr` 8.6 para a cobertura.
+
+#### Testes com cobertura (o mesmo comando do CI)
+
+```bash
+pio test -e native_cobertura
+gcovr --root . --filter 'lib/' --object-directory .pio/build/native_cobertura --fail-under-line 80
+```
+
+| Verificação | Resultado |
+|---|---|
+| Testes existentes (núcleo, simulação, percepção, mapa e LiDAR) | **72 aprovados, 0 falhas** |
+| Testes novos do simulador (`test_labirinto_simulado`) | 15 ignorados (`TEST_IGNORE_MESSAGE`, a implementar) |
+| Cobertura das linhas de `lib/` | **98%** (418 de 423), acima da meta de 80% |
+
+```text
+=========== 87 test cases: 15 skipped, 72 succeeded in 00:00:07.157 ===========
+TOTAL                                        423      418    98%
+```
+
+Teste ignorado não reprova o CI: cada um descreve um critério de pronto da tarefa e funciona como checklist da implementação.
+
+#### Compilação para a placa
+
+```bash
+pio run -e esp32c3
+```
+
+| Verificação | Resultado |
+|---|---|
+| Compilação | **Sucesso** |
+| Uso de RAM | 4,2% (13 748 de 327 680 bytes) |
+| Uso de Flash | 18,9% (247 704 de 1 310 720 bytes) |
+
+O uso de memória não mudou, porque a interface ainda não é usada pelo firmware da placa.
+
+#### Validação dos labirintos de exemplo
+
+Os três labirintos de `test/test_labirinto_simulado/LabirintosExemplo.h` foram conferidos por um script antes de entrarem no código:
+
+| Labirinto | Formato | Perímetro | Células alcançáveis a partir de (0, 0) |
+|---|:-:|:-:|:-:|
+| 4×4 | Válido | Fechado | 16 de 16 |
+| 8×4 | Válido | Fechado | 32 de 32 (a primeira versão tinha 16 de 32 e foi redesenhada) |
+| 12×4 | Válido | Fechado | 48 de 48 |
+
+#### Pendências desta etapa
+
+- Implementar o `LabirintoSimulado` e o modo labirinto do `LidarSimulado`, e tirar o `TEST_IGNORE_MESSAGE` dos 15 testes (com Cláudio Henrique).
+- Registrar aqui a execução final, com os testes do simulador aprovados.
