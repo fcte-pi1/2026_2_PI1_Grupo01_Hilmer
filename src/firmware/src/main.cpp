@@ -7,7 +7,13 @@
 
 #include <Arduino.h>
 
+#include "ArmazenamentoMapa.h"
 #include "Configuracao.h"
+
+/// Dono do mapa da corrida. Fica fora das tarefas para sobreviver ao reinício delas (HU-04).
+/// A navegação recebe `armazenamentoMapa.mapa()` para registrar paredes; a telemetria, a versão
+/// `const`, só para leitura. `iniciarCorrida()` é chamado quando o tamanho do labirinto for escolhido.
+static micromouse::ArmazenamentoMapa armazenamentoMapa;
 
 /// Tarefa de navegação: ciclo percepção → decisão → atuação, a cada 10 ms.
 ///
