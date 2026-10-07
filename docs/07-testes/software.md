@@ -164,3 +164,65 @@ Program received signal SIGHUP (Hangup: 1)
 
 - **Cobertura de código:** ainda não medida. O relatório de cobertura (meta de 80%) entra com o CI do firmware ([#223](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/223)).
 - **Teste na placa:** o firmware foi compilado, mas ainda não gravado no ESP32-C3. O teste de bancada com o LiDAR real está previsto para 13 e 14/10 ([#175](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/175)), depois de validado o uso dos pinos GPIO20/21, que coincidem com a UART0 do `Serial`.
+
+### Sprint 2 · Classificação parede/livre
+
+| Item | Valor |
+| ------ | ------ |
+| Tarefa | [#174 Classificação parede/livre](https://github.com/fcte-pi1/2026\_2\_PI1\_Grupo01\_Hilmer/issues/174) |
+| História de usuário | HU-02 · Reconhecimento de ambiente ([#36](https://github.com/fcte-pi1/2026\_2\_PI1\_Grupo01\_Hilmer/issues/36)), RF02 |
+| Código testado | `src/firmware` (branch `feat/174-classificador-parede-livre`) |
+| Data da execução | 05/10/2026 |
+| Executado por | Rafael Lima |
+| Documentação do código | [Firmware: implementação](../04-projeto-conceitual/firmware.md) |
+
+**Ambiente de execução**
+
+| Componente | Versão |
+| ------ | ------ |
+| Sistema operacional | Computador Host (Linux / macOS / Windows) |
+| PlatformIO Core | 6.2.0 |
+| Plataforma de testes no computador | native 1.2.1 |
+| Framework de testes | Unity 2.6.1 |
+
+#### Testes unitários (ambiente native)
+
+Comando executado em src/firmware:
+
+```bash
+pio test -e native
+```
+
+| Suíte | Casos | Resultado | Duração |
+| :--- | :--- | :--- | :--- |
+| `test_percepcao` | 6 | **6 aprovados** | 0,80 s |
+
+---
+
+#### Casos de teste
+
+| Caso de teste | O que verifica | HU / tarefa | Resultado |
+| :--- | :--- | :--- | :--- |
+| `test_classificador_parede_proxima` | Obstáculo próximo (médias < 180 mm) classificado como Parede | HU-02 (#174) | Aprovado |
+| `test_classificador_passagem_livre` | Passagem desimpedida (médias > 180 mm) classificada como Livre | HU-02 (#174) | Aprovado |
+| `test_classificador_valor_no_limiar` | Limite exato de 180 mm (<= 180 mm Parede, > 180 mm Livre) | HU-02 (#174) | Aprovado |
+| `test_classificador_limiar_configuravel` | Alteração e consulta do limiar dinâmico em tempo de execução | HU-02 (#174) | Aprovado |
+| `test_classificador_leituras_com_ruido` | Atenuação de picos isolados de ruído via média de amostras | HU-02 (#174) | Aprovado |
+| `test_classificador_vetor_vazio` | Vetor de amostras vazio assume Desconhecido por segurança (*fail-safe*) | HU-02 (#174) | Aprovado |
+
+---
+
+#### Saída do PlatformIO
+
+```text
+Processing test_percepcao in native environment
+test/test_percepcao/test_classificador.cpp: test_classificador_parede_proxima [PASSED]
+test/test_percepcao/test_classificador.cpp: test_classificador_passagem_livre [PASSED]
+test/test_percepcao/test_classificador.cpp: test_classificador_valor_no_limiar [PASSED]
+test/test_percepcao/test_classificador.cpp: test_classificador_limiar_configuravel [PASSED]
+test/test_percepcao/test_classificador.cpp: test_classificador_leituras_com_ruido [PASSED]
+test/test_percepcao/test_classificador.cpp: test_classificador_vetor_vazio [PASSED]
+----------------------------------
+native:test_percepcao [PASSED] Took 0.80 seconds
+----------------------------------
+=================================== 6 test cases: 6 succeeded in 00:00:00.800 ===================================
