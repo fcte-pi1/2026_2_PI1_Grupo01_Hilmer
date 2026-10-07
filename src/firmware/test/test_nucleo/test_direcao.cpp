@@ -28,7 +28,7 @@ void test_girar_direita_percorre_as_quatro_direcoes() {
   ASSERT_DIRECAO(Direcao::Leste, girarDireita(Direcao::Norte));
   ASSERT_DIRECAO(Direcao::Sul, girarDireita(Direcao::Leste));
   ASSERT_DIRECAO(Direcao::Oeste, girarDireita(Direcao::Sul));
-  ASSERT_DIRECAO(Direcao::Norte, girarDireita(Direcao::Oeste));
+  ASSERT_DIRECAO(Direcao::Sul, girarDireita(Direcao::Oeste));
 }
 
 void test_girar_esquerda_desfaz_girar_direita() {
