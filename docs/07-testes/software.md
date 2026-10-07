@@ -60,7 +60,7 @@ pio test -e native
 
 | Suíte | Casos | Resultado | Duração |
 | :--- | :--- | :--- | :--- |
-| `test_percepcao` | 5 | **5 aprovados** | 0,80 s |
+| `test_percepcao` | 6 | **6 aprovados** | 0,80 s |
 
 ---
 
@@ -71,8 +71,9 @@ pio test -e native
 | `test_classificador_parede_proxima` | Obstáculo próximo (médias < 180 mm) classificado como Parede | HU-02 (#174) | Aprovado |
 | `test_classificador_passagem_livre` | Passagem desimpedida (médias > 180 mm) classificada como Livre | HU-02 (#174) | Aprovado |
 | `test_classificador_valor_no_limiar` | Limite exato de 180 mm (<= 180 mm Parede, > 180 mm Livre) | HU-02 (#174) | Aprovado |
+| `test_classificador_limiar_configuravel` | Alteração e consulta do limiar dinâmico em tempo de execução | HU-02 (#174) | Aprovado |
 | `test_classificador_leituras_com_ruido` | Atenuação de picos isolados de ruído via média de amostras | HU-02 (#174) | Aprovado |
-| `test_classificador_vetor_vazio` | Vetor de amostras vazio assume Parede por segurança (*fail-safe*) | HU-02 (#174) | Aprovado |
+| `test_classificador_vetor_vazio` | Vetor de amostras vazio assume Desconhecido por segurança (*fail-safe*) | HU-02 (#174) | Aprovado |
 
 ---
 
@@ -83,9 +84,10 @@ Processing test_percepcao in native environment
 test/test_percepcao/test_classificador.cpp: test_classificador_parede_proxima [PASSED]
 test/test_percepcao/test_classificador.cpp: test_classificador_passagem_livre [PASSED]
 test/test_percepcao/test_classificador.cpp: test_classificador_valor_no_limiar [PASSED]
+test/test_percepcao/test_classificador.cpp: test_classificador_limiar_configuravel [PASSED]
 test/test_percepcao/test_classificador.cpp: test_classificador_leituras_com_ruido [PASSED]
 test/test_percepcao/test_classificador.cpp: test_classificador_vetor_vazio [PASSED]
 ----------------------------------
 native:test_percepcao [PASSED] Took 0.80 seconds
 ----------------------------------
-=================================== 5 test cases: 5 succeeded in 00:00:00.800 ===================================
+=================================== 6 test cases: 6 succeeded in 00:00:00.800 ===================================
