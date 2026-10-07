@@ -718,6 +718,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#metodologia-de-custo-de-mao-de-obra" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metodologia de custo de mão de obra
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1030,6 +1041,17 @@
     <span class="md-ellipsis">
       
         Lista de componentes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metodologia-de-custo-de-mao-de-obra" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metodologia de custo de mão de obra
       
     </span>
   </a>
@@ -1515,8 +1537,8 @@
 <td>Montagem dos componentes, soldagem, cabeamento e organização</td>
 <td>Serviço de montagem eletrônica</td>
 <td style="text-align: right;">—</td>
-<td>⚠️ A definir</td>
-<td>Considerar montagem, soldagem, testes e acabamento</td>
+<td>⏳ Falta estimar horas</td>
+<td>Valor da hora definido (R$ 59,03, ver metodologia abaixo); falta a equipe estimar quantas horas a tarefa leva para fechar o custo total</td>
 </tr>
 <tr>
 <td style="text-align: right;">---</td>
@@ -1531,6 +1553,60 @@
 </tr>
 </tbody>
 </table>
+<h2 id="metodologia-de-custo-de-mao-de-obra">Metodologia de custo de mão de obra<a class="headerlink" href="#metodologia-de-custo-de-mao-de-obra" title="Permanent link">&para;</a></h2>
+<p>O custo da mão de obra considera o valor da hora de um estudante da UnB, em vez de um
+salário de mercado. O valor é obtido a partir do orçamento público investido por
+estudante, proporcional aos créditos da disciplina e às horas de dedicação previstas no
+TAP.</p>
+<table>
+<thead>
+<tr>
+<th>Variável</th>
+<th style="text-align: right;">Valor</th>
+<th>Fonte</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dotação atualizada da UnB em 2026</td>
+<td style="text-align: right;">R$ 2.700.943.579,00</td>
+<td>Painel Gestão UnB</td>
+</tr>
+<tr>
+<td>Total oficial de estudantes regulares</td>
+<td style="text-align: right;">50.843</td>
+<td>Anuário Estatístico 2025 da UnB (tabela 2.18), DPO/UnB</td>
+</tr>
+<tr>
+<td>Créditos anuais de referência</td>
+<td style="text-align: right;">40 créditos</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Créditos da disciplina</td>
+<td style="text-align: right;">4 créditos</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Horas de dedicação por aluno no projeto</td>
+<td style="text-align: right;">90 h</td>
+<td><a href="../01-tap/">TAP do projeto</a>, seção 4.3</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Orçamento por estudante/ano   = R$ 2.700.943.579,00 ÷ 50.843            = R$ 53.123,21
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Orçamento da disciplina/aluno = R$ 53.123,21 ÷ 40 créditos × 4 créditos = R$ 5.312,32
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Valor da hora do estudante    = R$ 5.312,32 ÷ 90 h                      = R$ 59,03/hora
+</code></pre></div>
+<p><strong>Valor da hora do estudante da UnB: R$ 59,03.</strong></p>
+<blockquote>
+<p><strong>Nota sobre as fontes:</strong> os valores de dotação orçamentária e de total de estudantes
+não foram reconferidos por nós diretamente nas fontes primárias. Antes de uma entrega
+final, vale a pena confirmar esses dois números direto no Painel Gestão UnB e no
+Anuário Estatístico vigente.</p>
+</blockquote>
+<p>Para fechar o custo de qualquer item de mão de obra do orçamento (como o item 42, acima),
+basta multiplicar as horas estimadas da tarefa por R$ 59,03.</p>
 <h1 id="resumo">Resumo<a class="headerlink" href="#resumo" title="Permanent link">&para;</a></h1>
 <table>
 <thead>
