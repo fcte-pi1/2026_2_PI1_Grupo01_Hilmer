@@ -873,3 +873,16 @@ Esta matriz relaciona os Requisitos Funcionais e Não-Funcionais definidos no pr
 1. **Passagem nos Testes:** Todos os testes unitários e de integração existentes devem rodar sem falhas.
 2. **Cobertura Mínima:** Atingir pelo menos **70% de cobertura** no código de regras de negócio.
 3. **Revisão:** Aprovação do Pull Request por pelo menos um colega do grupo antes do merge na branch principal.
+
+## Histórico de versões
+
+| Versão | Data | Descrição | Autor(es) | Revisor(es) |
+|:-:|:-:|---|---|---|
+| 0.1 | 02/09/2026 | Criação do documento a partir do modelo | Cláudio Henrique | — |
+| 0.2 | 27/09/2026 | Adiciona o backlog funcional e não funcional | Rafael Lima | Bruno Duarte |
+| 0.3 | 28/09/2026 | Atualiza o modelo e adiciona o diagrama de atividades UML | Cláudio Henrique | — |
+| 0.4 | 28/09/2026 | Reorganiza o backlog do produto no novo padrão (RF → HU, 1:1) | Ana Carolina Fialho | Bruno Duarte |
+| 0.5 | 28/09/2026 | Padroniza os identificadores RF/RNF e corrige a rastreabilidade da HU-01 | Rafael Lima | Bruno Duarte |
+| 0.6 | 28/09/2026 | Adiciona a arquitetura de software e o DER | Cláudio Henrique | — |
+| 0.7 | 28/09/2026 | Adiciona o roteiro de testes de software | Eduardo Viana | Bruno Duarte |
+| 0.8 | 07/10/2026 | Adiciona o histórico de versões | Ana Carolina Fialho | — |
