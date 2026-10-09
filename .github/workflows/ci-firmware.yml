@@ -1,0 +1,70 @@
+name: CI Firmware
+
+# Sem filtro de caminhos: o check precisa reportar em todo PR para a main, senão a proteção de branch trava PRs que não mexem no firmware.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-firmware-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: src/firmware
+
+jobs:
+  testes:
+    name: Testes nativos
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-nativo-${{ runner.os }}-${{ hashFiles('src/firmware/platformio.ini') }}
+          restore-keys: pio-nativo-${{ runner.os }}-
+      - run: pip install platformio==6.2.0 gcovr==8.6
+      - name: Rodar os testes com cobertura
+        run: pio test -e native_cobertura
+      - name: Relatório de cobertura
+        if: always()
+        run: |
+          mkdir -p cobertura
+          gcovr --root . --filter 'lib/' --object-directory .pio/build/native_cobertura --txt --html-details cobertura/index.html
+          { echo '### Cobertura dos testes nativos'; echo '```'; gcovr --root . --filter 'lib/' --object-directory .pio/build/native_cobertura --txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - name: Exigir cobertura mínima de 80%
+        run: gcovr --root . --filter 'lib/' --object-directory .pio/build/native_cobertura --fail-under-line 80
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cobertura-firmware
+          path: src/firmware/cobertura
+          retention-days: 14
+
+  build:
+    name: Build ESP32-C3
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-esp32c3-${{ runner.os }}-${{ hashFiles('src/firmware/platformio.ini') }}
+          restore-keys: pio-esp32c3-${{ runner.os }}-
+      - run: pip install platformio==6.2.0
+      - run: pio run -e esp32c3

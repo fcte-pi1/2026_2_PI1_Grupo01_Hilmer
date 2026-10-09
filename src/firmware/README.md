@@ -8,7 +8,7 @@ A documentação detalhada do código (camadas, tipos, pinagem, interface do LiD
 
 ```
 src/firmware/
-├── platformio.ini     # ambientes esp32c3 (placa) e native (testes no computador)
+├── platformio.ini     # ambientes esp32c3 (placa), native (testes no computador) e native_cobertura (testes com cobertura, usado no CI)
 ├── src/main.cpp       # ponto de entrada: cria as tarefas FreeRTOS (navegação e telemetria)
 ├── lib/               # uma biblioteca por camada
 └── test/              # testes unitários e de integração (Unity)
@@ -121,3 +121,36 @@ Nomeie as funções de teste pelo comportamento esperado (`test_classifica_como_
 - Um arquivo `.h` por tipo ou conceito, com `#pragma once`.
 - Cada tarefa do épico adiciona seus arquivos na pasta da própria camada e seus testes em `test/test_<modulo>/`.
 - A pinagem está em `lib/nucleo/src/Pinos.h` e segue os [diagramas de hardware](../../docs/04-projeto-conceitual/hardware-diagramas.md).
+
+## CI
+
+Todo PR para a `main` (e todo push nela) roda o workflow **CI Firmware** (`.github/workflows/ci-firmware.yml`). A `main` é protegida: o PR só pode ser integrado com os dois checks verdes.
+
+| Check | O que faz | Reprova quando |
+|---|---|---|
+| **Testes nativos** | Roda `pio test -e native_cobertura` (os testes do `native` com medição de cobertura) e gera o relatório com o `gcovr` | Algum teste falha ou a cobertura das linhas de `lib/` fica abaixo de 80% |
+| **Build ESP32-C3** | Roda `pio run -e esp32c3` | O firmware não compila para a placa |
+
+A cobertura mede só o código compilado nos testes nativos (`lib/`, sem `drivers_esp32`); `src/main.cpp` fica de fora. Código novo em `lib/` sem teste derruba a cobertura e reprova o PR.
+
+### Como ler o resultado
+
+1. No PR, abra a aba **Checks** e escolha **CI Firmware**.
+2. Clique no job com ✗ e expanda o passo que falhou:
+   - **Rodar os testes com cobertura:** procure a linha `FAIL`. Ela mostra o arquivo, a linha e a mensagem do Unity, por exemplo `Expected 2 Was 1`.
+   - **Exigir cobertura mínima de 80%:** a cobertura ficou abaixo da meta. Veja na tabela do resumo quais arquivos têm linhas sem teste.
+   - **`pio run -e esp32c3`:** erro de compilação. A mensagem do compilador indica o arquivo e a linha.
+3. A tabela de cobertura aparece no **Summary** do workflow. O relatório HTML linha a linha fica no artefato **cobertura-firmware** (no fim da página do Summary, disponível por 14 dias): baixe, descompacte e abra o `index.html`.
+
+### Rodar localmente antes de abrir o PR
+
+Dentro de `src/firmware`:
+
+| Objetivo | Comando |
+|---|---|
+| Mesmos testes do CI, com cobertura | `pio test -e native_cobertura` |
+| Ver a cobertura (precisa de `pip install gcovr`) | `gcovr --root . --filter 'lib/' --object-directory .pio/build/native_cobertura --txt` |
+| Conferir a meta de 80% | `gcovr --root . --filter 'lib/' --object-directory .pio/build/native_cobertura --fail-under-line 80` |
+| Mesmo build do CI | `pio run -e esp32c3` |
+
+O resultado esperado hoje é **10 testes aprovados** e cobertura de 100%. A pasta `cobertura/` é ignorada pelo Git.
