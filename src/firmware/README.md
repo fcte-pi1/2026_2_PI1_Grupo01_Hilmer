@@ -55,6 +55,18 @@ mapa.obterParede({1, 0}, Direcao::Sul);  // Parede: a célula vizinha foi atuali
 | Entrada inválida | `Invalida`: célula fora do mapa ou estado `Desconhecido` |
 | Comparação | `==` compara o tamanho e todas as paredes |
 
+### Armazenamento do mapa
+
+O `ArmazenamentoMapa` (`lib/mapeamento`) é o dono do único `Mapa` da corrida. Ele fica em `src/main.cpp`, como variável estática fora das tarefas, para que reiniciar o estado de navegação (por exemplo, após uma colisão) ou perder a conexão não apague o mapa (HU-04).
+
+```cpp
+armazenamentoMapa.iniciarCorrida(DimensaoMapa::Labirinto12x4);  // único jeito de zerar o mapa
+Mapa& paraNavegacao = armazenamentoMapa.mapa();                  // lê e registra paredes
+const Mapa& paraTelemetria = armazenamentoMapa.mapa();           // só lê (pelo acesso const)
+```
+
+O armazenamento não pode ser copiado, e o acesso `const` impede que a telemetria altere o mapa; as duas regras são conferidas em tempo de compilação. Medido no ESP32-C3, o objeto ocupa **196 bytes** de RAM estática (`.bss`): 195 do mapa e 1 do indicador de corrida.
+
 ## Instalação
 
 Instale o PlatformIO por uma das opções:
