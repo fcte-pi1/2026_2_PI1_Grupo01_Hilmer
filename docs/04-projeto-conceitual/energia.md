@@ -59,7 +59,7 @@ A energia total demandada na fonte para uma corrida unitária de 10 minutos é:
 $$E_{\text{necessária}} = \frac{E_{\text{Wh}}}{\eta \cdot (1 - \text{Margem})} = \frac{0,493}{0,85 \cdot (1 - 0,40)} \approx \mathbf{0,967\text{ Wh}}$$
 
 ### 4.2 Capacidade Mínima Teórica Requerida
-Adotando topologia recarregável **LiPo 2S** com tensão nominal de $V_{\text{nominal}} = 7{,}4\text{ V}$ (8,4 V em plena carga e corte de subtensão em 6,0 V):
+Adotando topologia recarregável **LiPo 2S** com tensão nominal de $V_{\text{nominal}} = 7{,}4\text{ V}$ (8,4 V em plena carga e corte de subtensão operacional em 6,6 V / 3,3 V por célula):
 
 $$\text{Capacidade Teórica (Ah)} = \frac{E_{\text{necessária}}}{V_{\text{nominal}}} = \frac{0,967\text{ Wh}}{7,4\text{ V}} \approx 0,1306\text{ Ah} \implies \mathbf{130\text{ mAh}}$$
 
@@ -86,19 +86,22 @@ $$C_{\text{mínima\_30min}} = \frac{216\text{ mAh}}{0,80} = \mathbf{270\text{ mA
 ### 4.4 Homologação do Pack Comercial Selecionado
 Com base no dimensionamento de 130 mAh (missão unitária) e na demanda estendida de 270 mAh (3 labirintos), homologa-se formalmente o seguinte pack comercial:
 
-* **Fabricante / Modelo:** **Tattu (Gens Ace) LiPo 2S 450 mAh 75C / 95C**
-* **Topologia:** Polímero de Lítio (LiPo) 2S1P
-* **Tensão:** 7,4 V nominal | 8,4 V carga plena
-* **Capacidade Nominal:** **450 mAh**
-* **Taxa de Descarga (C-Rating):** **75C contínuo** (pico de 95C)
-* **Dimensões Físicas:** **63 mm (Comprimento) × 21 mm (Largura) × 16 mm (Altura)**
-* **Massa:** **~29 g** (proporciona redução de **72% no peso** em comparação aos 105 g da bateria 18650 anterior)
-* **Conectores:** Conector de potência **XT30** (com chicote de silicone flexível 16AWG/18AWG de 100 mm) e conector de balanceamento padrão **JST-XH de 3 vias**
+* **Fabricante / Modelo:** **Tattu 650mAh 2S1P 75C 7.4V Lipo Battery Pack with XT30 Plug**
+* **Topologia:** Polímero de Lítio (LiPo) 2S1P / 2 Células
+* **Tensão:** 7,4 V nominal | 8,4 V em plena carga
+* **Capacidade Mínima:** **650 mAh**
+* **Taxa de Descarga Contínua (C-Rating):** **75C**
+* **Taxa de Descarga de Pico (*Burst*):** **150C**
+* **Dimensões Físicas:** **57 mm (Comprimento) × 31 mm (Largura) × 12 mm (Altura)**
+* **Massa Líquida:** **43 g (±20 g)**
+* **Plugue de Descarga:** **XT-30**
+* **Plugue de Carga / Balanceamento:** **JST-XHR-3P**
 
 #### Justificativa Técnica da Homologação:
-1. **Margem de Autonomia Real:** Com 450 mAh a 80% de DoD, a bateria oferece **360 mAh úteis**, garantindo **~50 minutos de operação contínua** ($\frac{360\text{ mAh}}{432\text{ mA}} \times 60 \approx 50\text{ min}$), superando os 30 minutos regulamentares com **+66% de margem de sobra**.
-2. **Robustez Contra Queda de Tensão (*Voltage Sag*):** Uma bateria de 450 mAh a 75C entrega até **33,75 A contínuos**. Como os motores N20 demandam picos de no máximo 2 A a 3 A em partidas bruscas, a bateria opera em menos de 10% do seu limite, eliminando qualquer flutuação de tensão que possa provocar *brownout reset* no microcontrolador ESP32-C3.
-3. **Alívio Mecânico:** Ao reduzir a massa para apenas 29 g, protege-se a integridade mecânica dos pinhões de latão da microcaixa de redução dos motores GA12-N20 e viabiliza-se acelerações mais vigorosas nas retas do labirinto.
+1. **Margem de Autonomia Real:** Com 650 mAh e respeitando a profundidade máxima de descarga recomendada de 80% (DoD), a bateria disponibiliza **520 mAh úteis**. Sob a corrente média de consumo de 432 mA, a autonomia contínua calculada é de **~72 minutos** ($\frac{520\text{ mAh}}{432\text{ mA}} \times 60 \approx 72\text{ min}$), cobrindo com folga de **+140% de margem** o teto regulamentar de 30 minutos dos 3 labirintos consecutivos (RNF-04).
+2. **Robustez Contra Queda de Tensão (*Voltage Sag*):** A taxa contínua de 75C permite entrega ininterrupta de até **48,75 A** ($0,65\text{ A} \times 75$), com picos de até **97,5 A** a 150C. Como os micromotores GA12-N20 demandam picos transitórios de no máximo 2 A a 3 A durante manobras e partidas bruscas, a bateria opera a menos de 6% do seu limite de corrente, garantindo barramento elétrico perfeitamente estável e eliminando qualquer risco de *brownout reset* no microcontrolador ESP32-C3.
+3. **Alívio Mecânico e Dinâmica de Pista:** A massa contida de 43 g reduz a inércia rotacional do conjunto móvel, alivia as cargas radiais sobre os mancais e pinhões metálicos da redução dos motores N20 e minimiza o escorregamento dos pneus nas curvas de 90° e 180°, aumentando a precisão da odometria.
+4. **Padronização de Conectores e Carga:** O conector de alta corrente XT-30 previne desconexões mecânicas por vibração, enquanto o plugue JST-XHR-3P viabiliza o carregamento com balanceamento individual de células no carregador inteligente de bancada (B6 V3 Smart Charger em modo *LiPo Balance* a 0,6 A / 0,7 A).
 
 ---
 
@@ -108,7 +111,8 @@ A distribuição de energia segrega a malha de acionamento eletromecânico dos c
 
 * **Entrada de Energia, Gerenciamento e Chaveamento:**
   * O polo positivo da bateria LiPo 2S conecta-se ao circuito através de conector de alta corrente **XT30**.
-  * Em série com a linha positiva, uma **Chave de Potência** mecânica comanda a ligação geral do circuito antes da derivação dos barramentos.
+  * Em série com a linha positiva (+VBAT), posiciona-se um **Fusível de Proteção de Ação Rápida (3 A a 5 A)** (formato mini automotivo ou SMD), indispensável para salvaguardar o circuito contra curtos-circuitos acidentais decorrentes da elevada capacidade de descarga da célula LiPo (75C contínuo / 150C pico).
+  * Em série após o fusível, uma **Chave de Potência** mecânica (SW1) comanda a ligação geral do circuito antes da derivação dos barramentos de potência e regulação.
 * **Barramento Direto dos Motores (+VBAT_2S / Pinos VM):**
   * O terminal `VM` do driver DRV8833 recebe diretamente a tensão não regulada da bateria (+VBAT_2S, entre 7,4 V e 8,4 V).
   * *Validação da Tensão de 8,4 V em Motores Nominais de 6,0 V:* O DRV8833 suporta até 10,8 V em VM, operando com ampla folga de segurança. Para proteger as bobinas dos micromotores N20 sem a inclusão de um regulador de potência de 6 V, adota-se **limitação por software via modulação PWM**: o *duty cycle* máximo enviado pelo ESP32-C3 é travado em **71%** ($6,0\text{ V} / 8,4\text{ V}$), garantindo que a tensão eficaz nos motores não ultrapasse os 6,0 V nominais sob bateria plena.
@@ -127,14 +131,15 @@ A distribuição de energia segrega a malha de acionamento eletromecânico dos c
 Para registrar a curva de descarga da célula e diagnosticar a integridade da bateria em tempo de execução sem danificar os pinos analógicos do ESP32-C3:
 
 * **Atenuação da Tensão de Bateria (Divisor Resistivo R1/R2):**
-  * O barramento +VBAT_2S (variando entre 6,0 V descarregada e 8,4 V em carga plena) passa por um divisor resistivo formado por resistores de precisão com $R_1 = 100\text{ k}\Omega$ e $R_2 = 33\text{ k}\Omega$.
-  * A tensão atenuada entregue ao pino ADC do ESP32-C3 é dada por:
+  * O barramento +VBAT_2S (variando entre 6,0 V descarregada e 8,4 V em carga plena) passa por um divisor resistivo em série formado por resistores de precisão com $R_1 = 100\text{ k}\Omega$ (ligado a +VBAT) e $R_2 = 33\text{ k}\Omega$ (ligado ao GND). O ponto central de medição é conectado diretamente ao canal analógico dedicado **GPIO 2 (ADC1_CH2)** do ESP32-C3.
+  * A tensão atenuada entregue ao pino ADC é dada por:
 
 $$V_{\text{ADC}} = V_{\text{BAT}} \cdot \left(\frac{R_2}{R_1 + R_2}\right) = V_{\text{BAT}} \cdot \left(\frac{33}{100 + 33}\right) \approx V_{\text{BAT}} \cdot 0,248$$
 
-Sob tensão máxima de 8,4 V, o nível atenuado resultante é de aproximadamente 2,08 V, operando na faixa linear do conversor analógico-digital da placa.
+  * Sob tensão máxima de 8,4 V, o nível atenuado resultante é de aproximadamente **2,08 V** (ou **2,36 V** caso se adote $R_2 = 39\text{ k}\Omega$). Ambos os patamares operam com ampla margem abaixo do limite absoluto do pino (3,3 V) e dentro da faixa de máxima linearidade e precisão do ADC do ESP32-C3 sob atenuação de 11 dB (0 V a 2,50 V).
 
 * **Rotinas de Aquisição e Proteção:**
   * O firmware realiza leituras periódicas do canal ADC com filtro digital de média móvel para rejeitar flutuações induzidas pelo chaveamento PWM do driver.
-  * O software implementa proteção de subtensão lógica (*Under-Voltage Lockout*): se a leitura atestar tensão global inferior a 6,4 V (equivalente a 3,2 V por célula) em amostragens sucessivas, os sinais de controle PWM para o DRV8833 são zerados, cortando a tração e preservando a bateria contra descarga profunda.
+  * O software implementa proteção de subtensão lógica (*Under-Voltage Lockout* - UVLO): se a leitura atestar tensão global inferior a **6,6 V** (equivalente a **3,3 V por célula**) em amostragens sucessivas, os sinais de controle PWM para o DRV8833 são zerados, cortando a tração dos motores e preservando as células LiPo contra descarga profunda.
+  * *Compatibilidade com o Regulador Buck de 5 V:* O limiar de corte em 6,6 V garante também que o conversor Step-Down LM2596 (responsável pela linha do LiDAR) opere sempre acima de sua tensão mínima de *dropout* ($V_{\text{in}} \ge 5{,}0\text{ V} + 1{,}5\text{ V} = 6{,}5\text{ V}$), impedindo flutuações e reinicializações no sensor óptico sem sacrificar autonomia útil (a LiPo já entregou mais de 96% de sua carga em 3,3 V/célula).
   * A telemetria empacota o tempo contínuo de atividade e a leitura instantânea de tensão, registrando os dados de consumo em tempo real para contraste com o modelo de energia projetado (atendendo ao requisito **RF-08 / HU-08**).
