@@ -3024,7 +3024,7 @@ para consulta posterior no histórico (RF10), o que marca o nó final do fluxo.<
 <h3 id="4-roteiro-operacional-de-navegacao-do-prototipo">4. Roteiro Operacional de Navegação do Protótipo<a class="headerlink" href="#4-roteiro-operacional-de-navegacao-do-prototipo" title="Permanent link">&para;</a></h3>
 <ol>
 <li><strong>Estado Inicial (<code>01_Idle</code>):</strong> Clique no botão primário <strong><code>INICIAR CORRIDA</code></strong> na barra lateral para iniciar a transmissão de pacotes e avançar para <code>02_Running</code>.</li>
-<li><strong>Execução e Conclusão (<code>02_Running</code> $\rightarrow$ <code>03_Completed</code>):</strong> A navegação progride dinamicamente via <em>After delay</em> com <em>Smart Animate</em> até alcançar a célula de chegada oposta, disparando o badge verde de conclusão e o congelamento do cronômetro.</li>
+<li><strong>Execução e Conclusão (<code>02_Running</code> <span class="arithmatex">\(\rightarrow\)</span> <code>03_Completed</code>):</strong> A navegação progride dinamicamente via <em>After delay</em> com <em>Smart Animate</em> até alcançar a célula de chegada oposta, disparando o badge verde de conclusão e o congelamento do cronômetro.</li>
 <li><strong>Nova Tentativa:</strong> No frame <code>03_Completed</code>, o botão <strong><code>RESETAR / NOVA TENTATIVA</code></strong> reinicia o ciclo em <code>01_Idle</code> para nova passagem de bancada.</li>
 <li><strong>Auditoria de Histórico:</strong> No cabeçalho global, clique em <strong><code>Histórico de Consultas</code></strong> para alternar para a visão analítica (<code>04_History_View</code>), navegando entre os filtros de labirinto para inspecionar os dados persistidos.</li>
 <li><strong>Filtragem de Dados:</strong> Na tela de histórico, clique nos botões de controle segmentado (<code>Todos</code>, <code>Labirinto 1</code>, <code>Labirinto 2</code>, <code>Labirinto 3</code>) para alternar a exibição filtrada dos registros. Para voltar à bancada ao vivo, selecione a aba <strong><code>Telemetria ao Vivo</code></strong>.</li>
@@ -3570,6 +3570,10 @@ consulta e a filtragem do histórico de todas as corridas já realizadas.</p>
     
     
       <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
   </body>

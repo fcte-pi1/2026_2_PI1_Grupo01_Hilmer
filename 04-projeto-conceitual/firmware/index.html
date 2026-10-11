@@ -1509,8 +1509,8 @@
 <ul>
 <li><strong>Filtragem por Média:</strong> O classificador recebe um vetor de amostras (<code>DistanciasLaterais</code>) e calcula a média aritmética para cada direção (<code>frenteMm</code>, <code>esquerdaMm</code>, <code>direitaMm</code>), atenuando ruídos e picos isolados.</li>
 <li><strong>Limiar Configurável:</strong> O limiar é definido no construtor (valor padrão: <strong>180 mm</strong>).</li>
-<li>Média $\le$ 180 mm $\rightarrow$ <code>EstadoParede::Parede</code> (obstáculo na célula atual).</li>
-<li>Média $&gt;$ 180 mm $\rightarrow$ <code>EstadoParede::Livre</code> (passagem aberta para a próxima célula).</li>
+<li>Média <span class="arithmatex">\(\le\)</span> 180 mm <span class="arithmatex">\(\rightarrow\)</span> <code>EstadoParede::Parede</code> (obstáculo na célula atual).</li>
+<li>Média <span class="arithmatex">\(&gt;\)</span> 180 mm <span class="arithmatex">\(\rightarrow\)</span> <code>EstadoParede::Livre</code> (passagem aberta para a próxima célula).</li>
 <li><strong>Comportamento Fail-Safe:</strong> Se o vetor de amostras recebido estiver vazio, o classificador retorna <code>EstadoParede::Parede</code> em todas as direções para evitar colisões.</li>
 </ul>
 <h3 id="interface-da-classe">Interface da Classe<a class="headerlink" href="#interface-da-classe" title="Permanent link">&para;</a></h3>
@@ -1784,6 +1784,10 @@
     
     
       <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
   </body>
