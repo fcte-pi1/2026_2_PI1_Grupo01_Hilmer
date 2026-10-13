@@ -15,6 +15,10 @@
         <link rel="canonical" href="https://fcte-pi1.github.io/2026_2_PI1_Grupo01_Hilmer/04-projeto-conceitual/firmware/">
       
       
+        <link rel="prev" href="../software/">
+      
+      
+        <link rel="next" href="../../05-cronograma/">
       
       
         
@@ -25,7 +29,7 @@
     
     
       
-        <title>Firmware: implementação - PI1 · Grupo 01 (Hilmer) — 2026/2</title>
+        <title>4.4.1 Firmware: implementação - PI1 · Grupo 01 (Hilmer) — 2026/2</title>
       
     
     
@@ -112,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Firmware: implementação
+              4.4.1 Firmware: implementação
             
           </span>
         </div>
@@ -365,6 +369,8 @@
       
   
   
+    
+  
   
   
     
@@ -386,15 +392,17 @@
       
         
       
+        
+      
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
           <div class="md-nav__link md-nav__container">
@@ -422,7 +430,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -598,6 +606,269 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4.1 Firmware: implementação
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4.1 Firmware: implementação
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#visao-geral" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visão geral
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dois-ambientes-placa-e-computador" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dois ambientes: placa e computador
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estrutura-de-pastas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estrutura de pastas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#regras-de-dependencia" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de dependência
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nucleo-tipos-e-operacoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Núcleo: tipos e operações
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#constantes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constantes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pinagem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pinagem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#acesso-ao-lidar-ilidar-e-lidarsimulado" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acesso ao LiDAR: ILidar e LidarSimulado
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#percepcao-classificacao-de-paredes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Percepção: classificação de paredes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Percepção: classificação de paredes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regras-de-negocio-e-algoritmo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de Negócio e Algoritmo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-da-classe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface da Classe
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tarefas-do-freertos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tarefas do FreeRTOS
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#como-ler-uma-falha" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como ler uma falha
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rastreabilidade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rastreabilidade
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#proximos-passos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Próximos passos
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1204,6 +1475,7 @@
     hal --&gt; nucleo
     simulacao -. implementa .-&gt; hal
     drivers -. implementa .-&gt; hal</code></pre>
+<p><strong>Figura 1.</strong> Camadas do firmware e dependências entre elas: a lógica depende só das interfaces de <code>hal</code>, implementadas pelos drivers reais (<code>drivers_esp32</code>) e pelos falsos de teste (<code>simulacao</code>).</p>
 <p>A lógica conhece só as <strong>interfaces</strong> de <code>hal</code>. Na placa, <code>main.cpp</code> liga cada interface ao driver real de <code>drivers_esp32</code>; nos testes, ela é ligada aos falsos de <code>simulacao</code>. É isso que permite testar percepção e mapeamento no computador, antes de o hardware estar montado.</p>
 <h2 id="dois-ambientes-placa-e-computador">Dois ambientes: placa e computador<a class="headerlink" href="#dois-ambientes-placa-e-computador" title="Permanent link">&para;</a></h2>
 <p>O <code>platformio.ini</code> define dois ambientes de compilação para o mesmo código:</p>
@@ -1215,6 +1487,7 @@
     pc --&gt; c1["compilador do computador&lt;br/&gt;+ Unity (framework de testes)"]
     p1 --&gt; p2["firmware.bin&lt;br/&gt;gravado no ESP32-C3"]
     c1 --&gt; c2["programa de teste&lt;br/&gt;executado no computador"]</code></pre>
+<p><strong>Figura 2.</strong> Os dois ambientes de compilação definidos no <code>platformio.ini</code>: <code>esp32c3</code> gera o firmware gravado na placa e <code>native</code> compila e executa os testes no computador.</p>
 <p>A lógica do robô (direções, mapa, classificação de paredes) não usa nada do Arduino, por isso compila nos dois ambientes. Assim, ela pode ser testada no computador, sem a placa e sem o sensor. Quando a lógica precisa do LiDAR, os testes usam o <code>LidarSimulado</code>, um sensor simulado que devolve as leituras escolhidas pelo próprio teste.</p>
 <table>
 <thead>
@@ -1489,6 +1762,7 @@
     }
     ILidar &lt;|.. LidarSimulado
     ILidar &lt;|.. DriverLidarUart</code></pre>
+<p><strong>Figura 3.</strong> Interface <code>ILidar</code> e suas implementações: o <code>LidarSimulado</code>, usado nos testes, e o driver real por UART.</p>
 <p><strong>Contrato de <code>ILidar::lerDistanciasLaterais</code>:</strong> retorna <code>true</code> e preenche <code>saida</code> (em mm) quando há leitura válida das três direções; retorna <code>false</code> quando o sensor não responde ou a leitura é inválida. Nesse caso, o conteúdo de <code>saida</code> não deve ser usado.</p>
 <p><strong><code>LidarSimulado</code></strong> devolve o que o teste configurar. A cada leitura, segue esta ordem:</p>
 <ol>
@@ -1519,7 +1793,7 @@
 <li><strong>Saída:</strong> <code>micromouse::ResultadoClassificacao</code> (<code>frente</code>, <code>esquerda</code> e <code>direita</code>)</li>
 </ul>
 <h2 id="tarefas-do-freertos">Tarefas do FreeRTOS<a class="headerlink" href="#tarefas-do-freertos" title="Permanent link">&para;</a></h2>
-<p>Criadas em <code>src/main.cpp</code>. Navegação e telemetria rodam em paralelo, como no diagrama de atividades.</p>
+<p>Criadas em <code>src/main.cpp</code>. Navegação e telemetria rodam de forma concorrente, como no diagrama de atividades: o ESP32-C3 tem um único núcleo, e o FreeRTOS alterna entre as tarefas conforme a prioridade de cada uma.</p>
 <table>
 <thead>
 <tr>
@@ -1682,37 +1956,37 @@
 <tr>
 <td>Estrutura, camadas e padrão de testes</td>
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/172">#172</a> Projeto base do firmware</td>
-<td>HU-02 (RF02)</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/36">HU-02</a> (RF02)</td>
 </tr>
 <tr>
 <td><code>ILidar</code>, <code>DistanciasLaterais</code></td>
 <td>Base para <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/173">#173</a> Driver do LiDAR e <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/174">#174</a> Classificação</td>
-<td>HU-02 (RF02)</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/36">HU-02</a> (RF02)</td>
 </tr>
 <tr>
 <td><code>Direcao</code>, <code>direcaoAbsoluta</code>, <code>EstadoParede</code></td>
 <td>Base para <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/176">#176</a> Estrutura do mapa e <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/177">#177</a> Atualização do mapa</td>
-<td>HU-03 (RF03)</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/37">HU-03</a> (RF03)</td>
 </tr>
 <tr>
 <td><code>MAX_LINHAS_LABIRINTO</code>, <code>MAX_COLUNAS_LABIRINTO</code></td>
 <td>Base para <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/179">#179</a> Mapa em memória</td>
-<td>HU-04 (RF04)</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/38">HU-04</a> (RF04)</td>
 </tr>
 <tr>
 <td><code>PERIODO_TELEMETRIA_MS</code>, <code>tarefaTelemetria</code></td>
 <td>Épico 03 (envio e <em>buffer</em>)</td>
-<td>HU-08, HU-16 (RF08, RF16, RNF05)</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/45">HU-08</a>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/46">HU-16</a> (RF08, RF16, RNF05)</td>
 </tr>
 <tr>
 <td><code>LIMITE_TEMPO_CORRIDA_MS</code></td>
 <td>Épico 02 (encerramento por tempo)</td>
-<td>HU-01 (RNF03)</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/42">HU-01</a> (RNF03)</td>
 </tr>
 <tr>
 <td><code>lib/percepcao</code> (<code>ClassificadorParede</code>)</td>
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/174">#174</a> Classificação parede/livre</td>
-<td>HU-02 (RF02)</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/36">HU-02</a> (RF02)</td>
 </tr>
 </tbody>
 </table>
@@ -1753,6 +2027,44 @@
       
         <footer class="md-footer">
   
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../software/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: 4.4 Software">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                4.4 Software
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../05-cronograma/" class="md-footer__link md-footer__link--next" aria-label="Próximo: 5. Cronograma">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                5. Cronograma
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
     
   
   <div class="md-footer-meta md-typeset">
