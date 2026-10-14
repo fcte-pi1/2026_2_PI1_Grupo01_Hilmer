@@ -1785,11 +1785,11 @@
 <li><strong>Limiar Configurável:</strong> O limiar é definido no construtor (valor padrão: <strong>180 mm</strong>).</li>
 <li>Média <span class="arithmatex">\(\le\)</span> 180 mm <span class="arithmatex">\(\rightarrow\)</span> <code>EstadoParede::Parede</code> (obstáculo na célula atual).</li>
 <li>Média <span class="arithmatex">\(&gt;\)</span> 180 mm <span class="arithmatex">\(\rightarrow\)</span> <code>EstadoParede::Livre</code> (passagem aberta para a próxima célula).</li>
-<li><strong>Comportamento Fail-Safe:</strong> Se o vetor de amostras recebido estiver vazio, o classificador retorna <code>EstadoParede::Parede</code> em todas as direções para evitar colisões.</li>
+<li><strong>Comportamento Fail-Safe:</strong> Se o vetor de amostras recebido estiver vazio, o classificador retorna <code>EstadoParede::Desconhecido</code> em todas as direções para evitar colisões.</li>
 </ul>
 <h3 id="interface-da-classe">Interface da Classe<a class="headerlink" href="#interface-da-classe" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Entrada:</strong> <code>std::vector&lt;DistanciasLaterais&gt;</code></li>
+<li><strong>Entrada:</strong> <code>const DistanciasLaterais *amostras, size_t quantidade</code></li>
 <li><strong>Saída:</strong> <code>micromouse::ResultadoClassificacao</code> (<code>frente</code>, <code>esquerda</code> e <code>direita</code>)</li>
 </ul>
 <h2 id="tarefas-do-freertos">Tarefas do FreeRTOS<a class="headerlink" href="#tarefas-do-freertos" title="Permanent link">&para;</a></h2>
@@ -1900,13 +1900,18 @@
 </tr>
 <tr>
 <td></td>
+<td><code>test_classificador_limiar_configuravel</code></td>
+<td>Alteração e consulta do limiar dinâmico em tempo de execução</td>
+</tr>
+<tr>
+<td></td>
 <td><code>test_classificador_leituras_com_ruido</code></td>
 <td>Atenuação de ruído via média</td>
 </tr>
 <tr>
 <td></td>
 <td><code>test_classificador_vetor_vazio</code></td>
-<td>Vetor vazio assume Parede por segurança</td>
+<td>Vetor de amostras vazio assume Desconhecido por segurança (<em>fail-safe</em>)</td>
 </tr>
 </tbody>
 </table>
