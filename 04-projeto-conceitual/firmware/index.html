@@ -766,6 +766,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#labirinto-simulado-labirintosimulado" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Labirinto simulado: LabirintoSimulado
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#percepcao-classificacao-de-paredes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1323,6 +1334,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#labirinto-simulado-labirintosimulado" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Labirinto simulado: LabirintoSimulado
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#percepcao-classificacao-de-paredes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1567,7 +1589,7 @@
 </tr>
 <tr>
 <td><code>lib/simulacao</code></td>
-<td><code>LidarSimulado</code> e, depois, o <code>LabirintoSimulado</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/224">#224</a>)</td>
+<td><code>LidarSimulado</code> e <code>LabirintoSimulado</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/224">#224</a>)</td>
 </tr>
 <tr>
 <td><code>lib/drivers_esp32</code></td>
@@ -1753,6 +1775,8 @@
         +CAPACIDADE_FILA = 16
         +definirLeituraFixa(leitura)
         +enfileirarLeitura(leitura) bool
+        +usarLabirinto(labirinto)
+        +posicionar(pose)
         +simularFalha(falha)
         +lerDistanciasLaterais(saida) bool
     }
@@ -1768,6 +1792,7 @@
 <ol>
 <li>com a falha ligada (<code>simularFalha(true)</code>), a leitura falha e a fila não é consumida;</li>
 <li>se houver leituras na fila, entrega a mais antiga e a remove;</li>
+<li>se o modo labirinto estiver ativo (<code>usarLabirinto</code> e <code>posicionar</code>), entrega o que o <a href="#labirinto-simulado-labirintosimulado"><code>LabirintoSimulado</code></a> mostra na pose atual, e a leitura falha se a pose estiver fora do labirinto;</li>
 <li>se houver leitura fixa, entrega a leitura fixa;</li>
 <li>caso contrário, a leitura falha.</li>
 </ol>
@@ -1777,6 +1802,109 @@
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">lidar</span><span class="p">.</span><span class="n">enfileirarLeitura</span><span class="p">({</span><span class="mi">90</span><span class="p">,</span><span class="w"> </span><span class="mi">90</span><span class="p">,</span><span class="w"> </span><span class="mi">270</span><span class="p">});</span><span class="w">     </span><span class="c1">// depois, parede à frente e à esquerda</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">ILidar</span><span class="o">&amp;</span><span class="w"> </span><span class="n">sensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lidar</span><span class="p">;</span><span class="w">                     </span><span class="c1">// a lógica recebe só a interface</span>
 </code></pre></div>
+<h2 id="labirinto-simulado-labirintosimulado">Labirinto simulado: <code>LabirintoSimulado</code><a class="headerlink" href="#labirinto-simulado-labirintosimulado" title="Permanent link">&para;</a></h2>
+<p>O <code>LabirintoSimulado</code> (<code>lib/simulacao</code>) é um labirinto com todas as paredes conhecidas, usado como verdade de referência nos testes. Com ele, o <code>LidarSimulado</code> deixa de depender de leituras digitadas à mão: basta posicionar o robô numa célula, e o sensor simulado devolve o que o LiDAR real veria ali. Isso permite testar a classificação de paredes (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/174">#174</a>) e a atualização do mapa (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/177">#177</a>) num labirinto inteiro, sem hardware.</p>
+<p><strong>Formato do labirinto.</strong> O labirinto é escrito em texto, no formato clássico de micromouse. Cada célula ocupa 4 colunas e 2 linhas de texto; <code>+</code> marca os cantos, <code>---</code> uma parede horizontal e <code>|</code> uma parede vertical. A primeira linha é a borda Norte, e a partida (0, 0) é a célula do canto inferior esquerdo, com as mesmas convenções do <code>Mapa</code> e de <code>Direcao.h</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>+---+---+---+---+
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>|       |       |
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>+   +---+   +   +
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>|   |       |   |
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>+   +   +---+   +
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>|       |       |
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>+   +---+   +---+
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>|   |           |
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>+---+---+---+---+
+</code></pre></div>
+<p><strong>Figura 4.</strong> Labirinto 4×4 de exemplo (<code>LABIRINTO_4X4</code>), com a partida (0, 0) no canto inferior esquerdo.</p>
+<p>Cada parede aparece uma única vez no texto, entre as duas células que ela separa. Por isso, o lado leste de uma célula e o lado oeste da vizinha nunca discordam. Ao carregar o texto, o <code>LabirintoSimulado</code> recusa:</p>
+<table>
+<thead>
+<tr>
+<th>Resultado de <code>carregar</code></th>
+<th>Quando acontece</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Carregado</code></td>
+<td>Texto válido</td>
+</tr>
+<tr>
+<td><code>TamanhoInvalido</code></td>
+<td>O tamanho não é 4×4, 8×4 nem 12×4, ou as linhas têm larguras diferentes</td>
+</tr>
+<tr>
+<td><code>CaractereInvalido</code></td>
+<td>Caractere fora do formato</td>
+</tr>
+<tr>
+<td><code>ParedeIncompleta</code></td>
+<td>Parede pela metade, como <code>- -</code></td>
+</tr>
+<tr>
+<td><code>PerimetroAberto</code></td>
+<td>Falta parede na borda externa</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Distâncias.</strong> Com o robô no centro da célula, a parede da própria célula está a 90 mm, e cada célula livre no caminho soma 180 mm (<code>TAMANHO_CELULA_MM</code>). No labirinto acima, com o robô em (0, 0) virado para o Norte, há três células livres à frente e paredes dos dois lados:</p>
+<table>
+<thead>
+<tr>
+<th>Pose</th>
+<th style="text-align: center;">Frente</th>
+<th style="text-align: center;">Esquerda</th>
+<th style="text-align: center;">Direita</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(0, 0) Norte</td>
+<td style="text-align: center;">630 mm</td>
+<td style="text-align: center;">90 mm</td>
+<td style="text-align: center;">90 mm</td>
+</tr>
+<tr>
+<td>(1, 0) Norte</td>
+<td style="text-align: center;">450 mm</td>
+<td style="text-align: center;">90 mm</td>
+<td style="text-align: center;">270 mm</td>
+</tr>
+<tr>
+<td>(3, 0) Leste</td>
+<td style="text-align: center;">270 mm</td>
+<td style="text-align: center;">90 mm</td>
+<td style="text-align: center;">630 mm</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Operação</th>
+<th>O que faz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>carregar(texto)</code></td>
+<td>Lê o labirinto; se o texto for inválido, mantém o anterior</td>
+</tr>
+<tr>
+<td><code>temParede(celula, direcao)</code></td>
+<td>Se há parede naquele lado da célula (fora do labirinto conta como parede)</td>
+</tr>
+<tr>
+<td><code>distancias(pose, saida)</code></td>
+<td>Distâncias à frente, à esquerda e à direita para a pose; devolve <code>false</code> sem labirinto carregado ou com a célula fora dele</td>
+</tr>
+<tr>
+<td><code>LidarSimulado::usarLabirinto(labirinto)</code> e <code>posicionar(pose)</code></td>
+<td>Modo labirinto: a leitura passa a vir do labirinto, depois da falha e da fila e antes da leitura fixa. O labirinto não é copiado e precisa continuar existindo; sem <code>posicionar</code>, vale a leitura fixa</td>
+</tr>
+</tbody>
+</table>
+<p>Os testes ficam em <code>test/test_labirinto_simulado/</code>, com um labirinto de exemplo de cada tamanho da competição (4×4, 8×4 e 12×4) em <code>LabirintosExemplo.h</code>. Os três têm o perímetro fechado e todas as células alcançáveis a partir da partida, e os testes conferem essas duas propriedades a cada execução. O uso do simulador também está no <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/main/src/firmware/README.md#labirinto-simulado">README do firmware</a>.</p>
 <h2 id="percepcao-classificacao-de-paredes">Percepção: classificação de paredes<a class="headerlink" href="#percepcao-classificacao-de-paredes" title="Permanent link">&para;</a></h2>
 <p>O módulo de percepção (<code>lib/percepcao</code>) implementa a classe <code>ClassificadorParede</code>, responsável por classificar se cada lado ao redor do robô está desimpedido (<code>Livre</code>) ou obstruído (<code>Parede</code>) com base nas leituras de distância do LiDAR.</p>
 <h3 id="regras-de-negocio-e-algoritmo">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo" title="Permanent link">&para;</a></h3>
@@ -1916,14 +2044,14 @@
 </tbody>
 </table>
 <p>Para rodar, dentro de <code>src/firmware</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native<span class="w">                  </span><span class="c1"># todos os testes</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native<span class="w"> </span>-f<span class="w"> </span>test_nucleo<span class="w">   </span><span class="c1"># só um módulo</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>pio<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>esp32c3<span class="w">                  </span><span class="c1"># compila para a placa</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native<span class="w">                  </span><span class="c1"># todos os testes</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native<span class="w"> </span>-f<span class="w"> </span>test_nucleo<span class="w">   </span><span class="c1"># só um módulo</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>pio<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>esp32c3<span class="w">                  </span><span class="c1"># compila para a placa</span>
 </code></pre></div>
 <p>Resultado do projeto base, executado em 04/10/2026: <strong>10 de 10 testes aprovados</strong> e build para o ESP32-C3 concluído com 4,2% de RAM e 18,9% de Flash. O registro completo da execução (ambiente, saídas e pendências) está em <a href="../../07-testes/software/#registro-de-execucao-dos-testes">Testes de Software</a>.</p>
 <h3 id="como-ler-uma-falha">Como ler uma falha<a class="headerlink" href="#como-ler-uma-falha" title="Permanent link">&para;</a></h3>
 <p>Exemplo real, com um valor esperado alterado de propósito (registrado em <a href="../../07-testes/software/#verificacao-de-deteccao-de-falhas-teste-negativo">Testes de Software</a>):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>test/test_nucleo/test_direcao.cpp:21: test_girar_direita_percorre_as_quatro_direcoes: Expected 2 Was 1  [FAILED]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>test/test_nucleo/test_direcao.cpp:21: test_girar_direita_percorre_as_quatro_direcoes: Expected 2 Was 1  [FAILED]
 </code></pre></div>
 <table>
 <thead>
@@ -1993,12 +2121,17 @@
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/174">#174</a> Classificação parede/livre</td>
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/36">HU-02</a> (RF02)</td>
 </tr>
+<tr>
+<td><code>lib/simulacao</code> (<code>LabirintoSimulado</code>)</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/224">#224</a> Simulador de labirinto</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/36">HU-02</a> (RF02)</td>
+</tr>
 </tbody>
 </table>
 <h2 id="proximos-passos">Próximos passos<a class="headerlink" href="#proximos-passos" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Simulador de labirinto</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/224">#224</a>): <code>LabirintoSimulado</code> em <code>lib/simulacao</code>, para o <code>LidarSimulado</code> gerar as leituras a partir da posição do robô.</li>
-<li><strong>CI do firmware</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/223">#223</a>): testes nativos e build a cada PR que altera <code>src/firmware</code>.</li>
+<li><strong>Simulador de labirinto</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/224">#224</a>), concluído: a atualização do mapa (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/177">#177</a>) já pode ser validada num labirinto simulado inteiro (veja <a href="#labirinto-simulado-labirintosimulado">Labirinto simulado</a>).</li>
+<li><strong>CI do firmware</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/223">#223</a>), concluído no PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/295">#295</a>: todo PR para a <code>main</code> roda os testes nativos com cobertura mínima de 80% e o build do ESP32-C3. Falta o administrador do repositório proteger a <code>main</code> exigindo os dois checks.</li>
 <li><strong>Tarefas da Sprint 2:</strong> driver do LiDAR, classificação <code>parede</code>/<code>livre</code>, estrutura do mapa e armazenamento em memória, cada uma na pasta da sua camada e com testes em <code>test/</code>.</li>
 <li><strong>Validar com o hardware:</strong> o conflito dos pinos da UART0 e o primeiro teste gravado na placa (o projeto base foi compilado, mas ainda não gravado).</li>
 </ul>

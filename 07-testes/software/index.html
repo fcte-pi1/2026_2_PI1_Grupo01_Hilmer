@@ -1051,28 +1051,11 @@
   
 </li>
         
-      </ul>
-    </nav>
-  
-</li>
-        
           <li class="md-nav__item">
-  <a href="#sprint-2-armazenamento-do-mapa-em-memoria" class="md-nav__link">
+  <a href="#compilacao-para-a-placa" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Sprint 2 · Armazenamento do mapa em memória
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Sprint 2 · Armazenamento do mapa em memória">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#testes-unitarios-ambiente-native_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Testes unitários (ambiente native)
+        Compilação para a placa
       
     </span>
   </a>
@@ -1080,32 +1063,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#casos-de-teste_1" class="md-nav__link">
+  <a href="#validacao-dos-labirintos-de-exemplo" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Casos de teste
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#uso-de-memoria-criterio-3" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Uso de memória (critério 3)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#saida-do-platformio_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Saída do PlatformIO
+        Validação dos labirintos de exemplo
       
     </span>
   </a>
@@ -1375,28 +1336,11 @@
   
 </li>
         
-      </ul>
-    </nav>
-  
-</li>
-        
           <li class="md-nav__item">
-  <a href="#sprint-2-armazenamento-do-mapa-em-memoria" class="md-nav__link">
+  <a href="#compilacao-para-a-placa" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Sprint 2 · Armazenamento do mapa em memória
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Sprint 2 · Armazenamento do mapa em memória">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#testes-unitarios-ambiente-native_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Testes unitários (ambiente native)
+        Compilação para a placa
       
     </span>
   </a>
@@ -1404,32 +1348,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#casos-de-teste_1" class="md-nav__link">
+  <a href="#validacao-dos-labirintos-de-exemplo" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Casos de teste
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#uso-de-memoria-criterio-3" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Uso de memória (critério 3)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#saida-do-platformio_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Saída do PlatformIO
+        Validação dos labirintos de exemplo
       
     </span>
   </a>
@@ -1941,6 +1863,100 @@
 <a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>----------------------------------
 <a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>=================================== 6 test cases: 6 succeeded in 00:00:00.800 ===================================
 </code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>#### Suíte completa com cobertura (o mesmo comando do CI)
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>```bash
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>pio test -e native_cobertura
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>gcovr --root . --filter 'lib/' --object-directory .pio/build/native_cobertura --fail-under-line 80
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Verificação</th>
+<th>Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Testes existentes (núcleo, simulação, percepção, mapa e LiDAR)</td>
+<td><strong>72 aprovados, 0 falhas</strong></td>
+</tr>
+<tr>
+<td>Testes novos do simulador</td>
+<td><strong>19 aprovados, 0 falhas</strong></td>
+</tr>
+<tr>
+<td>Cobertura das linhas de <code>lib/</code></td>
+<td><strong>98%</strong> (556 de 562), acima da meta de 80%</td>
+</tr>
+<tr>
+<td>Cobertura de <code>LabirintoSimulado.cpp</code></td>
+<td>99% (115 de 116); a linha fora é o <code>return</code> depois do <code>switch</code> de <code>temParede</code>, que nunca é alcançado e existe para o compilador</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>=========== 91 test cases: 91 succeeded in 00:00:04.161 ===========
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>TOTAL                                        562      556    98%
+</code></pre></div>
+<h4 id="compilacao-para-a-placa">Compilação para a placa<a class="headerlink" href="#compilacao-para-a-placa" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>pio<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>esp32c3
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Verificação</th>
+<th>Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilação</td>
+<td><strong>Sucesso</strong></td>
+</tr>
+<tr>
+<td>Uso de RAM</td>
+<td>4,2% (13 748 de 327 680 bytes)</td>
+</tr>
+<tr>
+<td>Uso de Flash</td>
+<td>18,9% (247 640 de 1 310 720 bytes)</td>
+</tr>
+</tbody>
+</table>
+<p>O uso de memória não mudou, porque o simulador só é usado nos testes do computador e não entra no firmware da placa.</p>
+<h4 id="validacao-dos-labirintos-de-exemplo">Validação dos labirintos de exemplo<a class="headerlink" href="#validacao-dos-labirintos-de-exemplo" title="Permanent link">&para;</a></h4>
+<p>Os três labirintos de <code>test/test_labirinto_simulado/LabirintosExemplo.h</code> têm o perímetro fechado e todas as células alcançáveis a partir de (0, 0). Essas duas propriedades são conferidas pelos testes a cada execução (<code>test_recusa_perimetro_aberto</code> e <code>test_todas_as_celulas_dos_exemplos_sao_alcancaveis_da_partida</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Labirinto</th>
+<th style="text-align: center;">Formato</th>
+<th style="text-align: center;">Perímetro</th>
+<th style="text-align: center;">Células alcançáveis a partir de (0, 0)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4×4</td>
+<td style="text-align: center;">Válido</td>
+<td style="text-align: center;">Fechado</td>
+<td style="text-align: center;">16 de 16</td>
+</tr>
+<tr>
+<td>8×4</td>
+<td style="text-align: center;">Válido</td>
+<td style="text-align: center;">Fechado</td>
+<td style="text-align: center;">32 de 32 (a primeira versão tinha 16 de 32 e foi redesenhada)</td>
+</tr>
+<tr>
+<td>12×4</td>
+<td style="text-align: center;">Válido</td>
+<td style="text-align: center;">Fechado</td>
+<td style="text-align: center;">48 de 48</td>
+</tr>
+</tbody>
+</table>
+<h1 id="a-tabela-de-leituras-esperadas-do-44-escrita-a-mao-antes-da-implementacao-bateu-com-o-que-o-labirintosimulado-calcula-nas-cinco-poses">A tabela de leituras esperadas do 4×4, escrita à mão antes da implementação, bateu com o que o <code>LabirintoSimulado</code> calcula nas cinco poses.<a class="headerlink" href="#a-tabela-de-leituras-esperadas-do-44-escrita-a-mao-antes-da-implementacao-bateu-com-o-que-o-labirintosimulado-calcula-nas-cinco-poses" title="Permanent link">&para;</a></h1>
 <hr />
 <h3 id="sprint-2-armazenamento-do-mapa-em-memoria">Sprint 2 · Armazenamento do mapa em memória<a class="headerlink" href="#sprint-2-armazenamento-do-mapa-em-memoria" title="Permanent link">&para;</a></h3>
 <table>
@@ -2010,7 +2026,7 @@
 </table>
 <h4 id="testes-unitarios-ambiente-native_2">Testes unitários (ambiente native)<a class="headerlink" href="#testes-unitarios-ambiente-native_2" title="Permanent link">&para;</a></h4>
 <p>Comando executado em <code>src/firmware</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native<span class="w"> </span>-f<span class="w"> </span>test_armazenamento_mapa
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native<span class="w"> </span>-f<span class="w"> </span>test_armazenamento_mapa
 </code></pre></div>
 <table>
 <thead>
@@ -2134,22 +2150,96 @@
 <li>As pilhas das tarefas do FreeRTOS (2 × 4.096 bytes) são reservadas durante a execução e não entram nessa conta. O mapa não fica nelas, e é isso que o preserva quando uma tarefa é reiniciada.</li>
 </ul>
 <h4 id="saida-do-platformio_1">Saída do PlatformIO<a class="headerlink" href="#saida-do-platformio_1" title="Permanent link">&para;</a></h4>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>Processing test_armazenamento_mapa in native environment
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>test/test_armazenamento_mapa/test_armazenamento_mapa.cpp:231: test_comeca_sem_corrida_iniciada [PASSED]
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>test/test_armazenamento_mapa/test_armazenamento_mapa.cpp:232: test_corrida_12x4_comporta_todas_as_paredes [PASSED]
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>test/test_armazenamento_mapa/test_armazenamento_mapa.cpp:233: test_mapa_preservado_apos_reiniciar_navegacao [PASSED]
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>test/test_armazenamento_mapa/test_armazenamento_mapa.cpp:234: test_mapa_preservado_apos_varios_reinicios [PASSED]
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>test/test_armazenamento_mapa/test_armazenamento_mapa.cpp:235: test_navegacao_recriada_enxerga_paredes_anteriores [PASSED]
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>test/test_armazenamento_mapa/test_armazenamento_mapa.cpp:236: test_mapa_e_sempre_o_mesmo_objeto [PASSED]
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>test/test_armazenamento_mapa/test_armazenamento_mapa.cpp:237: test_nova_corrida_zera_o_mapa [PASSED]
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>test/test_armazenamento_mapa/test_armazenamento_mapa.cpp:238: test_nova_corrida_pode_trocar_o_tamanho [PASSED]
-<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>test/test_armazenamento_mapa/test_armazenamento_mapa.cpp:239: test_armazenamento_ocupa_pouca_memoria [PASSED]
-<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>---------- native:test_armazenamento_mapa [PASSED] Took 0.24 seconds ----------
-<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>================== 9 test cases: 9 succeeded in 00:00:00.244 ==================
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>Processing test_armazenamento_mapa in native environment
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>test/test_armazenamento_mapa/test_armazenamento_mapa.cpp:231: test_comeca_sem_corrida_iniciada [PASSED]
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>test/test_armazenamento_mapa/test_armazenamento_mapa.cpp:232: test_corrida_12x4_comporta_todas_as_paredes [PASSED]
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>test/test_armazenamento_mapa/test_armazenamento_mapa.cpp:233: test_mapa_preservado_apos_reiniciar_navegacao [PASSED]
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>test/test_armazenamento_mapa/test_armazenamento_mapa.cpp:234: test_mapa_preservado_apos_varios_reinicios [PASSED]
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>test/test_armazenamento_mapa/test_armazenamento_mapa.cpp:235: test_navegacao_recriada_enxerga_paredes_anteriores [PASSED]
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>test/test_armazenamento_mapa/test_armazenamento_mapa.cpp:236: test_mapa_e_sempre_o_mesmo_objeto [PASSED]
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>test/test_armazenamento_mapa/test_armazenamento_mapa.cpp:237: test_nova_corrida_zera_o_mapa [PASSED]
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>test/test_armazenamento_mapa/test_armazenamento_mapa.cpp:238: test_nova_corrida_pode_trocar_o_tamanho [PASSED]
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>test/test_armazenamento_mapa/test_armazenamento_mapa.cpp:239: test_armazenamento_ocupa_pouca_memoria [PASSED]
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>---------- native:test_armazenamento_mapa [PASSED] Took 0.24 seconds ----------
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>================== 9 test cases: 9 succeeded in 00:00:00.244 ==================
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>RAM:   [          ]   4.3% (used 13940 bytes from 327680 bytes)
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>Flash: [==        ]  18.9% (used 247788 bytes from 1310720 bytes)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>RAM:   [          ]   4.3% (used 13940 bytes from 327680 bytes)
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>Flash: [==        ]  18.9% (used 247788 bytes from 1310720 bytes)
 </code></pre></div>
+<hr />
+<h3 id="sprint-2-simulador-de-labirinto">Sprint 2 · Simulador de labirinto<a class="headerlink" href="#sprint-2-simulador-de-labirinto" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tarefa</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/224">#224 Simulador de labirinto (LabirintoSimulado)</a></td>
+</tr>
+<tr>
+<td>História de usuário</td>
+<td>HU-02 · Reconhecimento de ambiente (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/36">#36</a>), RF02</td>
+</tr>
+<tr>
+<td>Código testado</td>
+<td><code>src/firmware</code> (branch <code>feat/labirinto-simulado</code>)</td>
+</tr>
+<tr>
+<td>Data da execução</td>
+<td>08/10/2026</td>
+</tr>
+<tr>
+<td>Executado por</td>
+<td>Cláudio Henrique</td>
+</tr>
+<tr>
+<td>Documentação do código</td>
+<td><a href="../../04-projeto-conceitual/firmware/#labirinto-simulado-labirintosimulado">Labirinto simulado</a></td>
+</tr>
+</tbody>
+</table>
+<p>Esta etapa implementou o <code>LabirintoSimulado</code> (carga do texto, validação, consulta de paredes e distâncias) e o modo labirinto do <code>LidarSimulado</code>. Os 15 testes ignorados da etapa anterior foram implementados e outros quatro foram acrescentados.</p>
+<p><strong>Ambiente de execução:</strong> o mesmo da Sprint 2 (macOS, PlatformIO Core 6.2.0, <code>native</code> 1.2.1, Unity 2.6.1, Espressif 32 7.1.3), com <code>gcovr</code> 8.6 para a cobertura.</p>
+<h4 id="testes-do-simulador-test_labirinto_simulado">Testes do simulador (<code>test_labirinto_simulado</code>)<a class="headerlink" href="#testes-do-simulador-test_labirinto_simulado" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native<span class="w"> </span>-f<span class="w"> </span>test_labirinto_simulado
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Grupo</th>
+<th style="text-align: center;">Testes</th>
+<th>O que verificam</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Carga e validação</td>
+<td style="text-align: center;">7</td>
+<td>Os exemplos 4×4, 8×4 e 12×4 carregam com as dimensões certas, com ou sem <code>\n</code> final; tamanho, caractere, parede incompleta e perímetro aberto são recusados com o motivo certo; texto inválido mantém o labirinto anterior</td>
+</tr>
+<tr>
+<td>Consulta de paredes</td>
+<td style="text-align: center;">4</td>
+<td>Células vizinhas concordam nos três exemplos; todas as células são alcançáveis a partir de (0, 0); os quatro lados de uma célula; fora do labirinto conta como parede</td>
+</tr>
+<tr>
+<td>Distâncias</td>
+<td style="text-align: center;">6</td>
+<td>Corredor, curva, beco sem saída, a tabela de cinco leituras do 4×4, corredores longos do 8×4 e do 12×4 e falha sem carga ou fora do labirinto</td>
+</tr>
+<tr>
+<td><code>LidarSimulado</code> no modo labirinto</td>
+<td style="text-align: center;">2</td>
+<td>A leitura acompanha a pose; falha, fila e leitura fixa mantêm a ordem de prioridade</td>
+</tr>
+</tbody>
+</table>
+<p>```text
+=================== 19 test cases: 19 succeeded in 00:00:00.694 ============</p>
 
 
 
