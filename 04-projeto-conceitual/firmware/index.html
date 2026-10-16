@@ -816,15 +816,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#comunicacao-serializacao-do-mapa-em-json" class="md-nav__link">
+  <a href="#mapeamento-atualizacao-do-mapa" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Comunicação: serialização do mapa em JSON
+        Mapeamento: atualização do mapa
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Comunicação: serialização do mapa em JSON">
+    <nav class="md-nav" aria-label="Mapeamento: atualização do mapa">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -840,6 +840,45 @@
         
           <li class="md-nav__item">
   <a href="#interface-da-classe_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface da Classe
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comunicacao-serializacao-do-mapa-em-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comunicação: serialização do mapa em JSON
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Comunicação: serialização do mapa em JSON">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regras-de-negocio-e-algoritmo_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de Negócio e Algoritmo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-da-classe_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Interface da Classe
@@ -1423,15 +1462,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#comunicacao-serializacao-do-mapa-em-json" class="md-nav__link">
+  <a href="#mapeamento-atualizacao-do-mapa" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Comunicação: serialização do mapa em JSON
+        Mapeamento: atualização do mapa
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Comunicação: serialização do mapa em JSON">
+    <nav class="md-nav" aria-label="Mapeamento: atualização do mapa">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1447,6 +1486,45 @@
         
           <li class="md-nav__item">
   <a href="#interface-da-classe_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface da Classe
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comunicacao-serializacao-do-mapa-em-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comunicação: serialização do mapa em JSON
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Comunicação: serialização do mapa em JSON">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regras-de-negocio-e-algoritmo_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de Negócio e Algoritmo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-da-classe_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Interface da Classe
@@ -1651,7 +1729,7 @@
 </tr>
 <tr>
 <td><code>lib/mapeamento</code></td>
-<td>Mapa do labirinto e armazenamento em memória (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/176">#176</a>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/179">#179</a>)</td>
+<td>Mapa do labirinto, atualização e armazenamento em memória (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/176">#176</a>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/177">#177</a>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/179">#179</a>)</td>
 </tr>
 <tr>
 <td><code>lib/navegacao</code></td>
@@ -1998,6 +2076,25 @@
 <li><strong>Entrada:</strong> <code>const DistanciasLaterais *amostras, size_t quantidade</code></li>
 <li><strong>Saída:</strong> <code>micromouse::ResultadoClassificacao</code> (<code>frente</code>, <code>esquerda</code> e <code>direita</code>)</li>
 </ul>
+<h2 id="mapeamento-atualizacao-do-mapa">Mapeamento: atualização do mapa<a class="headerlink" href="#mapeamento-atualizacao-do-mapa" title="Permanent link">&para;</a></h2>
+<p>O módulo de mapeamento (<code>lib/mapeamento</code>) implementa a classe <code>AtualizadorMapa</code>, responsável por integrar a percepção à representação espacial: converte as observações relativas do LiDAR (frente, esquerda e direita) na pose atual do robô em direções cardeais absolutas (Norte, Leste, Sul e Oeste) e registra as paredes no <code>Mapa</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/177">#177</a>).</p>
+<h3 id="regras-de-negocio-e-algoritmo_1">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Conversão de Eixos:</strong> A partir de <code>pose.direcao</code>, calcula a direção absoluta para cada lado via <code>direcaoAbsoluta</code>:</li>
+<li>Robô ao Norte: Frente <span class="arithmatex">\(\rightarrow\)</span> Norte, Esquerda <span class="arithmatex">\(\rightarrow\)</span> Oeste, Direita <span class="arithmatex">\(\rightarrow\)</span> Leste.</li>
+<li>Robô a Leste: Frente <span class="arithmatex">\(\rightarrow\)</span> Leste, Esquerda <span class="arithmatex">\(\rightarrow\)</span> Norte, Direita <span class="arithmatex">\(\rightarrow\)</span> Sul.</li>
+<li>Robô ao Sul: Frente <span class="arithmatex">\(\rightarrow\)</span> Sul, Esquerda <span class="arithmatex">\(\rightarrow\)</span> Leste, Direita <span class="arithmatex">\(\rightarrow\)</span> Oeste.</li>
+<li>Robô a Oeste: Frente <span class="arithmatex">\(\rightarrow\)</span> Oeste, Esquerda <span class="arithmatex">\(\rightarrow\)</span> Sul, Direita <span class="arithmatex">\(\rightarrow\)</span> Norte.</li>
+<li><strong>Espelhamento Automático:</strong> Cada parede registrada na célula atual atualiza automaticamente a aresta correspondente na célula vizinha via <code>Mapa::registrarParede</code>.</li>
+<li><strong>Tratamento de Conflito:</strong> Se a leitura contradiz o mapa (ex.: sensor detecta livre onde já havia parede), o mapa <strong>preserva o valor antigo</strong> e o atualizador sinaliza <code>temConflito = true</code> em <code>ResultadoAtualizacao</code>. A política de decisão fica a cargo do algoritmo de navegação (#188).</li>
+<li><strong>Fail-Safe / Desconhecido:</strong> Classificações com valor <code>Desconhecido</code> ou poses fora das dimensões válidas do mapa retornam <code>Invalida</code> e não alteram o mapa.</li>
+</ul>
+<h3 id="interface-da-classe_1">Interface da Classe<a class="headerlink" href="#interface-da-classe_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Entrada principal:</strong> <code>Mapa &amp;mapa</code>, <code>const Pose &amp;pose</code>, <code>const ClassificadorParede::ResultadoClassificacao &amp;classificacao</code></li>
+<li><strong>Sobrecarga de conveniência:</strong> <code>Mapa &amp;mapa</code>, <code>const Pose &amp;pose</code>, <code>const ClassificadorParede &amp;classificador</code>, <code>const DistanciasLaterais *amostras</code>, <code>size_t quantidadeAmostras</code>, realizando a classificação internamente antes do registro.</li>
+<li><strong>Saída:</strong> <code>ResultadoAtualizacao</code> (<code>frente</code>, <code>esquerda</code>, <code>direita</code> e a flag <code>temConflito</code>).</li>
+</ul>
 <h2 id="comunicacao-serializacao-do-mapa-em-json">Comunicação: serialização do mapa em JSON<a class="headerlink" href="#comunicacao-serializacao-do-mapa-em-json" title="Permanent link">&para;</a></h2>
 <p>O módulo de comunicação (<code>lib/comunicacao</code>) implementa a classe <code>MapaJson</code>, responsável por converter o <code>Mapa</code> em JSON para o envio na telemetria com a biblioteca ArduinoJson (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/178">#178</a>). O formato foi combinado com os nomes das colunas da tabela <code>mapa_celulas</code> do banco, para que a lista de células possa ser inserida nela só acrescentando o <code>corrida_id</code>. Como não depende do Arduino, a serialização é testada no ambiente <code>native</code>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
@@ -2037,14 +2134,14 @@
 </tr>
 </tbody>
 </table>
-<h3 id="regras-de-negocio-e-algoritmo_1">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_1" title="Permanent link">&para;</a></h3>
+<h3 id="regras-de-negocio-e-algoritmo_2">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Buffer do chamador:</strong> <code>MapaJson::serializar(mapa, saida, capacidade)</code> escreve o JSON num buffer de tamanho fixo fornecido por quem chama, terminado em <code>\0</code>. A ArduinoJson usa memória dinâmica só durante a conversão e a libera ao final.</li>
 <li><strong>Tamanho máximo:</strong> <code>TAMANHO_MAX_JSON_MAPA</code> (5.100 bytes) é o maior tamanho, sem o <code>\0</code>, do JSON de um mapa 12×4 com as 48 células conhecidas e todas as paredes internas <code>Livre</code>. É o pior caso, porque <code>false</code> ocupa mais caracteres que <code>true</code> ou <code>null</code>, e o perímetro continua <code>true</code>. Esse buffer é maior que a pilha das tarefas (4.096 bytes), então precisa ser <code>static</code> ou global.</li>
 <li><strong>Fail-safe de capacidade:</strong> se o buffer não comporta o JSON inteiro, ou é nulo, ou tem capacidade zero, a função devolve <code>0</code> e deixa <code>saida</code> com uma string vazia, sem escrever além da capacidade informada.</li>
 <li><strong>Imutabilidade e determinismo:</strong> serializar não altera o <code>Mapa</code> (a telemetria só lê; a navegação segue com o mesmo mapa, HU-04), e duas serializações do mesmo mapa produzem o mesmo texto.</li>
 </ul>
-<h3 id="interface-da-classe_1">Interface da Classe<a class="headerlink" href="#interface-da-classe_1" title="Permanent link">&para;</a></h3>
+<h3 id="interface-da-classe_2">Interface da Classe<a class="headerlink" href="#interface-da-classe_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Entrada:</strong> <code>const Mapa &amp;mapa</code>, <code>char *saida</code>, <code>size_t capacidade</code> (tamanho de <code>saida</code> em bytes, incluindo o <code>\0</code>)</li>
 <li><strong>Saída:</strong> <code>size_t</code>, o número de caracteres escritos sem o <code>\0</code>; <code>0</code> quando a serialização falha</li>
@@ -2169,6 +2266,81 @@
 <td></td>
 <td><code>test_classificador_vetor_vazio</code></td>
 <td>Vetor de amostras vazio assume Desconhecido por segurança (<em>fail-safe</em>)</td>
+</tr>
+<tr>
+<td><code>test_atualizador_mapa/test_atualizador_mapa.cpp</code></td>
+<td><code>test_registro_nova_parede</code></td>
+<td>Registra parede interior desconhecida como Registrada</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_registro_parede_ja_conhecida</code></td>
+<td>Mesma leitura repetida retorna JaConhecida</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_sem_conflito_ao_percorrer_labirinto</code></td>
+<td>Percorre células mantendo temConflito falso</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_parede_desconhecida_nao_registrada</code></td>
+<td>Desconhecido não altera mapa e retorna Invalida</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_parede_compartilhada_sem_conflito</code></td>
+<td>Paredes compartilhadas entre vizinhas coincidem</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_mapa_final_identico_ao_labirinto_4x4</code></td>
+<td>Exploração completa gera mapa idêntico ao labirinto</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_conflito_preserva_mapa_e_sinaliza_tem_conflito</code></td>
+<td>Conflito marca temConflito e preserva valor antigo</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_conversao_direcoes_nas_quatro_orientacoes</code></td>
+<td>Conversão correta nas 4 orientações cardeais</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_pose_fora_do_mapa_retorna_invalida</code></td>
+<td>Pose fora dos limites retorna Invalida</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_sobrecarga_multiplas_amostras_com_classificador</code></td>
+<td>Sobrecarga com múltiplas amostras filtra ruído</td>
+</tr>
+<tr>
+<td><code>test_integracao_mapa/test_integracao_mapa.cpp</code></td>
+<td><code>test_mapa_final_identico_ao_labirinto_4x4</code></td>
+<td>Robô simulado explora labirinto 4×4 e mapa fica idêntico</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_mapa_final_identico_ao_labirinto_8x4</code></td>
+<td>Robô simulado explora labirinto 8×4 e mapa fica idêntico</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_mapa_final_identico_ao_labirinto_12x4</code></td>
+<td>Robô simulado explora labirinto 12×4 e mapa fica idêntico</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_mapa_nao_e_identico_antes_de_explorar</code></td>
+<td>Mapa inicial difere do labirinto antes da exploração</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_uma_celula_registra_so_as_tres_paredes_que_o_sensor_ve</code></td>
+<td>Registra apenas as paredes observadas na célula atual</td>
 </tr>
 <tr>
 <td><code>test_json_mapa/test_json_mapa.cpp</code></td>
