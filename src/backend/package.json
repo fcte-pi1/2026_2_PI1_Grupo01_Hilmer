@@ -1,0 +1,12 @@
+{
+  "name": "micromouse-backend",
+  "private": true,
+  "type": "module",
+  "description": "Testes do backend (Edge Functions e funções SQL). As Edge Functions rodam em Deno no Supabase; aqui os testes usam o Node 22.18 ou superior.",
+  "scripts": {
+    "test": "node --test \"supabase/functions/**/*.test.ts\" \"tests/*.test.ts\""
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.10"
+  }
+}

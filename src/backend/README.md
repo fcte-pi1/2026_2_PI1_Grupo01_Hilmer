@@ -15,12 +15,18 @@ A arquitetura do backend utiliza o **Supabase (PostgreSQL gerenciado)**, aprovei
 src/backend/
 ├── .env.example                                  # Modelo de variáveis de ambiente do Supabase
 ├── README.md                                     # Este documento de instruções
+├── package.json                                  # Só para os testes (npm test)
+├── tests/
+│   └── banco.test.ts                             # Migrações, funções SQL e RLS num PostgreSQL (PGlite)
 └── supabase/
+    ├── functions/
+    │   ├── _shared/autenticacao.ts               # Confere o x-device-token
+    │   └── corridas/                             # Edge Function: criar e encerrar corridas
     └── migrations/
         ├── 20261014180000_esquema_inicial.sql    # DDL das 4 tabelas, restrições e seed de labirintos
-        └── 20261014180500_seguranca_rls.sql      # Políticas RLS e ativação do Realtime
+        ├── 20261014180500_seguranca_rls.sql      # Políticas RLS e ativação do Realtime
+        └── 20261016120000_funcoes_corridas.sql   # criar_corrida e encerrar_corrida (só service_role)
 ```
-
 ---
 
 ## Variáveis de Ambiente
@@ -69,6 +75,43 @@ O backend adota uma estratégia de **segurança em camadas**:
 2. **Escrita Restrita e Mediada (Edge Functions):**
    - **Bloqueio Total de Escrita Direta:** Nenhuma chave pública (`anon`) pode executar `INSERT`, `UPDATE` ou `DELETE` diretamente nas tabelas (`corridas`, `telemetria`, `mapa_celulas`). Isso impede que usuários forjem leituras ou adulterem dados no banco inspecionando a chave do frontend.
    - **Ingestão Protegida:** As gravações do robô (ESP32-C3) passam por uma **Edge Function** do Supabase. A função autentica a requisição através de um cabeçalho de token de dispositivo secreto (`x-device-token`), valida a consistência do payload e efetua as operações de banco com a chave interna de serviço (`service_role`), que ignora o RLS.
+
+---
+
+## Edge Function `corridas` (criar e encerrar corridas)
+
+A criação e o encerramento de corridas passam por uma Edge Function (`supabase/functions/corridas`), que usa a chave de serviço (`service_role`). A regra de negócio fica em duas funções SQL (`20261016120000_funcoes_corridas.sql`), executáveis só pela chave de serviço: `anon` e `authenticated` não têm permissão de `EXECUTE` nelas nem de escrita nas tabelas.
+
+| Requisição | Corpo | Resposta |
+|---|---|---|
+| `POST /functions/v1/corridas` | `{"labirinto": "4x4"}` (ou `"8x4"`, `"12x4"`); o labirinto é obrigatório | `201` com a corrida em andamento, com `numero_tentativa` contado por labirinto |
+| `POST /functions/v1/corridas/{id}/encerrar` | `{"status": "concluida"}` ou `"nao_concluida"`, mais `tempo_final`, `velocidade_media`, `velocidade_pico` e `consumo_bateria` (opcionais) | `200` com a corrida encerrada e `data_hora_fim` preenchida |
+
+Regras:
+- **Tentativa por labirinto:** a primeira corrida do 4x4 é a tentativa 1, e a primeira do 8x4 também. Um bloqueio no banco serializa criações simultâneas do mesmo labirinto, e `UNIQUE (labirinto_id, numero_tentativa)` é a segunda barreira.
+- **Encerramento idempotente:** repetir o pedido com o mesmo status (por exemplo, depois de uma queda de rede) devolve a corrida como está. Com outro status, responde `409`. Sem `tempo_final`, o banco usa o tempo desde `data_hora_inicio`.
+- **Erros:** `400` (corpo, status ou id inválidos), `401` (token), `404` (labirinto ou corrida inexistente), `405` (método), `409` (já encerrada com outro status) e `500` (falha do banco, sem expor a mensagem).
+
+**Autenticação.** O gateway do Supabase exige um JWT (`Authorization: Bearer <SUPABASE_ANON_KEY>`), e a função exige também o cabeçalho `x-device-token`, comparado com o segredo `DEVICE_TOKEN`. Sem o segredo configurado, ninguém é autorizado. A chave `service_role` fica só no servidor.
+
+```bash
+# Publicação (uma vez por projeto Supabase: teste e produção)
+supabase link --project-ref <ID-DO-PROJETO>
+supabase db push
+supabase secrets set DEVICE_TOKEN="$(openssl rand -hex 24)"
+supabase functions deploy corridas
+
+# Exemplo: criar uma corrida no labirinto 8x4 e encerrá-la
+curl -s -X POST "${SUPABASE_URL}/functions/v1/corridas" \
+  -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" -H "x-device-token: ${DEVICE_TOKEN}" \
+  -H "Content-Type: application/json" -d '{"labirinto": "8x4"}'
+
+curl -s -X POST "${SUPABASE_URL}/functions/v1/corridas/1/encerrar" \
+  -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" -H "x-device-token: ${DEVICE_TOKEN}" \
+  -H "Content-Type: application/json" -d '{"status": "concluida", "tempo_final": 61.5}'
+```
+
+**Testes.** Em `src/backend`, `npm install` e `npm test` (Node 22.18 ou superior). A suíte tem testes da validação, da autenticação e do roteamento (com um banco falso) e testes das funções SQL e do RLS num PostgreSQL de verdade (PGlite, em WebAssembly), com os papéis `anon`, `authenticated` e `service_role` imitando o Supabase. Os testes da Edge Function dentro do Supabase (com `supabase functions serve`, que precisa do Docker) e a chamada real com `curl` continuam sendo feitos no projeto de teste.
 
 ---
 
