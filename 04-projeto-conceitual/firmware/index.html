@@ -816,6 +816,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#comunicacao-serializacao-do-mapa-em-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comunicação: serialização do mapa em JSON
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Comunicação: serialização do mapa em JSON">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regras-de-negocio-e-algoritmo_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de Negócio e Algoritmo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-da-classe_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface da Classe
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#tarefas-do-freertos" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1384,6 +1423,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#comunicacao-serializacao-do-mapa-em-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comunicação: serialização do mapa em JSON
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Comunicação: serialização do mapa em JSON">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regras-de-negocio-e-algoritmo_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de Negócio e Algoritmo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-da-classe_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface da Classe
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#tarefas-do-freertos" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1585,7 +1663,7 @@
 </tr>
 <tr>
 <td><code>lib/comunicacao</code></td>
-<td>Telemetria, serialização JSON e <em>buffer</em> de reenvio (Épico 03)</td>
+<td>Telemetria, serialização do mapa em JSON (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/178">#178</a>) e <em>buffer</em> de reenvio (Épico 03)</td>
 </tr>
 <tr>
 <td><code>lib/simulacao</code></td>
@@ -1920,6 +1998,57 @@
 <li><strong>Entrada:</strong> <code>const DistanciasLaterais *amostras, size_t quantidade</code></li>
 <li><strong>Saída:</strong> <code>micromouse::ResultadoClassificacao</code> (<code>frente</code>, <code>esquerda</code> e <code>direita</code>)</li>
 </ul>
+<h2 id="comunicacao-serializacao-do-mapa-em-json">Comunicação: serialização do mapa em JSON<a class="headerlink" href="#comunicacao-serializacao-do-mapa-em-json" title="Permanent link">&para;</a></h2>
+<p>O módulo de comunicação (<code>lib/comunicacao</code>) implementa a classe <code>MapaJson</code>, responsável por converter o <code>Mapa</code> em JSON para o envio na telemetria com a biblioteca ArduinoJson (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/178">#178</a>). O formato foi combinado com os nomes das colunas da tabela <code>mapa_celulas</code> do banco, para que a lista de células possa ser inserida nela só acrescentando o <code>corrida_id</code>. Como não depende do Arduino, a serialização é testada no ambiente <code>native</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">"dimensao"</span><span class="p">:</span><span class="w"> </span><span class="s2">"4x4"</span><span class="p">,</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">"linhas"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nt">"colunas"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="nt">"celulas"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="p">{</span><span class="nt">"linha"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">"coluna"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">"parede_norte"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">"parede_sul"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">     </span><span class="nt">"parede_leste"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">"parede_oeste"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">}</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="p">}</span>
+</code></pre></div>
+<p><strong>Figura 5.</strong> JSON de um mapa 4×4 recém-criado (só o perímetro conhecido), formatado aqui para leitura: a saída real não tem espaços nem quebras de linha.</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dimensao</code></td>
+<td><code>"4x4"</code>, <code>"8x4"</code> ou <code>"12x4"</code> (colunas × linhas, como <code>labirintos.tipo</code>)</td>
+</tr>
+<tr>
+<td><code>linhas</code>, <code>colunas</code></td>
+<td>Tamanho do labirinto</td>
+</tr>
+<tr>
+<td><code>linha</code>, <code>coluna</code></td>
+<td>Posição da célula, da linha 0 à última e, em cada linha, da coluna 0 à última; a partida é (0, 0)</td>
+</tr>
+<tr>
+<td><code>parede_norte</code>, <code>parede_sul</code>, <code>parede_leste</code>, <code>parede_oeste</code></td>
+<td><code>true</code> se há parede, <code>false</code> se está livre e <code>null</code> se ainda é desconhecida</td>
+</tr>
+</tbody>
+</table>
+<h3 id="regras-de-negocio-e-algoritmo_1">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Buffer do chamador:</strong> <code>MapaJson::serializar(mapa, saida, capacidade)</code> escreve o JSON num buffer de tamanho fixo fornecido por quem chama, terminado em <code>\0</code>. A ArduinoJson usa memória dinâmica só durante a conversão e a libera ao final.</li>
+<li><strong>Tamanho máximo:</strong> <code>TAMANHO_MAX_JSON_MAPA</code> (5.100 bytes) é o maior tamanho, sem o <code>\0</code>, do JSON de um mapa 12×4 com as 48 células conhecidas e todas as paredes internas <code>Livre</code>. É o pior caso, porque <code>false</code> ocupa mais caracteres que <code>true</code> ou <code>null</code>, e o perímetro continua <code>true</code>. Esse buffer é maior que a pilha das tarefas (4.096 bytes), então precisa ser <code>static</code> ou global.</li>
+<li><strong>Fail-safe de capacidade:</strong> se o buffer não comporta o JSON inteiro, ou é nulo, ou tem capacidade zero, a função devolve <code>0</code> e deixa <code>saida</code> com uma string vazia, sem escrever além da capacidade informada.</li>
+<li><strong>Imutabilidade e determinismo:</strong> serializar não altera o <code>Mapa</code> (a telemetria só lê; a navegação segue com o mesmo mapa, HU-04), e duas serializações do mesmo mapa produzem o mesmo texto.</li>
+</ul>
+<h3 id="interface-da-classe_1">Interface da Classe<a class="headerlink" href="#interface-da-classe_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Entrada:</strong> <code>const Mapa &amp;mapa</code>, <code>char *saida</code>, <code>size_t capacidade</code> (tamanho de <code>saida</code> em bytes, incluindo o <code>\0</code>)</li>
+<li><strong>Saída:</strong> <code>size_t</code>, o número de caracteres escritos sem o <code>\0</code>; <code>0</code> quando a serialização falha</li>
+</ul>
 <h2 id="tarefas-do-freertos">Tarefas do FreeRTOS<a class="headerlink" href="#tarefas-do-freertos" title="Permanent link">&para;</a></h2>
 <p>Criadas em <code>src/main.cpp</code>. Navegação e telemetria rodam de forma concorrente, como no diagrama de atividades: o ESP32-C3 tem um único núcleo, e o FreeRTOS alterna entre as tarefas conforme a prioridade de cada uma.</p>
 <table>
@@ -2041,17 +2170,127 @@
 <td><code>test_classificador_vetor_vazio</code></td>
 <td>Vetor de amostras vazio assume Desconhecido por segurança (<em>fail-safe</em>)</td>
 </tr>
+<tr>
+<td><code>test_json_mapa/test_json_mapa.cpp</code></td>
+<td><code>test_mapa_vazio_4x4_tem_so_o_perimetro_conhecido</code></td>
+<td>Mapa novo: só o perímetro sai <code>true</code>, o resto <code>null</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_cabecalho_traz_dimensao_linhas_e_colunas</code></td>
+<td>Início do JSON do 12×4 traz <code>dimensao</code>, <code>linhas</code> e <code>colunas</code> corretos</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_parede_livre_e_parede_viram_false_e_true</code></td>
+<td><code>Parede</code> vira <code>true</code> e <code>Livre</code> vira <code>false</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_parede_registrada_aparece_nas_duas_celulas_vizinhas</code></td>
+<td>A mesma parede aparece espelhada nas duas células que ela separa</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_json_tem_exatamente_os_campos_combinados_para_a_telemetria</code></td>
+<td>Objeto raiz com 4 campos e cada célula com 6, sem campo a mais ou a menos</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_json_sai_compacto_sem_espacos_nem_quebras_de_linha</code></td>
+<td>Saída sem espaço, tab ou quebra de linha</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_dimensao_combina_com_as_linhas_e_as_colunas_nos_tres_tamanhos</code></td>
+<td><code>"4x4"/4/4</code>, <code>"8x4"/4/8</code> e <code>"12x4"/4/12</code> nos três tamanhos da competição</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_serializa_mapa_4x4_completo</code></td>
+<td>Mapa 4×4 com todas as paredes internas: ida e volta bate célula a célula</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_serializa_mapa_8x4</code></td>
+<td>Mapa 8×4 parcialmente preenchido: ida e volta bate célula a célula</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_serializa_mapa_12x4_completo</code></td>
+<td>Mapa 12×4 com todas as paredes internas, dentro de <code>TAMANHO_MAX_JSON_MAPA</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_serializa_mapa_12x4_parcial</code></td>
+<td>Mapa 12×4 com poucas paredes conhecidas, como no meio de uma corrida</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_mapa_12x4_completo_e_reconstruido_a_partir_do_json</code></td>
+<td>O JSON do 12×4 completo remonta um <code>Mapa</code> idêntico (<code>==</code>) ao original</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_mapa_parcial_reconstruido_mantem_as_paredes_desconhecidas</code></td>
+<td><code>null</code> volta como <code>Desconhecido</code>, não como <code>Livre</code>, na reconstrução</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_serializar_nao_altera_o_mapa</code></td>
+<td><code>serializar</code> não muda o <code>Mapa</code> original (HU-04)</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_serializacoes_repetidas_do_mesmo_mapa_geram_o_mesmo_json</code></td>
+<td>Duas serializações do mesmo mapa produzem o mesmo texto</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_pior_caso_cabe_em_tamanho_max_json_mapa</code></td>
+<td>12×4 com todas as paredes <code>Livre</code> (o pior caso) cabe em <code>TAMANHO_MAX_JSON_MAPA</code>, com folga menor que 10%</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_buffer_pequeno_devolve_zero_e_deixa_string_vazia</code></td>
+<td>Buffer pequeno demais devolve <code>0</code> e deixa string vazia</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_buffer_com_o_tamanho_exato_serve_e_um_a_menos_nao</code></td>
+<td>Capacidade exata (JSON + <code>\0</code>) funciona; um byte a menos falha</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_buffer_nulo_ou_sem_capacidade_devolve_zero</code></td>
+<td>Buffer nulo ou capacidade zero devolvem <code>0</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_nao_escreve_depois_do_fim_da_capacidade_informada</code></td>
+<td>Nada é escrito além da capacidade informada, no sucesso e na falha</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_capacidade_de_um_byte_devolve_zero_e_string_vazia</code></td>
+<td>Capacidade de 1 byte devolve <code>0</code> e grava só o <code>\0</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_dimensao_fora_do_enum_sai_como_texto_vazio</code></td>
+<td>Valor fora do enum <code>DimensaoMapa</code> sai com <code>dimensao</code> vazio, sem travar (<em>fail-safe</em>)</td>
+</tr>
 </tbody>
 </table>
 <p>Para rodar, dentro de <code>src/firmware</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native<span class="w">                  </span><span class="c1"># todos os testes</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native<span class="w"> </span>-f<span class="w"> </span>test_nucleo<span class="w">   </span><span class="c1"># só um módulo</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>pio<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>esp32c3<span class="w">                  </span><span class="c1"># compila para a placa</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native<span class="w">                  </span><span class="c1"># todos os testes</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native<span class="w"> </span>-f<span class="w"> </span>test_nucleo<span class="w">   </span><span class="c1"># só um módulo</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>pio<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>esp32c3<span class="w">                  </span><span class="c1"># compila para a placa</span>
 </code></pre></div>
 <p>Resultado do projeto base, executado em 04/10/2026: <strong>10 de 10 testes aprovados</strong> e build para o ESP32-C3 concluído com 4,2% de RAM e 18,9% de Flash. O registro completo da execução (ambiente, saídas e pendências) está em <a href="../../07-testes/software/#registro-de-execucao-dos-testes">Testes de Software</a>.</p>
 <h3 id="como-ler-uma-falha">Como ler uma falha<a class="headerlink" href="#como-ler-uma-falha" title="Permanent link">&para;</a></h3>
 <p>Exemplo real, com um valor esperado alterado de propósito (registrado em <a href="../../07-testes/software/#verificacao-de-deteccao-de-falhas-teste-negativo">Testes de Software</a>):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>test/test_nucleo/test_direcao.cpp:21: test_girar_direita_percorre_as_quatro_direcoes: Expected 2 Was 1  [FAILED]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>test/test_nucleo/test_direcao.cpp:21: test_girar_direita_percorre_as_quatro_direcoes: Expected 2 Was 1  [FAILED]
 </code></pre></div>
 <table>
 <thead>
@@ -2126,6 +2365,11 @@
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/224">#224</a> Simulador de labirinto</td>
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/36">HU-02</a> (RF02)</td>
 </tr>
+<tr>
+<td><code>lib/comunicacao</code> (<code>MapaJson</code>)</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/178">#178</a> Formato JSON do mapa</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/37">HU-03</a> (RF03)</td>
+</tr>
 </tbody>
 </table>
 <h2 id="proximos-passos">Próximos passos<a class="headerlink" href="#proximos-passos" title="Permanent link">&para;</a></h2>
@@ -2134,6 +2378,7 @@
 <li><strong>CI do firmware</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/223">#223</a>), concluído no PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/295">#295</a>: todo PR para a <code>main</code> roda os testes nativos com cobertura mínima de 80% e o build do ESP32-C3. Falta o administrador do repositório proteger a <code>main</code> exigindo os dois checks.</li>
 <li><strong>Tarefas da Sprint 2:</strong> driver do LiDAR, classificação <code>parede</code>/<code>livre</code>, estrutura do mapa e armazenamento em memória, cada uma na pasta da sua camada e com testes em <code>test/</code>.</li>
 <li><strong>Validar com o hardware:</strong> o conflito dos pinos da UART0 e o primeiro teste gravado na placa (o projeto base foi compilado, mas ainda não gravado).</li>
+<li><strong>Formato JSON do mapa</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/178">#178</a>): o formato foi validado com as outras equipes. O dashboard (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/239">#239</a>) aceitou o JSON e vai tratar <code>null</code> como área não explorada, e a tabela <code>mapa_celulas</code> passou a aceitar <code>null</code> nas colunas <code>parede_*</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/228">#228</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/328">#328</a>). Falta o envio de fato da lista de células ao banco, que entra com a telemetria (Épico 03).</li>
 </ul>
 
 
