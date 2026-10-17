@@ -1,0 +1,164 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" width="100%" height="auto" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <style>
+      .bg { fill: #ffffff; stroke: #d0d7de; stroke-width: 1.5; }
+      .panel { fill: #fafbfc; stroke: #d8dee4; stroke-width: 1; }
+      .grid { stroke: #eaeef2; stroke-width: 1; stroke-dasharray: 3,3; }
+      .axis { stroke: #424a53; stroke-width: 1.8; }
+      .title { fill: #1f2328; font-size: 14px; font-weight: bold; }
+      .subtitle { fill: #57606a; font-size: 11px; }
+      .label { fill: #32383f; font-size: 11px; font-weight: 600; }
+      .tick { fill: #57606a; font-size: 10px; }
+      .curve-vbat { stroke: #0969da; stroke-width: 2.8; fill: none; }
+      .curve-vout { stroke: #1a7f37; stroke-width: 2.5; fill: none; }
+      .curve-bms { stroke: #cf222e; stroke-width: 2.4; stroke-dasharray: 5,3; fill: none; }
+      .curve-18a { stroke: #1a7f37; stroke-width: 2.4; fill: none; }
+      .curve-36a { stroke: #d97706; stroke-width: 2.6; fill: none; }
+      .curve-50a { stroke: #cf222e; stroke-width: 2.6; fill: none; }
+      .curve-92a { stroke: #8250df; stroke-width: 2.6; fill: none; }
+      .thresh { stroke: #cf222e; stroke-width: 1.3; stroke-dasharray: 4,4; }
+      .thresh-uvlo { stroke: #d97706; stroke-width: 1.3; stroke-dasharray: 4,4; }
+      .badge { font-size: 10px; font-weight: bold; }
+    </style>
+  </defs>
+
+  <!-- Outer Frame -->
+  <rect x="4" y="4" width="952" height="432" rx="8" class="bg"/>
+  <text x="480" y="28" text-anchor="middle" class="title" font-size="15">ENSAIOS SIMULADOS DE BANCADA — CORTE DE SUBTENSÃO (6,6 V / 6,4 V) E DESARME DO PPTC (&gt; 3,5 A) — ISSUE #207</text>
+
+  <!-- ==================== LEFT PANEL: ENSAIO 1 (RAMPA DE SUBTENSÃO) ==================== -->
+  <rect x="20" y="42" width="445" height="378" rx="6" class="panel"/>
+  <text x="242" y="62" text-anchor="middle" class="title">Ensaio 1: Rampa Decrescente de Tensão (8,4 V → 6,0 V)</text>
+  <text x="242" y="77" text-anchor="middle" class="subtitle">Taxa: -0,05 V/s | Divisor ADC GPIO 2 (0,2481x) + Supervisor BMS 2S</text>
+
+  <!-- Plot Area Left: x=68..440 (w=372), y=95..335 (h=240) -->
+  <!-- Y-axis: 0V to 9.0V (y = 335 - (V/9.0)*240) -->
+  <!-- X-axis: 0s to 48s (x = 68 + (t/48)*372) -->
+  <line x1="68" y1="111" x2="440" y2="111" class="grid"/> <!-- 8.4V -->
+  <line x1="68" y1="138" x2="440" y2="138" class="grid"/> <!-- 7.4V -->
+  <line x1="68" y1="159" x2="440" y2="159" class="thresh-uvlo"/> <!-- 6.6V UVLO -->
+  <line x1="68" y1="164" x2="440" y2="164" class="thresh"/> <!-- 6.4V BMS -->
+  <line x1="68" y1="202" x2="440" y2="202" class="grid"/> <!-- 5.0V -->
+  <line x1="68" y1="247" x2="440" y2="247" class="grid"/> <!-- 3.3V -->
+
+  <!-- Vertical Event Markers -->
+  <!-- t = 36s (V_BAT = 6.60V): x = 68 + (36/48)*372 = 347 -->
+  <line x1="347" y1="95" x2="347" y2="335" class="thresh-uvlo"/>
+  <!-- t = 40s (V_BAT = 6.40V): x = 68 + (40/48)*372 = 378 -->
+  <line x1="378" y1="95" x2="378" y2="335" class="thresh"/>
+
+  <!-- Axes Left -->
+  <line x1="68" y1="95" x2="68" y2="335" class="axis"/>
+  <line x1="68" y1="335" x2="440" y2="335" class="axis"/>
+
+  <!-- Y Ticks Left -->
+  <text x="62" y="114" text-anchor="end" class="tick">8,4 V</text>
+  <text x="62" y="141" text-anchor="end" class="tick">7,4 V</text>
+  <text x="62" y="157" text-anchor="end" class="tick" fill="#b45309" font-weight="bold">6,6 V</text>
+  <text x="62" y="169" text-anchor="end" class="tick" fill="#cf222e" font-weight="bold">6,4 V</text>
+  <text x="62" y="205" text-anchor="end" class="tick">5,0 V</text>
+  <text x="62" y="250" text-anchor="end" class="tick">3,3 V</text>
+  <text x="62" y="338" text-anchor="end" class="tick">0,0 V</text>
+
+  <!-- X Ticks Left -->
+  <text x="68" y="350" text-anchor="middle" class="tick">0 s</text>
+  <text x="161" y="350" text-anchor="middle" class="tick">12 s</text>
+  <text x="254" y="350" text-anchor="middle" class="tick">24 s</text>
+  <text x="347" y="350" text-anchor="middle" class="tick" fill="#b45309" font-weight="bold">36 s</text>
+  <text x="378" y="350" text-anchor="middle" class="tick" fill="#cf222e" font-weight="bold">40 s</text>
+  <text x="440" y="350" text-anchor="middle" class="tick">48 s</text>
+  <text x="254" y="366" text-anchor="middle" class="label">Tempo de Varredura da Fonte Ajustável (s)</text>
+
+  <!-- Curve 1: V_BAT Ramp (8.4V at t=0 -> 6.0V at t=48s: y=111 to y=175) -->
+  <polyline points="68,111 347,159 378,164 440,175" class="curve-vbat"/>
+
+  <!-- Curve 2: V_MOT_EN (Traction Enable: 6.0V eff until t=36s / 6.60V, then drops to 0V) -->
+  <polyline points="68,175 347,175 349,333 440,333" class="curve-vout"/>
+
+  <!-- Curve 3: V_OUT_BMS (BMS 2S Hardware Cutoff at t=40s / 6.40V, drops to 0V) -->
+  <polyline points="68,113 378,165 380,335 440,335" class="curve-bms"/>
+
+  <!-- Callout Points Left -->
+  <circle cx="347" cy="159" r="4.5" fill="#d97706"/>
+  <rect x="172" y="182" width="168" height="36" rx="4" fill="#fffbeb" stroke="#d97706" stroke-width="1.2"/>
+  <text x="178" y="196" class="badge" fill="#b45309">Corte Primário UVLO: 6,60 V</text>
+  <text x="178" y="210" class="tick" fill="#92400e">V_ADC = 1,637 V → PWM = 0%</text>
+
+  <circle cx="378" cy="164" r="4.5" fill="#cf222e"/>
+  <rect x="195" y="255" width="176" height="38" rx="4" fill="#fff5f5" stroke="#cf222e" stroke-width="1.2"/>
+  <text x="202" y="269" class="badge" fill="#cf222e">Corte BMS 2S Bancada: 6,40 V</text>
+  <text x="202" y="283" class="tick" fill="#991b1b">3,20 V/célula → V_P+ = 0,00 V</text>
+
+  <!-- Legend Left -->
+  <line x1="75" y1="385" x2="98" y2="385" class="curve-vbat"/>
+  <text x="103" y="389" class="tick">V_BAT Fonte (8,4→6,0 V)</text>
+  <line x1="230" y1="385" x2="253" y2="385" class="curve-vout"/>
+  <text x="258" y="389" class="tick">Tração UVLO (Corte @ 6,60 V)</text>
+  <line x1="75" y1="404" x2="98" y2="404" class="curve-bms"/>
+  <text x="103" y="408" class="tick">Saída P+ BMS 2S (Corte Físico @ 6,40 V ± 0,05 V)</text>
+
+  <!-- ==================== RIGHT PANEL: ENSAIO 2 (DESARME DO PPTC) ==================== -->
+  <rect x="495" y="42" width="445" height="378" rx="6" class="panel"/>
+  <text x="717" y="62" text-anchor="middle" class="title">Ensaio 2: Resposta Transitória do Fusível PPTC (MF-R185)</text>
+  <text x="717" y="77" text-anchor="middle" class="subtitle">I_hold = 1,85 A | I_trip = 3,55 A @ 25 °C | Degraus de Sobrecorrente</text>
+
+  <!-- Plot Area Right: x=543..915 (w=372), y=95..335 (h=240) -->
+  <!-- Y-axis: Current 0A to 10.0A (y = 335 - (I/10.0)*240) -->
+  <!-- X-axis: Time 0s to 12.0s (x = 543 + (t/12.0)*372) -->
+  <line x1="543" y1="113" x2="915" y2="113" class="grid"/> <!-- 9.25A -->
+  <line x1="543" y1="215" x2="915" y2="215" class="grid"/> <!-- 5.00A -->
+  <line x1="543" y1="250" x2="915" y2="250" class="thresh"/> <!-- 3.55A Trip -->
+  <line x1="543" y1="291" x2="915" y2="291" class="grid"/> <!-- 1.85A Hold -->
+
+  <!-- Axes Right -->
+  <line x1="543" y1="95" x2="543" y2="335" class="axis"/>
+  <line x1="543" y1="335" x2="915" y2="335" class="axis"/>
+
+  <!-- Y Ticks Right -->
+  <text x="537" y="116" text-anchor="end" class="tick">9,25 A</text>
+  <text x="537" y="218" text-anchor="end" class="tick">5,00 A</text>
+  <text x="537" y="253" text-anchor="end" class="tick" fill="#cf222e" font-weight="bold">3,55 A</text>
+  <text x="537" y="294" text-anchor="end" class="tick" fill="#1a7f37" font-weight="bold">1,85 A</text>
+  <text x="537" y="338" text-anchor="end" class="tick">0,12 A</text>
+
+  <!-- X Ticks Right -->
+  <!-- t=0.6s -> x=562; t=3.1s -> x=639; t=8.7s -> x=813; t=9.4s -> x=834 -->
+  <text x="543" y="350" text-anchor="middle" class="tick">0 s</text>
+  <text x="636" y="350" text-anchor="middle" class="tick">3,0 s</text>
+  <text x="729" y="350" text-anchor="middle" class="tick">6,0 s</text>
+  <text x="822" y="350" text-anchor="middle" class="tick">9,0 s</text>
+  <text x="915" y="350" text-anchor="middle" class="tick">12,0 s</text>
+  <text x="729" y="366" text-anchor="middle" class="label">Tempo sob Sobrecorrente Simulada (s)</text>
+
+  <!-- Curve A: 9.25 A (Short-circuit / 5x I_hold) -> Trips at t = 0.60 s (x = 562) -->
+  <polyline points="543,113 559,116 562,332 915,332" class="curve-92a"/>
+  <circle cx="562" cy="116" r="4" fill="#8250df"/>
+  <text x="572" y="114" class="badge" fill="#8250df">9,25 A → Trip em 0,60 s</text>
+
+  <!-- Curve B: 5.00 A (Severe Overcurrent) -> Trips at t = 3.10 s (x = 639) -->
+  <polyline points="543,215 628,218 639,240 644,332 915,332" class="curve-50a"/>
+  <circle cx="639" cy="222" r="4" fill="#cf222e"/>
+  <text x="648" y="212" class="badge" fill="#cf222e">5,00 A → Trip em 3,10 s</text>
+
+  <!-- Curve C: 3.60 A (> 3.5 A Criterion) -> Trips at t = 9.10 s (x = 825) -->
+  <polyline points="543,248 805,252 825,270 832,332 915,332" class="curve-36a"/>
+  <circle cx="825" cy="256" r="4" fill="#d97706"/>
+  <rect x="695" y="142" width="205" height="40" rx="4" fill="#fffbeb" stroke="#d97706" stroke-width="1.2"/>
+  <text x="703" y="157" class="badge" fill="#b45309">Critério &gt; 3,5 A (I = 3,60 A):</text>
+  <text x="703" y="172" class="tick" fill="#92400e">Desarme em t = 9,10 s (I_res = 0,12 A)</text>
+  <line x1="800" y1="182" x2="823" y2="252" stroke="#d97706" stroke-width="1.2" stroke-dasharray="2,2"/>
+
+  <!-- Curve D: 1.85 A (I_hold Continuous) -> Never trips -->
+  <polyline points="543,291 915,291" class="curve-18a"/>
+  <text x="740" y="285" class="badge" fill="#1a7f37">1,85 A (I_hold): Estável (Sem Desarme)</text>
+
+  <!-- Legend Right -->
+  <line x1="550" y1="385" x2="573" y2="385" class="curve-18a"/>
+  <text x="578" y="389" class="tick">1,85 A (Regime / Arrancada)</text>
+  <line x1="735" y1="385" x2="758" y2="385" class="curve-36a"/>
+  <text x="763" y="389" class="tick">3,60 A (&gt; 3,5 A: Trip 9,1 s)</text>
+  <line x1="550" y1="404" x2="573" y2="404" class="curve-50a"/>
+  <text x="578" y="408" class="tick">5,00 A (Trip 3,1 s)</text>
+  <line x1="735" y1="404" x2="758" y2="404" class="curve-92a"/>
+  <text x="763" y="408" class="tick">9,25 A (Curto: Trip 0,6 s)</text>
+</svg>
