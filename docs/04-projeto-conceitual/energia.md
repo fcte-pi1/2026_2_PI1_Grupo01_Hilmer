@@ -109,10 +109,11 @@ Com base no dimensionamento de 130 mAh (missão unitária) e na demanda estendid
 
 A distribuição de energia segrega a malha de acionamento eletromecânico dos circuitos lógicos e de sensoriamento:
 
-* **Entrada de Energia, Gerenciamento e Chaveamento:**
-  * O polo positivo da bateria LiPo 2S conecta-se ao circuito através de conector de alta corrente **XT30**.
-  * Em série com a linha positiva (+VBAT), posiciona-se um **Fusível de Proteção de Ação Rápida (3 A a 5 A)** (formato mini automotivo ou SMD), indispensável para salvaguardar o circuito contra curtos-circuitos acidentais decorrentes da elevada capacidade de descarga da célula LiPo (75C contínuo / 150C pico).
-  * Em série após o fusível, uma **Chave de Potência** mecânica (SW1) comanda a ligação geral do circuito antes da derivação dos barramentos de potência e regulação.
+* **Entrada de Energia, Proteções e Chaveamento (detalhado em [4.2.1 Proteções de entrada](protecoes-entrada.md)):**
+  * O polo positivo da bateria LiPo 2S conecta-se ao circuito através do conector polarizado de alta corrente **XT-30**.
+  * Em série com a linha positiva (`VBAT_RAW`), posiciona-se um **Fusível Rearmável PPTC Bourns MF-R185** ($I_{\text{hold}} = 1{,}85\text{ A}$, $I_{\text{trip}} \approx 3{,}5\text{ A a }3{,}7\text{ A}$, $V_{\text{max}} = 30\text{ V}$), salvaguardando o circuito contra curtos-circuitos e travamento severo dos motores N20 sem desarmar em arrancadas.
+  * Após o PPTC, integra-se uma malha ativa contra inversão de polaridade com **P-MOSFET Canal P de baixa perda (AO3407A, $R_{\text{DS(on)}} \approx 28\text{ m}\Omega$)** em configuração *High-Side*, garantindo queda de tensão inferior a $0{,}02\text{ V}$ em regime nominal e preservando a margem de *dropout* do regulador de 5 V.
+  * Na saída protegida (`+VBAT_PROT`), uma **Chave de Potência** mecânica (`SW1`) comanda a energização geral do barramento `+VBAT_2S` antes da derivação para os conversores e ponte H.
 * **Barramento Direto dos Motores (+VBAT_2S / Pinos VM):**
   * O terminal `VM` do driver DRV8833 recebe diretamente a tensão não regulada da bateria (+VBAT_2S, entre 7,4 V e 8,4 V).
   * *Validação da Tensão de 8,4 V em Motores Nominais de 6,0 V:* O DRV8833 suporta até 10,8 V em VM, operando com ampla folga de segurança. Para proteger as bobinas dos micromotores N20 sem a inclusão de um regulador de potência de 6 V, adota-se **limitação por software via modulação PWM**: o *duty cycle* máximo enviado pelo ESP32-C3 é travado em **71%** ($6,0\text{ V} / 8,4\text{ V}$), garantindo que a tensão eficaz nos motores não ultrapasse os 6,0 V nominais sob bateria plena.
@@ -336,4 +337,5 @@ Os esquemáticos a seguir ilustram as interconexões dos nós de potência, malh
 | 1.0 | 05/10/2026 | Estruturação inicial do consumo de energia e dimensionamento da bateria LiPo 2S | Bruno Duarte e Paulo Melo | Equipe Micromouse |
 | 1.1 | 10/10/2026 | Atualização das especificações dinâmicas da bateria LiPo e modelo Tattu 650mAh | Paulo Melo | Bruno Duarte |
 | 1.2 | 12/10/2026 | Dimensionamento dos reguladores Step-Down LM2596 e MP1584EN, cálculo de componentes passivos, análise de dissipação térmica | Elias Oliveira | Equipe de Hardware |
+| 1.3 | 17/10/2026 | Alinhamento da seção de proteções de entrada com o dimensionamento do PPTC (MF-R185) e P-MOSFET (AO3407A) da Issue #200 | Paulo Melo | Equipe de Energia |
 

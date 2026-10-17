@@ -91,6 +91,7 @@ nav:
       - 04-projeto-conceitual/README.md
       - 4.1 Estruturas: 04-projeto-conceitual/estruturas.md
       - 4.2 Energia: 04-projeto-conceitual/energia.md
+      - 4.2.1 Proteções de entrada: 04-projeto-conceitual/protecoes-entrada.md
       - 4.3 Hardware: 04-projeto-conceitual/hardware.md
       - 4.3.1 Diagramas de hardware: 04-projeto-conceitual/hardware-diagramas.md
       - 4.3.2 Justificativa dos componentes: 04-projeto-conceitual/justificativa-componentes.md
