@@ -65,7 +65,31 @@ Mapa& paraNavegacao = armazenamentoMapa.mapa();                  // lê e regist
 const Mapa& paraTelemetria = armazenamentoMapa.mapa();           // só lê (pelo acesso const)
 ```
 
-O armazenamento não pode ser copiado, e o acesso `const` impede que a telemetria altere o mapa; as duas regras são conferidas em tempo de compilação. Medido no ESP32-C3, o objeto ocupa **196 bytes** de RAM estática (`.bss`): 195 do mapa e 1 do indicador de corrida.
+O armazenamento não pode ser copiado, e o acesso `const` impede que a telemetria altere o mapa; as duas regras são conferidas em tempo de compilação.
+
+#### Mapa final da corrida
+
+Ao alcançar a célula objetivo, a navegação chama `congelarMapa()`. O armazenamento copia o mapa da corrida para um segundo `Mapa`, o **mapa final**, que a partir daí só é lido: a navegação pode continuar registrando paredes no mapa da corrida (por exemplo, no caminho de volta) sem mudar o resultado ([#180](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/180), HU-04).
+
+```cpp
+if (chegouAoObjetivo) {
+  armazenamentoMapa.congelarMapa();  // true na primeira vez; false se já estava congelado
+}
+
+static char json[TAMANHO_MAX_JSON_MAPA + 1];
+size_t tamanho = MapaJson::serializarFinal(armazenamentoMapa, json, sizeof(json));  // 0 se ainda não congelou
+```
+
+| Regra | Comportamento |
+|---|---|
+| Congelar antes de `iniciarCorrida()` | Recusado: `congelarMapa()` devolve `false` |
+| Congelar de novo | Recusado: devolve `false`, e o mapa final continua o da primeira vez |
+| `mapaFinal()` | `nullptr` enquanto não congelou; depois, o mapa final, só para leitura |
+| Escritas depois de congelar | Mudam só o mapa da corrida (`mapa()`); o mapa final e o JSON dele não mudam |
+| Nova corrida | `iniciarCorrida()` destrava o congelamento, e `mapaFinal()` volta a ser `nullptr` |
+| `serializarFinal()` | O mesmo JSON de `serializar()` (formato da [#178](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/178)), mas do mapa final; devolve `0` e deixa a string vazia se o mapa não foi congelado ou se o buffer não comporta o JSON |
+
+**Memória.** Com o mapa final, o objeto passou de 196 para **392 bytes** (`sizeof` no computador): dois mapas de 195 bytes e os dois indicadores, de corrida iniciada e de mapa congelado. O limite do teste `test_armazenamento_ocupa_pouca_memoria` subiu de 256 para 512 bytes. Antes do mapa final, a medida no ESP32-C3 era de 196 bytes de RAM estática (`.bss`), igual ao `sizeof`.
 
 ## Atualização do mapa
 
