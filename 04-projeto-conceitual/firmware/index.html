@@ -855,15 +855,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#comunicacao-serializacao-do-mapa-em-json" class="md-nav__link">
+  <a href="#mapeamento-mapa-final-da-corrida" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Comunicação: serialização do mapa em JSON
+        Mapeamento: mapa final da corrida
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Comunicação: serialização do mapa em JSON">
+    <nav class="md-nav" aria-label="Mapeamento: mapa final da corrida">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -879,6 +879,45 @@
         
           <li class="md-nav__item">
   <a href="#interface-da-classe_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface da Classe
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comunicacao-serializacao-do-mapa-em-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comunicação: serialização do mapa em JSON
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Comunicação: serialização do mapa em JSON">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regras-de-negocio-e-algoritmo_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de Negócio e Algoritmo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-da-classe_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Interface da Classe
@@ -1501,15 +1540,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#comunicacao-serializacao-do-mapa-em-json" class="md-nav__link">
+  <a href="#mapeamento-mapa-final-da-corrida" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Comunicação: serialização do mapa em JSON
+        Mapeamento: mapa final da corrida
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Comunicação: serialização do mapa em JSON">
+    <nav class="md-nav" aria-label="Mapeamento: mapa final da corrida">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1525,6 +1564,45 @@
         
           <li class="md-nav__item">
   <a href="#interface-da-classe_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface da Classe
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comunicacao-serializacao-do-mapa-em-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comunicação: serialização do mapa em JSON
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Comunicação: serialização do mapa em JSON">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regras-de-negocio-e-algoritmo_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de Negócio e Algoritmo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-da-classe_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Interface da Classe
@@ -1729,7 +1807,7 @@
 </tr>
 <tr>
 <td><code>lib/mapeamento</code></td>
-<td>Mapa do labirinto, atualização e armazenamento em memória (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/176">#176</a>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/177">#177</a>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/179">#179</a>)</td>
+<td>Mapa do labirinto, atualização, armazenamento em memória e mapa final (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/176">#176</a>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/177">#177</a>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/179">#179</a>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/180">#180</a>)</td>
 </tr>
 <tr>
 <td><code>lib/navegacao</code></td>
@@ -2095,6 +2173,31 @@
 <li><strong>Sobrecarga de conveniência:</strong> <code>Mapa &amp;mapa</code>, <code>const Pose &amp;pose</code>, <code>const ClassificadorParede &amp;classificador</code>, <code>const DistanciasLaterais *amostras</code>, <code>size_t quantidadeAmostras</code>, realizando a classificação internamente antes do registro.</li>
 <li><strong>Saída:</strong> <code>ResultadoAtualizacao</code> (<code>frente</code>, <code>esquerda</code>, <code>direita</code> e a flag <code>temConflito</code>).</li>
 </ul>
+<h2 id="mapeamento-mapa-final-da-corrida">Mapeamento: mapa final da corrida<a class="headerlink" href="#mapeamento-mapa-final-da-corrida" title="Permanent link">&para;</a></h2>
+<p>Quando o robô alcança a célula objetivo, o mapa do labirinto percorrido precisa ficar guardado e pronto para ser enviado ao servidor, vinculado ao registro da corrida (HU-04, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/180">#180</a>). O <code>ArmazenamentoMapa</code> (<code>lib/mapeamento</code>), que já era o dono do mapa da corrida (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/179">#179</a>), passou a guardar também o <strong>mapa final</strong>: uma cópia feita no momento do congelamento.</p>
+<pre class="mermaid"><code>stateDiagram-v2
+    [*] --&gt; SemCorrida
+    SemCorrida --&gt; Explorando: iniciarCorrida()
+    Explorando --&gt; Explorando: registrar paredes em mapa()
+    Explorando --&gt; Congelado: congelarMapa() ao alcançar o objetivo
+    Congelado --&gt; Congelado: novo congelarMapa() é recusado e escritas em mapa() não mudam o mapa final
+    Congelado --&gt; Explorando: iniciarCorrida() (nova corrida)</code></pre>
+<p><strong>Figura 5.</strong> Ciclo de vida do mapa final no <code>ArmazenamentoMapa</code>: o congelamento só acontece uma vez por corrida e só uma nova corrida o destrava.</p>
+<h3 id="regras-de-negocio-e-algoritmo_2">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Congelamento por cópia:</strong> <code>congelarMapa()</code> copia o mapa da corrida para <code>mapaFinal_</code>. A cópia isola o resultado: a navegação pode continuar escrevendo no mapa da corrida (por exemplo, no caminho de volta à partida) sem alterar o mapa final, nem o JSON gerado a partir dele.</li>
+<li><strong>Uma vez por corrida:</strong> congelar antes de <code>iniciarCorrida()</code> ou congelar de novo é recusado (<code>false</code>), e o mapa final continua o da primeira vez. <code>iniciarCorrida()</code> destrava o congelamento para a próxima corrida.</li>
+<li><strong>Leitura protegida:</strong> <code>mapaFinal()</code> devolve <code>nullptr</code> enquanto o mapa não foi congelado e, depois, um ponteiro <code>const</code>, só para leitura.</li>
+<li><strong>Serialização no formato da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/178">#178</a> (tarefa 5.3.3):</strong> <code>MapaJson::serializarFinal(armazenamento, saida, capacidade)</code> gera o mesmo JSON de <code>serializar()</code>, mas do mapa final. Sem mapa congelado, devolve <code>0</code> e deixa <code>saida</code> com uma string vazia.</li>
+<li><strong>Memória sem alocação dinâmica:</strong> os dois mapas ficam dentro do objeto, que passou de 196 para 392 bytes (dois <code>Mapa</code> de 195 bytes e dois indicadores), cerca de 0,1% dos 320 KB de RAM do ESP32-C3.</li>
+</ul>
+<h3 id="interface-da-classe_2">Interface da Classe<a class="headerlink" href="#interface-da-classe_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>bool congelarMapa()</code>:</strong> <code>true</code> se congelou; <code>false</code> se a corrida não foi iniciada ou se o mapa já estava congelado.</li>
+<li><strong><code>bool mapaCongelado() const</code>:</strong> <code>true</code> depois do congelamento, até a próxima <code>iniciarCorrida()</code>.</li>
+<li><strong><code>const Mapa* mapaFinal() const</code>:</strong> o mapa final, ou <code>nullptr</code> se ainda não congelou.</li>
+<li><strong><code>static size_t MapaJson::serializarFinal(const ArmazenamentoMapa&amp;, char* saida, size_t capacidade)</code>:</strong> número de caracteres escritos sem o <code>\0</code>; <code>0</code> se não congelou, se <code>saida</code> é nulo ou se o buffer não comporta o JSON.</li>
+</ul>
 <h2 id="comunicacao-serializacao-do-mapa-em-json">Comunicação: serialização do mapa em JSON<a class="headerlink" href="#comunicacao-serializacao-do-mapa-em-json" title="Permanent link">&para;</a></h2>
 <p>O módulo de comunicação (<code>lib/comunicacao</code>) implementa a classe <code>MapaJson</code>, responsável por converter o <code>Mapa</code> em JSON para o envio na telemetria com a biblioteca ArduinoJson (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/178">#178</a>). O formato foi combinado com os nomes das colunas da tabela <code>mapa_celulas</code> do banco, para que a lista de células possa ser inserida nela só acrescentando o <code>corrida_id</code>. Como não depende do Arduino, a serialização é testada no ambiente <code>native</code>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
@@ -2107,7 +2210,7 @@
 <a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="p">]</span>
 <a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="p">}</span>
 </code></pre></div>
-<p><strong>Figura 5.</strong> JSON de um mapa 4×4 recém-criado (só o perímetro conhecido), formatado aqui para leitura: a saída real não tem espaços nem quebras de linha.</p>
+<p><strong>Figura 6.</strong> JSON de um mapa 4×4 recém-criado (só o perímetro conhecido), formatado aqui para leitura: a saída real não tem espaços nem quebras de linha.</p>
 <table>
 <thead>
 <tr>
@@ -2134,17 +2237,18 @@
 </tr>
 </tbody>
 </table>
-<h3 id="regras-de-negocio-e-algoritmo_2">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_2" title="Permanent link">&para;</a></h3>
+<h3 id="regras-de-negocio-e-algoritmo_3">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Buffer do chamador:</strong> <code>MapaJson::serializar(mapa, saida, capacidade)</code> escreve o JSON num buffer de tamanho fixo fornecido por quem chama, terminado em <code>\0</code>. A ArduinoJson usa memória dinâmica só durante a conversão e a libera ao final.</li>
 <li><strong>Tamanho máximo:</strong> <code>TAMANHO_MAX_JSON_MAPA</code> (5.100 bytes) é o maior tamanho, sem o <code>\0</code>, do JSON de um mapa 12×4 com as 48 células conhecidas e todas as paredes internas <code>Livre</code>. É o pior caso, porque <code>false</code> ocupa mais caracteres que <code>true</code> ou <code>null</code>, e o perímetro continua <code>true</code>. Esse buffer é maior que a pilha das tarefas (4.096 bytes), então precisa ser <code>static</code> ou global.</li>
 <li><strong>Fail-safe de capacidade:</strong> se o buffer não comporta o JSON inteiro, ou é nulo, ou tem capacidade zero, a função devolve <code>0</code> e deixa <code>saida</code> com uma string vazia, sem escrever além da capacidade informada.</li>
 <li><strong>Imutabilidade e determinismo:</strong> serializar não altera o <code>Mapa</code> (a telemetria só lê; a navegação segue com o mesmo mapa, HU-04), e duas serializações do mesmo mapa produzem o mesmo texto.</li>
 </ul>
-<h3 id="interface-da-classe_2">Interface da Classe<a class="headerlink" href="#interface-da-classe_2" title="Permanent link">&para;</a></h3>
+<h3 id="interface-da-classe_3">Interface da Classe<a class="headerlink" href="#interface-da-classe_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Entrada:</strong> <code>const Mapa &amp;mapa</code>, <code>char *saida</code>, <code>size_t capacidade</code> (tamanho de <code>saida</code> em bytes, incluindo o <code>\0</code>)</li>
 <li><strong>Saída:</strong> <code>size_t</code>, o número de caracteres escritos sem o <code>\0</code>; <code>0</code> quando a serialização falha</li>
+<li><strong>Mapa final:</strong> <code>MapaJson::serializarFinal(const ArmazenamentoMapa &amp;armazenamento, char *saida, size_t capacidade)</code> serializa o mapa congelado ao alcançar o objetivo, com as mesmas regras de buffer (veja <a href="#mapeamento-mapa-final-da-corrida">Mapeamento: mapa final da corrida</a>)</li>
 </ul>
 <h2 id="tarefas-do-freertos">Tarefas do FreeRTOS<a class="headerlink" href="#tarefas-do-freertos" title="Permanent link">&para;</a></h2>
 <p>Criadas em <code>src/main.cpp</code>. Navegação e telemetria rodam de forma concorrente, como no diagrama de atividades: o ESP32-C3 tem um único núcleo, e o FreeRTOS alterna entre as tarefas conforme a prioridade de cada uma.</p>
@@ -2452,6 +2556,31 @@
 <td><code>test_dimensao_fora_do_enum_sai_como_texto_vazio</code></td>
 <td>Valor fora do enum <code>DimensaoMapa</code> sai com <code>dimensao</code> vazio, sem travar (<em>fail-safe</em>)</td>
 </tr>
+<tr>
+<td><code>test_armazenamento_mapa/test_armazenamento_mapa.cpp</code></td>
+<td><code>test_congelamento_do_mapa</code></td>
+<td>Ciclo de vida do congelamento: recusa sem corrida e em dobro, isolamento do mapa final e destrave com nova corrida</td>
+</tr>
+<tr>
+<td><code>test_mapa_final/test_mapa_final.cpp</code></td>
+<td><code>test_congelamento_ao_sinalizar_objetivo</code></td>
+<td>Ao sinalizar o objetivo, o mapa é congelado uma única vez e guarda as paredes descobertas</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_serializacao_mapa_final_formato_5_3_3</code></td>
+<td><code>serializarFinal</code> recusa antes de congelar e, depois, gera o JSON da #178 (16 células no 4×4); buffer pequeno devolve <code>0</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_mapa_final_testado_no_labirinto_simulado</code></td>
+<td>Robô simulado vai de (0, 0) ao objetivo (3, 3) no labirinto 4×4, congela e serializa o mapa explorado</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_mapa_final_permanece_inalterado_apos_novos_registros</code></td>
+<td>Escritas depois do congelamento mudam só o mapa da corrida; o JSON do mapa final continua idêntico</td>
+</tr>
 </tbody>
 </table>
 <p>Para rodar, dentro de <code>src/firmware</code>:</p>
@@ -2542,6 +2671,11 @@
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/178">#178</a> Formato JSON do mapa</td>
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/37">HU-03</a> (RF03)</td>
 </tr>
+<tr>
+<td><code>ArmazenamentoMapa::congelarMapa</code>, <code>mapaFinal</code>, <code>MapaJson::serializarFinal</code></td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/180">#180</a> Mapa final serializado</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/38">HU-04</a> (RF04)</td>
+</tr>
 </tbody>
 </table>
 <h2 id="proximos-passos">Próximos passos<a class="headerlink" href="#proximos-passos" title="Permanent link">&para;</a></h2>
@@ -2551,6 +2685,7 @@
 <li><strong>Tarefas da Sprint 2:</strong> driver do LiDAR, classificação <code>parede</code>/<code>livre</code>, estrutura do mapa e armazenamento em memória, cada uma na pasta da sua camada e com testes em <code>test/</code>.</li>
 <li><strong>Validar com o hardware:</strong> o conflito dos pinos da UART0 e o primeiro teste gravado na placa (o projeto base foi compilado, mas ainda não gravado).</li>
 <li><strong>Formato JSON do mapa</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/178">#178</a>): o formato foi validado com as outras equipes. O dashboard (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/239">#239</a>) aceitou o JSON e vai tratar <code>null</code> como área não explorada, e a tabela <code>mapa_celulas</code> passou a aceitar <code>null</code> nas colunas <code>parede_*</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/228">#228</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/328">#328</a>). Falta o envio de fato da lista de células ao banco, que entra com a telemetria (Épico 03).</li>
+<li><strong>Mapa final serializado</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/180">#180</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/330">#330</a>), concluído: o mapa é congelado e serializado ao alcançar o objetivo e testado no labirinto simulado. Falta a navegação chamar <code>congelarMapa()</code> quando detectar o objetivo (Épico 02) e o envio do JSON do mapa final ao servidor, vinculado à corrida criada pela Edge Function <code>corridas</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/233">#233</a>), no Épico 03.</li>
 </ul>
 
 
