@@ -994,6 +994,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#implementacao-no-supabase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementação no Supabase
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#visoes-41" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1960,6 +1971,17 @@
   
     <nav class="md-nav" aria-label="Descrição da Arquitetura da Solução de Software Proposta">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#implementacao-no-supabase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementação no Supabase
+      
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#visoes-41" class="md-nav__link">
@@ -3117,16 +3139,18 @@ receber, persistir e apresentar a telemetria em tempo real e o histórico de cor
   a lógica de encerramento de corrida.</li>
 <li>Frontend: <strong>React</strong> + Vite + <strong>Recharts</strong> (gráficos de telemetria).</li>
 </ul>
-<p>O ESP32-C3 envia telemetria por HTTP POST periódico (cerca de 1 s) direto ao endpoint
-REST do Supabase, em vez de manter um cliente WebSocket embarcado: é mais simples de
+<p>O ESP32-C3 envia telemetria por HTTP POST periódico (cerca de 1 s) a um endpoint do
+Supabase, em vez de manter um cliente WebSocket embarcado: é mais simples de
 implementar em C++ e já atende à latência de 2 s do RNF05. O frontend recebe cada nova
 leitura em tempo real pelo Supabase Realtime. Se uma requisição falhar, o firmware
 guarda o pacote em <em>buffer</em> local e reenvia depois (HU-16/RF16); a deduplicação e a
 ordenação por número de sequência ficam a cargo de uma restrição <code>UNIQUE
 (corrida_id, numero_sequencia)</code> na própria tabela, com inserção via <code>upsert</code> (<code>ON
-CONFLICT DO NOTHING</code>), sem precisar de um serviço à parte para isso. O acesso de
-escrita do firmware é restrito por uma política de <em>Row Level Security</em> que só permite
-<code>INSERT</code> na tabela de telemetria.</p>
+CONFLICT DO NOTHING</code>), sem precisar de um serviço à parte para isso. A chave pública
+(<code>anon</code>), que fica no frontend e no firmware, só lê: o <em>Row Level Security</em> não tem
+nenhuma política de escrita. As gravações do robô passam por Edge Functions, que
+conferem um token de dispositivo e gravam com a chave de serviço (<code>service_role</code>), que
+fica só no servidor (veja <a href="#implementacao-no-supabase">Implementação no Supabase</a>).</p>
 <p><strong>Banco de dados:</strong> <strong>Relacional (PostgreSQL)</strong>, no plano gratuito do <strong>Supabase</strong>. Os
 dados são bem estruturados e relacionais (corrida com N leituras de telemetria e N
 células de mapa), o que favorece um banco relacional sobre um NoSQL.</p>
@@ -3144,7 +3168,9 @@ células de mapa), o que favorece um banco relacional sobre um NoSQL.</p>
   estado_corrida, evento (nulo, <code>colisao</code> ou <code>objetivo_alcancado</code>). Restrição única
   em (corrida_id, numero_sequencia).</li>
 <li><code>mapa_celulas</code>: id, corrida_id (FK), linha, coluna, parede_norte, parede_sul,
-  parede_leste, parede_oeste.</li>
+  parede_leste, parede_oeste (<code>true</code> = parede, <code>false</code> = livre e <code>null</code> = ainda não
+  explorada, como no JSON do mapa enviado pelo firmware). Restrição única em
+  (corrida_id, linha, coluna).</li>
 </ul>
 <p>Esse modelo cobre o ciclo completo de dados do sistema web: a ingestão da telemetria
 em tempo real durante a corrida, a reconstrução do mapa e do trajeto no dashboard, e a
@@ -3209,6 +3235,108 @@ consulta e a filtragem do histórico de todas as corridas já realizadas.</p>
 
 </figcaption>
 </figure>
+<h4 id="implementacao-no-supabase">Implementação no Supabase<a class="headerlink" href="#implementacao-no-supabase" title="Permanent link">&para;</a></h4>
+<p>O MER e o DER acima foram implementados no projeto Supabase da equipe, no plano
+gratuito, como migrações SQL versionadas em <code>src/backend/supabase/migrations/</code>
+(tarefa <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/228">#228</a>, PR
+<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/326">#326</a>, HU-09). As
+credenciais ficam fora do repositório: <code>src/backend/.env.example</code> traz só os nomes das
+variáveis (<code>SUPABASE_URL</code> e <code>SUPABASE_ANON_KEY</code>), e o <code>.env</code> com os valores reais não é
+versionado. O passo a passo para aplicar as migrações está no
+<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/tree/main/src/backend">README do backend</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Migração</th>
+<th>Conteúdo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>20261014180000_esquema_inicial.sql</code></td>
+<td>As quatro tabelas, as chaves, as restrições de domínio e o <em>seed</em> dos labirintos</td>
+</tr>
+<tr>
+<td><code>20261014180500_seguranca_rls.sql</code></td>
+<td>RLS nas quatro tabelas, as políticas de leitura e o Realtime</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Restrições.</strong> Cada regra do modelo é garantida pelo próprio banco, e não só pelo código
+que grava:</p>
+<table>
+<thead>
+<tr>
+<th>Tabela</th>
+<th>Restrição</th>
+<th>Para quê</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>labirintos</code></td>
+<td><code>tipo</code> único e restrito a <code>4x4</code>, <code>8x4</code> e <code>12x4</code>; <code>linhas</code> e <code>colunas</code> maiores que zero</td>
+<td>Catálogo fixo dos três labirintos da competição</td>
+</tr>
+<tr>
+<td><code>corridas</code></td>
+<td>FK para <code>labirintos</code> com <code>ON DELETE RESTRICT</code>; <code>status</code> restrito a <code>em_andamento</code>, <code>concluida</code> e <code>nao_concluida</code>; único em (<code>labirinto_id</code>, <code>numero_tentativa</code>)</td>
+<td>Um labirinto com corridas não pode ser apagado, e a mesma tentativa não se repete</td>
+</tr>
+<tr>
+<td><code>telemetria</code></td>
+<td>FK para <code>corridas</code> com <code>ON DELETE CASCADE</code>; <code>orientacao</code> restrita a <code>N</code>, <code>S</code>, <code>L</code> e <code>O</code>; <code>evento</code> nulo, <code>colisao</code> ou <code>objetivo_alcancado</code>; único em (<code>corrida_id</code>, <code>numero_sequencia</code>)</td>
+<td>O reenvio de um pacote (RF16) não duplica a leitura: o <code>upsert</code> com <code>ON CONFLICT DO NOTHING</code> ignora a cópia</td>
+</tr>
+<tr>
+<td><code>mapa_celulas</code></td>
+<td>FK para <code>corridas</code> com <code>ON DELETE CASCADE</code>; único em (<code>corrida_id</code>, <code>linha</code>, <code>coluna</code>); <code>parede_*</code> aceitam <code>null</code></td>
+<td>Uma linha por célula, e <code>null</code> representa parede ainda não explorada (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/178">#178</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/328">#328</a>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Seed.</strong> A primeira migração já cadastra os três labirintos, <code>4x4</code> (4 linhas × 4
+colunas), <code>8x4</code> (4 × 8) e <code>12x4</code> (4 × 12), com <code>ON CONFLICT (tipo) DO NOTHING</code>, para que
+rodar a migração de novo não duplique o catálogo.</p>
+<p><strong>Acesso por papel.</strong> O RLS fica ativo nas quatro tabelas, e as únicas políticas são de
+leitura:</p>
+<table>
+<thead>
+<tr>
+<th>Papel</th>
+<th>Quem usa</th>
+<th style="text-align: center;"><code>labirintos</code></th>
+<th style="text-align: center;"><code>corridas</code></th>
+<th style="text-align: center;"><code>telemetria</code></th>
+<th style="text-align: center;"><code>mapa_celulas</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>anon</code>, <code>authenticated</code></td>
+<td>Dashboard e firmware, com a chave pública</td>
+<td style="text-align: center;">Lê</td>
+<td style="text-align: center;">Lê</td>
+<td style="text-align: center;">Lê</td>
+<td style="text-align: center;">Lê</td>
+</tr>
+<tr>
+<td><code>service_role</code></td>
+<td>Edge Functions, no servidor</td>
+<td style="text-align: center;">Lê e grava</td>
+<td style="text-align: center;">Lê e grava</td>
+<td style="text-align: center;">Lê e grava</td>
+<td style="text-align: center;">Lê e grava</td>
+</tr>
+</tbody>
+</table>
+<p>Sem políticas de <code>INSERT</code>, <code>UPDATE</code> ou <code>DELETE</code>, quem tem a chave pública não consegue
+forjar leituras nem alterar corridas, mesmo inspecionando o código do frontend. A
+<code>service_role</code> ignora o RLS, por isso só é usada dentro das Edge Functions, que antes
+conferem o token do robô no cabeçalho <code>x-device-token</code>.</p>
+<p><strong>Tempo real.</strong> As tabelas <code>telemetria</code> e <code>mapa_celulas</code> estão na publicação
+<code>supabase_realtime</code>: o dashboard assina as duas pelo <code>supabase-js</code> e recebe cada linha
+nova sem precisar consultar o banco de novo (HU-08, RNF05).</p>
 <h4 id="visoes-41">Visões 4+1<a class="headerlink" href="#visoes-41" title="Permanent link">&para;</a></h4>
 <ol>
 <li><strong>Lógica:</strong> módulos do firmware (Navegação, Percepção via LiDAR e <em>encoders</em>,
@@ -3589,6 +3717,13 @@ consulta e a filtragem do histórico de todas as corridas já realizadas.</p>
 <td style="text-align: center;">07/10/2026</td>
 <td>Adiciona o histórico de versões</td>
 <td>Ana Carolina Fialho</td>
+<td>Cláudio Henrique</td>
+</tr>
+<tr>
+<td style="text-align: center;">0.9</td>
+<td style="text-align: center;">16/10/2026</td>
+<td>Documenta a implementação do banco no Supabase: migrações, restrições, <em>seed</em>, RLS e Realtime (#228)</td>
+<td>Eduardo Viana</td>
 <td>Cláudio Henrique</td>
 </tr>
 </tbody>
