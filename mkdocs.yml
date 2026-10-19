@@ -75,6 +75,12 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.arithmatex:
+      generic: true
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
 
 nav:
   - Início: README.md
@@ -85,10 +91,12 @@ nav:
       - 04-projeto-conceitual/README.md
       - 4.1 Estruturas: 04-projeto-conceitual/estruturas.md
       - 4.2 Energia: 04-projeto-conceitual/energia.md
+      - 4.2.1 Proteções de entrada: 04-projeto-conceitual/protecoes-entrada.md
       - 4.3 Hardware: 04-projeto-conceitual/hardware.md
       - 4.3.1 Diagramas de hardware: 04-projeto-conceitual/hardware-diagramas.md
       - 4.3.2 Justificativa dos componentes: 04-projeto-conceitual/justificativa-componentes.md
       - 4.4 Software: 04-projeto-conceitual/software.md
+      - "4.4.1 Firmware: implementação": 04-projeto-conceitual/firmware.md
   - 5. Cronograma: 05-cronograma.md
   - 6. Orçamento: 06-orcamento.md
   - 7. Testes:

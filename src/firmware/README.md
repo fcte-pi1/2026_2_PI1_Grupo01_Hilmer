@@ -21,8 +21,8 @@ src/firmware/
 | `percepcao` | Percepção | Classificação `parede`/`livre` a partir das distâncias do LiDAR |
 | `encoders` | Sensoriamento | Decodificação em quadratura (x4) dos canais A e B, conversão de pulsos em milímetros (calibrável) e distância percorrida por cada roda |
 | `lidar` | Drivers / Hardware | Driver de leitura do sensor LiDAR 360° via UART (decodificador LD06) e agregação de leituras por setores |
-| `mapeamento` | Mapeamento | Mapa do labirinto (4 paredes por célula) e armazenamento em memória |
-| `navegacao` | Navegação | Localização (`Odometria`: pose pela odometria diferencial dos encoders), decisão de movimento e detecção do objetivo |
+| `mapeamento` | Mapeamento | Mapa do labirinto (4 paredes por célula), atualização a partir das leituras classificadas e armazenamento em memória |
+| `navegacao` | Navegação | Localização, decisão de movimento e detecção do objetivo |
 | `atuacao` | Atuação | Controle dos motores e correção de trajetória |
 | `comunicacao` | Comunicação | Pacotes de telemetria, serialização JSON e *buffer* de reenvio |
 | `simulacao` | Falsos para teste | `LidarSimulado`, um `ILidar` que devolve as leituras configuradas pelo teste, `LabirintoSimulado`, o labirinto de referência que alimenta o `LidarSimulado`, `EncoderSimulado`, um `IEncoder` com a contagem definida pelo teste, e `MotoresSimulados`, um `IMotores` que guarda o último comando, sem hardware |
@@ -66,7 +66,101 @@ Mapa& paraNavegacao = armazenamentoMapa.mapa();                  // lê e regist
 const Mapa& paraTelemetria = armazenamentoMapa.mapa();           // só lê (pelo acesso const)
 ```
 
-O armazenamento não pode ser copiado, e o acesso `const` impede que a telemetria altere o mapa; as duas regras são conferidas em tempo de compilação. Medido no ESP32-C3, o objeto ocupa **196 bytes** de RAM estática (`.bss`): 195 do mapa e 1 do indicador de corrida.
+O armazenamento não pode ser copiado, e o acesso `const` impede que a telemetria altere o mapa; as duas regras são conferidas em tempo de compilação.
+
+#### Mapa final da corrida
+
+Ao alcançar a célula objetivo, a navegação chama `congelarMapa()`. O armazenamento copia o mapa da corrida para um segundo `Mapa`, o **mapa final**, que a partir daí só é lido: a navegação pode continuar registrando paredes no mapa da corrida (por exemplo, no caminho de volta) sem mudar o resultado ([#180](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/180), HU-04).
+
+```cpp
+if (chegouAoObjetivo) {
+  armazenamentoMapa.congelarMapa();  // true na primeira vez; false se já estava congelado
+}
+
+static char json[TAMANHO_MAX_JSON_MAPA + 1];
+size_t tamanho = MapaJson::serializarFinal(armazenamentoMapa, json, sizeof(json));  // 0 se ainda não congelou
+```
+
+| Regra | Comportamento |
+|---|---|
+| Congelar antes de `iniciarCorrida()` | Recusado: `congelarMapa()` devolve `false` |
+| Congelar de novo | Recusado: devolve `false`, e o mapa final continua o da primeira vez |
+| `mapaFinal()` | `nullptr` enquanto não congelou; depois, o mapa final, só para leitura |
+| Escritas depois de congelar | Mudam só o mapa da corrida (`mapa()`); o mapa final e o JSON dele não mudam |
+| Nova corrida | `iniciarCorrida()` destrava o congelamento, e `mapaFinal()` volta a ser `nullptr` |
+| `serializarFinal()` | O mesmo JSON de `serializar()` (formato da [#178](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/178)), mas do mapa final; devolve `0` e deixa a string vazia se o mapa não foi congelado ou se o buffer não comporta o JSON |
+
+**Memória.** Com o mapa final, o objeto passou de 196 para **392 bytes** (`sizeof` no computador): dois mapas de 195 bytes e os dois indicadores, de corrida iniciada e de mapa congelado. O limite do teste `test_armazenamento_ocupa_pouca_memoria` subiu de 256 para 512 bytes. Antes do mapa final, a medida no ESP32-C3 era de 196 bytes de RAM estática (`.bss`), igual ao `sizeof`.
+
+## Atualização do mapa
+
+O `AtualizadorMapa` (`lib/mapeamento`) integra a percepção ao mapa: a partir da `Pose` do robô e da classificação das leituras (`ClassificadorParede`), converte as direções relativas (`Frente`, `Esquerda`, `Direita`) para as direções absolutas do mapa (`Norte`, `Leste`, `Sul`, `Oeste`) e atualiza as paredes no `Mapa`.
+
+```cpp
+Mapa mapa;
+Pose pose = {{0, 0}, Direcao::Norte};
+ClassificadorParede classificador;
+
+// Sobrecarga de conveniência: recebe amostras do LiDAR e classifica antes de atualizar
+DistanciasLaterais amostras[3] = { {80, 400, 420}, {85, 390, 410}, {90, 410, 400} };
+ResultadoAtualizacao res = AtualizadorMapa::atualizar(mapa, pose, classificador, amostras, 3);
+```
+
+| Regra | Comportamento |
+|---|---|
+| Conversão de eixos | Converte `Frente`, `Esquerda` e `Direita` da `Pose` para as direções cardeais absolutas |
+| `Desconhecido` | Leituras desconhecidas não alteram o mapa e retornam `Invalida` |
+| Conflitos | Se uma leitura contradiz o mapa, `temConflito` é marcado como `true`, retorna `Conflito` e o valor antigo do mapa é preservado; a política de navegação fica com quem chama (#188) |
+| Pose inválida | Coordenadas fora dos limites do mapa retornam `Invalida` para todas as direções |
+
+## Odometria
+
+A `Odometria` (`lib/navegacao`) estima a pose do robô (célula e direção) pela odometria diferencial dos encoders: a diferença entre as rodas gira a direção, e a média avança o robô na direção atual. A arquitetura não tem IMU. Não depende do Arduino e só usa inteiros.
+
+```cpp
+Odometria odometria;                              // parte em (0, 0), virada para o Norte
+odometria.atualizar(encoderEsq, encoderDir);      // a cada ciclo, com os dois IEncoder
+Pose pose = odometria.pose();                     // célula e direção
+char letra = letraDaDirecao(pose.direcao);        // 'N', 'L', 'S' ou 'O', como no banco
+```
+
+| Regra | Comportamento |
+|---|---|
+| Giro | `contagem esquerda − contagem direita` dividida por `pulsosDiferenciaisPor90Graus`, arredondada para o múltiplo de 90° mais próximo; só muda a direção depois de 45° |
+| Avanço | Média das duas rodas, na direção atual; a célula muda ao cruzar a parede, a meia célula do centro |
+| Giro no lugar | Não muda a célula |
+| Fora da malha | A célula fica limitada a 0 e 255, e `posicaoValida()` devolve `false` |
+| Reinício | `reiniciar(pose, contagemEsquerda, contagemDireita)` define a pose e a referência das contagens |
+| Parâmetros | `ConfiguracaoOdometria.h`: 251 µm por pulso (roda de 32 mm, 400 pulsos por volta) e **625 pulsos por 90° (provisório)**, a calibrar na bancada |
+
+No `main.cpp`, a tarefa de navegação atualiza a odometria a cada 10 ms, e a telemetria acrescenta `linha`, `coluna`, `orientacao` e `pose_valida` à linha de JSON dos encoders.
+
+## Serialização do mapa em JSON
+
+O `MapaJson` (`lib/comunicacao`) converte o `Mapa` em JSON (ArduinoJson) para o envio na telemetria. Não depende do Arduino, então é testado no ambiente `native`.
+
+```cpp
+char buffer[TAMANHO_MAX_JSON_MAPA + 1];
+size_t tamanho = MapaJson::serializar(mapa, buffer, sizeof(buffer));
+// {"dimensao":"4x4","linhas":4,"colunas":4,"celulas":[{"linha":0,"coluna":0,
+//  "parede_norte":null,"parede_sul":true,"parede_leste":null,"parede_oeste":true}, ...]}
+```
+
+| Campo | Valor |
+|---|---|
+| `dimensao` | `"4x4"`, `"8x4"` ou `"12x4"` (colunas × linhas, como `labirintos.tipo`) |
+| `linhas`, `colunas` | Tamanho do labirinto |
+| `linha`, `coluna` | Posição da célula; a partida é (0, 0) |
+| `parede_norte`, `parede_sul`, `parede_leste`, `parede_oeste` | `true` se há parede, `false` se está livre e `null` se ainda é desconhecida |
+
+Os nomes dos campos das células são os das colunas da tabela `mapa_celulas` do banco, então a lista pode ser inserida nela, acrescentando só o `corrida_id`.
+
+| Regra | Comportamento |
+|---|---|
+| Saída | Compacta, sem espaços nem quebras de linha, terminada em `\0` |
+| Buffer | Do chamador, de tamanho fixo; a ArduinoJson só usa memória dinâmica durante a conversão, liberada ao final |
+| `TAMANHO_MAX_JSON_MAPA` (5.100 bytes) | Pior caso: um 12×4 com as 48 células conhecidas e todas as paredes internas `Livre` (`false` ocupa mais caracteres que `true` ou `null`; o perímetro continua `true`). Maior que a pilha das tarefas (4.096 bytes), por isso precisa ser `static` ou global |
+| Capacidade insuficiente, ou `saida` nulo/capacidade zero | Devolve `0` e deixa `saida` com string vazia, sem escrever além da capacidade informada |
 
 ## Labirinto simulado
 
