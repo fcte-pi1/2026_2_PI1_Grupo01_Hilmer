@@ -47,6 +47,13 @@ void test_direcao_absoluta_converte_lado_do_robo_em_direcao_do_labirinto() {
   ASSERT_DIRECAO(Direcao::Sul, direcaoAbsoluta(Direcao::Leste, Lado::Direita));
 }
 
+void test_letra_da_direcao_segue_o_banco_de_dados() {
+  TEST_ASSERT_EQUAL_CHAR('N', letraDaDirecao(Direcao::Norte));
+  TEST_ASSERT_EQUAL_CHAR('L', letraDaDirecao(Direcao::Leste));
+  TEST_ASSERT_EQUAL_CHAR('S', letraDaDirecao(Direcao::Sul));
+  TEST_ASSERT_EQUAL_CHAR('O', letraDaDirecao(Direcao::Oeste));
+}
+
 void test_vizinha_nas_quatro_direcoes() {
   PosicaoCelula destino = {0, 0};
   TEST_ASSERT_TRUE(vizinha({2, 3}, Direcao::Norte, destino));
@@ -84,6 +91,7 @@ int main(int, char**) {
   RUN_TEST(test_girar_esquerda_desfaz_girar_direita);
   RUN_TEST(test_oposta_inverte_a_direcao);
   RUN_TEST(test_direcao_absoluta_converte_lado_do_robo_em_direcao_do_labirinto);
+  RUN_TEST(test_letra_da_direcao_segue_o_banco_de_dados);
   RUN_TEST(test_vizinha_nas_quatro_direcoes);
   RUN_TEST(test_vizinha_ao_sul_da_linha_zero_retorna_false_e_nao_altera_o_destino);
   RUN_TEST(test_vizinha_a_oeste_da_coluna_zero_retorna_false);
