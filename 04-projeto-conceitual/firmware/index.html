@@ -1013,6 +1013,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#atuacao-centralizacao-no-corredor-e-parada-frontal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Atuação: centralização no corredor e parada frontal
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Atuação: centralização no corredor e parada frontal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#geometria-considerada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Geometria considerada
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regras-de-negocio-e-algoritmo_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de Negócio e Algoritmo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-da-classe_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface da Classe
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#testes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1737,6 +1787,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#atuacao-centralizacao-no-corredor-e-parada-frontal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Atuação: centralização no corredor e parada frontal
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Atuação: centralização no corredor e parada frontal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#geometria-considerada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Geometria considerada
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regras-de-negocio-e-algoritmo_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de Negócio e Algoritmo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-da-classe_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface da Classe
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#testes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2450,6 +2550,78 @@
 </tbody>
 </table>
 <p>A navegação tem prioridade maior para que o envio de dados nunca atrase o controle do robô. Por enquanto, as duas tarefas têm só o laço e a espera; a lógica entra nas tarefas das próximas sprints.</p>
+<h2 id="atuacao-centralizacao-no-corredor-e-parada-frontal">Atuação: centralização no corredor e parada frontal<a class="headerlink" href="#atuacao-centralizacao-no-corredor-e-parada-frontal" title="Permanent link">&para;</a></h2>
+<p>O módulo de atuação (<code>lib/atuacao</code>) leva o robô em linha reta mantendo-o no centro do corredor e o faz desacelerar e parar antes de uma parede frontal (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/191">#191</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/359">#359</a>). Atende aos critérios 1 e 2 da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/182">HU-12</a> (RF-12). Como não depende do Arduino, é testado no ambiente <code>native</code>; só o driver do DRV8833 fica em <code>drivers_esp32</code>.</p>
+<pre class="mermaid"><code>flowchart LR
+    lidar["ILidar&lt;br/&gt;frente, esquerda, direita"] --&gt; controle["ControleMovimento"]
+    controle --&gt; lateral["ControladorCentralizacao&lt;br/&gt;correção lateral (PD)"]
+    controle --&gt; frontal["PerfilParadaFrontal&lt;br/&gt;potência base"]
+    controle --&gt; motores["IMotores&lt;br/&gt;potência de cada roda"]
+    motores -. implementa .-&gt; drv["MotoresDrv8833&lt;br/&gt;PWM nos GPIO 4 a 7"]
+    motores -. implementa .-&gt; sim["MotoresSimulados&lt;br/&gt;testes"]</code></pre>
+<p><strong>Figura 8.</strong> Fluxo do controle de movimento: a cada leitura do LiDAR, a distância frontal define a potência base, as distâncias laterais definem a correção, e o resultado vai para os motores pela interface <code>IMotores</code>.</p>
+<h3 id="geometria-considerada">Geometria considerada<a class="headerlink" href="#geometria-considerada" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Medida</th>
+<th>Valor</th>
+<th>Origem</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Célula do labirinto</td>
+<td>180 mm, já com a parede</td>
+<td><code>TAMANHO_CELULA_MM</code> e tema do PI1</td>
+</tr>
+<tr>
+<td>Espessura da parede</td>
+<td>12 mm</td>
+<td>Tema do PI1</td>
+</tr>
+<tr>
+<td>Chassi</td>
+<td>100 mm de comprimento × 120 mm de largura</td>
+<td><a href="../estruturas/">Estruturas</a></td>
+</tr>
+<tr>
+<td>Distância do centro do robô a cada parede, centralizado</td>
+<td>(180 − 12) / 2 = <strong>84 mm</strong></td>
+<td><code>DISTANCIA_CENTRO_A_PAREDE_MM</code></td>
+</tr>
+<tr>
+<td>Folga entre o chassi e cada parede, centralizado</td>
+<td>84 − 60 = <strong>24 mm</strong></td>
+<td>Calculada</td>
+</tr>
+<tr>
+<td>Folga até a parede da frente, parado no centro da célula</td>
+<td>84 − 50 = <strong>34 mm</strong></td>
+<td>Calculada</td>
+</tr>
+</tbody>
+</table>
+<p>O cálculo considera o LiDAR no centro do robô, com o feixe abaixo do topo das paredes (5 cm). A folga lateral é pequena: ao virar de volta para o centro, a traseira do chassi gira para o lado da parede. Por isso o controle corrige com ângulos pequenos e ganhos baixos.</p>
+<h3 id="regras-de-negocio-e-algoritmo_5">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_5" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Erro lateral:</strong> deslocamento do robô para a direita do centro, em mm. Com parede dos dois lados, é <code>(esquerda − direita) / 2</code>; só com a da esquerda, <code>esquerda − 84</code>; só com a da direita, <code>84 − direita</code>. Leituras acima de 180 mm contam como lado sem parede; sem parede nenhuma, não há correção e o robô segue reto.</li>
+<li><strong>Correção PD:</strong> <code>(20 × erro + 15 × derivada) / 10</code>, em unidades de potência, limitada a 250. A derivada é a variação do erro entre leituras, em mm/s, com filtro passa-baixa de 40% contra o ruído do LiDAR. Ela recomeça do zero quando a referência muda (por exemplo, quando uma parede lateral acaba), para não reagir ao salto da leitura.</li>
+<li><strong>Aplicação nas rodas:</strong> a correção é subtraída da roda esquerda e somada à direita (positiva vira para a esquerda) e nunca passa de 60% da potência base, para nenhuma roda girar para trás perto da parada.</li>
+<li><strong>Parada frontal:</strong> potência de cruzeiro (400 de 1000) até 264 mm da parede, rampa linear até a mínima (150) e parada a 84 mm, o centro da célula. Parado, o robô freia e fica travado até a navegação chamar <code>reiniciar()</code>.</li>
+<li><strong>Fail-safe do LiDAR:</strong> sem leitura válida, o robô segue reto na potência mínima e sem correção; depois de 500 ms sem leitura, freia.</li>
+<li><strong>Motores:</strong> potência de −1000 a 1000 por roda, positiva para a frente (a mesma convenção do <code>IEncoder</code>). O <code>MotoresDrv8833</code> usa PWM de 20 kHz e 10 bits, no modo <em>fast decay</em> do DRV8833, e freia ligando IN1 e IN2. O motor direito é invertido no <code>main.cpp</code>, pela montagem espelhada.</li>
+</ul>
+<p>Os ganhos, as potências e as distâncias de desaceleração estão em <code>ConfiguracaoControle.h</code> e são <strong>provisórios</strong>: foram ajustados numa simulação do corredor (<a href="../../07-testes/software/">Testes de Software</a>) e precisam ser confirmados na bancada.</p>
+<h3 id="interface-da-classe_5">Interface da Classe<a class="headerlink" href="#interface-da-classe_5" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>ControleMovimento::atualizar(ILidar&amp;, IMotores&amp;, dtMs)</code>:</strong> lê o LiDAR, calcula e aplica nos motores; chame uma vez por leitura nova do LiDAR (cerca de 100 ms). Devolve o <code>EstadoMovimento</code>: <code>Cruzeiro</code>, <code>Desacelerando</code>, <code>ParadoNaParede</code>, <code>SemLeitura</code> ou <code>ParadoSemLeitura</code>.</li>
+<li><strong><code>ControleMovimento::calcular(const DistanciasLaterais*, dtMs)</code>:</strong> a mesma conta sem acessar o hardware; <code>nullptr</code> representa a falta de leitura. Devolve <code>PotenciaRodas</code> (<code>esquerda</code>, <code>direita</code>).</li>
+<li><strong><code>ControleMovimento::reiniciar()</code>:</strong> destrava a parada e esquece o histórico da centralização, para um novo trecho reto.</li>
+<li><strong><code>ControladorCentralizacao::calcular(leitura, dtMs)</code></strong> e <strong><code>PerfilParadaFrontal::potenciaBase(frenteMm)</code>:</strong> as duas partes, testadas separadamente.</li>
+</ul>
+<p><strong>Rastreabilidade:</strong> <code>lib/atuacao</code> (<code>ControleMovimento</code>, <code>ControladorCentralizacao</code>, <code>PerfilParadaFrontal</code>, <code>SinaisDrv8833</code>), <code>lib/hal/IMotores</code>, <code>lib/simulacao/MotoresSimulados</code> e <code>lib/drivers_esp32/MotoresDrv8833</code> atendem à tarefa <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/191">#191</a>, da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/182">HU-12</a> (RF-12).</p>
+<p><strong>Pendências:</strong> o critério 3 da HU-12 (teste de bancada no labirinto sem contato com as paredes) depende do chassi montado e da pista 4×4. O <code>ControleMovimento</code> ainda não está na tarefa de navegação: entra junto com o LiDAR e a navegação (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/183">#183</a>).</p>
 <h2 id="testes">Testes<a class="headerlink" href="#testes" title="Permanent link">&para;</a></h2>
 <p>Os testes rodam no computador, no ambiente <code>native</code>, com o framework <strong>Unity</strong>. Cada módulo tem sua pasta <code>test/test_&lt;modulo&gt;/</code>.</p>
 <table>
