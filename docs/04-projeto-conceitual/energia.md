@@ -142,7 +142,6 @@ flowchart TD
     MCU -->|"Barramento I²C (GPIO9 SDA / GPIO8 SCL)"| IMU
     MCU -->|"Sinais PWM 3,3 V (GPIO10, 3, 20, 21)"| DRV_VM
 ```
-
 ---
 
 ## 7. Módulos e Subdocumentos Especializados
@@ -155,6 +154,7 @@ Para garantir modularidade e rastreabilidade com os ensaios de bancada futuros, 
 | **[4.2.2 Reguladores Step-Down (Buck)](energia/reguladores-buck.md)** | Dimensionamento analítico dos três conversores `MP1584EN` (`+6V0 U4`, `+5V0 U2`, `+3V3 U5`), térmico e margem de *dropout* | #199 | Teórico consolidado / Bancada pendente |
 | **[4.2.3 Curva de Descarga e SoC da LiPo](energia/curva-descarga-lipo.md)** | Modelo de Shepherd modificado, curva teórica em Python (426 mA), tabela SoC vs. Tensão e integração com o firmware | #139 | Teórico consolidado / Bancada pendente |
 | **[4.2.4 Monitoramento de Tensão (ADC)](energia/monitoramento-tensao.md)** | Divisor resistivo 100k/33k, filtro anti-aliasing RC (`C5 = 100 nF`, $f_c \approx 64\text{ Hz}$), nó `BAT_ADC_TEST` e UVLO | #203 | Teórico consolidado / Bancada pendente |
+| **[4.2.5 Simulação do Divisor e Filtro Anti-Aliasing](energia/simulacao-divisor-resistivo.md)** | Modelagem analítica da função de transferência $H(s)$, resposta em frequência, diagrama de Bode e atenuação de ruído PWM (#203) | #203 | Simulação concluída / Validado |
 
 ---
 
@@ -171,6 +171,7 @@ Para garantir modularidade e rastreabilidade com os ensaios de bancada futuros, 
 9. **TREMBLAY, Olivier; DESSAINT, Louis-A.** *Experimental Validation of a Battery Dynamic Model for EV Applications*. World Electric Vehicle Journal, v. 3, n. 2, p. 289-298, 2009.
 10. **TATTU.** *Tattu 650mAh 75C 2S1P Lipo Battery Pack with XT30 Plug Specification Sheet*. Gens Ace & Tattu Battery Co., 2023.
 11. **MOHAN, Ned; UNDELAND, Tore M.; ROBBINS, William P.** *Power Electronics: Converters, Applications, and Design*. 3. ed. Nova York: John Wiley & Sons, 2003.
+12. **OPPENHEIM, Alan V.; WILLSKY, Alan S.** *Signals and Systems*. 2. ed. Upper Saddle River: Prentice Hall, 1996.
 
 ---
 
@@ -186,3 +187,4 @@ Para garantir modularidade e rastreabilidade com os ensaios de bancada futuros, 
 | 1.5 | 18/10/2026 | Mapeamento da curva de descarga da LiPo 2S (Equação de Shepherd) e tabela SoC para o firmware (#139) | Elias Oliveira | Bruno Duarte |
 | 2.0 | 20/10/2026 | Reestruturação e seccionamento modular do documento em subdocumentos especializados no diretório `energia/` | Elias Oliveira | Equipe de Energia |
 | 2.1 | 23/10/2026 | Alinhamento com a Revisão 2.0 de Hardware: substituição do LiDAR 360° e LM2596 por 3× VL53L0X + IMU MPU6050, padronização nos 3 conversores MP1584EN (`U2`, `U4`, `U5`), placa ESP32-C3 Super Mini (`U3` em 5 V), nó `BAT_ADC_TEST` (`C5 = 100 nF`) e recálculo do balanço energético | Paulo Melo | Equipe de Energia e Hardware |
+| 2.2 | 25/10/2026 | Inclusão do documento dedicado de simulação analítica do divisor resistivo e filtro anti-aliasing (#203) | Elias Oliveira | Bruno Duarte (System Architect) |
