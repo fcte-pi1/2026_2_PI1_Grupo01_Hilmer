@@ -643,6 +643,56 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#45-mapeamento-matematico-da-curva-de-descarga-issue-139" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.5 Mapeamento Matemático da Curva de Descarga (Issue #139)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.5 Mapeamento Matemático da Curva de Descarga (Issue #139)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#curva-de-descarga-teorica-simulada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Curva de Descarga Teórica Simulada
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tabela-de-correlacao-estado-de-carga-soc-vs-tensao-de-terminal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tabela de Correlação: Estado de Carga (SoC) vs. Tensão de Terminal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integracao-com-a-camada-de-software-e-firmware" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integração com a Camada de Software e Firmware
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -974,17 +1024,6 @@
     <span class="md-ellipsis">
       
         8. Referências Bibliográficas
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#historico-de-versao" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Histórico de Versão
       
     </span>
   </a>
@@ -1606,6 +1645,56 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#45-mapeamento-matematico-da-curva-de-descarga-issue-139" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.5 Mapeamento Matemático da Curva de Descarga (Issue #139)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.5 Mapeamento Matemático da Curva de Descarga (Issue #139)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#curva-de-descarga-teorica-simulada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Curva de Descarga Teórica Simulada
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tabela-de-correlacao-estado-de-carga-soc-vs-tensao-de-terminal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tabela de Correlação: Estado de Carga (SoC) vs. Tensão de Terminal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integracao-com-a-camada-de-software-e-firmware" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integração com a Camada de Software e Firmware
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1943,17 +2032,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#historico-de-versao" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Histórico de Versão
-      
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -2095,8 +2173,129 @@
 <li><strong>Margem de Autonomia Real:</strong> Com 650 mAh e respeitando a profundidade máxima de descarga recomendada de 80% (DoD), a bateria disponibiliza <strong>520 mAh úteis</strong>. Sob a corrente média de consumo de 476 mA, a autonomia contínua calculada é de <strong>~65,5 minutos</strong> (<span class="arithmatex">\(\frac{520\text{ mAh}}{476\text{ mA}} \times 60 \approx 65{,}5\text{ min}\)</span>), cobrindo com folga de <strong>+118% de margem</strong> o teto regulamentar de 30 minutos dos 3 labirintos consecutivos (RNF-04).</li>
 <li><strong>Robustez Contra Queda de Tensão (<em>Voltage Sag</em>) e Picos de Stall:</strong> A taxa contínua de 75C permite entrega ininterrupta de até <strong>48,75 A</strong> (<span class="arithmatex">\(0,65\text{ A} \times 75\)</span>), com picos de até <strong>97,5 A</strong> a 150C. Mesmo sob o pior cenário com ambos os motores em travamento de bancada/rampa (<em>stall</em> de até ~3,0 A no barramento de 6 V), a demanda refletida na bateria fica em torno de 3,5 A a 4,0 A (menos de 9% da taxa 75C contínua), garantindo barramento elétrico perfeitamente estável e eliminando qualquer risco de <em>brownout reset</em> no microcontrolador ESP32-C3.</li>
 <li><strong>Alívio Mecânico e Dinâmica de Pista:</strong> A massa contida de 43 g reduz a inércia rotacional do conjunto móvel, alivia as cargas radiais sobre os mancais e pinhões metálicos da redução dos motores N20 e minimiza o escorregamento dos pneus nas curvas de 90° e 180°, aumentando a precisão da odometria.</li>
-<li><strong>Padronização de Conectores e Carga:</strong> O conector de alta corrente XT-30 previne desconexões mecânicas por vibração, enquanto o plugue JST-XHR-3P viabiliza o carregamento com balanceamento individual de células no carregador inteligente de bancada (B6 V3 Smart Charger em modo <em>LiPo Balance</em> a 0,6 A / 0,7 A).</li>
+<li>
+<p><strong>Padronização de Conectores e Carga:</strong> O conector de alta corrente XT-30 previne desconexões mecânicas por vibração, enquanto o plugue JST-XHR-3P viabiliza o carregamento com balanceamento individual de células no carregador inteligente de bancada (B6 V3 Smart Charger em modo <em>LiPo Balance</em> a 0,6 A / 0,7 A).</p>
+</li>
+<li>
+<p><strong>Modelo Comercial Homologado:</strong> Bateria LiPo 2S de <strong>650 mAh</strong> (modelo <strong>Tattu 650mAh 2S1P 75C / 150C burst</strong> com conector XT-30).</p>
+</li>
+<li><strong>Justificativa Técnica:</strong> Essa capacidade garante fornecimento contínuo de pico de até 48,75 A sem colapsar a tensão do barramento (<em>voltage sag</em>), assegura peso baixo compatível com o chassi (43 g ±20 g) e estende a autonomia contínua para mais de 65 minutos em regime de corrida, cobrindo com folga de +118% a meta regulamentar de 30 minutos dos 3 labirintos (RNF-04).</li>
 </ol>
+<h3 id="45-mapeamento-matematico-da-curva-de-descarga-issue-139">4.5 Mapeamento Matemático da Curva de Descarga (Issue #139)<a class="headerlink" href="#45-mapeamento-matematico-da-curva-de-descarga-issue-139" title="Permanent link">&para;</a></h3>
+<p>O comportamento de descarga de células eletroquímicas à base de Polímero de Lítio (LiPo) não é linear, apresentando três zonas operacionais características: uma queda exponencial pronunciada logo após a plena carga, um extenso platô de tensão relativamente constante e um joelho de descarga profunda com decaimento acentuado de tensão.</p>
+<p>Para permitir a simulação do comportamento da bateria no firmware (Issue #215) e o diagnóstico preditivo de carga sem demandar testes destrutivos imediatos de bancada, implementou-se o modelo matemático eletroquímico de <strong>Shepherd modificado</strong> (formalizado por Tremblay e Dessaint):</p>
+<div class="arithmatex">\[V_{\text{cel}}(Q_{\text{d}}) = E_0 - R \cdot I - K \cdot \left(\frac{Q}{Q - Q_{\text{d}}}\right) \cdot Q_{\text{d}} + A \cdot e^{-B \cdot Q_{\text{d}}}\]</div>
+<div class="arithmatex">\[V_{\text{pack}}(t) = 2 \cdot V_{\text{cel}}(Q_{\text{d}}(t))\]</div>
+<p>Onde:
+* <span class="arithmatex">\(V_{\text{pack}}(t)\)</span>: Tensão total nos terminais do pack LiPo 2S (V).
+* <span class="arithmatex">\(E_0\)</span>: Tensão constante do patamar eletroquímico por célula (<span class="arithmatex">\(E_0 = 3{,}740\text{ V}\)</span>).
+* <span class="arithmatex">\(R\)</span>: Resistência interna série por célula (<span class="arithmatex">\(R = 15\text{ m}\Omega \implies 30\text{ m}\Omega\)</span> no pack).
+* <span class="arithmatex">\(I\)</span>: Corrente média de descarga contínua em regime de missão nominal (<span class="arithmatex">\(I = 0{,}476\text{ A}\)</span>).
+* <span class="arithmatex">\(K\)</span>: Coeficiente de polarização na zona de esgotamento (<span class="arithmatex">\(K = 0{,}085\text{ V}\)</span>).
+* <span class="arithmatex">\(Q\)</span>: Capacidade nominal total da célula (<span class="arithmatex">\(Q = 0{,}650\text{ Ah} = 650\text{ mAh}\)</span>).
+* <span class="arithmatex">\(Q_{\text{d}}\)</span>: Carga acumulada descarregada até o instante <span class="arithmatex">\(t\)</span> (<span class="arithmatex">\(Q_{\text{d}} = I \cdot t\)</span>).
+* <span class="arithmatex">\(A\)</span>: Amplitude da zona exponencial inicial de estabilização pós-carga (<span class="arithmatex">\(A = 0{,}440\text{ V}\)</span>).
+* <span class="arithmatex">\(B\)</span>: Constante de capacidade inversa da zona exponencial (<span class="arithmatex">\(B = 16{,}0\ \text{Ah}^{-1}\)</span>).</p>
+<h4 id="curva-de-descarga-teorica-simulada">Curva de Descarga Teórica Simulada<a class="headerlink" href="#curva-de-descarga-teorica-simulada" title="Permanent link">&para;</a></h4>
+<p>O script computacional implementado em <code>scripts/curva_descarga_lipo.py</code> modela a resposta dinâmica sob regime de corrida nominal (<span class="arithmatex">\(476\text{ mA}\)</span>) e regime de baixo consumo (<span class="arithmatex">\(150\text{ mA}\)</span> em <em>standby</em> / leitura de sensores), gerando a curva característica apresentada na figura abaixo:</p>
+<p><img alt="Curva Teórica de Descarga LiPo 2S" src="../../figs/curva-descarga-lipo-2s.svg" /></p>
+<h4 id="tabela-de-correlacao-estado-de-carga-soc-vs-tensao-de-terminal">Tabela de Correlação: Estado de Carga (SoC) vs. Tensão de Terminal<a class="headerlink" href="#tabela-de-correlacao-estado-de-carga-soc-vs-tensao-de-terminal" title="Permanent link">&para;</a></h4>
+<p>A relação entre o Estado de Carga (<em>State of Charge</em> - SoC), a tensão sob carga nominal contínua (<span class="arithmatex">\(I = 476\text{ mA}\)</span>) e a energia residual útil do pack Tattu 650 mAh é sumarizada na tabela abaixo:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Estado de Carga (SoC)</th>
+<th style="text-align: center;">Tensão do Pack 2S (<span class="arithmatex">\(V_{\text{pack}}\)</span>)</th>
+<th style="text-align: center;">Tensão por Célula (<span class="arithmatex">\(V_{\text{cel}}\)</span>)</th>
+<th style="text-align: center;">Capacidade Restante (mAh)</th>
+<th style="text-align: left;">Regime Operacional / Diagnóstico</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>100%</strong></td>
+<td style="text-align: center;"><strong>8,35 V a 8,40 V</strong></td>
+<td style="text-align: center;">4,17 V a 4,20 V</td>
+<td style="text-align: center;">650 mAh</td>
+<td style="text-align: left;">Bateria plena pós-carregamento balanceado</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>90%</strong></td>
+<td style="text-align: center;">7,78 V</td>
+<td style="text-align: center;">3,89 V</td>
+<td style="text-align: center;">585 mAh</td>
+<td style="text-align: left;">Fim da zona de decaimento exponencial inicial</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>80%</strong></td>
+<td style="text-align: center;">7,57 V</td>
+<td style="text-align: center;">3,78 V</td>
+<td style="text-align: center;">520 mAh</td>
+<td style="text-align: left;">Início do platô estável de corrida</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>70%</strong></td>
+<td style="text-align: center;">7,48 V</td>
+<td style="text-align: center;">3,74 V</td>
+<td style="text-align: center;">455 mAh</td>
+<td style="text-align: left;">Platô nominal de regime permanente</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>60%</strong></td>
+<td style="text-align: center;">7,43 V</td>
+<td style="text-align: center;">3,72 V</td>
+<td style="text-align: center;">390 mAh</td>
+<td style="text-align: left;"><strong>Ponto operacional aos 30 min de prova (RNF-04)</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>50%</strong></td>
+<td style="text-align: center;">7,39 V</td>
+<td style="text-align: center;">3,69 V</td>
+<td style="text-align: center;">325 mAh</td>
+<td style="text-align: left;">Metade da carga útil</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>40%</strong></td>
+<td style="text-align: center;">7,31 V</td>
+<td style="text-align: center;">3,66 V</td>
+<td style="text-align: center;">260 mAh</td>
+<td style="text-align: left;">Operação em corrida contínua segura</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>30%</strong></td>
+<td style="text-align: center;">7,19 V</td>
+<td style="text-align: center;">3,59 V</td>
+<td style="text-align: center;">195 mAh</td>
+<td style="text-align: left;">Alerta amarelo no Dashboard de telemetria</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>20%</strong></td>
+<td style="text-align: center;">6,92 V</td>
+<td style="text-align: center;">3,46 V</td>
+<td style="text-align: center;">130 mAh</td>
+<td style="text-align: left;">Aproximação do joelho de descarga rápida</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>10%</strong></td>
+<td style="text-align: center;">6,09 V</td>
+<td style="text-align: center;">3,04 V</td>
+<td style="text-align: center;">65 mAh</td>
+<td style="text-align: left;">Zona de esgotamento acentuado</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>0% (Corte UVLO)</strong></td>
+<td style="text-align: center;"><strong>6,60 V</strong></td>
+<td style="text-align: center;"><strong>3,30 V</strong></td>
+<td style="text-align: center;"><strong>~45 mAh (7%)</strong></td>
+<td style="text-align: left;"><strong>Desarme forçado via software (PWM = 0)</strong></td>
+</tr>
+</tbody>
+</table>
+<h4 id="integracao-com-a-camada-de-software-e-firmware">Integração com a Camada de Software e Firmware<a class="headerlink" href="#integracao-com-a-camada-de-software-e-firmware" title="Permanent link">&para;</a></h4>
+<p>Os coeficientes e a tabela de conversão foram exportados diretamente para o arquivo de cabeçalho C++ <code>src/firmware/lib/simulacao/TabelaDescargaLiPo.h</code>. Essa tabela é consumida pela classe de emulação <code>SensorBateriaMock</code> (Issue #215), garantindo que:
+1. O Dashboard web receba leituras realistas e reproduzíveis de tensão e porcentagem de bateria ao longo do tempo.
+2. A máquina de estados de subtensão (<em>Under-Voltage Lockout</em> — UVLO) seja testada com antecedência, cortando a tração quando <span class="arithmatex">\(V_{\text{pack}} \le 6{,}60\text{ V}\)</span>.
+3. Haja um gabarito teórico formal para validação e cálculo do erro experimental quando a bateria física for submetida ao ensaio de descarga em bancada.</p>
 <hr />
 <h2 id="5-planejamento-do-circuito-de-alimentacao">5. Planejamento do Circuito de Alimentação<a class="headerlink" href="#5-planejamento-do-circuito-de-alimentacao" title="Permanent link">&para;</a></h2>
 <p>A distribuição de energia segrega a malha de acionamento eletromecânico dos circuitos lógicos e de sensoriamento:</p>
@@ -2138,8 +2337,12 @@
 <li>
 <p><strong>Rotinas de Aquisição e Proteção:</strong></p>
 </li>
-<li>O firmware realiza leituras periódicas do canal ADC com filtro digital de média móvel para rejeitar flutuações induzidas pelo chaveamento PWM do driver.</li>
-<li>O software implementa proteção de subtensão lógica (<em>Under-Voltage Lockout</em> - UVLO): se a leitura atestar tensão global inferior a <strong>6,6 V</strong> (equivalente a <strong>3,3 V por célula</strong>) em amostragens sucessivas, os sinais de controle PWM para o DRV8833 são zerados, cortando a tração dos motores e preservando as células LiPo contra descarga profunda.</li>
+<li>
+<p>O firmware realiza leituras periódicas do canal ADC com filtro digital de média móvel para rejeitar flutuações induzidas pelo chaveamento PWM do driver.</p>
+</li>
+<li>
+<p>O software implementa proteção de subtensão lógica (<em>Under-Voltage Lockout</em> - UVLO): se a leitura atestar tensão global inferior a <strong>6,6 V</strong> (equivalente a <strong>3,3 V por célula</strong>) em amostragens sucessivas, os sinais de controle PWM para o DRV8833 são zerados, cortando a tração dos motores e preservando as células LiPo contra descarga profunda.</p>
+</li>
 <li><em>Compatibilidade com o Regulador Buck de 5 V:</em> O limiar de corte em 6,6 V garante também que o conversor Step-Down LM2596 (responsável pela linha do LiDAR) opere sempre acima de sua tensão mínima de <em>dropout</em> (<span class="arithmatex">\(V_{\text{in}} \ge 5{,}0\text{ V} + 1{,}5\text{ V} = 6{,}5\text{ V}\)</span>), impedindo flutuações e reinicializações ## 7. Dimensionamento e Análise dos Reguladores Step-Down (LM2596 de 6 V, LM2596 de 5 V e MP1584EN de 3,3 V)</li>
 </ul>
 <p>Esta seção formaliza o projeto, os cálculos de componentes e a validação térmica dos três circuitos reguladores de tensão chaveados (conversores Step-Down Buck) que compõem o subsistema de conversão de energia do Micromouse, atendendo aos critérios de aceitação da <strong>Issue #199</strong> e incorporando a linha regulada dedicada de <strong>+6,0 V</strong> para acionamento dos micromotores sob corrente de travamento (<em>stall</em>) de até <strong>~3,0 A</strong>.</p>
@@ -2422,7 +2625,35 @@ Para resguardar o conversor LM2596 e as escovas dos motores N20 contra danos té
 <li><strong>ESPRESSIF SYSTEMS.</strong> <em>ESP32-C3-MINI-1 Datasheet</em>. Versão 1.4, 2024. Disponível em: <a href="https://www.espressif.com">https://www.espressif.com</a>.</li>
 <li><strong>TEXAS INSTRUMENTS.</strong> <em>DRV8833 Dual H-Bridge Motor Driver</em>. Datasheet SLVSAR1E, Rev. Julho 2015. Disponível em: <a href="https://www.ti.com/lit/ds/symlink/drv8833.pdf">https://www.ti.com/lit/ds/symlink/drv8833.pdf</a>.</li>
 <li><strong>GIBILISCO, Stan.</strong> <em>Beginner's Guide to Reading Schematics</em>. 3. ed. Nova York: McGraw-Hill Education, 2014.</li>
-<li><strong>MOHAN, Ned; UNDELAND, Tore M.; ROBBINS, William P.</strong> <em>Power Electronics: Converters, Applications, and Design</em>. 3. ed. Nova York: John Wiley &amp; Sons, 2003.</li>
+<li>
+<h1 id="mohan-ned-undeland-tore-m-robbins-william-p-power-electronics-converters-applications-and-design-3-ed-nova-york-john-wiley-sons-2003"><strong>MOHAN, Ned; UNDELAND, Tore M.; ROBBINS, William P.</strong> <em>Power Electronics: Converters, Applications, and Design</em>. 3. ed. Nova York: John Wiley &amp; Sons, 2003.<a class="headerlink" href="#mohan-ned-undeland-tore-m-robbins-william-p-power-electronics-converters-applications-and-design-3-ed-nova-york-john-wiley-sons-2003" title="Permanent link">&para;</a></h1>
+</li>
+<li>O software implementa proteção de subtensão lógica (<em>Under-Voltage Lockout</em>): se a leitura atestar tensão global inferior a 6,4 V (equivalente a 3,2 V por célula) em amostragens sucessivas, os sinais de controle PWM para o DRV8833 são zerados, cortando a tração e preservando a bateria contra descarga profunda.</li>
+<li>A telemetria empacota o tempo contínuo de atividade e a leitura instantânea de tensão, registrando os dados de consumo em tempo real para contraste com o modelo de energia projetado.</li>
+</ol>
+<hr />
+<h2 id="7-referencias-bibliograficas">7. Referências Bibliográficas<a class="headerlink" href="#7-referencias-bibliograficas" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>SHEPHERD, C. M.</strong> <em>Design of Primary and Secondary Cells - Part 2: An equation describing battery discharge</em>. Journal of The Electrochemical Society, v. 112, n. 7, p. 657-664, 1965.</li>
+<li><strong>TREMBLAY, Olivier; DESSAINT, Louis-A.</strong> <em>Experimental Validation of a Battery Dynamic Model for EV Applications</em>. World Electric Vehicle Journal, v. 3, n. 2, p. 289-298, 2009.</li>
+<li><strong>TATTU.</strong> <em>Tattu 650mAh 75C 2S1P Lipo Battery Pack with XT30 Plug Specification Sheet</em>. Gens Ace &amp; Tattu Battery Co., 2023.</li>
+<li><strong>ESPRESSIF SYSTEMS.</strong> <em>ESP32-C3-MINI-1 Datasheet</em>. Versão 1.4, 2024. Disponível em: <a href="https://www.espressif.com">https://www.espressif.com</a>.</li>
+<li><strong>MOHAN, Ned; UNDELAND, Tore M.; ROBBINS, William P.</strong> <em>Power Electronics: Converters, Applications, and Design</em>. 3. ed. Nova York: John Wiley &amp; Sons, 2003.<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>docs/139-201-mapeamento-de-descarga</p>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</li>
 </ol>
 <hr />
 <h2 id="historico-de-versao">Histórico de Versão<a class="headerlink" href="#historico-de-versao" title="Permanent link">&para;</a></h2>
@@ -2462,6 +2693,13 @@ Para resguardar o conversor LM2596 e as escovas dos motores N20 contra danos té
 <td style="text-align: center;">1.3</td>
 <td style="text-align: center;">18/10/2026</td>
 <td style="text-align: left;">Inclusão do dimensionamento do conversor Buck dedicado de 6 V para os motores com suporte até ~3 A de stall, reanálise de dropout, atualização da autonomia para 65,5 min e consolidação dos três reguladores</td>
+<td style="text-align: left;">Elias Oliveira</td>
+<td style="text-align: left;">Bruno Duarte (System Architect)</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.4</td>
+<td style="text-align: center;">18/10/2026</td>
+<td style="text-align: left;">Mapeamento matemático da curva de descarga da bateria LiPo 2S (Equação de Shepherd), gráfico vetorial de descarga e geração da tabela SoC para o firmware (#139)</td>
 <td style="text-align: left;">Elias Oliveira</td>
 <td style="text-align: left;">Bruno Duarte (System Architect)</td>
 </tr>
