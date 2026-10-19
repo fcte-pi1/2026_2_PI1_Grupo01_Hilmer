@@ -905,6 +905,67 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#procedimento-de-teste-35-encoders-e-deslocamento-em-bancada-issue-186" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Procedimento de Teste 3.5: Encoders e Deslocamento em Bancada (Issue #186)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Procedimento de Teste 3.5: Encoders e Deslocamento em Bancada (Issue #186)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-objetivo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Objetivo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-instrumentacao-e-configuracao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Instrumentação e Configuração
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-criterios-de-aceitacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Critérios de Aceitação
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-roteiro-de-execucao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Roteiro de Execução
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1068,6 +1129,67 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#procedimento-de-teste-35-encoders-e-deslocamento-em-bancada-issue-186" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Procedimento de Teste 3.5: Encoders e Deslocamento em Bancada (Issue #186)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Procedimento de Teste 3.5: Encoders e Deslocamento em Bancada (Issue #186)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-objetivo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Objetivo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-instrumentacao-e-configuracao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Instrumentação e Configuração
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-criterios-de-aceitacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Critérios de Aceitação
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-roteiro-de-execucao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Roteiro de Execução
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1137,23 +1259,23 @@
 <tbody>
 <tr>
 <td style="text-align: center;">3.1</td>
+<td>Alimentação e Linhas de Tensão</td>
 <td></td>
 <td></td>
 <td></td>
-<td></td>
-<td></td>
+<td>3,3 V e VBAT estáveis</td>
 <td></td>
 <td style="text-align: center;"></td>
 <td style="text-align: center;"></td>
-<td></td>
+<td>Verificado em bancada</td>
 </tr>
 <tr>
 <td style="text-align: center;">3.2</td>
+<td>Comunicação LiDAR (UART)</td>
 <td></td>
 <td></td>
 <td></td>
-<td></td>
-<td></td>
+<td>Recepção dos pacotes LD06</td>
 <td></td>
 <td style="text-align: center;"></td>
 <td style="text-align: center;"></td>
@@ -1161,11 +1283,11 @@
 </tr>
 <tr>
 <td style="text-align: center;">3.3</td>
+<td>Acionamento dos Motores (DRV8833)</td>
 <td></td>
 <td></td>
 <td></td>
-<td></td>
-<td></td>
+<td>Resposta PWM nos canais A e B</td>
 <td></td>
 <td style="text-align: center;"></td>
 <td style="text-align: center;"></td>
@@ -1173,11 +1295,11 @@
 </tr>
 <tr>
 <td style="text-align: center;">3.4</td>
+<td>IMU (I2C)</td>
 <td></td>
 <td></td>
 <td></td>
-<td></td>
-<td></td>
+<td>Dados de aceleração e giro</td>
 <td></td>
 <td style="text-align: center;"></td>
 <td style="text-align: center;"></td>
@@ -1185,15 +1307,15 @@
 </tr>
 <tr>
 <td style="text-align: center;">3.5</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
+<td><strong>Encoders de Quadratura (18 cm)</strong></td>
+<td>16/10/2026</td>
+<td>17/10/2026</td>
+<td>Cláudio / Equipe</td>
+<td>Leitura x4 por interrupção; erro <span class="arithmatex">\(\le \pm 3\%\)</span> em 180 mm</td>
+<td>Roteiro e script serial automatizados; aguardando bancada final</td>
+<td style="text-align: center;">S</td>
 <td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
+<td>Issue #186, HU-05</td>
 </tr>
 <tr>
 <td style="text-align: center;">3.6</td>
@@ -1207,128 +1329,42 @@
 <td style="text-align: center;"></td>
 <td></td>
 </tr>
-<tr>
-<td style="text-align: center;">3.7</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
-</tr>
-<tr>
-<td style="text-align: center;">3.8</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
-</tr>
-<tr>
-<td style="text-align: center;">3.9</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
-</tr>
-<tr>
-<td style="text-align: center;">3.10</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
-</tr>
-<tr>
-<td style="text-align: center;">3.11</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
-</tr>
-<tr>
-<td style="text-align: center;">3.12</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
-</tr>
-<tr>
-<td style="text-align: center;">3.13</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
-</tr>
-<tr>
-<td style="text-align: center;">3.14</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
-</tr>
-<tr>
-<td style="text-align: center;">3.15</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
-</tr>
-<tr>
-<td style="text-align: center;">3.16</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
-</tr>
 </tbody>
 </table>
+<hr />
+<h2 id="procedimento-de-teste-35-encoders-e-deslocamento-em-bancada-issue-186">Procedimento de Teste 3.5: Encoders e Deslocamento em Bancada (Issue #186)<a class="headerlink" href="#procedimento-de-teste-35-encoders-e-deslocamento-em-bancada-issue-186" title="Permanent link">&para;</a></h2>
+<h3 id="1-objetivo">1. Objetivo<a class="headerlink" href="#1-objetivo" title="Permanent link">&para;</a></h3>
+<p>Validar a decodificação em quadratura (x4) via interrupções nos pinos GPIO do ESP32-C3 e aferir a exatidão da conversão de pulsos em milímetros ao longo de um percurso de <strong>18 cm (180 mm)</strong> — correspondente à dimensão de uma célula do labirinto do Micromouse.</p>
+<h3 id="2-instrumentacao-e-configuracao">2. Instrumentação e Configuração<a class="headerlink" href="#2-instrumentacao-e-configuracao" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Hardware:</strong> Microcontrolador ESP32-C3 com firmware carregado.</li>
+<li><strong>Sensores:</strong> 2 encoders de efeito Hall acoplados aos micromotores N20.</li>
+<li>Encoder Esquerdo: <code>GPIO0</code> (Canal A) e <code>GPIO1</code> (Canal B).</li>
+<li>Encoder Direito: <code>GPIO3</code> (Canal A) e <code>GPIO10</code> (Canal B).</li>
+<li><strong>Guia de Medição:</strong> Régua milimetrada calibrada de 300 mm ou paquímetro digital com batente fixo em 180,0 mm.</li>
+<li><strong>Ferramenta de Coleta:</strong> Script Python <code>src/firmware/scripts/calibrar_deslocamento_18cm.py</code>.</li>
+</ul>
+<h3 id="3-criterios-de-aceitacao">3. Critérios de Aceitação<a class="headerlink" href="#3-criterios-de-aceitacao" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Contagem por Interrupção:</strong> Contagem bidirecional em ambas as rodas sem perda de pulsos e sem transições inválidas reportadas.</li>
+<li><strong>Tolerância de Erro:</strong>
+   $<span class="arithmatex">\(\text{Erro Relativo} = \frac{|D_{\text{medido}} - 180{,}0\text{ mm}|}{180{,}0\text{ mm}} \times 100\% \le 3{,}0\%\)</span>$
+   $<span class="arithmatex">\(\text{Erro Absoluto Máximo Permissível} = \pm 5{,}4\text{ mm}\)</span>$</li>
+<li><strong>Calibração:</strong> Determinação da constante de calibração <span class="arithmatex">\(\mu\text{m/pulso}\)</span> real:
+   $<span class="arithmatex">\(K = \frac{180 \times 1000}{\text{Pulsos}}\)</span>$</li>
+</ol>
+<h3 id="4-roteiro-de-execucao">4. Roteiro de Execução<a class="headerlink" href="#4-roteiro-de-execucao" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Conectar a placa ao computador via USB.</li>
+<li>Posicionar o micromouse na marca de 0 mm da régua guia.</li>
+<li>Executar o script de teste:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python3<span class="w"> </span>src/firmware/scripts/calibrar_deslocamento_18cm.py<span class="w"> </span>--porta<span class="w"> </span>/dev/ttyUSB0
+</code></pre></div></li>
+<li>Pressionar <strong>ENTER</strong> para enviar o comando de zerar (<code>Z</code>) e iniciar a amostragem.</li>
+<li>Deslocar o robô manualmente de forma suave até a marca de 180,0 mm.</li>
+<li>Finalizar a captura com <strong>CTRL+C</strong>.</li>
+<li>O script registrará o relatório com os pulsos acumulados, as distâncias calculadas por roda, o erro relativo/absoluto e a nova constante recomendada para <code>ConfiguracaoEncoder.h</code>.</li>
+</ol>
 
 
 

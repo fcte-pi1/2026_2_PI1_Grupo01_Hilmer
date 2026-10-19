@@ -1383,6 +1383,67 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#sprint-4-odometria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sprint 4 · Odometria
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sprint 4 · Odometria">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#testes-da-odometria-test_odometria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testes da odometria (test_odometria)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#suite-completa-com-cobertura-o-mesmo-comando-do-ci_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Suíte completa com cobertura (o mesmo comando do CI)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#compilacao-para-a-placa_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compilação para a placa
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pendencias-desta-etapa_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pendências desta etapa
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1959,6 +2020,67 @@
         
           <li class="md-nav__item">
   <a href="#pendencias-desta-etapa_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pendências desta etapa
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sprint-4-odometria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sprint 4 · Odometria
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sprint 4 · Odometria">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#testes-da-odometria-test_odometria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testes da odometria (test_odometria)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#suite-completa-com-cobertura-o-mesmo-comando-do-ci_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Suíte completa com cobertura (o mesmo comando do CI)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#compilacao-para-a-placa_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compilação para a placa
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pendencias-desta-etapa_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Pendências desta etapa
@@ -3602,6 +3724,153 @@
 <li>A navegação (Épico 02) ainda precisa chamar <code>congelarMapa()</code> quando detectar a célula objetivo; por enquanto o objetivo é sinalizado pelos próprios testes.</li>
 <li>O envio do JSON do mapa final ao servidor, vinculado à corrida criada pela Edge Function <code>corridas</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/233">#233</a>), entra com a telemetria (Épico 03).</li>
 <li>Medir no ESP32-C3 (<code>pio run -e esp32c3</code>) a RAM estática do <code>ArmazenamentoMapa</code> com o mapa final; no computador, o <code>sizeof</code> é de 392 bytes.</li>
+</ul>
+<hr />
+<h3 id="sprint-4-odometria">Sprint 4 · Odometria<a class="headerlink" href="#sprint-4-odometria" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tarefa</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/187">#187 Orientação e posição na malha</a></td>
+</tr>
+<tr>
+<td>História de usuário</td>
+<td>HU-05 · Estimar a posição do robô por odometria (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/41">#41</a>), RF05</td>
+</tr>
+<tr>
+<td>Código testado</td>
+<td><code>src/firmware</code> (branch <code>feat/187-odometria</code>)</td>
+</tr>
+<tr>
+<td>Data da execução</td>
+<td>19/10/2026</td>
+</tr>
+<tr>
+<td>Executado por</td>
+<td>Cláudio Henrique</td>
+</tr>
+<tr>
+<td>Documentação do código</td>
+<td><a href="../../04-projeto-conceitual/firmware/#navegacao-odometria">Firmware: odometria</a></td>
+</tr>
+</tbody>
+</table>
+<p>Esta etapa registra a lógica da odometria e a ligação no <code>main.cpp</code>. A calibração do giro e os testes de bancada (critério de bancada da tarefa) dependem do robô montado e estão na seção de pendências.</p>
+<p><strong>Ambiente de execução:</strong> macOS, PlatformIO Core 6.2.0, <code>native</code> 1.2.1, Unity 2.6.1 e <code>gcovr</code> 8.6.</p>
+<h4 id="testes-da-odometria-test_odometria">Testes da odometria (<code>test_odometria</code>)<a class="headerlink" href="#testes-da-odometria-test_odometria" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native<span class="w"> </span>-f<span class="w"> </span>test_odometria
+</code></pre></div>
+<p>Nos testes, 1 pulso vale 250 µm e 400 pulsos de diferença entre as rodas valem 90°, então uma célula de 18 cm são 720 pulsos por roda. Os valores não dependem dos parâmetros provisórios.</p>
+<table>
+<thead>
+<tr>
+<th>Grupo</th>
+<th style="text-align: center;">Casos</th>
+<th>O que verificam</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Estado inicial</td>
+<td style="text-align: center;">3</td>
+<td>Pose inicial (0, 0) virada para o Norte; configuração padrão; sem movimento a pose não muda</td>
+</tr>
+<tr>
+<td>Avanço</td>
+<td style="text-align: center;">5</td>
+<td>Uma e três células para o Norte; a célula muda ao cruzar a parede; marcha à ré; atualizar de uma vez ou em passos dá o mesmo resultado</td>
+</tr>
+<tr>
+<td>Giros</td>
+<td style="text-align: center;">8</td>
+<td>90° nos dois sentidos, 180° nos dois sentidos, quatro giros voltando ao Norte, 270°, giro no lugar sem mudar a célula, o limite de 45°, e roda um pouco mais rápida em linha reta sem girar</td>
+</tr>
+<tr>
+<td>Percursos</td>
+<td style="text-align: center;">5</td>
+<td>Em L, em U, retorno à partida, serpentina completa no 12×4 e corredor de 11 células com erro de 1% em uma roda</td>
+</tr>
+<tr>
+<td>Reinício e encoders</td>
+<td style="text-align: center;">3</td>
+<td><code>reiniciar</code> com referência nova, leitura de dois <code>EncoderSimulado</code> e <code>zerar</code> seguido de <code>reiniciar</code></td>
+</tr>
+<tr>
+<td>Fora da malha</td>
+<td style="text-align: center;">4</td>
+<td>Posição negativa, acima de 255, volta para dentro e contagens extremas</td>
+</tr>
+<tr>
+<td>Letra da direção (<code>test_nucleo</code>)</td>
+<td style="text-align: center;">1</td>
+<td><code>N</code>, <code>L</code>, <code>S</code> e <code>O</code> como na coluna <code>orientacao</code> do banco</td>
+</tr>
+</tbody>
+</table>
+<p><strong>28 casos aprovados</strong> na odometria e 9 em <code>test_nucleo</code>.</p>
+<p>Para confirmar que os testes detectam falhas, o código foi alterado de propósito e restaurado em seguida: com o sinal do giro invertido, 9 casos falharam; sem arredondar ao múltiplo de 90° mais próximo, 1; usando só a roda esquerda no avanço, 1; e com o Norte invertido, 14.</p>
+<h4 id="suite-completa-com-cobertura-o-mesmo-comando-do-ci_2">Suíte completa com cobertura (o mesmo comando do CI)<a class="headerlink" href="#suite-completa-com-cobertura-o-mesmo-comando-do-ci_2" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native_cobertura
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>gcovr<span class="w"> </span>--root<span class="w"> </span>.<span class="w"> </span>--filter<span class="w"> </span><span class="s1">'lib/'</span><span class="w"> </span>--object-directory<span class="w"> </span>.pio/build/native_cobertura<span class="w"> </span>--fail-under-line<span class="w"> </span><span class="m">80</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Verificação</th>
+<th>Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Suíte completa</td>
+<td><strong>197 aprovados, 0 falhas</strong></td>
+</tr>
+<tr>
+<td>Cobertura das linhas de <code>lib/</code></td>
+<td><strong>99%</strong> (798 de 804), acima da meta de 80%</td>
+</tr>
+<tr>
+<td>Cobertura de <code>Odometria.cpp</code> e <code>Odometria.h</code></td>
+<td>100%</td>
+</tr>
+</tbody>
+</table>
+<h4 id="compilacao-para-a-placa_1">Compilação para a placa<a class="headerlink" href="#compilacao-para-a-placa_1" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>pio<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>esp32c3
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Verificação</th>
+<th>Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compilação</td>
+<td><strong>Sucesso</strong>, sem avisos</td>
+</tr>
+<tr>
+<td>Uso de RAM</td>
+<td>4,4% (14.540 de 327.680 bytes)</td>
+</tr>
+<tr>
+<td>Uso de Flash</td>
+<td>19,5% (255.084 de 1.310.720 bytes)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="pendencias-desta-etapa_3">Pendências desta etapa<a class="headerlink" href="#pendencias-desta-etapa_3" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Calibrar o giro na bancada:</strong> girar o robô 90° no lugar e ler <code>contagem esquerda − contagem direita</code>; trocar o valor provisório de 625 pulsos por 90° em <code>ConfiguracaoOdometria.h</code>.</li>
+<li><strong>Testes de bancada da #187:</strong> giros de 90° e 180° e um percurso de 3 células, com o erro registrado, usando o <code>main.cpp</code> (a linha de JSON traz a pose).</li>
+<li>Registrar aqui a execução final de bancada.</li>
 </ul>
 
 

@@ -933,6 +933,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#navegacao-odometria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Navegação: odometria
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Navegação: odometria">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regras-de-negocio-e-algoritmo_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de Negócio e Algoritmo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-da-classe_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface da Classe
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#tarefas-do-freertos" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1618,6 +1657,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#navegacao-odometria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Navegação: odometria
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Navegação: odometria">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regras-de-negocio-e-algoritmo_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de Negócio e Algoritmo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-da-classe_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface da Classe
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#tarefas-do-freertos" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1799,7 +1877,11 @@
 </tr>
 <tr>
 <td><code>lib/hal</code></td>
-<td>Interfaces de hardware (<code>ILidar</code>; encoders e motores nos próximos épicos)</td>
+<td>Interfaces de hardware (<code>ILidar</code> e <code>IEncoder</code>; motores no Épico 02)</td>
+</tr>
+<tr>
+<td><code>lib/encoders</code></td>
+<td>Decodificação em quadratura dos encoders, conversão de pulsos em mm e distância por roda (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/186">#186</a>)</td>
 </tr>
 <tr>
 <td><code>lib/percepcao</code></td>
@@ -1811,7 +1893,7 @@
 </tr>
 <tr>
 <td><code>lib/navegacao</code></td>
-<td>Localização, decisão de movimento e detecção do objetivo (Épico 02)</td>
+<td>Localização por odometria (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/187">#187</a>), decisão de movimento e detecção do objetivo (Épico 02)</td>
 </tr>
 <tr>
 <td><code>lib/atuacao</code></td>
@@ -2250,6 +2332,64 @@
 <li><strong>Saída:</strong> <code>size_t</code>, o número de caracteres escritos sem o <code>\0</code>; <code>0</code> quando a serialização falha</li>
 <li><strong>Mapa final:</strong> <code>MapaJson::serializarFinal(const ArmazenamentoMapa &amp;armazenamento, char *saida, size_t capacidade)</code> serializa o mapa congelado ao alcançar o objetivo, com as mesmas regras de buffer (veja <a href="#mapeamento-mapa-final-da-corrida">Mapeamento: mapa final da corrida</a>)</li>
 </ul>
+<h2 id="navegacao-odometria">Navegação: odometria<a class="headerlink" href="#navegacao-odometria" title="Permanent link">&para;</a></h2>
+<p>A <code>Odometria</code> (<code>lib/navegacao</code>) estima a <strong>pose do robô</strong>, isto é, a célula (linha e coluna) e a direção (Norte, Leste, Sul ou Oeste), a partir das contagens dos dois encoders (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/187">#187</a>, HU-05). A arquitetura não tem IMU: a rotação vem da diferença entre as rodas e o avanço vem da média delas (odometria diferencial). A lógica não depende do Arduino e só usa inteiros, porque o ESP32-C3 não tem unidade de ponto flutuante.</p>
+<pre class="mermaid"><code>flowchart LR
+    E["IEncoder esquerdo"] --&gt; D["Δ esquerda − Δ direita&lt;br/&gt;(giro)"]
+    R["IEncoder direito"] --&gt; D
+    E --&gt; M["(Δ esquerda + Δ direita) ÷ 2&lt;br/&gt;(avanço)"]
+    R --&gt; M
+    D --&gt; H["Direção&lt;br/&gt;múltiplo de 90° mais próximo"]
+    H --&gt; P["Posição na malha"]
+    M --&gt; P
+    P --&gt; C["Pose: célula e direção"]
+    H --&gt; C</code></pre>
+<p><strong>Figura 7.</strong> Da contagem dos encoders à pose: a diferença entre as rodas gira a direção, e a média das rodas avança o robô na direção atual.</p>
+<h3 id="regras-de-negocio-e-algoritmo_4">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Convenção de sinal:</strong> a contagem de cada roda aumenta quando ela avança (<code>IEncoder</code>). Girar para a direita (sentido horário, Norte para Leste) faz a roda esquerda avançar mais, então <code>contagem esquerda − contagem direita</code> cresce.</li>
+<li><strong>Orientação:</strong> o giro acumulado é a diferença entre as rodas dividida por <code>pulsosDiferenciaisPor90Graus</code>, arredondada para o múltiplo de 90° mais próximo. Uma roda um pouco mais rápida em linha reta não muda a direção, e a direção só passa para a seguinte depois de 45°.</li>
+<li><strong>Posição:</strong> o avanço (média dos deslocamentos das rodas) soma-se à posição na direção atual. A pose inicial é o centro da célula informada (partida em (0, 0)), e a célula muda ao cruzar a parede, a meia célula do centro. Um giro no lugar não muda a célula, e a marcha à ré funciona. Norte aumenta a linha e Leste aumenta a coluna.</li>
+<li><strong>Limites:</strong> fora de 0 a 255, a célula é limitada a esses valores e <code>posicaoValida()</code> devolve <code>false</code>. As contas usam inteiros de 64 bits, sem estouro.</li>
+<li><strong>Reinício:</strong> <code>reiniciar(pose, contagens)</code> reposiciona o robô e sincroniza a referência com contagens que não estão em zero, por exemplo depois de zerar os encoders.</li>
+<li><strong>Erro acumulado:</strong> a odometria acumula erro (patinagem, arredondamento). A correção pelas paredes é a <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/188">#188</a>.</li>
+</ul>
+<p><strong>Parâmetros</strong> (<code>ConfiguracaoOdometria.h</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Parâmetro</th>
+<th>Valor</th>
+<th>Origem</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Distância por pulso</td>
+<td>251 µm</td>
+<td>π × 32 mm ÷ 400 pulsos por volta, do documento de parâmetros da eletrônica (roda de 32 mm; ver <code>ConfiguracaoEncoder.h</code>)</td>
+</tr>
+<tr>
+<td>Diferença de pulsos por giro de 90°</td>
+<td>625 (<strong>provisório</strong>)</td>
+<td>Supõe bitola de 100 mm, que ainda não consta em nenhum documento; a calibração na bancada define o valor</td>
+</tr>
+<tr>
+<td>Tamanho da célula</td>
+<td>180 mm</td>
+<td><code>TAMANHO_CELULA_MM</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="interface-da-classe_4">Interface da Classe<a class="headerlink" href="#interface-da-classe_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>Odometria(configuracao, inicial)</code>:</strong> parâmetros e pose de partida (padrão: célula (0, 0) virada para o Norte).</li>
+<li><strong><code>void atualizar(int32_t contagemEsquerda, int32_t contagemDireita)</code></strong> e <strong><code>atualizar(const IEncoder&amp;, const IEncoder&amp;)</code>:</strong> atualiza a pose a partir das contagens acumuladas.</li>
+<li><strong><code>Pose pose() const</code>:</strong> célula e direção estimadas. <strong><code>bool posicaoValida() const</code>:</strong> <code>false</code> se a posição saiu de 0 a 255.</li>
+<li><strong><code>void reiniciar(Pose, contagemEsquerda, contagemDireita)</code>:</strong> define a pose e a referência das contagens.</li>
+<li><strong><code>letraDaDirecao(Direcao)</code></strong> (<code>Direcao.h</code>): <code>'N'</code>, <code>'L'</code>, <code>'S'</code> ou <code>'O'</code>, os valores da coluna <code>orientacao</code> do banco.</li>
+</ul>
+<p><strong>No <code>main.cpp</code>.</strong> A tarefa de navegação chama <code>atualizar</code> a cada 10 ms, um intervalo curto o bastante para cada atualização trazer um giro ou um avanço, e não os dois. A tarefa de telemetria lê a pose e acrescenta à linha de JSON dos encoders os campos <code>linha</code>, <code>coluna</code>, <code>orientacao</code> e <code>pose_valida</code>. Como as duas tarefas usam a mesma <code>Odometria</code>, todo acesso passa por uma seção crítica. O comando <code>Z</code> da bancada zera os encoders e reinicia a odometria na pose atual.</p>
 <h2 id="tarefas-do-freertos">Tarefas do FreeRTOS<a class="headerlink" href="#tarefas-do-freertos" title="Permanent link">&para;</a></h2>
 <p>Criadas em <code>src/main.cpp</code>. Navegação e telemetria rodam de forma concorrente, como no diagrama de atividades: o ESP32-C3 tem um único núcleo, e o FreeRTOS alterna entre as tarefas conforme a prioridade de cada uma.</p>
 <table>
@@ -2581,6 +2721,116 @@
 <td><code>test_mapa_final_permanece_inalterado_apos_novos_registros</code></td>
 <td>Escritas depois do congelamento mudam só o mapa da corrida; o JSON do mapa final continua idêntico</td>
 </tr>
+<tr>
+<td><code>test_odometria/test_odometria.cpp</code></td>
+<td><code>test_comeca_na_celula_0_0_virada_para_o_norte</code></td>
+<td>Pose inicial (0, 0) virada para o Norte e posição válida</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_uma_celula_para_o_norte_aumenta_a_linha</code></td>
+<td>Uma célula de avanço sobe a linha em 1</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_a_celula_muda_ao_cruzar_a_parede_a_meia_celula</code></td>
+<td>A célula só muda depois de passar da parede, a meia célula do centro</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_marcha_a_re_volta_a_celula_anterior</code></td>
+<td>Marcha à ré volta à célula anterior</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_atualizar_de_uma_vez_ou_em_passos_da_o_mesmo_resultado</code></td>
+<td>Atualizar de uma vez ou em passos pequenos dá a mesma pose</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_giro_de_90_graus_para_a_direita_vai_para_leste</code></td>
+<td>Giro de 90° à direita vira para o Leste</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_giro_de_90_graus_para_a_esquerda_vai_para_oeste</code></td>
+<td>Giro de 90° à esquerda vira para o Oeste</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_giro_de_180_graus_vira_para_o_sul_nos_dois_sentidos</code></td>
+<td>Giro de 180° vira para o Sul nos dois sentidos</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_quatro_giros_para_a_direita_voltam_ao_norte</code></td>
+<td>Quatro giros à direita voltam ao Norte</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_giro_no_lugar_nao_muda_a_celula</code></td>
+<td>Giro no lugar não muda a célula</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_o_giro_so_passa_para_a_direcao_seguinte_depois_de_45_graus</code></td>
+<td>A direção só muda depois de 45°</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_uma_roda_um_pouco_mais_rapida_nao_muda_a_direcao_em_linha_reta</code></td>
+<td>Uma roda um pouco mais rápida em linha reta não gira o robô</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_percurso_em_L_dois_para_o_norte_e_dois_para_o_leste</code></td>
+<td>Percurso em L termina em (2, 2) virado para o Leste</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_percurso_em_U_e_volta_a_linha_da_partida</code></td>
+<td>Percurso em U volta à linha da partida</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_serpentina_pelo_labirinto_12x4</code></td>
+<td>Serpentina completa no 12×4 termina em (3, 0) virado para o Oeste</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_erro_pequeno_em_cada_celula_nao_atrapalha_um_corredor_de_11_celulas</code></td>
+<td>Erro de 1% em uma roda não atrapalha um corredor de 11 células</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_reiniciar_define_a_pose_e_usa_as_contagens_como_referencia</code></td>
+<td><code>reiniciar</code> define a pose e a referência das contagens</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_atualizar_le_os_dois_encoders</code></td>
+<td>Atualização lendo dois <code>EncoderSimulado</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_posicao_negativa_e_invalida_e_a_celula_fica_em_zero</code></td>
+<td>Posição negativa é inválida e a célula fica em 0</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_posicao_acima_de_255_celulas_e_invalida_e_satura</code></td>
+<td>Acima de 255 a posição é inválida e a célula satura</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_contagem_muito_grande_nao_estoura</code></td>
+<td>Contagens extremas não estouram</td>
+</tr>
+<tr>
+<td><code>test_nucleo/test_direcao.cpp</code></td>
+<td><code>test_letra_da_direcao_segue_o_banco_de_dados</code></td>
+<td><code>N</code>, <code>L</code>, <code>S</code> e <code>O</code> como na coluna <code>orientacao</code></td>
+</tr>
 </tbody>
 </table>
 <p>Para rodar, dentro de <code>src/firmware</code>:</p>
@@ -2676,6 +2926,11 @@
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/180">#180</a> Mapa final serializado</td>
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/38">HU-04</a> (RF04)</td>
 </tr>
+<tr>
+<td><code>lib/navegacao</code> (<code>Odometria</code>)</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/187">#187</a> Orientação e posição na malha</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/41">HU-05</a> (RF05)</td>
+</tr>
 </tbody>
 </table>
 <h2 id="proximos-passos">Próximos passos<a class="headerlink" href="#proximos-passos" title="Permanent link">&para;</a></h2>
@@ -2686,6 +2941,7 @@
 <li><strong>Validar com o hardware:</strong> o conflito dos pinos da UART0 e o primeiro teste gravado na placa (o projeto base foi compilado, mas ainda não gravado).</li>
 <li><strong>Formato JSON do mapa</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/178">#178</a>): o formato foi validado com as outras equipes. O dashboard (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/239">#239</a>) aceitou o JSON e vai tratar <code>null</code> como área não explorada, e a tabela <code>mapa_celulas</code> passou a aceitar <code>null</code> nas colunas <code>parede_*</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/228">#228</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/328">#328</a>). Falta o envio de fato da lista de células ao banco, que entra com a telemetria (Épico 03).</li>
 <li><strong>Mapa final serializado</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/180">#180</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/330">#330</a>), concluído: o mapa é congelado e serializado ao alcançar o objetivo e testado no labirinto simulado. Falta a navegação chamar <code>congelarMapa()</code> quando detectar o objetivo (Épico 02) e o envio do JSON do mapa final ao servidor, vinculado à corrida criada pela Edge Function <code>corridas</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/233">#233</a>), no Épico 03.</li>
+<li><strong>Odometria</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/187">#187</a>): a lógica, os testes no computador e a ligação no <code>main.cpp</code> estão prontos. Falta a bancada: medir os pulsos de diferença entre as rodas num giro de 90° (hoje 625, provisório), testar giros de 90° e 180° e um percurso de 3 células, e registrar o erro.</li>
 </ul>
 
 
