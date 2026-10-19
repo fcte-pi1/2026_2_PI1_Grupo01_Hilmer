@@ -145,22 +145,123 @@ A distribuição de energia segrega a malha de acionamento eletromecânico dos c
 
 ---
 
-## 6. Monitoramento via Software Embarcado
+## 6. Monitoramento e Condicionamento de Sinal Analógico (Issue #203 e #136)
 
-Para registrar a curva de descarga da célula e diagnosticar a integridade da bateria em tempo de execução sem danificar os pinos analógicos do ESP32-C3:
+Para registrar a curva de descarga da célula e diagnosticar a integridade da bateria em tempo de execução sem danificar os pinos analógicos do ESP32-C3 nem sofrer perturbações pelo chaveamento eletromecânico, implementou-se o circuito de atenuação e filtragem analógica passa-baixas anti-aliasing.
 
-* **Atenuação da Tensão de Bateria (Divisor Resistivo R1/R2):**
-  * O barramento +VBAT_2S (variando entre 6,0 V descarregada e 8,4 V em carga plena) passa por um divisor resistivo formado por resistores de precisão com $R_1 = 100\text{ k}\Omega$ e $R_2 = 33\text{ k}\Omega$.
-  * A tensão atenuada entregue ao pino ADC do ESP32-C3 é dada por:
+### 6.1 Topologia do Circuito de Condicionamento
 
-$$V_{\text{ADC}} = V_{\text{BAT}} \cdot \left(\frac{R_2}{R_1 + R_2}\right) = V_{\text{BAT}} \cdot \left(\frac{33}{100 + 33}\right) \approx V_{\text{BAT}} \cdot 0,248$$
+O circuito conecta-se entre o barramento primário da bateria (+VBAT_2S), o pino analógico dedicado do microcontrolador e a referência comum de terra (GND):
 
-Sob tensão máxima de 8,4 V, o nível atenuado resultante é de aproximadamente 2,08 V, operando na faixa linear do conversor analógico-digital da placa.
+```
+       +VBAT_2S (6,60 V a 8,40 V)
+             │
+            ┌┴┐
+            │ │ R1 = 100 kΩ (1% precisão / filme metálico)
+            │ │
+            └┬┘
+             ├─── Nó Analógico (V_ADC) ───► GPIO 2 (ADC1_CH2) do ESP32-C3
+             │          │
+            ┌┴┐        ───
+            │ │ R2     ─── C1 = 100 nF (Cerâmico MLCC 50 V tipo X7R)
+            │ │ 33 kΩ   │
+            └┬┘         │
+             │          │
+            ─┴──────────┴─ GND Único do Sistema
+```
 
-* **Rotinas de Aquisição e Proteção:**
-  * O firmware realiza leituras periódicas do canal ADC com filtro digital de média móvel para rejeitar flutuações induzidas pelo chaveamento PWM do driver.
-  * O software implementa proteção de subtensão lógica (*Under-Voltage Lockout*): se a leitura atestar tensão global inferior a 6,4 V (equivalente a 3,2 V por célula) em amostragens sucessivas, os sinais de controle PWM para o DRV8833 são zerados, cortando a tração e preservando a bateria contra descarga profunda.
-  * A telemetria empacota o tempo contínuo de atividade e a leitura instantânea de tensão, registrando os dados de consumo em tempo real para contraste com o modelo de energia projetado.
+---
+
+### 6.2 Memorial de Cálculo do Divisor Resistivo ($R_1$ e $R_2$)
+
+1. **Relação de Atenuação Estática ($K_{\text{div}}$):**
+   A tensão entregue ao pino analógico em corrente contínua é determinada pela equação do divisor de tensão:
+
+   $$K_{\text{div}} = \frac{R_2}{R_1 + R_2} = \frac{33\text{ k}\Omega}{100\text{ k}\Omega + 33\text{ k}\Omega} = \frac{33}{133} \approx \mathbf{0{,}24812}$$
+
+   $$V_{\text{ADC}} = V_{\text{BAT}} \cdot K_{\text{div}} = V_{\text{BAT}} \cdot 0{,}24812$$
+
+2. **Mapeamento de Tensão nos Níveis Operacionais da Bateria:**
+   * **Bateria em Plena Carga ($V_{\text{BAT}} = 8{,}40\text{ V}$):**
+     $$V_{\text{ADC,max}} = 8{,}40\text{ V} \cdot 0{,}24812 \approx \mathbf{2{,}084\text{ V}}$$
+     *Margem de Proteção:* O valor de $2{,}084\text{ V}$ opera com folga de $0{,}416\text{ V}$ abaixo do teto de máxima linearidade do conversor do ESP32-C3 sob atenuação de 11 dB ($2{,}50\text{ V}$) e com folga de $1{,}216\text{ V}$ em relação ao limite elétrico absoluto do pino ($3{,}30\text{ V}$), eliminando qualquer risco de sobretensão no silício.
+   * **Tensão Nominal do Pack ($V_{\text{BAT}} = 7{,}40\text{ V}$):**
+     $$V_{\text{ADC,nom}} = 7{,}40\text{ V} \cdot 0{,}24812 \approx \mathbf{1{,}836\text{ V}}$$
+   * **Limiar de Corte UVLO ($V_{\text{BAT}} = 6{,}60\text{ V}$):**
+     $$V_{\text{ADC,uvlo}} = 6{,}60\text{ V} \cdot 0{,}24812 \approx \mathbf{1{,}638\text{ V}}$$
+
+3. **Função Inversa de Calibração para o Firmware:**
+   Para reconstruir no software a tensão real da bateria a partir da amostragem digital do ADC ($V_{\text{ADC}}$):
+
+   $$V_{\text{BAT}} = V_{\text{ADC}} \cdot \left(\frac{R_1 + R_2}{R_2}\right) = V_{\text{ADC}} \cdot \left(\frac{133}{33}\right) = V_{\text{ADC}} \cdot \mathbf{4{,}0303}$$
+
+4. **Corrente de Fuga e Dissipação de Potência:**
+   * Corrente drenada no pior caso sob bateria cheia ($8{,}40\text{ V}$):
+     $$I_{\text{fuga}} = \frac{8{,}40\text{ V}}{100\text{ k}\Omega + 33\text{ k}\Omega} = \frac{8{,}40\text{ V}}{133\text{ k}\Omega} \approx \mathbf{63{,}16\ \mu\text{A}}$$
+     *(Consumo desprezível de 0,063 mA, não descarregando a bateria em repouso).*
+   * Potência dissipada máxima nos resistores:
+     $$P_{\text{total}} = \frac{(8{,}40\text{ V})^2}{133\text{ k}\Omega} \approx \mathbf{0{,}53\text{ mW}}$$
+     $$P_{R1} = (63{,}16\ \mu\text{A})^2 \cdot 100\text{ k}\Omega \approx 0{,}40\text{ mW} \quad \text{e} \quad P_{R2} \approx 0{,}13\text{ mW}$$
+     Ambas as dissipações operam a menos de 0,4% da potência nominal de resistores padrão SMD 0805 ou Through-hole de 1/8 W ($125\text{ mW}$), garantindo aquecimento térmico nulo e deriva resistiva desprezível.
+
+---
+
+### 6.3 Memorial de Cálculo do Filtro Anti-Aliasing Passa-Baixas
+
+A comutação PWM da ponte H dos micromotores (operando a $20\text{ kHz}$) e o chaveamento dos reguladores Step-Down (operando a $150\text{ kHz}$) induzem ondulações de alta frequência no barramento elétrico. Se o ADC do microcontrolador amostrar esse sinal sem filtragem, as frequências de chaveamento sofrem falseamento (*aliasing*), gerando oscilações espúrias na leitura que poderiam desarmar indevidamente o sistema de proteção de subtensão.
+
+1. **Impedância Equivalente de Thevenin ($R_{\text{th}}$):**
+   A impedância de fonte vista pelo capacitor $C_1$ corresponde à associação em paralelo de $R_1$ e $R_2$:
+
+   $$R_{\text{th}} = R_1 \parallel R_2 = \frac{R_1 \cdot R_2}{R_1 + R_2} = \frac{100\text{ k}\Omega \cdot 33\text{ k}\Omega}{133\text{ k}\Omega} \approx \mathbf{24{,}812\text{ k}\Omega}$$
+
+2. **Frequência de Corte a -3 dB ($f_c$):**
+   Adotando capacitor cerâmico multicamadas (MLCC) de $C_1 = 100\text{ nF}$ ($100 \times 10^{-9}\text{ F}$) de alta estabilidade térmica:
+
+   $$f_c = \frac{1}{2\pi \cdot R_{\text{th}} \cdot C_1} = \frac{1}{2\pi \cdot 24.812\ \Omega \cdot 100 \times 10^{-9}\text{ F}} \approx \mathbf{64{,}14\text{ Hz}}$$
+
+3. **Tempo de Resposta Transitória ($t_r$):**
+   O tempo de subida (10% a 90%) para o circuito responder a variações em degrau na tensão da bateria é:
+
+   $$t_r = 2{,}2 \cdot R_{\text{th}} \cdot C_1 = 2{,}2 \cdot 24.812\ \Omega \cdot 100 \times 10^{-9}\text{ F} \approx \mathbf{5{,}46\text{ ms}}$$
+
+   Como a curva de descarga química da bateria LiPo ocorre ao longo de dezenas de minutos (taxa de variação $< 1\text{ mV/s}$), o atraso de $5{,}5\text{ ms}$ é desprezível e garante rastreamento instantâneo sem defasagem temporal de telemetria.
+
+---
+
+### 6.4 Comprovação da Rejeição de Ruído e Diagrama de Bode
+
+A função de transferência no domínio da frequência $s = j\omega$ que relaciona a tensão no pino ADC com a tensão da bateria é dada por:
+
+$$H(s) = K_{\text{div}} \cdot \frac{1}{1 + s \cdot R_{\text{th}} \cdot C_1} = 0{,}24812 \cdot \frac{1}{1 + j \left(\frac{f}{64{,}14\text{ Hz}}\right)}$$
+
+A resposta em frequência simulada pelo script `scripts/simulacao_divisor_antialiasing.py` é apresentada no Diagrama de Bode abaixo:
+
+![Diagrama de Bode do Filtro Anti-Aliasing](../figs/bode-filtro-antialiasing.svg)
+
+#### Tabela de Atenuação nas Frequências Críticas
+
+| Ponto de Frequência | Frequência ($f$) | Ganho Relativo (dB) | Fator de Atenuação / Redução | Comportamento do Sinal |
+| :--- | :---: | :---: | :---: | :--- |
+| **Banda Passante DC** | $0{,}0\text{ Hz}$ | $0{,}00\text{ dB}$ | $1{,}0\times$ | Sinal DC da bateria passa com integridade total |
+| **Frequência de Corte ($f_c$)** | $64{,}14\text{ Hz}$ | $-3{,}01\text{ dB}$ | $1{,}41\times$ | Ponto de corte de meia potência |
+| **Ondulação de Baixa Frequência** | $120\text{ Hz}$ | $-6{,}53\text{ dB}$ | $2{,}12\times$ | Início da atenuação de primeira ordem |
+| **Frequência Intermediária** | $1\text{ kHz}$ | $-23{,}87\text{ dB}$ | $15{,}6\times$ | Rejeição de ruídos de acoplamento |
+| **Comutação PWM Motores (DRV8833)** | **$20\text{ kHz}$** | **$-49{,}88\text{ dB}$** | **$311{,}8\times$** | **Ruído atenuado em mais de 310 vezes** |
+| **Chaveamento Regulador Buck LM2596**| **$150\text{ kHz}$**| **$-67{,}38\text{ dB}$** | **$2.338{,}5\times$** | **Ruído atenuado em mais de 2.300 vezes** |
+
+---
+
+### 6.5 Rotinas de Aquisição e Proteção no Firmware (Issue #208)
+
+O sinal filtrado entregue ao GPIO 2 é processado pelo firmware através das seguintes etapas sequenciais:
+1. **Amostragem com Oversampling:** A tarefa de telemetria realiza rajadas de 10 amostras consecutivas do pino ADC, aplicando média amostral para rejeição de ruído residual de quantização.
+2. **Conversão Linear Calibrada:**
+   ```cpp
+   float tensao_adc = (leitura_raw / 4095.0f) * 2.50f; // Calibração com atenuação de 11 dB
+   float tensao_bateria = tensao_adc * 4.0303f;         // Fator inverso do divisor (133k / 33k)
+   ```
+3. **Máquina de Estados de Subtensão (UVLO):** Se `tensao_bateria <= 6.60f` por mais de 5 amostragens sucessivas (descartando quedas momentâneas de partida), o firmware entra em estado de salvaguarda, forçando o PWM dos motores a zero e emitindo alerta crítico no payload de telemetria (RF08 / HU-08).
 
 ---
 
@@ -171,6 +272,7 @@ Sob tensão máxima de 8,4 V, o nível atenuado resultante é de aproximadamente
 3. **TATTU.** *Tattu 650mAh 75C 2S1P Lipo Battery Pack with XT30 Plug Specification Sheet*. Gens Ace & Tattu Battery Co., 2023.
 4. **ESPRESSIF SYSTEMS.** *ESP32-C3-MINI-1 Datasheet*. Versão 1.4, 2024. Disponível em: <https://www.espressif.com>.
 5. **MOHAN, Ned; UNDELAND, Tore M.; ROBBINS, William P.** *Power Electronics: Converters, Applications, and Design*. 3. ed. Nova York: John Wiley & Sons, 2003.
+6. **OPPENHEIM, Alan V.; WILLSKY, Alan S.** *Signals and Systems*. 2. ed. Upper Saddle River: Prentice Hall, 1996.
 
 ---
 
@@ -180,3 +282,4 @@ Sob tensão máxima de 8,4 V, o nível atenuado resultante é de aproximadamente
 | :---: | :---: | :--- | :--- | :--- |
 | 1.0 | 05/10/2026 | Estruturação inicial do consumo de energia e dimensionamento da bateria LiPo 2S | Bruno Duarte e Paulo Melo | Equipe Micromouse |
 | 1.1 | 18/10/2026 | Mapeamento matemático da curva de descarga da bateria LiPo 2S (Equação de Shepherd), gráfico vetorial de descarga e geração da tabela SoC para o firmware (#139) | Elias Oliveira | Bruno Duarte (System Architect) |
+| 1.2 | 18/10/2026 | Dimensionamento formal do divisor resistivo (100k/33k) e filtro passa-baixas anti-aliasing RC de 64 Hz com comprovação de atenuação a -50 dB do ruído PWM de 20 kHz e Diagrama de Bode (#203) | Elias Oliveira | Bruno Duarte (System Architect) |
