@@ -18,7 +18,7 @@
         <link rel="prev" href="../estruturas/">
       
       
-        <link rel="next" href="../hardware/">
+        <link rel="next" href="../protecoes-entrada/">
       
       
         
@@ -378,6 +378,8 @@
       
         
           
+        
+      
         
       
         
@@ -1030,10 +1032,49 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#historico-de-versao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Histórico de Versão
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../protecoes-entrada/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.1 Proteções de entrada
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2032,6 +2073,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#historico-de-versao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Histórico de Versão
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2300,6 +2352,17 @@
 <h2 id="5-planejamento-do-circuito-de-alimentacao">5. Planejamento do Circuito de Alimentação<a class="headerlink" href="#5-planejamento-do-circuito-de-alimentacao" title="Permanent link">&para;</a></h2>
 <p>A distribuição de energia segrega a malha de acionamento eletromecânico dos circuitos lógicos e de sensoriamento:</p>
 <ul>
+<li><strong>Entrada de Energia, Proteções e Chaveamento (detalhado em <a href="../protecoes-entrada/">4.2.1 Proteções de entrada</a>):</strong></li>
+<li>O polo positivo da bateria LiPo 2S conecta-se ao circuito através do conector polarizado de alta corrente <strong>XT-30</strong>.</li>
+<li>Em série com a linha positiva (<code>VBAT_RAW</code>), posiciona-se um <strong>Fusível Rearmável PPTC Bourns MF-R185</strong> (<span class="arithmatex">\(I_{\text{hold}} = 1{,}85\text{ A}\)</span>, <span class="arithmatex">\(I_{\text{trip}} \approx 3{,}5\text{ A a }3{,}7\text{ A}\)</span>, <span class="arithmatex">\(V_{\text{max}} = 30\text{ V}\)</span>), salvaguardando o circuito contra curtos-circuitos e travamento severo dos motores N20 sem desarmar em arrancadas.</li>
+<li>Após o PPTC, integra-se uma malha ativa contra inversão de polaridade com <strong>P-MOSFET Canal P de baixa perda (AO3407A, <span class="arithmatex">\(R_{\text{DS(on)}} \approx 28\text{ m}\Omega\)</span>)</strong> em configuração <em>High-Side</em>, garantindo queda de tensão inferior a <span class="arithmatex">\(0{,}02\text{ V}\)</span> em regime nominal e preservando a margem de <em>dropout</em> do regulador de 5 V.</li>
+<li>Na saída protegida (<code>+VBAT_PROT</code>), uma <strong>Chave de Potência</strong> mecânica (<code>SW1</code>) comanda a energização geral do barramento <code>+VBAT_2S</code> antes da derivação para os conversores e ponte H.</li>
+<li><strong>Barramento Direto dos Motores (+VBAT_2S / Pinos VM):</strong></li>
+<li>O terminal <code>VM</code> do driver DRV8833 recebe diretamente a tensão não regulada da bateria (+VBAT_2S, entre 7,4 V e 8,4 V).</li>
+<li><em>Validação da Tensão de 8,4 V em Motores Nominais de 6,0 V:</em> O DRV8833 suporta até 10,8 V em VM, operando com ampla folga de segurança. Para proteger as bobinas dos micromotores N20 sem a inclusão de um regulador de potência de 6 V, adota-se <strong>limitação por software via modulação PWM</strong>: o <em>duty cycle</em> máximo enviado pelo ESP32-C3 é travado em <strong>71%</strong> (<span class="arithmatex">\(6,0\text{ V} / 8,4\text{ V}\)</span>), garantindo que a tensão eficaz nos motores não ultrapasse os 6,0 V nominais sob bateria plena.</li>
+<li><strong>Barramento de Regulação Chaveada (Dois Módulos Buck Independentes):</strong></li>
+<li><strong>Conversor Buck +5V0:</strong> Regulador Step-Down com capacidade mínima de 1 A contínuo. Alimenta de forma isolada a linha de potência do sensor LiDAR ToF 360°.</li>
+<li><strong>Conversor Buck +3V3:</strong> Regulador Step-Down com capacidade mínima de 1 A contínuo. Alimenta a linha digital do microcontrolador ESP32-C3-MINI-1, os encoders de quadratura e a polarização lógica do DRV8833. A especificação de 1 A supre com ampla folga os picos transitórios de rádio do chip ESP32 (de até 350 mA).</li>
 <li><strong>Entrada de Energia, Gerenciamento e Chaveamento:</strong></li>
 <li>O polo positivo da bateria LiPo 2S conecta-se ao circuito através de conector de alta corrente <strong>XT30</strong>.</li>
 <li>Em série com a linha positiva (+VBAT), posiciona-se um <strong>Fusível de Proteção de Ação Rápida (3 A a 5 A)</strong> (formato mini automotivo ou SMD), indispensável para salvaguardar o circuito contra curtos-circuitos acidentais decorrentes da elevada capacidade de descarga da célula LiPo (75C contínuo / 150C pico).</li>
@@ -2625,35 +2688,12 @@ Para resguardar o conversor LM2596 e as escovas dos motores N20 contra danos té
 <li><strong>ESPRESSIF SYSTEMS.</strong> <em>ESP32-C3-MINI-1 Datasheet</em>. Versão 1.4, 2024. Disponível em: <a href="https://www.espressif.com">https://www.espressif.com</a>.</li>
 <li><strong>TEXAS INSTRUMENTS.</strong> <em>DRV8833 Dual H-Bridge Motor Driver</em>. Datasheet SLVSAR1E, Rev. Julho 2015. Disponível em: <a href="https://www.ti.com/lit/ds/symlink/drv8833.pdf">https://www.ti.com/lit/ds/symlink/drv8833.pdf</a>.</li>
 <li><strong>GIBILISCO, Stan.</strong> <em>Beginner's Guide to Reading Schematics</em>. 3. ed. Nova York: McGraw-Hill Education, 2014.</li>
-<li>
-<h1 id="mohan-ned-undeland-tore-m-robbins-william-p-power-electronics-converters-applications-and-design-3-ed-nova-york-john-wiley-sons-2003"><strong>MOHAN, Ned; UNDELAND, Tore M.; ROBBINS, William P.</strong> <em>Power Electronics: Converters, Applications, and Design</em>. 3. ed. Nova York: John Wiley &amp; Sons, 2003.<a class="headerlink" href="#mohan-ned-undeland-tore-m-robbins-william-p-power-electronics-converters-applications-and-design-3-ed-nova-york-john-wiley-sons-2003" title="Permanent link">&para;</a></h1>
-</li>
-<li>O software implementa proteção de subtensão lógica (<em>Under-Voltage Lockout</em>): se a leitura atestar tensão global inferior a 6,4 V (equivalente a 3,2 V por célula) em amostragens sucessivas, os sinais de controle PWM para o DRV8833 são zerados, cortando a tração e preservando a bateria contra descarga profunda.</li>
-<li>A telemetria empacota o tempo contínuo de atividade e a leitura instantânea de tensão, registrando os dados de consumo em tempo real para contraste com o modelo de energia projetado.</li>
-</ol>
-<hr />
-<h2 id="7-referencias-bibliograficas">7. Referências Bibliográficas<a class="headerlink" href="#7-referencias-bibliograficas" title="Permanent link">&para;</a></h2>
-<ol>
+<li><strong>MOHAN, Ned; UNDELAND, Tore M.; ROBBINS, William P.</strong> <em>Power Electronics: Converters, Applications, and Design</em>. 3. ed. Nova York: John Wiley &amp; Sons, 2003.</li>
 <li><strong>SHEPHERD, C. M.</strong> <em>Design of Primary and Secondary Cells - Part 2: An equation describing battery discharge</em>. Journal of The Electrochemical Society, v. 112, n. 7, p. 657-664, 1965.</li>
 <li><strong>TREMBLAY, Olivier; DESSAINT, Louis-A.</strong> <em>Experimental Validation of a Battery Dynamic Model for EV Applications</em>. World Electric Vehicle Journal, v. 3, n. 2, p. 289-298, 2009.</li>
 <li><strong>TATTU.</strong> <em>Tattu 650mAh 75C 2S1P Lipo Battery Pack with XT30 Plug Specification Sheet</em>. Gens Ace &amp; Tattu Battery Co., 2023.</li>
 <li><strong>ESPRESSIF SYSTEMS.</strong> <em>ESP32-C3-MINI-1 Datasheet</em>. Versão 1.4, 2024. Disponível em: <a href="https://www.espressif.com">https://www.espressif.com</a>.</li>
-<li><strong>MOHAN, Ned; UNDELAND, Tore M.; ROBBINS, William P.</strong> <em>Power Electronics: Converters, Applications, and Design</em>. 3. ed. Nova York: John Wiley &amp; Sons, 2003.<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<p>docs/139-201-mapeamento-de-descarga</p>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</li>
+<li><strong>MOHAN, Ned; UNDELAND, Tore M.; ROBBINS, William P.</strong> <em>Power Electronics: Converters, Applications, and Design</em>. 3. ed. Nova York: John Wiley &amp; Sons, 2003.</li>
 </ol>
 <hr />
 <h2 id="historico-de-versao">Histórico de Versão<a class="headerlink" href="#historico-de-versao" title="Permanent link">&para;</a></h2>
@@ -2691,17 +2731,24 @@ Para resguardar o conversor LM2596 e as escovas dos motores N20 contra danos té
 </tr>
 <tr>
 <td style="text-align: center;">1.3</td>
-<td style="text-align: center;">18/10/2026</td>
-<td style="text-align: left;">Inclusão do dimensionamento do conversor Buck dedicado de 6 V para os motores com suporte até ~3 A de stall, reanálise de dropout, atualização da autonomia para 65,5 min e consolidação dos três reguladores</td>
-<td style="text-align: left;">Elias Oliveira</td>
-<td style="text-align: left;">Bruno Duarte (System Architect)</td>
+<td style="text-align: center;">17/10/2026</td>
+<td style="text-align: left;">Alinhamento da seção de proteções de entrada com o dimensionamento do PPTC (MF-R185) e P-MOSFET (AO3407A)</td>
+<td style="text-align: left;">Paulo Melo</td>
+<td style="text-align: left;">Equipe de Energia</td>
 </tr>
 <tr>
 <td style="text-align: center;">1.4</td>
 <td style="text-align: center;">18/10/2026</td>
+<td style="text-align: left;">Inclusão do dimensionamento do conversor Buck dedicado de 6 V para os motores com suporte até ~3 A de stall, reanálise de dropout, atualização da autonomia para 65,5 min e consolidação dos três reguladores</td>
+<td style="text-align: left;">Elias Oliveira</td>
+<td style="text-align: left;">Bruno Duarte</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.5</td>
+<td style="text-align: center;">18/10/2026</td>
 <td style="text-align: left;">Mapeamento matemático da curva de descarga da bateria LiPo 2S (Equação de Shepherd), gráfico vetorial de descarga e geração da tabela SoC para o firmware (#139)</td>
 <td style="text-align: left;">Elias Oliveira</td>
-<td style="text-align: left;">Bruno Duarte (System Architect)</td>
+<td style="text-align: left;">Bruno Duarte</td>
 </tr>
 </tbody>
 </table>
@@ -2757,13 +2804,13 @@ Para resguardar o conversor LM2596 e as escovas dos motores N20 contra danos té
         
         
           
-          <a href="../hardware/" class="md-footer__link md-footer__link--next" aria-label="Próximo: 4.3 Hardware">
+          <a href="../protecoes-entrada/" class="md-footer__link md-footer__link--next" aria-label="Próximo: 4.2.1 Proteções de entrada">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Próximo
               </span>
               <div class="md-ellipsis">
-                4.3 Hardware
+                4.2.1 Proteções de entrada
               </div>
             </div>
             <div class="md-footer__button md-icon">
