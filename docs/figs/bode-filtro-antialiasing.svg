@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 540" width="100%" height="100%" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #ffffff;">
+<text x="410.0" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#0f172a">Diagrama de Bode — Filtro Passa-Baixas Anti-Aliasing (Issue #203)</text>
+<text x="410.0" y="48" text-anchor="middle" font-size="12" fill="#475569">Resposta em frequência da malha R_th = 24,81 kΩ e C1 = 100 nF (fc = 64.1 Hz)</text>
+<line x1="75.0" y1="65" x2="75.0" y2="480" stroke="#cbd5e1" stroke-width="1" />
+<text x="75.0" y="498" text-anchor="middle" font-size="11" fill="#64748b">0,1 Hz</text>
+<line x1="110.1" y1="65" x2="110.1" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="130.7" y1="65" x2="130.7" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="145.2" y1="65" x2="145.2" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="156.5" y1="65" x2="156.5" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="165.8" y1="65" x2="165.8" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="173.6" y1="65" x2="173.6" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="180.4" y1="65" x2="180.4" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="186.3" y1="65" x2="186.3" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="191.7" y1="65" x2="191.7" y2="480" stroke="#cbd5e1" stroke-width="1" />
+<text x="191.7" y="498" text-anchor="middle" font-size="11" fill="#64748b">1 Hz</text>
+<line x1="226.8" y1="65" x2="226.8" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="247.3" y1="65" x2="247.3" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="261.9" y1="65" x2="261.9" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="273.2" y1="65" x2="273.2" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="282.5" y1="65" x2="282.5" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="290.3" y1="65" x2="290.3" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="297.0" y1="65" x2="297.0" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="303.0" y1="65" x2="303.0" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="308.3" y1="65" x2="308.3" y2="480" stroke="#cbd5e1" stroke-width="1" />
+<text x="308.3" y="498" text-anchor="middle" font-size="11" fill="#64748b">10 Hz</text>
+<line x1="343.5" y1="65" x2="343.5" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="364.0" y1="65" x2="364.0" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="378.6" y1="65" x2="378.6" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="389.9" y1="65" x2="389.9" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="399.1" y1="65" x2="399.1" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="406.9" y1="65" x2="406.9" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="413.7" y1="65" x2="413.7" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="419.7" y1="65" x2="419.7" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="425.0" y1="65" x2="425.0" y2="480" stroke="#cbd5e1" stroke-width="1" />
+<text x="425.0" y="498" text-anchor="middle" font-size="11" fill="#64748b">100 Hz</text>
+<line x1="460.1" y1="65" x2="460.1" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="480.7" y1="65" x2="480.7" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="495.2" y1="65" x2="495.2" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="506.5" y1="65" x2="506.5" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="515.8" y1="65" x2="515.8" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="523.6" y1="65" x2="523.6" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="530.4" y1="65" x2="530.4" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="536.3" y1="65" x2="536.3" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="541.7" y1="65" x2="541.7" y2="480" stroke="#cbd5e1" stroke-width="1" />
+<text x="541.7" y="498" text-anchor="middle" font-size="11" fill="#64748b">1 kHz</text>
+<line x1="576.8" y1="65" x2="576.8" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="597.3" y1="65" x2="597.3" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="611.9" y1="65" x2="611.9" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="623.2" y1="65" x2="623.2" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="632.5" y1="65" x2="632.5" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="640.3" y1="65" x2="640.3" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="647.0" y1="65" x2="647.0" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="653.0" y1="65" x2="653.0" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="658.3" y1="65" x2="658.3" y2="480" stroke="#cbd5e1" stroke-width="1" />
+<text x="658.3" y="498" text-anchor="middle" font-size="11" fill="#64748b">10 kHz</text>
+<line x1="693.5" y1="65" x2="693.5" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="714.0" y1="65" x2="714.0" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="728.6" y1="65" x2="728.6" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="739.9" y1="65" x2="739.9" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="749.1" y1="65" x2="749.1" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="756.9" y1="65" x2="756.9" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="763.7" y1="65" x2="763.7" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="769.7" y1="65" x2="769.7" y2="480" stroke="#f1f5f9" stroke-width="0.8" />
+<line x1="775.0" y1="65" x2="775.0" y2="480" stroke="#cbd5e1" stroke-width="1" />
+<text x="775.0" y="498" text-anchor="middle" font-size="11" fill="#64748b">100 kHz</text>
+<line x1="75" y1="480.0" x2="775" y2="480.0" stroke="#e2e8f0" stroke-width="1" />
+<text x="65" y="484.0" text-anchor="end" font-size="11" fill="#64748b">-70 dB</text>
+<line x1="75" y1="424.7" x2="775" y2="424.7" stroke="#e2e8f0" stroke-width="1" />
+<text x="65" y="428.7" text-anchor="end" font-size="11" fill="#64748b">-60 dB</text>
+<line x1="75" y1="369.3" x2="775" y2="369.3" stroke="#e2e8f0" stroke-width="1" />
+<text x="65" y="373.3" text-anchor="end" font-size="11" fill="#64748b">-50 dB</text>
+<line x1="75" y1="314.0" x2="775" y2="314.0" stroke="#e2e8f0" stroke-width="1" />
+<text x="65" y="318.0" text-anchor="end" font-size="11" fill="#64748b">-40 dB</text>
+<line x1="75" y1="258.7" x2="775" y2="258.7" stroke="#e2e8f0" stroke-width="1" />
+<text x="65" y="262.7" text-anchor="end" font-size="11" fill="#64748b">-30 dB</text>
+<line x1="75" y1="203.3" x2="775" y2="203.3" stroke="#e2e8f0" stroke-width="1" />
+<text x="65" y="207.3" text-anchor="end" font-size="11" fill="#64748b">-20 dB</text>
+<line x1="75" y1="148.0" x2="775" y2="148.0" stroke="#e2e8f0" stroke-width="1" />
+<text x="65" y="152.0" text-anchor="end" font-size="11" fill="#64748b">-10 dB</text>
+<line x1="75" y1="92.7" x2="775" y2="92.7" stroke="#e2e8f0" stroke-width="1" />
+<text x="65" y="96.7" text-anchor="end" font-size="11" fill="#64748b">0 dB</text>
+<line x1="75" y1="65" x2="75" y2="480" stroke="#334155" stroke-width="1.5" />
+<line x1="75" y1="480" x2="775" y2="480" stroke="#334155" stroke-width="1.5" />
+<line x1="693.5" y1="65" x2="693.5" y2="480" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4,4" />
+<text x="685.5" y="95" text-anchor="end" font-size="11" font-weight="bold" fill="#dc2626">Ruído PWM Motores (20 kHz)</text>
+<line x1="402.5" y1="65" x2="402.5" y2="480" stroke="#0ea5e9" stroke-width="1.2" stroke-dasharray="3,3" />
+<line x1="75" y1="109.3" x2="775" y2="109.3" stroke="#0ea5e9" stroke-width="1" stroke-dasharray="3,3" />
+<circle cx="402.5" cy="109.3" r="5" fill="#0284c7" stroke="#ffffff" stroke-width="2" />
+<text x="410.5" y="101.3" font-size="11" font-weight="bold" fill="#0369a1">fc = 64.1 Hz (-3 dB)</text>
+<path d="M 75.0,92.7 L 77.8,92.7 L 80.6,92.7 L 83.4,92.7 L 86.2,92.7 L 89.0,92.7 L 91.8,92.7 L 94.6,92.7 L 97.4,92.7 L 100.2,92.7 L 103.0,92.7 L 105.8,92.7 L 108.6,92.7 L 111.4,92.7 L 114.2,92.7 L 117.0,92.7 L 119.8,92.7 L 122.6,92.7 L 125.4,92.7 L 128.2,92.7 L 131.0,92.7 L 133.8,92.7 L 136.6,92.7 L 139.4,92.7 L 142.2,92.7 L 145.0,92.7 L 147.8,92.7 L 150.6,92.7 L 153.4,92.7 L 156.2,92.7 L 159.0,92.7 L 161.8,92.7 L 164.6,92.7 L 167.4,92.7 L 170.2,92.7 L 173.0,92.7 L 175.8,92.7 L 178.6,92.7 L 181.4,92.7 L 184.2,92.7 L 187.0,92.7 L 189.8,92.7 L 192.6,92.7 L 195.4,92.7 L 198.2,92.7 L 201.0,92.7 L 203.8,92.7 L 206.6,92.7 L 209.4,92.7 L 212.2,92.7 L 215.0,92.7 L 217.8,92.7 L 220.6,92.7 L 223.4,92.7 L 226.2,92.7 L 229.0,92.7 L 231.8,92.7 L 234.6,92.7 L 237.4,92.7 L 240.2,92.7 L 243.0,92.7 L 245.8,92.7 L 248.6,92.7 L 251.4,92.7 L 254.2,92.7 L 257.0,92.7 L 259.8,92.8 L 262.6,92.8 L 265.4,92.8 L 268.2,92.8 L 271.0,92.8 L 273.8,92.8 L 276.6,92.8 L 279.4,92.9 L 282.2,92.9 L 285.0,92.9 L 287.8,92.9 L 290.6,93.0 L 293.4,93.0 L 296.2,93.0 L 299.0,93.1 L 301.8,93.1 L 304.6,93.2 L 307.4,93.2 L 310.2,93.3 L 313.0,93.4 L 315.8,93.4 L 318.6,93.5 L 321.4,93.6 L 324.2,93.7 L 327.0,93.9 L 329.8,94.0 L 332.6,94.1 L 335.4,94.3 L 338.2,94.5 L 341.0,94.7 L 343.8,94.9 L 346.6,95.2 L 349.4,95.5 L 352.2,95.8 L 355.0,96.1 L 357.8,96.5 L 360.6,96.9 L 363.4,97.3 L 366.2,97.8 L 369.0,98.3 L 371.8,98.9 L 374.6,99.6 L 377.4,100.3 L 380.2,101.0 L 383.0,101.8 L 385.8,102.7 L 388.6,103.6 L 391.4,104.6 L 394.2,105.7 L 397.0,106.9 L 399.8,108.1 L 402.6,109.4 L 405.4,110.7 L 408.2,112.2 L 411.0,113.7 L 413.8,115.3 L 416.6,116.9 L 419.4,118.7 L 422.2,120.4 L 425.0,122.3 L 427.8,124.2 L 430.6,126.2 L 433.4,128.2 L 436.2,130.3 L 439.0,132.4 L 441.8,134.6 L 444.6,136.8 L 447.4,139.0 L 450.2,141.3 L 453.0,143.6 L 455.8,146.0 L 458.6,148.4 L 461.4,150.8 L 464.2,153.2 L 467.0,155.7 L 469.8,158.1 L 472.6,160.6 L 475.4,163.1 L 478.2,165.7 L 481.0,168.2 L 483.8,170.7 L 486.6,173.3 L 489.4,175.9 L 492.2,178.4 L 495.0,181.0 L 497.8,183.6 L 500.6,186.2 L 503.4,188.8 L 506.2,191.4 L 509.0,194.0 L 511.8,196.7 L 514.6,199.3 L 517.4,201.9 L 520.2,204.5 L 523.0,207.2 L 525.8,209.8 L 528.6,212.4 L 531.4,215.1 L 534.2,217.7 L 537.0,220.4 L 539.8,223.0 L 542.6,225.7 L 545.4,228.3 L 548.2,230.9 L 551.0,233.6 L 553.8,236.2 L 556.6,238.9 L 559.4,241.5 L 562.2,244.2 L 565.0,246.8 L 567.8,249.5 L 570.6,252.2 L 573.4,254.8 L 576.2,257.5 L 579.0,260.1 L 581.8,262.8 L 584.6,265.4 L 587.4,268.1 L 590.2,270.7 L 593.0,273.4 L 595.8,276.0 L 598.6,278.7 L 601.4,281.3 L 604.2,284.0 L 607.0,286.7 L 609.8,289.3 L 612.6,292.0 L 615.4,294.6 L 618.2,297.3 L 621.0,299.9 L 623.8,302.6 L 626.6,305.2 L 629.4,307.9 L 632.2,310.6 L 635.0,313.2 L 637.8,315.9 L 640.6,318.5 L 643.4,321.2 L 646.2,323.8 L 649.0,326.5 L 651.8,329.1 L 654.6,331.8 L 657.4,334.5 L 660.2,337.1 L 663.0,339.8 L 665.8,342.4 L 668.6,345.1 L 671.4,347.7 L 674.2,350.4 L 677.0,353.0 L 679.8,355.7 L 682.6,358.4 L 685.4,361.0 L 688.2,363.7 L 691.0,366.3 L 693.8,369.0 L 696.6,371.6 L 699.4,374.3 L 702.2,377.0 L 705.0,379.6 L 707.8,382.3 L 710.6,384.9 L 713.4,387.6 L 716.2,390.2 L 719.0,392.9 L 721.8,395.5 L 724.6,398.2 L 727.4,400.9 L 730.2,403.5 L 733.0,406.2 L 735.8,408.8 L 738.6,411.5 L 741.4,414.1 L 744.2,416.8 L 747.0,419.4 L 749.8,422.1 L 752.6,424.8 L 755.4,427.4 L 758.2,430.1 L 761.0,432.7 L 763.8,435.4 L 766.6,438.0 L 769.4,440.7 L 772.2,443.4 L 775.0,446.0" fill="none" stroke="#2563eb" stroke-width="3" />
+<circle cx="693.5" cy="368.7" r="6" fill="#dc2626" stroke="#ffffff" stroke-width="2" />
+<text x="703.5" y="372.7" font-size="11" font-weight="bold" fill="#b91c1c">-49.9 dB (Atenuação de 312×)</text>
+<text x="425.0" y="522" text-anchor="middle" font-size="12" font-weight="bold" fill="#334155">Frequência (Hz) — Escala Logarítmica</text>
+<text transform="rotate(-90)" x="-272.5" y="22" text-anchor="middle" font-size="12" font-weight="bold" fill="#334155">Ganho Relativo (dB)</text>
+<rect x="90" y="405" width="290" height="60" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" />
+<line x1="100" y1="421" x2="125" y2="421" stroke="#2563eb" stroke-width="3" />
+<text x="132" y="425" font-size="11" fill="#1e293b">Atenuação Passa-Baixas (Roll-off -20 dB/déc)</text>
+<circle cx="112" cy="443" r="4" fill="#dc2626" />
+<text x="132" y="447" font-size="11" fill="#991b1b">Rejeição a 20 kHz: -49,9 dB (redução de 312×)</text>
+</svg>
