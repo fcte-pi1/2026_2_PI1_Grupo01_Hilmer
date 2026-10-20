@@ -1629,6 +1629,67 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#sprint-4-edge-function-de-corridas-e-rls-do-banco" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sprint 4 · Edge Function de corridas e RLS do banco
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sprint 4 · Edge Function de corridas e RLS do banco">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#testes-automatizados-node-sem-supabase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testes automatizados (Node, sem Supabase)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#publicacao-no-projeto-de-teste" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Publicação no projeto de teste
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#teste-ponta-a-ponta-curl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Teste ponta a ponta (curl)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pendencias-desta-etapa_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pendências desta etapa
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2421,6 +2482,67 @@
         
           <li class="md-nav__item">
   <a href="#pendencias-desta-etapa_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pendências desta etapa
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sprint-4-edge-function-de-corridas-e-rls-do-banco" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sprint 4 · Edge Function de corridas e RLS do banco
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sprint 4 · Edge Function de corridas e RLS do banco">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#testes-automatizados-node-sem-supabase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testes automatizados (Node, sem Supabase)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#publicacao-no-projeto-de-teste" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Publicação no projeto de teste
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#teste-ponta-a-ponta-curl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Teste ponta a ponta (curl)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pendencias-desta-etapa_6" class="md-nav__link">
     <span class="md-ellipsis">
       
         Pendências desta etapa
@@ -4949,6 +5071,343 @@
 <li><strong>Unidade de <code>corridas.consumo_bateria</code>:</strong> precisa ser fechada na HU-09. Hoje o histórico assume % consumida.</li>
 <li><strong>Percentual da bateria:</strong> hoje é linear entre 6,6 V e 8,4 V. Pode passar a usar a tabela de SoC da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/139">#139</a> na HU-08.</li>
 <li><strong>Recharts:</strong> migrar da 2.15 para a 3.x, já que a linha 2.x não recebe mais atualizações.</li>
+</ul>
+<hr />
+<h3 id="sprint-4-edge-function-de-corridas-e-rls-do-banco">Sprint 4 · Edge Function de corridas e RLS do banco<a class="headerlink" href="#sprint-4-edge-function-de-corridas-e-rls-do-banco" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tarefas</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/233">#233 Registro e encerramento de corridas no banco</a> e, nas verificações de RLS, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/228">#228 Configurar o Supabase e criar o esquema do banco</a></td>
+</tr>
+<tr>
+<td>Histórias de usuário</td>
+<td>HU-15 · Gestão de corridas (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/225">#225</a>) e HU-09 · Persistência de dados e corridas (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/47">#47</a>)</td>
+</tr>
+<tr>
+<td>Código testado</td>
+<td><code>src/backend</code> (branch <code>feat/233-edge-function-corridas</code>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/334">#334</a>)</td>
+</tr>
+<tr>
+<td>Data da execução</td>
+<td>18/10/2026</td>
+</tr>
+<tr>
+<td>Executado por</td>
+<td>Cláudio Henrique (testes automatizados) e Eduardo Viana (publicação e teste ponta a ponta)</td>
+</tr>
+<tr>
+<td>Documentação do código</td>
+<td><a href="../../04-projeto-conceitual/software/#escrita-mediada-por-edge-function-corridas">Software: escrita mediada por Edge Function</a> e <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/tree/main/src/backend">README do backend</a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Ambiente de execução</strong></p>
+<table>
+<thead>
+<tr>
+<th>Componente</th>
+<th>Versão</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Testes automatizados</td>
+<td>Node 22.18 ou superior (<code>node --test</code>) e PGlite 0.5.10 (PostgreSQL em WebAssembly)</td>
+</tr>
+<tr>
+<td>Projeto Supabase</td>
+<td><code>pi1-micromouse</code>, o projeto da equipe, no plano gratuito</td>
+</tr>
+<tr>
+<td>Supabase CLI</td>
+<td>2.121.0</td>
+</tr>
+<tr>
+<td>Cliente HTTP</td>
+<td>curl 8.5.0</td>
+</tr>
+<tr>
+<td>Sistema operacional</td>
+<td>Linux (Ubuntu 24.04.5 LTS, kernel 7.0)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="testes-automatizados-node-sem-supabase">Testes automatizados (Node, sem Supabase)<a class="headerlink" href="#testes-automatizados-node-sem-supabase" title="Permanent link">&para;</a></h4>
+<p>Comandos executados em <code>src/backend</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>npm<span class="w"> </span>install
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>npm<span class="w"> </span><span class="nb">test</span>
+</code></pre></div>
+<p>A suíte tem <strong>42 casos, 42 aprovados</strong>: validação dos corpos, comparação do token, roteamento da função com um banco falso, e as funções SQL e o RLS num PostgreSQL de verdade (PGlite), com os papéis <code>anon</code>, <code>authenticated</code> e <code>service_role</code> imitando os do Supabase. Esses testes não rodam o <code>index.ts</code>, que só liga o roteador ao servidor HTTP do Deno; por isso o teste ponta a ponta abaixo é feito no projeto Supabase de teste.</p>
+<h4 id="publicacao-no-projeto-de-teste">Publicação no projeto de teste<a class="headerlink" href="#publicacao-no-projeto-de-teste" title="Permanent link">&para;</a></h4>
+<p>Comandos executados em <code>src/backend</code>, depois do <code>supabase login</code>. O valor do <code>DEVICE_TOKEN</code> não aparece aqui: ele foi gerado com <code>openssl rand -hex 24</code> e guardado fora do repositório.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>supabase<span class="w"> </span>link<span class="w"> </span>--project-ref<span class="w"> </span>&lt;ID-DO-PROJETO&gt;
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a>supabase<span class="w"> </span>migration<span class="w"> </span>repair<span class="w"> </span>--status<span class="w"> </span>applied<span class="w"> </span><span class="m">20261014180000</span><span class="w"> </span><span class="m">20261014180500</span>
+<a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a>supabase<span class="w"> </span>db<span class="w"> </span>push
+<a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a>supabase<span class="w"> </span>secrets<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="nv">DEVICE_TOKEN</span><span class="o">=</span>&lt;valor<span class="w"> </span>guardado<span class="w"> </span>fora<span class="w"> </span><span class="k">do</span><span class="w"> </span>Git&gt;<span class="w">   </span><span class="c1"># feito pelo painel, por um dono da organização</span>
+<a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a>supabase<span class="w"> </span>functions<span class="w"> </span>deploy<span class="w"> </span>corridas
+</code></pre></div>
+<ul>
+<li><strong>Migrações:</strong> as tabelas da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/228">#228</a> tinham sido criadas pelo SQL Editor, então o histórico de migrações do projeto estava vazio. As duas primeiras migrações foram marcadas como aplicadas com <code>supabase migration repair --status applied 20261014180000 20261014180500</code>, e o <code>supabase db push</code> aplicou só a <code>20261016120000_funcoes_corridas.sql</code>.</li>
+<li><strong>Segredo:</strong> o <code>DEVICE_TOKEN</code> foi cadastrado por um dono da organização no painel (<em>Edge Functions › Secrets</em>), porque o papel <em>Developer</em> não pode definir segredos.</li>
+<li><strong>Publicação:</strong> o <code>supabase functions deploy corridas</code> enviou os quatro arquivos da função (<code>index.ts</code>, <code>logica.ts</code>, <code>roteador.ts</code> e <code>_shared/autenticacao.ts</code>) sem precisar do Docker. O <code>index.ts</code> rodou no Deno do Supabase sem nenhuma correção: a importação do <code>supabase-js</code> e o caminho da rota funcionaram como no roteador testado.</li>
+</ul>
+<h4 id="teste-ponta-a-ponta-curl">Teste ponta a ponta (curl)<a class="headerlink" href="#teste-ponta-a-ponta-curl" title="Permanent link">&para;</a></h4>
+<p>Cada caso é uma chamada real à função publicada ou à API REST do projeto de teste. Os casos 1 a 10 cobrem criação, encerramento e erros; os casos 11 a 14 cobrem a autenticação em duas camadas (gateway e <code>x-device-token</code>); e os casos 15 a 20 conferem, com a chave <code>anon</code>, a leitura liberada e a escrita bloqueada pelo RLS (#228).</p>
+<p>Executado com o script <code>teste-e2e-corridas.sh</code>, que faz cada chamada com <code>curl</code> e confere o status HTTP e o corpo da resposta. As chaves são lidas do terminal e não aparecem no relatório.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">#</th>
+<th style="text-align: left;">Caso</th>
+<th style="text-align: left;">Esperado</th>
+<th style="text-align: left;">Obtido</th>
+<th style="text-align: left;">Detalhe</th>
+<th style="text-align: left;">Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Criar corrida no labirinto 4x4</td>
+<td style="text-align: left;"><code>201</code></td>
+<td style="text-align: left;"><code>201</code></td>
+<td style="text-align: left;">id 1, <code>numero_tentativa</code> 1, status <code>em_andamento</code></td>
+<td style="text-align: left;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">Criar corrida no labirinto 8x4</td>
+<td style="text-align: left;"><code>201</code></td>
+<td style="text-align: left;"><code>201</code></td>
+<td style="text-align: left;">id 2, <code>numero_tentativa</code> 1, status <code>em_andamento</code></td>
+<td style="text-align: left;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">Criar corrida no labirinto 12x4</td>
+<td style="text-align: left;"><code>201</code></td>
+<td style="text-align: left;"><code>201</code></td>
+<td style="text-align: left;">id 3, <code>numero_tentativa</code> 1, status <code>em_andamento</code></td>
+<td style="text-align: left;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">Segunda corrida no 4x4 recebe a próxima tentativa</td>
+<td style="text-align: left;"><code>201</code></td>
+<td style="text-align: left;"><code>201</code></td>
+<td style="text-align: left;"><code>numero_tentativa</code> 2 (a anterior era 1)</td>
+<td style="text-align: left;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">Encerrar a corrida 1 como <code>concluida</code></td>
+<td style="text-align: left;"><code>200</code></td>
+<td style="text-align: left;"><code>200</code></td>
+<td style="text-align: left;">status <code>concluida</code>, <code>data_hora_fim</code> 2026-10-19T01:59:35.001922+00:00, <code>tempo_final</code> 61.5</td>
+<td style="text-align: left;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">6</td>
+<td style="text-align: left;">Encerrar a corrida 2 como <code>nao_concluida</code>, sem <code>tempo_final</code></td>
+<td style="text-align: left;"><code>200</code></td>
+<td style="text-align: left;"><code>200</code></td>
+<td style="text-align: left;">status <code>nao_concluida</code>, <code>data_hora_fim</code> 2026-10-19T01:59:35.558052+00:00, <code>tempo_final</code> calculado pelo banco: 2.459853</td>
+<td style="text-align: left;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">7</td>
+<td style="text-align: left;">Repetir o encerramento da 1 com o mesmo status</td>
+<td style="text-align: left;"><code>200</code></td>
+<td style="text-align: left;"><code>200</code></td>
+<td style="text-align: left;">mesma <code>data_hora_fim</code> do primeiro encerramento: sim</td>
+<td style="text-align: left;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">8</td>
+<td style="text-align: left;">Encerrar a 1 de novo com outro status</td>
+<td style="text-align: left;"><code>409</code></td>
+<td style="text-align: left;"><code>409</code></td>
+<td style="text-align: left;">erro <code>corrida_ja_encerrada</code></td>
+<td style="text-align: left;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">9</td>
+<td style="text-align: left;">Encerrar uma corrida que não existe</td>
+<td style="text-align: left;"><code>404</code></td>
+<td style="text-align: left;"><code>404</code></td>
+<td style="text-align: left;">erro <code>corrida_inexistente</code></td>
+<td style="text-align: left;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">10</td>
+<td style="text-align: left;">Criar corrida com labirinto inválido (<code>5x5</code>)</td>
+<td style="text-align: left;"><code>400</code></td>
+<td style="text-align: left;"><code>400</code></td>
+<td style="text-align: left;">erro <code>corpo_invalido</code></td>
+<td style="text-align: left;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">11</td>
+<td style="text-align: left;">Chamar sem chave e sem token</td>
+<td style="text-align: left;"><code>401</code></td>
+<td style="text-align: left;"><code>401</code></td>
+<td style="text-align: left;">recusado pelo gateway (verificação de JWT)</td>
+<td style="text-align: left;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">12</td>
+<td style="text-align: left;">Chamar só com a chave anon, sem <code>x-device-token</code></td>
+<td style="text-align: left;"><code>401</code></td>
+<td style="text-align: left;"><code>401</code></td>
+<td style="text-align: left;">erro <code>nao_autorizado</code> (recusado pela função)</td>
+<td style="text-align: left;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">13</td>
+<td style="text-align: left;">Chamar com <code>x-device-token</code> errado</td>
+<td style="text-align: left;"><code>401</code></td>
+<td style="text-align: left;"><code>401</code></td>
+<td style="text-align: left;">erro <code>nao_autorizado</code></td>
+<td style="text-align: left;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">14</td>
+<td style="text-align: left;">Chamar só com o <code>x-device-token</code>, sem JWT</td>
+<td style="text-align: left;"><code>401</code></td>
+<td style="text-align: left;"><code>401</code></td>
+<td style="text-align: left;">recusado pelo gateway: a verificação de JWT continua ativa</td>
+<td style="text-align: left;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">15</td>
+<td style="text-align: left;">Ler a corrida 1 pela API REST com a chave anon</td>
+<td style="text-align: left;"><code>200</code></td>
+<td style="text-align: left;"><code>200</code></td>
+<td style="text-align: left;">status <code>concluida</code>, <code>data_hora_fim</code> 2026-10-19T01:59:35.001922+00:00</td>
+<td style="text-align: left;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">16</td>
+<td style="text-align: left;">RLS: ler os labirintos com a chave anon</td>
+<td style="text-align: left;"><code>200</code></td>
+<td style="text-align: left;"><code>200</code></td>
+<td style="text-align: left;">labirintos: 4x4, 8x4, 12x4</td>
+<td style="text-align: left;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">17</td>
+<td style="text-align: left;">RLS: inserir corrida direto com a chave anon</td>
+<td style="text-align: left;"><code>401</code> ou <code>403</code></td>
+<td style="text-align: left;"><code>401</code></td>
+<td style="text-align: left;">bloqueado: new row violates row-level security policy for table "corridas"</td>
+<td style="text-align: left;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">18</td>
+<td style="text-align: left;">RLS: inserir telemetria direto com a chave anon</td>
+<td style="text-align: left;"><code>401</code> ou <code>403</code></td>
+<td style="text-align: left;"><code>401</code></td>
+<td style="text-align: left;">bloqueado: new row violates row-level security policy for table "telemetria"</td>
+<td style="text-align: left;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">19</td>
+<td style="text-align: left;">RLS: alterar corrida direto com a chave anon</td>
+<td style="text-align: left;">sem efeito</td>
+<td style="text-align: left;"><code>204</code></td>
+<td style="text-align: left;">status da 1 depois da tentativa: <code>concluida</code> (continua <code>concluida</code>: sim)</td>
+<td style="text-align: left;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">20</td>
+<td style="text-align: left;">Chamar a função SQL <code>criar_corrida</code> direto com a chave anon</td>
+<td style="text-align: left;"><code>401</code>, <code>403</code> ou <code>404</code></td>
+<td style="text-align: left;"><code>401</code></td>
+<td style="text-align: left;">bloqueado: permission denied for function criar_corrida</td>
+<td style="text-align: left;"><strong>Aprovado</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>20 de 20 casos aprovados.</strong></p>
+<p>O caso 19 devolve <code>204</code> porque o PostgREST aceita o <code>PATCH</code>, mas o RLS não deixa nenhuma linha ser alterada; por isso o teste confere o status da corrida depois da tentativa.</p>
+<p>O teste criou 4 corridas no banco (ids 1 e 4 no 4×4, 2 no 8×4 e 3 no 12×4). As corridas 3 e 4 foram encerradas como <code>nao_concluida</code> no fim do script.</p>
+<details class="note">
+<summary>Respostas completas da função e da API REST</summary>
+<p><strong>1. Criar corrida no labirinto 4x4</strong> · HTTP 201</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="p">{</span><span class="nt">"id"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">"labirinto_id"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">"numero_tentativa"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">"data_hora_inicio"</span><span class="p">:</span><span class="s2">"2026-10-19T01:59:31.291173+00:00"</span><span class="p">,</span><span class="nt">"data_hora_fim"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"tempo_final"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"velocidade_media"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"velocidade_pico"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"consumo_bateria"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"em_andamento"</span><span class="p">}</span>
+</code></pre></div>
+<p><strong>2. Criar corrida no labirinto 8x4</strong> · HTTP 201</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="p">{</span><span class="nt">"id"</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="nt">"labirinto_id"</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="nt">"numero_tentativa"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">"data_hora_inicio"</span><span class="p">:</span><span class="s2">"2026-10-19T01:59:33.098199+00:00"</span><span class="p">,</span><span class="nt">"data_hora_fim"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"tempo_final"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"velocidade_media"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"velocidade_pico"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"consumo_bateria"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"em_andamento"</span><span class="p">}</span>
+</code></pre></div>
+<p><strong>3. Criar corrida no labirinto 12x4</strong> · HTTP 201</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="p">{</span><span class="nt">"id"</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="nt">"labirinto_id"</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="nt">"numero_tentativa"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">"data_hora_inicio"</span><span class="p">:</span><span class="s2">"2026-10-19T01:59:33.933299+00:00"</span><span class="p">,</span><span class="nt">"data_hora_fim"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"tempo_final"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"velocidade_media"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"velocidade_pico"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"consumo_bateria"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"em_andamento"</span><span class="p">}</span>
+</code></pre></div>
+<p><strong>4. Segunda corrida no 4x4 recebe a próxima tentativa</strong> · HTTP 201</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="p">{</span><span class="nt">"id"</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span><span class="nt">"labirinto_id"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">"numero_tentativa"</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="nt">"data_hora_inicio"</span><span class="p">:</span><span class="s2">"2026-10-19T01:59:34.497627+00:00"</span><span class="p">,</span><span class="nt">"data_hora_fim"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"tempo_final"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"velocidade_media"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"velocidade_pico"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"consumo_bateria"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"em_andamento"</span><span class="p">}</span>
+</code></pre></div>
+<p><strong>5. Encerrar a corrida 1 como <code>concluida</code></strong> · HTTP 200</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="p">{</span><span class="nt">"id"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">"labirinto_id"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">"numero_tentativa"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">"data_hora_inicio"</span><span class="p">:</span><span class="s2">"2026-10-19T01:59:31.291173+00:00"</span><span class="p">,</span><span class="nt">"data_hora_fim"</span><span class="p">:</span><span class="s2">"2026-10-19T01:59:35.001922+00:00"</span><span class="p">,</span><span class="nt">"tempo_final"</span><span class="p">:</span><span class="mf">61.5</span><span class="p">,</span><span class="nt">"velocidade_media"</span><span class="p">:</span><span class="mf">0.32</span><span class="p">,</span><span class="nt">"velocidade_pico"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"consumo_bateria"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"concluida"</span><span class="p">}</span>
+</code></pre></div>
+<p><strong>6. Encerrar a corrida 2 como <code>nao_concluida</code>, sem <code>tempo_final</code></strong> · HTTP 200</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a><span class="p">{</span><span class="nt">"id"</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="nt">"labirinto_id"</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="nt">"numero_tentativa"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">"data_hora_inicio"</span><span class="p">:</span><span class="s2">"2026-10-19T01:59:33.098199+00:00"</span><span class="p">,</span><span class="nt">"data_hora_fim"</span><span class="p">:</span><span class="s2">"2026-10-19T01:59:35.558052+00:00"</span><span class="p">,</span><span class="nt">"tempo_final"</span><span class="p">:</span><span class="mf">2.459853</span><span class="p">,</span><span class="nt">"velocidade_media"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"velocidade_pico"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"consumo_bateria"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"nao_concluida"</span><span class="p">}</span>
+</code></pre></div>
+<p><strong>7. Repetir o encerramento da 1 com o mesmo status</strong> · HTTP 200</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a><span class="p">{</span><span class="nt">"id"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">"labirinto_id"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">"numero_tentativa"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">"data_hora_inicio"</span><span class="p">:</span><span class="s2">"2026-10-19T01:59:31.291173+00:00"</span><span class="p">,</span><span class="nt">"data_hora_fim"</span><span class="p">:</span><span class="s2">"2026-10-19T01:59:35.001922+00:00"</span><span class="p">,</span><span class="nt">"tempo_final"</span><span class="p">:</span><span class="mf">61.5</span><span class="p">,</span><span class="nt">"velocidade_media"</span><span class="p">:</span><span class="mf">0.32</span><span class="p">,</span><span class="nt">"velocidade_pico"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"consumo_bateria"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"concluida"</span><span class="p">}</span>
+</code></pre></div>
+<p><strong>8. Encerrar a 1 de novo com outro status</strong> · HTTP 409</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="p">{</span><span class="nt">"erro"</span><span class="p">:</span><span class="s2">"corrida_ja_encerrada"</span><span class="p">,</span><span class="nt">"mensagem"</span><span class="p">:</span><span class="s2">"a corrida já foi encerrada com outro status"</span><span class="p">}</span>
+</code></pre></div>
+<p><strong>9. Encerrar uma corrida que não existe</strong> · HTTP 404</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a><span class="p">{</span><span class="nt">"erro"</span><span class="p">:</span><span class="s2">"corrida_inexistente"</span><span class="p">,</span><span class="nt">"mensagem"</span><span class="p">:</span><span class="s2">"corrida não encontrada"</span><span class="p">}</span>
+</code></pre></div>
+<p><strong>10. Criar corrida com labirinto inválido (<code>5x5</code>)</strong> · HTTP 400</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a><span class="p">{</span><span class="nt">"erro"</span><span class="p">:</span><span class="s2">"corpo_invalido"</span><span class="p">,</span><span class="nt">"mensagem"</span><span class="p">:</span><span class="s2">"labirinto inválido; use um de: 4x4, 8x4, 12x4"</span><span class="p">}</span>
+</code></pre></div>
+<p><strong>11. Chamar sem chave e sem token</strong> · HTTP 401</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a><span class="p">{</span><span class="nt">"code"</span><span class="p">:</span><span class="s2">"UNAUTHORIZED_NO_AUTH_HEADER"</span><span class="p">,</span><span class="nt">"message"</span><span class="p">:</span><span class="s2">"Missing authorization header"</span><span class="p">}</span>
+</code></pre></div>
+<p><strong>12. Chamar só com a chave anon, sem <code>x-device-token</code></strong> · HTTP 401</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a><span class="p">{</span><span class="nt">"erro"</span><span class="p">:</span><span class="s2">"nao_autorizado"</span><span class="p">,</span><span class="nt">"mensagem"</span><span class="p">:</span><span class="s2">"token de dispositivo ausente ou inválido"</span><span class="p">}</span>
+</code></pre></div>
+<p><strong>13. Chamar com <code>x-device-token</code> errado</strong> · HTTP 401</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a><span class="p">{</span><span class="nt">"erro"</span><span class="p">:</span><span class="s2">"nao_autorizado"</span><span class="p">,</span><span class="nt">"mensagem"</span><span class="p">:</span><span class="s2">"token de dispositivo ausente ou inválido"</span><span class="p">}</span>
+</code></pre></div>
+<p><strong>14. Chamar só com o <code>x-device-token</code>, sem JWT</strong> · HTTP 401</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a><span class="p">{</span><span class="nt">"code"</span><span class="p">:</span><span class="s2">"UNAUTHORIZED_NO_AUTH_HEADER"</span><span class="p">,</span><span class="nt">"message"</span><span class="p">:</span><span class="s2">"Missing authorization header"</span><span class="p">}</span>
+</code></pre></div>
+<p><strong>15. Ler a corrida 1 pela API REST com a chave anon</strong> · HTTP 200</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a><span class="p">[{</span><span class="nt">"id"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"concluida"</span><span class="p">,</span><span class="nt">"data_hora_fim"</span><span class="p">:</span><span class="s2">"2026-10-19T01:59:35.001922+00:00"</span><span class="p">,</span><span class="nt">"numero_tentativa"</span><span class="p">:</span><span class="mi">1</span><span class="p">}]</span>
+</code></pre></div>
+<p><strong>16. RLS: ler os labirintos com a chave anon</strong> · HTTP 200</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a><span class="p">[{</span><span class="nt">"tipo"</span><span class="p">:</span><span class="s2">"4x4"</span><span class="p">,</span><span class="nt">"linhas"</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span><span class="nt">"colunas"</span><span class="p">:</span><span class="mi">4</span><span class="p">},</span><span class="w"> </span>
+<a id="__codelineno-48-2" name="__codelineno-48-2" href="#__codelineno-48-2"></a><span class="w"> </span><span class="p">{</span><span class="nt">"tipo"</span><span class="p">:</span><span class="s2">"8x4"</span><span class="p">,</span><span class="nt">"linhas"</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span><span class="nt">"colunas"</span><span class="p">:</span><span class="mi">8</span><span class="p">},</span><span class="w"> </span>
+<a id="__codelineno-48-3" name="__codelineno-48-3" href="#__codelineno-48-3"></a><span class="w"> </span><span class="p">{</span><span class="nt">"tipo"</span><span class="p">:</span><span class="s2">"12x4"</span><span class="p">,</span><span class="nt">"linhas"</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span><span class="nt">"colunas"</span><span class="p">:</span><span class="mi">12</span><span class="p">}]</span>
+</code></pre></div>
+<p><strong>17. RLS: inserir corrida direto com a chave anon</strong> · HTTP 401</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a><span class="p">{</span><span class="nt">"code"</span><span class="p">:</span><span class="s2">"42501"</span><span class="p">,</span><span class="nt">"details"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"hint"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"message"</span><span class="p">:</span><span class="s2">"new row violates row-level security policy for table \"corridas\""</span><span class="p">}</span>
+</code></pre></div>
+<p><strong>18. RLS: inserir telemetria direto com a chave anon</strong> · HTTP 401</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a><span class="p">{</span><span class="nt">"code"</span><span class="p">:</span><span class="s2">"42501"</span><span class="p">,</span><span class="nt">"details"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"hint"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"message"</span><span class="p">:</span><span class="s2">"new row violates row-level security policy for table \"telemetria\""</span><span class="p">}</span>
+</code></pre></div>
+<p><strong>19. RLS: alterar corrida direto com a chave anon</strong> · HTTP 204</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a><span class="err">(sem</span><span class="w"> </span><span class="err">corpo)</span>
+</code></pre></div>
+<p><strong>20. Chamar a função SQL <code>criar_corrida</code> direto com a chave anon</strong> · HTTP 401</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a><span class="p">{</span><span class="nt">"code"</span><span class="p">:</span><span class="s2">"42501"</span><span class="p">,</span><span class="nt">"details"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"hint"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">"message"</span><span class="p">:</span><span class="s2">"permission denied for function criar_corrida"</span><span class="p">}</span>
+</code></pre></div>
+</details>
+<h4 id="pendencias-desta-etapa_6">Pendências desta etapa<a class="headerlink" href="#pendencias-desta-etapa_6" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Apagar as 4 corridas de teste antes das corridas reais (<code>DELETE FROM corridas WHERE id IN (1, 2, 3, 4);</code> no SQL Editor, por um dono do projeto). Enquanto elas existirem, a próxima corrida do 4×4 será a tentativa 3.</li>
+<li>Caminho do dashboard para criar corridas (decisão da #233): aceitar o JWT de um operador logado como alternativa ao <code>x-device-token</code> e responder ao CORS do navegador, junto com o login de operador da HU-15.</li>
+<li>Ingestão de telemetria e do mapa (<code>telemetria</code> e <code>mapa_celulas</code>) por Edge Function, com o mesmo token de dispositivo, em issue separada.</li>
 </ul>
 
 

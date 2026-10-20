@@ -1035,6 +1035,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#escrita-mediada-por-edge-function-corridas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Escrita mediada por Edge Function: corridas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#visoes-41" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2018,6 +2029,17 @@
     <span class="md-ellipsis">
       
         Implementação no Supabase
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#escrita-mediada-por-edge-function-corridas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Escrita mediada por Edge Function: corridas
       
     </span>
   </a>
@@ -3389,6 +3411,74 @@ conferem o token do robô no cabeçalho <code>x-device-token</code>.</p>
 <p><strong>Tempo real.</strong> As tabelas <code>telemetria</code> e <code>mapa_celulas</code> estão na publicação
 <code>supabase_realtime</code>: o dashboard assina as duas pelo <code>supabase-js</code> e recebe cada linha
 nova sem precisar consultar o banco de novo (HU-08, RNF05).</p>
+<h4 id="escrita-mediada-por-edge-function-corridas">Escrita mediada por Edge Function: corridas<a class="headerlink" href="#escrita-mediada-por-edge-function-corridas" title="Permanent link">&para;</a></h4>
+<p>Como a chave pública não grava, criar e encerrar uma corrida passa pela Edge Function
+<code>corridas</code> (<code>src/backend/supabase/functions/corridas</code>, tarefa
+<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/233">#233</a>, PR
+<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/334">#334</a>, HU-15). A função
+só autentica, valida o corpo e traduz erros; a regra de negócio fica em duas funções SQL
+(<code>20261016120000_funcoes_corridas.sql</code>), que só a <code>service_role</code> pode executar.</p>
+<pre class="mermaid"><code>sequenceDiagram
+    participant R as Robô (ESP32-C3)
+    participant G as Gateway do Supabase
+    participant F as Edge Function corridas
+    participant B as PostgreSQL
+    R-&gt;&gt;G: POST /functions/v1/corridas&lt;br/&gt;Authorization (JWT anon) + x-device-token
+    G-&gt;&gt;G: verifica o JWT
+    G-&gt;&gt;F: repassa a requisição
+    F-&gt;&gt;F: compara x-device-token com o segredo DEVICE_TOKEN
+    F-&gt;&gt;B: criar_corrida('8x4') com a service_role
+    B--&gt;&gt;F: corrida em andamento, numero_tentativa por labirinto
+    F--&gt;&gt;R: 201 com a corrida</code></pre>
+<p><strong>Figura.</strong> Criação de uma corrida pelo robô: o gateway confere o JWT, a função confere o
+token do dispositivo e só então o banco é chamado com a chave de serviço.</p>
+<table>
+<thead>
+<tr>
+<th>Requisição</th>
+<th>Corpo</th>
+<th>Resposta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST /functions/v1/corridas</code></td>
+<td><code>{"labirinto": "4x4"}</code>, <code>"8x4"</code> ou <code>"12x4"</code></td>
+<td><code>201</code> com a corrida <code>em_andamento</code> e o <code>numero_tentativa</code> contado por labirinto</td>
+</tr>
+<tr>
+<td><code>POST /functions/v1/corridas/{id}/encerrar</code></td>
+<td><code>{"status": "concluida"}</code> ou <code>"nao_concluida"</code>, mais <code>tempo_final</code>, <code>velocidade_media</code>, <code>velocidade_pico</code> e <code>consumo_bateria</code> (opcionais, números não negativos)</td>
+<td><code>200</code> com a corrida encerrada e <code>data_hora_fim</code> preenchida</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Regras.</strong></p>
+<ul>
+<li><strong>Tentativa por labirinto:</strong> a primeira corrida de cada labirinto é a tentativa 1. Um
+  <em>advisory lock</em> no banco serializa as criações do mesmo labirinto, e a restrição única
+  (<code>labirinto_id</code>, <code>numero_tentativa</code>) é a segunda barreira contra números repetidos.</li>
+<li><strong>Encerramento idempotente:</strong> repetir o encerramento com o mesmo status (por exemplo,
+  quando o robô reenvia o pedido depois de uma queda de Wi-Fi) devolve a corrida como
+  está; com outro status, a resposta é <code>409</code>. Sem <code>tempo_final</code>, o banco usa o tempo
+  desde <code>data_hora_inicio</code>.</li>
+<li><strong>Erros:</strong> <code>400</code> (corpo, status ou id inválidos), <code>401</code> (JWT ou token do dispositivo),
+  <code>404</code> (labirinto ou corrida inexistente), <code>405</code> (método), <code>409</code> (já encerrada com outro
+  status) e <code>500</code> (falha do banco, sem expor a mensagem).</li>
+</ul>
+<p><strong>Autenticação em duas camadas.</strong> O gateway do Supabase exige um JWT válido no
+<code>Authorization</code> (a chave <code>anon</code>), e a função exige também o cabeçalho <code>x-device-token</code>,
+comparado em tempo constante com o segredo <code>DEVICE_TOKEN</code>. Sem o segredo configurado,
+ninguém é autorizado. O <code>DEVICE_TOKEN</code> é definido com <code>supabase secrets set</code> e guardado
+fora do Git; a <code>service_role</code> nunca sai do servidor.</p>
+<p><strong>Decisão sobre quem cria a corrida.</strong> Ficou decidido que <strong>tanto o robô quanto o
+dashboard podem criar a corrida</strong>, e que a <strong>verificação de JWT do gateway continua
+ativa</strong> (a função não é publicada com <code>--no-verify-jwt</code>). Hoje a função aceita só o
+<code>x-device-token</code>, o caminho do robô. O caminho do dashboard fica para a HU-15 e depende do
+login de operador: o dashboard vai enviar o JWT do operador autenticado, e a função
+precisará aceitá-lo como alternativa ao token do dispositivo e responder ao CORS do
+navegador. O <code>DEVICE_TOKEN</code> não deve ir para o frontend, porque qualquer pessoa poderia
+lê-lo no navegador.</p>
 <h4 id="visoes-41">Visões 4+1<a class="headerlink" href="#visoes-41" title="Permanent link">&para;</a></h4>
 <ol>
 <li><strong>Lógica:</strong> módulos do firmware (Navegação, Percepção via LiDAR e <em>encoders</em>,
@@ -3895,6 +3985,13 @@ das colunas da migração, então a troca não muda os componentes:</p>
 <td style="text-align: center;">0.9</td>
 <td style="text-align: center;">16/10/2026</td>
 <td>Documenta a implementação do banco no Supabase: migrações, restrições, <em>seed</em>, RLS e Realtime (#228)</td>
+<td>Eduardo Viana</td>
+<td>Cláudio Henrique</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.0</td>
+<td style="text-align: center;">18/10/2026</td>
+<td>Documenta a escrita de corridas mediada por Edge Function e a decisão sobre quem cria a corrida (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/233">#233</a>)</td>
 <td>Eduardo Viana</td>
 <td>Cláudio Henrique</td>
 </tr>
