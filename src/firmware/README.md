@@ -17,7 +17,7 @@ src/firmware/
 | Pasta em `lib/` | Camada | O que entra |
 |---|---|---|
 | `nucleo` | Base | Tipos compartilhados (`Direcao`, `Lado`, `EstadoParede`, `PosicaoCelula`, `Pose`, `DistanciasLaterais`), constantes e pinagem |
-| `hal` | Interfaces de hardware | Interfaces abstratas (`ILidar`, `IEncoder` e, nos próximos épicos, motores) |
+| `hal` | Interfaces de hardware | Interfaces abstratas (`ILidar`, `IEncoder` e `IMotores`) |
 | `percepcao` | Percepção | Classificação `parede`/`livre` a partir das distâncias do LiDAR |
 | `encoders` | Sensoriamento | Decodificação em quadratura (x4) dos canais A e B, conversão de pulsos em milímetros (calibrável) e distância percorrida por cada roda |
 | `lidar` | Drivers / Hardware | Driver de leitura do sensor LiDAR 360° via UART (decodificador LD06) e agregação de leituras por setores |
@@ -25,7 +25,7 @@ src/firmware/
 | `navegacao` | Navegação | Localização, decisão de movimento e detecção do objetivo |
 | `atuacao` | Atuação | Controle dos motores e correção de trajetória |
 | `comunicacao` | Comunicação | Pacotes de telemetria, serialização JSON e *buffer* de reenvio |
-| `simulacao` | Falsos para teste | `LidarSimulado`, um `ILidar` que devolve as leituras configuradas pelo teste, `LabirintoSimulado`, o labirinto de referência que alimenta o `LidarSimulado`, e `EncoderSimulado`, um `IEncoder` com a contagem definida pelo teste, sem hardware |
+| `simulacao` | Falsos para teste | `LidarSimulado`, um `ILidar` que devolve as leituras configuradas pelo teste, `LabirintoSimulado`, o labirinto de referência que alimenta o `LidarSimulado`, `EncoderSimulado`, um `IEncoder` com a contagem definida pelo teste, e `MotoresSimulados`, um `IMotores` que guarda o último comando, sem hardware |
 | `drivers_esp32` | Implementações do hardware | Drivers que dependem do Arduino (LiDAR por UART, encoders, DRV8833, WiFi) |
 
 ## Regras de dependência
@@ -188,6 +188,30 @@ lidar.lerDistanciasLaterais(d);                // d = {630, 90, 90} (frente, esq
 | `temParede(celula, direcao)` | `true` se há parede naquele lado; célula fora do labirinto conta como parede |
 | `distancias(pose, saida)` | Distâncias à frente, à esquerda e à direita para a pose; `false` sem carga ou com a célula fora do labirinto |
 | `LidarSimulado::usarLabirinto` e `posicionar` | Liga o modo labirinto. A falha e a fila continuam com prioridade; sem `posicionar`, vale a leitura fixa; com a pose fora do labirinto, a leitura falha |
+
+## Controle de movimento
+
+O `ControleMovimento` (`lib/atuacao`) leva o robô em linha reta, centralizado no corredor, e para no centro da célula antes de uma parede frontal ([#191](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/191), HU-12). Chame `atualizar` uma vez por leitura nova do LiDAR (cerca de 100 ms):
+
+```cpp
+ControleMovimento controle;
+EstadoMovimento estado = controle.atualizar(lidar, motores, 100);  // ILidar e IMotores
+if (estado == EstadoMovimento::ParadoNaParede) {
+  // decidir o próximo passo e, antes de andar de novo, chamar controle.reiniciar()
+}
+```
+
+| Regra | Comportamento |
+|---|---|
+| Centralização | PD sobre o deslocamento lateral: `(esquerda - direita) / 2` com parede dos dois lados, ou a diferença para 84 mm com uma só; sem parede ao lado, segue reto |
+| Correção | Tirada da roda esquerda e somada à direita (positiva vira para a esquerda), limitada a 250 e a 60% da potência base, para nenhuma roda girar para trás |
+| Parada frontal | Cruzeiro (400) até 264 mm da parede, rampa até a mínima (150) e parada a 84 mm, o centro da célula |
+| Parado | `ParadoNaParede` freia e fica travado até `reiniciar()` |
+| Sem leitura do LiDAR | Segue reto na potência mínima; depois de 500 ms sem leitura, freia (`ParadoSemLeitura`) |
+
+Os ganhos e as potências estão em `ConfiguracaoControle.h` e são **provisórios**: foram ajustados numa simulação do corredor (`test_controle_movimento`) e precisam ser confirmados na bancada. A geometria vem do tema do PI1 (célula de 180 mm com parede de 12 mm) e do chassi de 100 × 120 mm, com o LiDAR no centro: sobram 24 mm de cada lado com o robô centralizado.
+
+O `MotoresDrv8833` (`lib/drivers_esp32`) aplica a potência com PWM de 20 kHz e 10 bits nos GPIO 4 a 7, no modo *fast decay*; `parar()` liga IN1 e IN2 (freio). O motor direito fica invertido no `main.cpp`, pela montagem espelhada.
 
 ## Instalação
 

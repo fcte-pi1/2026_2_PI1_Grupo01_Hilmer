@@ -46,6 +46,14 @@ constexpr Direcao direcaoAbsoluta(Direcao direcaoDoRobo, Lado lado) {
                                   : girarDireita(direcaoDoRobo);
 }
 
+/// Letra da direção na telemetria e no banco (coluna `orientacao` da tabela `telemetria`):
+/// `'N'`, `'L'`, `'S'` ou `'O'`.
+/// @param d Direção.
+/// @return A letra correspondente (Leste é `'L'` e Oeste é `'O'`).
+constexpr char letraDaDirecao(Direcao d) {
+  return d == Direcao::Norte ? 'N' : d == Direcao::Leste ? 'L' : d == Direcao::Sul ? 'S' : 'O';
+}
+
 /// Calcula a célula vizinha de `origem` na direção `d`.
 ///
 /// Convenção de eixos: Norte aumenta a `linha` e Leste aumenta a `coluna`, com a partida
