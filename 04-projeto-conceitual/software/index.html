@@ -1045,6 +1045,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#implementacao-do-frontend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementação do frontend
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2018,6 +2029,17 @@
     <span class="md-ellipsis">
       
         Visões 4+1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementacao-do-frontend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementação do frontend
       
     </span>
   </a>
@@ -3385,6 +3407,126 @@ nova sem precisar consultar o banco de novo (HU-08, RNF05).</p>
    diretamente via <code>supabase-js</code>.</li>
 <li><strong>Dados:</strong> modelo relacional descrito no MER e no DER acima.</li>
 </ol>
+<h4 id="implementacao-do-frontend">Implementação do frontend<a class="headerlink" href="#implementacao-do-frontend" title="Permanent link">&para;</a></h4>
+<p>O dashboard fica em <code>src/frontend</code> (tarefa
+<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/230">#230</a>, PR
+<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/361">#361</a>, HU-14). É um
+projeto <strong>React 18 + Vite + TypeScript</strong>, com <strong>Recharts</strong> para os gráficos, <strong>supabase-js</strong>
+para ler o banco e CSS simples, sem <em>framework</em> de estilos. Nesta etapa as telas seguem o
+<a href="#prototipo-navegavel">protótipo navegável</a> com <strong>dados de exemplo</strong> no formato das
+tabelas do banco; a única leitura real é a tabela <code>labirintos</code>, que confirma a conexão. Como
+rodar está no <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/tree/main/src/frontend">README do frontend</a>.</p>
+<p><strong>Variáveis de ambiente.</strong> O cliente do Supabase (<code>src/lib/supabase.ts</code>) é criado a partir
+de <code>VITE_SUPABASE_URL</code> e <code>VITE_SUPABASE_ANON_KEY</code>. O <code>.env.example</code> traz só os nomes, e o
+<code>.env.local</code> com os valores reais está no <code>.gitignore</code>. Toda variável com prefixo <code>VITE_</code> é
+embutida no código que roda no navegador, então ali entra <strong>só a chave <code>anon</code></strong>, que pelo
+RLS apenas lê. A <code>service_role</code> e o <code>DEVICE_TOKEN</code> nunca vão para o frontend.</p>
+<p><strong>Telas e estados.</strong> Cada estado do protótipo virou um estado da tela ao vivo, e o
+histórico segue o Frame 04:</p>
+<table>
+<thead>
+<tr>
+<th>Tela / estado</th>
+<th>Frame</th>
+<th>O que mostra</th>
+<th>HUs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ao vivo · aguardando largada</td>
+<td><code>01_Idle</code></td>
+<td>Malha vazia com o robô na largada, cards zerados (100 %, 8.4 V, 00:00.000) e <code>INICIAR CORRIDA</code></td>
+<td>HU-14</td>
+</tr>
+<tr>
+<td>Ao vivo · em execução</td>
+<td><code>02_Running</code></td>
+<td>Trajeto laranja, paredes já mapeadas, robô com a orientação, cards e gráfico atualizando, badge vermelho <code>NÃO (EM ANDAMENTO)</code> e botão travado</td>
+<td>HU-06, HU-08, HU-14</td>
+</tr>
+<tr>
+<td>Ao vivo · desafio concluído</td>
+<td><code>03_Completed</code></td>
+<td>Robô no objetivo, cronômetro congelado, nota da tentativa, badge verde <code>SIM</code> e <code>RESETAR / NOVA TENTATIVA</code></td>
+<td>HU-07, HU-14</td>
+</tr>
+<tr>
+<td>Histórico de consultas</td>
+<td><code>04_History_View</code>, <code>M1</code> a <code>M3</code></td>
+<td>Tabela de corridas (data/hora, labirinto, tentativa e nota, tempo final, velocidade, bateria e status) e filtro por labirinto</td>
+<td>HU-10, HU-15</td>
+</tr>
+</tbody>
+</table>
+<pre class="mermaid"><code>flowchart LR
+    App["App&lt;br/&gt;aba, labirinto e tentativa"] --&gt; Cab["Cabecalho&lt;br/&gt;abas, seletor e badge"]
+    App --&gt; Vivo["TelaAoVivo"]
+    App --&gt; Hist["TelaHistorico"]
+    Vivo --&gt; Grade["GradeLabirinto&lt;br/&gt;malha SVG"]
+    Vivo --&gt; Cards["CartaoMetrica × 3"]
+    Vivo --&gt; Graf["GraficoVelocidade&lt;br/&gt;Recharts"]
+    Hist --&gt; Filtro["FiltroLabirinto"]
+    Hist --&gt; Tab["TabelaHistorico"]
+    App -. useLabirintos .-&gt; SB[("Supabase&lt;br/&gt;tabela labirintos")]
+    App -. useReproducaoCorrida .-&gt; Ex["Dados de exemplo&lt;br/&gt;telemetria e corridas"]</code></pre>
+<p><strong>Figura.</strong> Componentes do dashboard. As linhas tracejadas são as fontes de dados: hoje só
+<code>labirintos</code> vem do banco; telemetria e corridas são de exemplo.</p>
+<p>O <code>GraficoVelocidade</code> é importado sob demanda (<code>React.lazy</code>): o Recharts, a maior
+dependência, fica num arquivo à parte e só é baixado quando a corrida começa e o gráfico
+aparece. Assim a primeira carga da página leva só o React, o supabase-js e o código das telas.</p>
+<p><strong>Malha do labirinto.</strong> O <code>GradeLabirinto</code> desenha a malha em SVG com as mesmas convenções
+do firmware: a célula (0, 0) é a largada, no canto inferior esquerdo; Norte aumenta a
+linha e Leste aumenta a coluna; o objetivo é a célula (linhas − 1, colunas − 1). As paredes
+vêm no formato de <code>mapa_celulas</code> e do JSON do mapa
+(<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/178">#178</a>): <code>true</code> é
+desenhada, <code>false</code> e <code>null</code> (não explorada) não. A malha usa os tamanhos reais dos
+labirintos (4×4, 8×4 e 12×4), e não a grade 16×16 do protótipo.</p>
+<p><strong>Dados de exemplo e troca pelos dados reais.</strong> Os tipos de <code>src/tipos.ts</code> repetem os nomes
+das colunas da migração, então a troca não muda os componentes:</p>
+<table>
+<thead>
+<tr>
+<th>Hoje (exemplo)</th>
+<th>Depois (real)</th>
+<th>Quando</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Labirintos de <code>LabirintosExemplo.h</code> do firmware, com trajeto gerado respeitando as paredes</td>
+<td>Linhas novas de <code>telemetria</code> e <code>mapa_celulas</code> pelo Supabase Realtime</td>
+<td>HU-08, HU-16 e HU-06 (Sprints 6–7)</td>
+</tr>
+<tr>
+<td><code>useReproducaoCorrida</code> reproduz a corrida 4× mais rápido e termina pelo evento <code>objetivo_alcancado</code></td>
+<td>O mesmo estado, alimentado pelas leituras recebidas</td>
+<td>HU-08</td>
+</tr>
+<tr>
+<td>Botões só controlam a reprodução</td>
+<td><code>INICIAR CORRIDA</code> cria a corrida pela Edge Function <code>corridas</code></td>
+<td>HU-15</td>
+</tr>
+<tr>
+<td>Lista fixa de corridas</td>
+<td>Consulta à tabela <code>corridas</code>, com filtro por <code>labirinto_id</code></td>
+<td>HU-10 e HU-15 (Sprints 4–5)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Regras de exibição.</strong></p>
+<ul>
+<li><strong>Nota:</strong> desafio cumprido na 1ª tentativa vale 10, na 2ª vale 7,5 e na 3ª vale 5, como no
+  tema do PI1.</li>
+<li><strong>Bateria:</strong> o percentual é estimado de forma linear pela tensão, entre 6,6 V (corte) e
+  8,4 V (carga plena) da LiPo 2S. É provisório, porque a curva real não é linear; na HU-08
+  ele pode passar a usar a <a href="../energia/#tabela-de-correlacao-estado-de-carga-soc-vs-tensao-de-terminal">tabela de SoC × tensão</a>
+  da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/139">#139</a>.</li>
+<li><strong>Consumo no histórico:</strong> a coluna <code>corridas.consumo_bateria</code> ainda admite "mAh ou %
+  consumida". A tela assume % consumida e mostra a carga restante (<code>100 − consumo</code>), como no
+  Frame 04. A unidade precisa ser fechada na HU-09.</li>
+</ul>
 <blockquote>
 <ul>
 <li><strong>Roteiro de testes funcionais:</strong></li>
@@ -3755,6 +3897,13 @@ nova sem precisar consultar o banco de novo (HU-08, RNF05).</p>
 <td>Documenta a implementação do banco no Supabase: migrações, restrições, <em>seed</em>, RLS e Realtime (#228)</td>
 <td>Eduardo Viana</td>
 <td>Cláudio Henrique</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.1</td>
+<td style="text-align: center;">19/10/2026</td>
+<td>Documenta a implementação do frontend: estrutura, variáveis de ambiente, telas, componentes e dados de exemplo (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/230">#230</a>)</td>
+<td>Eduardo Viana</td>
+<td>Ana Carolina Fialho</td>
 </tr>
 </tbody>
 </table>
