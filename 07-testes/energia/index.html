@@ -400,6 +400,8 @@
       
         
       
+        
+      
     
     
     
@@ -604,6 +606,34 @@
     
   
     4.2.4 Monitoramento de Tensão (ADC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-projeto-conceitual/energia/ensaios-protecoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.5 Ensaios de subtensão e PPTC
   
 
     
@@ -1168,27 +1198,27 @@
 <tbody>
 <tr>
 <td style="text-align: center;">2.1</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
+<td>Ensaio de corte por subtensão (BMS 2S / UVLO) sob rampa decrescente na fonte ajustável (<span class="arithmatex">\(8{,}4\text{ V} \to 6{,}0\text{ V}\)</span>) — <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/207">#207</a></td>
+<td>17/10/2026</td>
+<td>17/10/2026</td>
+<td>Paulo Melo</td>
+<td>Corte primário UVLO em <span class="arithmatex">\(6{,}60\text{ V}\)</span> (protegendo <em>dropout</em> do LM2596) e corte físico BMS 2S ao atingir <span class="arithmatex">\(6{,}40\text{ V}\)</span> (<span class="arithmatex">\(3{,}20\text{ V/célula}\)</span>)</td>
+<td>Corte UVLO atuou em <span class="arithmatex">\(6{,}60\text{ V}\)</span> (<span class="arithmatex">\(V_{\text{ADC}}=1{,}638\text{ V}\)</span>, PWM=0%) e corte BMS 2S seccionou <code>P+</code> em <span class="arithmatex">\(6{,}40\text{ V}\)</span> (<span class="arithmatex">\(t_{\text{delay}}=98\text{ ms}\)</span>)</td>
+<td style="text-align: center;">S</td>
+<td style="text-align: center;">—</td>
+<td>Detalhado em <a href="../04-projeto-conceitual/ensaios-protecoes.md">4.2.2 Ensaios de subtensão e PPTC</a></td>
 </tr>
 <tr>
 <td style="text-align: center;">2.2</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
+<td>Ensaio de velocidade de desarme (<em>Time-to-Trip</em>) do fusível rearmável PPTC (Bourns MF-R185) sob sobrecorrente simulada <span class="arithmatex">\(&gt; 3{,}5\text{ A}\)</span> — <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/207">#207</a></td>
+<td>17/10/2026</td>
+<td>17/10/2026</td>
+<td>Paulo Melo</td>
+<td>Sustentação contínua em <span class="arithmatex">\(1{,}85\text{ A}\)</span> (<span class="arithmatex">\(I_{\text{hold}}\)</span>) e desarme térmico comprovado acima de <span class="arithmatex">\(3{,}5\text{ A}\)</span></td>
+<td>Estável sem desarme em <span class="arithmatex">\(1{,}85\text{ A}\)</span>; desarme em <span class="arithmatex">\(9{,}10\text{ s}\)</span> (@ <span class="arithmatex">\(3{,}60\text{ A}\)</span>), <span class="arithmatex">\(8{,}70\text{ s}\)</span> (@ <span class="arithmatex">\(3{,}70\text{ A}\)</span>), <span class="arithmatex">\(3{,}10\text{ s}\)</span> (@ <span class="arithmatex">\(5{,}00\text{ A}\)</span>) e <span class="arithmatex">\(0{,}60\text{ s}\)</span> (@ <span class="arithmatex">\(9{,}25\text{ A}\)</span>), com <span class="arithmatex">\(I_{\text{res}}=118\text{ mA}\)</span></td>
+<td style="text-align: center;">S</td>
+<td style="text-align: center;">—</td>
+<td>Detalhado em <a href="../04-projeto-conceitual/ensaios-protecoes.md">4.2.2 Ensaios de subtensão e PPTC</a></td>
 </tr>
 <tr>
 <td style="text-align: center;">2.3</td>
