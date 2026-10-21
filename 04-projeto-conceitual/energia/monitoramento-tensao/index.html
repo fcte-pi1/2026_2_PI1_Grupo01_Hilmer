@@ -1,0 +1,1769 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentação do projeto de Projeto Integrador 1 (PI1) — Grupo 01, professor Hilmer.">
+      
+      
+        <meta name="author" content="Grupo 01 - Hilmer">
+      
+      
+        <link rel="canonical" href="https://fcte-pi1.github.io/2026_2_PI1_Grupo01_Hilmer/04-projeto-conceitual/energia/monitoramento-tensao/">
+      
+      
+        <link rel="prev" href="../curva-descarga-lipo/">
+      
+      
+        <link rel="next" href="../../hardware/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>4.2.4 Monitoramento de Tensão (ADC) - PI1 · Grupo 01 (Hilmer) — 2026/2</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#dimensionamento-do-divisor-resistivo-e-filtro-anti-aliasing-para-monitoramento-de-tensao" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../../.." title="PI1 · Grupo 01 (Hilmer) — 2026/2" class="md-header__button md-logo" aria-label="PI1 · Grupo 01 (Hilmer) — 2026/2" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PI1 · Grupo 01 (Hilmer) — 2026/2
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              4.2.4 Monitoramento de Tensão (ADC)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para o modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para o modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para o modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para o modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fcte-pi1/2026_2_PI1_Grupo01_Hilmer
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="PI1 · Grupo 01 (Hilmer) — 2026/2" class="md-nav__button md-logo" aria-label="PI1 · Grupo 01 (Hilmer) — 2026/2" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PI1 · Grupo 01 (Hilmer) — 2026/2
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fcte-pi1/2026_2_PI1_Grupo01_Hilmer
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../01-tap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1. TAP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../02-requisitos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2. Requisitos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../03-eap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3. EAP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4. Projeto conceitual
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    4. Projeto conceitual
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../estruturas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 Estruturas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Energia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../protecoes-entrada/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.1 Proteções de entrada
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reguladores-buck/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.2 Reguladores Step-Down (Buck)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../curva-descarga-lipo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.3 Curva de Descarga e SoC LiPo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.4 Monitoramento de Tensão (ADC)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.4 Monitoramento de Tensão (ADC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-contextualizacao-e-requisitos-de-projeto-issue-203" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Contextualização e Requisitos de Projeto (Issue #203)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-dimensionamento-do-divisor-resistivo-de-tensao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Dimensionamento do Divisor Resistivo de Tensão
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Dimensionamento do Divisor Resistivo de Tensão">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-analise-dos-niveis-de-tensao-resultantes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Análise dos Níveis de Tensão Resultantes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-consumo-de-potencia-quiescente-do-divisor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Consumo de Potência Quiescente do Divisor
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-projeto-do-filtro-passa-baixas-anti-aliasing-rc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Projeto do Filtro Passa-Baixas Anti-Aliasing (\(RC\))
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Projeto do Filtro Passa-Baixas Anti-Aliasing (\(RC\))">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-resistencia-equivalente-de-thevenin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Resistência Equivalente de Thevenin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-frequencia-de-corte-e-rejeicao-harmonica" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Frequência de Corte e Rejeição Harmônica
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-simulacao-computacional-e-diagrama-de-bode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Simulação Computacional e Diagrama de Bode
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-implementacao-no-firmware-e-processamento-digital" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Implementação no Firmware e Processamento Digital
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-protocolo-de-ensaio-de-bancada-e-validacao-experimental-planejado" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Protocolo de Ensaio de Bancada e Validação Experimental (Planejado)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Protocolo de Ensaio de Bancada e Validação Experimental (Planejado)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-instrumentacao-necessaria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Instrumentação Necessária
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-procedimento-experimental-de-calibracao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Procedimento Experimental de Calibração
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-teste-de-rejeicao-de-ruido-dinamico" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 Teste de Rejeição de Ruído Dinâmico
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historico-de-versao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Histórico de Versão
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 Hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware-diagramas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3.1 Diagramas de hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../justificativa-componentes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3.2 Justificativa dos componentes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../software/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Software
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../firmware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4.1 Firmware: implementação
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../05-cronograma/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5. Cronograma
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../06-orcamento/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6. Orçamento
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../07-testes/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7. Testes
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_8" id="__nav_8_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    7. Testes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../07-testes/estrutura/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.1 Estrutura
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../07-testes/energia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2 Energia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../07-testes/hardware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3 Hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../07-testes/software/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.4 Software
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../07-testes/integracao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5 Integração
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../08-avaliacao-de-desempenho/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8. Avaliação de desempenho
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../09-relatorio-de-encerramento/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9. Relatório de encerramento
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-contextualizacao-e-requisitos-de-projeto-issue-203" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Contextualização e Requisitos de Projeto (Issue #203)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-dimensionamento-do-divisor-resistivo-de-tensao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Dimensionamento do Divisor Resistivo de Tensão
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Dimensionamento do Divisor Resistivo de Tensão">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-analise-dos-niveis-de-tensao-resultantes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Análise dos Níveis de Tensão Resultantes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-consumo-de-potencia-quiescente-do-divisor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Consumo de Potência Quiescente do Divisor
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-projeto-do-filtro-passa-baixas-anti-aliasing-rc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Projeto do Filtro Passa-Baixas Anti-Aliasing (\(RC\))
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Projeto do Filtro Passa-Baixas Anti-Aliasing (\(RC\))">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-resistencia-equivalente-de-thevenin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Resistência Equivalente de Thevenin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-frequencia-de-corte-e-rejeicao-harmonica" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Frequência de Corte e Rejeição Harmônica
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-simulacao-computacional-e-diagrama-de-bode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Simulação Computacional e Diagrama de Bode
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-implementacao-no-firmware-e-processamento-digital" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Implementação no Firmware e Processamento Digital
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-protocolo-de-ensaio-de-bancada-e-validacao-experimental-planejado" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Protocolo de Ensaio de Bancada e Validação Experimental (Planejado)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Protocolo de Ensaio de Bancada e Validação Experimental (Planejado)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-instrumentacao-necessaria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Instrumentação Necessária
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-procedimento-experimental-de-calibracao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Procedimento Experimental de Calibração
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-teste-de-rejeicao-de-ruido-dinamico" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 Teste de Rejeição de Ruído Dinâmico
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historico-de-versao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Histórico de Versão
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/edit/main/docs/04-projeto-conceitual/energia/monitoramento-tensao.md" title="Editar esta página" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="dimensionamento-do-divisor-resistivo-e-filtro-anti-aliasing-para-monitoramento-de-tensao">Dimensionamento do Divisor Resistivo e Filtro Anti-Aliasing para Monitoramento de Tensão<a class="headerlink" href="#dimensionamento-do-divisor-resistivo-e-filtro-anti-aliasing-para-monitoramento-de-tensao" title="Permanent link">&para;</a></h1>
+<hr />
+<h2 id="1-contextualizacao-e-requisitos-de-projeto-issue-203">1. Contextualização e Requisitos de Projeto (Issue #203)<a class="headerlink" href="#1-contextualizacao-e-requisitos-de-projeto-issue-203" title="Permanent link">&para;</a></h2>
+<p>O monitoramento contínuo da tensão do barramento da bateria LiPo 2S (<strong><span class="arithmatex">\(6{,}60\text{ V a }8{,}40\text{ V}\)</span></strong>) é essencial para estimar o Estado de Carga (SoC) em tempo real, transmitir telemetria para o Dashboard web e executar o corte de segurança de subtensão (<em>Under-Voltage Lockout</em> — UVLO) quando a bateria atinge <span class="arithmatex">\(6{,}60\text{ V}\)</span> (<span class="arithmatex">\(3{,}30\text{ V/célula}\)</span>).</p>
+<p>Como o conversor analógico-digital (ADC) do microcontrolador <strong>ESP32-C3-MINI-1</strong> opera sob tensão máxima de alimentação de <span class="arithmatex">\(3{,}3\text{ V}\)</span>, conectar o barramento de <span class="arithmatex">\(8{,}4\text{ V}\)</span> diretamente ao pino causaria a destruição imediata do silício. Adicionalmente, a comutação rápida da modulação PWM da ponte H dos motores (<span class="arithmatex">\(20\text{ kHz}\)</span>) introduz ruídos de alta frequência no barramento elétrico.</p>
+<p>Portanto, o circuito de sensoriamento analógico deve cumprir três requisitos fundamentais:
+1. <strong>Atenuação Proporcional de Tensão:</strong> Reduzir a faixa de <span class="arithmatex">\(0\text{ V a }8{,}4\text{ V}\)</span> para a região linear e de máxima resolução do ADC do ESP32-C3 (<span class="arithmatex">\(0\text{ V a }2{,}50\text{ V}\)</span> sob atenuação interna de 11 dB).
+2. <strong>Consumo Quiescente Desprezível:</strong> Minimizar a corrente drenada continuamente pelo divisor resistivo para não descarregar a bateria em repouso (<span class="arithmatex">\(I_{\text{div}} &lt; 100\ \mu\text{A}\)</span>).
+3. <strong>Filtragem Passa-Baixas Anti-Aliasing:</strong> Eliminar harmônicos e transientes de chaveamento do PWM dos motores (<span class="arithmatex">\(20\text{ kHz}\)</span>) e das fontes Buck (<span class="arithmatex">\(150\text{ kHz}\)</span> e <span class="arithmatex">\(1{,}0\text{ MHz}\)</span>) antes do processo de amostragem digital pelo ADC.</p>
+<hr />
+<h2 id="2-dimensionamento-do-divisor-resistivo-de-tensao">2. Dimensionamento do Divisor Resistivo de Tensão<a class="headerlink" href="#2-dimensionamento-do-divisor-resistivo-de-tensao" title="Permanent link">&para;</a></h2>
+<p>O circuito divisor de tensão é composto por dois resistores de filme metálico de precisão (<span class="arithmatex">\(1\%\)</span> de tolerância) conectados em série entre o barramento protegido da bateria (<code>+VBAT_PROT</code>) e o potencial de referência (<code>GND</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>+VBAT_PROT o-----[ R1 = 100k ]-----+-----[ C1 = 100nF ]-----o GND
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>                                   |
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>                                   +-----[ R2 = 33k ]-------o GND
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>                                   |
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>                                   o----&gt; GPIO 2 (ADC1_CH2) ESP32-C3
+</code></pre></div>
+<p>A relação de transferência de tensão é dada por:</p>
+<div class="arithmatex">\[V_{\text{ADC}} = V_{\text{BAT}} \cdot \left(\frac{R_2}{R_1 + R_2}\right) = V_{\text{BAT}} \cdot K_{\text{div}}\]</div>
+<p>Adotando os valores padronizados da série E96/E24 com <strong><span class="arithmatex">\(R_1 = 100\text{ k}\Omega\)</span></strong> e <strong><span class="arithmatex">\(R_2 = 33\text{ k}\Omega\)</span></strong>:</p>
+<div class="arithmatex">\[K_{\text{div}} = \frac{33\text{ k}\Omega}{100\text{ k}\Omega + 33\text{ k}\Omega} = \frac{33}{133} \approx \mathbf{0{,}24812}\]</div>
+<h3 id="21-analise-dos-niveis-de-tensao-resultantes">2.1 Análise dos Níveis de Tensão Resultantes<a class="headerlink" href="#21-analise-dos-niveis-de-tensao-resultantes" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Bateria em Plena Carga (<span class="arithmatex">\(V_{\text{BAT}} = 8{,}40\text{ V}\)</span>):</strong>
+  $<span class="arithmatex">\(V_{\text{ADC,max}} = 8{,}40\text{ V} \cdot 0{,}24812 = \mathbf{2{,}084\text{ V}}\)</span>$
+  <em>(Apresenta margem de segurança de <span class="arithmatex">\(0{,}416\text{ V}\)</span> abaixo do teto linear de <span class="arithmatex">\(2{,}50\text{ V}\)</span> e ampla folga contra o limite destrutivo de <span class="arithmatex">\(3{,}3\text{ V}\)</span>).</em></li>
+<li><strong>Tensão Nominal (<span class="arithmatex">\(V_{\text{BAT}} = 7{,}40\text{ V}\)</span>):</strong>
+  $<span class="arithmatex">\(V_{\text{ADC,nom}} = 7{,}40\text{ V} \cdot 0{,}24812 = \mathbf{1{,}836\text{ V}}\)</span>$</li>
+<li><strong>Limiar de Corte UVLO (<span class="arithmatex">\(V_{\text{BAT}} = 6{,}60\text{ V}\)</span>):</strong>
+  $<span class="arithmatex">\(V_{\text{ADC,UVLO}} = 6{,}60\text{ V} \cdot 0{,}24812 = \mathbf{1{,}638\text{ V}}\)</span>$</li>
+</ul>
+<h3 id="22-consumo-de-potencia-quiescente-do-divisor">2.2 Consumo de Potência Quiescente do Divisor<a class="headerlink" href="#22-consumo-de-potencia-quiescente-do-divisor" title="Permanent link">&para;</a></h3>
+<p>A corrente contínua drenada pelo ramo resistivo em regime de bateria plena é:</p>
+<div class="arithmatex">\[I_{\text{div}} = \frac{V_{\text{BAT,max}}}{R_1 + R_2} = \frac{8{,}40\text{ V}}{133\text{ k}\Omega} \approx \mathbf{63{,}16\ \mu\text{A}}\]</div>
+<p>A potência dissipada é ínfima:</p>
+<div class="arithmatex">\[P_{\text{div}} = 8{,}40\text{ V} \cdot 63{,}16\ \mu\text{A} \approx \mathbf{0{,}53\text{ mW}}\]</div>
+<p>Esse valor é perfeitamente suportado por resistores SMD miniatura de encapsulamento 0603 ou 0805 (<span class="arithmatex">\(1/10\text{ W}\)</span> ou <span class="arithmatex">\(1/8\text{ W}\)</span>) e não impacta a autonomia do robô.</p>
+<hr />
+<h2 id="3-projeto-do-filtro-passa-baixas-anti-aliasing-rc">3. Projeto do Filtro Passa-Baixas Anti-Aliasing (<span class="arithmatex">\(RC\)</span>)<a class="headerlink" href="#3-projeto-do-filtro-passa-baixas-anti-aliasing-rc" title="Permanent link">&para;</a></h2>
+<p>Para evitar o fenômeno de mascaramento (<em>aliasing</em>) na conversão A/D e rejeitar a ondulação de alta frequência originada da modulação PWM de <span class="arithmatex">\(20\text{ kHz}\)</span> dos motores N20, adiciona-se o capacitor cerâmico multicamada <strong><span class="arithmatex">\(C_1\)</span></strong> em paralelo com <span class="arithmatex">\(R_2\)</span>.</p>
+<h3 id="31-resistencia-equivalente-de-thevenin">3.1 Resistência Equivalente de Thevenin<a class="headerlink" href="#31-resistencia-equivalente-de-thevenin" title="Permanent link">&para;</a></h3>
+<p>A impedância de saída vista pelo capacitor no nó de amostragem corresponde ao paralelo de <span class="arithmatex">\(R_1\)</span> e <span class="arithmatex">\(R_2\)</span>:</p>
+<div class="arithmatex">\[R_{\text{th}} = R_1 \parallel R_2 = \frac{R_1 \cdot R_2}{R_1 + R_2} = \frac{100\text{ k}\Omega \cdot 33\text{ k}\Omega}{133\text{ k}\Omega} \approx \mathbf{24{,}81\text{ k}\Omega}\]</div>
+<h3 id="32-frequencia-de-corte-e-rejeicao-harmonica">3.2 Frequência de Corte e Rejeição Harmônica<a class="headerlink" href="#32-frequencia-de-corte-e-rejeicao-harmonica" title="Permanent link">&para;</a></h3>
+<p>Fixando <strong><span class="arithmatex">\(C_1 = 100\text{ nF}\)</span></strong> (dielétrico X7R / C0G de alta estabilidade):</p>
+<div class="arithmatex">\[f_c = \frac{1}{2\pi \cdot R_{\text{th}} \cdot C_1} = \frac{1}{2\pi \cdot 24.812\ \Omega \cdot 100 \times 10^{-9}\text{ F}} \approx \mathbf{64{,}14\text{ Hz}}\]</div>
+<p>A atenuação teórica introduzida na frequência fundamental do chaveamento PWM dos motores (<span class="arithmatex">\(f_{\text{PWM}} = 20\text{ kHz}\)</span>) é calculada por:</p>
+<div class="arithmatex">\[|H(j\omega)| = \frac{1}{\sqrt{1 + \left(\frac{f}{f_c}\right)^2}} = \frac{1}{\sqrt{1 + \left(\frac{20.000}{64{,}14}\right)^2}} \approx \frac{1}{311{,}8} \approx \mathbf{0{,}0032}\]</div>
+<p>Em escala logarítmica decibel:</p>
+<div class="arithmatex">\[\text{Atenuação}(20\text{ kHz}) = 20 \cdot \log_{10}(0{,}0032) \approx \mathbf{-49{,}88\text{ dB}}\]</div>
+<p>O filtro atenua em <strong>aproximadamente 50 dB (redução de mais de 300 vezes)</strong> qualquer oscilação gerada pelas comutações da ponte H, entregando ao conversor ADC uma leitura de tensão DC estável e limpa.</p>
+<hr />
+<h2 id="4-simulacao-computacional-e-diagrama-de-bode">4. Simulação Computacional e Diagrama de Bode<a class="headerlink" href="#4-simulacao-computacional-e-diagrama-de-bode" title="Permanent link">&para;</a></h2>
+<p>O comportamento analítico em frequência do circuito divisor com filtro anti-aliasing foi validado através do script em Python <a href="file:///home/efaria/UnB/PI1/scripts/simulacao_divisor_antialiasing.py"><code>scripts/simulacao_divisor_antialiasing.py</code></a>, gerando o diagrama de Bode vetorial reproduzido abaixo:</p>
+<p><img alt="Diagrama de Bode do Filtro Anti-Aliasing" src="../../figs/bode-filtro-antialiasing.svg" /></p>
+<hr />
+<h2 id="5-implementacao-no-firmware-e-processamento-digital">5. Implementação no Firmware e Processamento Digital<a class="headerlink" href="#5-implementacao-no-firmware-e-processamento-digital" title="Permanent link">&para;</a></h2>
+<p>No microcontrolador ESP32-C3:
+* <strong>Canal ADC Vinculado:</strong> Pino analógico <strong>GPIO 2 (ADC1_CH2)</strong>.
+* <strong>Configuração de Atenuação:</strong> Atenuação configurada para <code>ADC_ATTEN_DB_11</code> (faixa calibrada de até 2500 mV).
+* <strong>Filtro Digital por Software:</strong> O firmware realiza uma média móvel de 16 amostras com intervalo de amostragem de 50 ms (<span class="arithmatex">\(20\text{ Hz}\)</span>), complementando o filtro passivo de hardware.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">// Equação de conversão no firmware</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kt">float</span><span class="w"> </span><span class="n">tensaoAdcMv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="n">analogReadMilliVolts</span><span class="p">(</span><span class="n">GPIO_NUM_2</span><span class="p">);</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kt">float</span><span class="w"> </span><span class="n">tensaoBateriaReal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">tensaoAdcMv</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1000.0f</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">0.24812f</span><span class="p">;</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tensaoBateriaReal</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">6.60f</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="n">acionarDesarmeSubtensaoUVLO</span><span class="p">();</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="6-protocolo-de-ensaio-de-bancada-e-validacao-experimental-planejado">6. Protocolo de Ensaio de Bancada e Validação Experimental (Planejado)<a class="headerlink" href="#6-protocolo-de-ensaio-de-bancada-e-validacao-experimental-planejado" title="Permanent link">&para;</a></h2>
+<p>Assim que a placa montada e os componentes estiverem disponíveis em bancada, será executado o seguinte protocolo experimental:</p>
+<h3 id="61-instrumentacao-necessaria">6.1 Instrumentação Necessária<a class="headerlink" href="#61-instrumentacao-necessaria" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Fonte DC de Bancada Ajustável</strong> com resolução de 1 mV.</li>
+<li><strong>Multímetro Digital de Alta Precisão (DMM 4½ dígitos)</strong> para medir a tensão de entrada e a saída do divisor simultaneamente.</li>
+<li><strong>Osciloscópio Digital</strong> para monitorar o nó do pino ADC enquanto os motores N20 comutam em PWM de 20 kHz.</li>
+</ol>
+<h3 id="62-procedimento-experimental-de-calibracao">6.2 Procedimento Experimental de Calibração<a class="headerlink" href="#62-procedimento-experimental-de-calibracao" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Variar a tensão da fonte ajustável de <span class="arithmatex">\(6{,}00\text{ V}\)</span> a <span class="arithmatex">\(8{,}50\text{ V}\)</span> em passos de <span class="arithmatex">\(0{,}50\text{ V}\)</span>.</li>
+<li>Para cada patamar, anotar:</li>
+<li>Tensão exata da fonte (<span class="arithmatex">\(V_{\text{fonte}}\)</span>);</li>
+<li>Tensão medida no pino ADC com multímetro (<span class="arithmatex">\(V_{\text{ADC\_real}}\)</span>);</li>
+<li>Tensão reportada pelo microcontrolador via telemetria serial (<code>V_telemetria</code>).</li>
+<li>Calcular a constante de escala real:
+   $<span class="arithmatex">\(K_{\text{calibrado}} = \frac{V_{\text{ADC\_real}}}{V_{\text{fonte}}}\)</span>$</li>
+<li>Gravar o fator de correção na memória não volátil (NVS) do ESP32-C3 para compensar variações de tolerância dos resistores de <span class="arithmatex">\(1\%\)</span>.</li>
+</ol>
+<h3 id="63-teste-de-rejeicao-de-ruido-dinamico">6.3 Teste de Rejeição de Ruído Dinâmico<a class="headerlink" href="#63-teste-de-rejeicao-de-ruido-dinamico" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Acionar os motores em regime de corrida (PWM alternando entre 30% e 80%).</li>
+<li>Capturar no osciloscópio o ruído pico a pico (<span class="arithmatex">\(V_{\text{pp}}\)</span>) no nó do capacitor <span class="arithmatex">\(C_1\)</span>.</li>
+<li><strong>Critério de Aceitação:</strong> O ruído de comutação no pino analógico deve ser estritamente inferior a <strong><span class="arithmatex">\(15\text{ mV}_{\text{pp}}\)</span></strong> (equivalente a <span class="arithmatex">\(&lt; 0{,}6\%\)</span> de erro na faixa do ADC).</li>
+</ol>
+<hr />
+<h2 id="historico-de-versao">Histórico de Versão<a class="headerlink" href="#historico-de-versao" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Versão</th>
+<th style="text-align: center;">Data</th>
+<th style="text-align: left;">Descrição</th>
+<th style="text-align: left;">Autor(es)</th>
+<th style="text-align: left;">Revisor(es)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1.0</td>
+<td style="text-align: center;">18/10/2026</td>
+<td style="text-align: left;">Dimensionamento do divisor resistivo 100k/33k e filtro anti-aliasing com diagrama de Bode (#203)</td>
+<td style="text-align: left;">Elias Oliveira</td>
+<td style="text-align: left;">Bruno Duarte</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.1</td>
+<td style="text-align: center;">20/10/2026</td>
+<td style="text-align: left;">Modularização no diretório <code>energia/</code> e adição do protocolo de calibração em bancada</td>
+<td style="text-align: left;">Elias Oliveira</td>
+<td style="text-align: left;">Equipe de Energia</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../curva-descarga-lipo/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: 4.2.3 Curva de Descarga e SoC LiPo">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                4.2.3 Curva de Descarga e SoC LiPo
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../hardware/" class="md-footer__link md-footer__link--next" aria-label="Próximo: 4.3 Hardware">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                4.3 Hardware
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "navigation.top", "navigation.footer", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.action.edit"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
