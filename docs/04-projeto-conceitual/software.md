@@ -291,7 +291,7 @@ As HUs com interface gráfica (HU-06, HU-07, HU-08, HU-10, HU-14 e HU-15) estão
   * **Quero** que o micromouse estime continuamente sua posição (célula) e orientação no labirinto,
   * **Para que** ele saiba onde está no mapa e o *dashboard* exiba sua localização real.
 * **Critérios de Aceitação:**
-  1. A posição deve ser estimada a partir da contagem dos *encoders* de efeito Hall e a orientação a partir do giroscópio da IMU, com a célula de partida como origem (0, 0).
+  1. A posição deve ser estimada a partir da contagem dos *encoders* (reservados, não instalados — pendência) e a orientação a partir do giroscópio da IMU, com a célula de partida como origem (0, 0).
   2. A cada célula percorrida, a posição discreta (linha, coluna) e a orientação (N, S, L, O) devem ser atualizadas e enviadas na telemetria.
   3. O erro acumulado deve ser corrigido usando as paredes detectadas como referência (alinhamento ao centro da célula).
   4. Ao final de uma corrida em bancada, a célula estimada pelo robô deve coincidir com a célula real em que ele se encontra.
