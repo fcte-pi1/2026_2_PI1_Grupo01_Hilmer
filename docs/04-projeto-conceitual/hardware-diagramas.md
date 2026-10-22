@@ -10,6 +10,6 @@ O [diagrama de blocos](hardware.md#2-diagrama-de-blocos) apresenta os barramento
 
 ## 2. Esquemático elétrico
 
-[![Esquemático elétrico do Micromouse](../figs/hardware-esquematico.png)](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/Micromouse.pdf)
+[![Esquemático elétrico do Micromouse](../figs/hardware-esquematico.png)](../../hw/Micromouse.pdf)
 
-O PDF e o arquivo editável `hw/Micromouse.kicad_sch` descrevem as conexões. O divisor 100 kΩ / 33 kΩ termina em **BAT_ADC_TEST**, sem ligação ao GPIO2, reservado ao XSHUT direito.
+O [PDF](../../hw/Micromouse.pdf), o [arquivo editável KiCad](../../hw/Micromouse.kicad_sch) e a figura acima descrevem as conexões: I²C em GPIO9/8, motores IN1/IN2/IN3/IN4 em GPIO10/3/20/21 e XSHUT de J3/J4/J5 em GPIO0/1/2. O divisor 100 kΩ / 33 kΩ termina em **BAT_ADC_TEST**, sem ligação ao GPIO2, reservado ao XSHUT direito.

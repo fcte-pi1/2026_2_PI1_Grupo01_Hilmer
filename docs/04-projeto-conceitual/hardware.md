@@ -111,11 +111,11 @@ Com a bateria em **8,4 V**, a tensão calculada no nó de medição é de aproxi
 
 ## 4. Esquemático elétrico
 
-O esquemático principal apresenta os símbolos elétricos, as referências dos componentes, as conexões de alimentação e sinais e os terminais dos módulos. A figura abaixo foi extraída do PDF disponível na pasta `hw`.
+O esquemático principal, **Rev 2.0 de 21/10/2026**, apresenta os símbolos elétricos, as referências dos componentes, as conexões de alimentação e sinais e os terminais dos módulos. A figura abaixo foi extraída do PDF disponível na pasta `hw`.
 
-[![Esquemático elétrico do Micromouse](../figs/hardware-esquematico.png)](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/Micromouse.pdf)
+[![Esquemático elétrico do Micromouse](../figs/hardware-esquematico.png)](../../hw/Micromouse.pdf)
 
-**Figura 2.** Esquemático elétrico do Micromouse, com bateria, fusível, chave, três conversores MP1584EN, ESP32-C3, sensores VL53L0X, MPU6050, DRV8833 e motores. O PDF permite ampliar a imagem para consultar os detalhes das conexões. Os conectores dos VL53L0X representam a interface lógica do projeto (pino 5 = XSHUT); conferir a ordem física dos terminais no módulo adquirido.
+**Figura 2.** Esquemático elétrico do Micromouse — **Rev 2.0**, com bateria, fusível, chave, três conversores MP1584EN, ESP32-C3, sensores VL53L0X, MPU6050, DRV8833 e motores. O [PDF](../../hw/Micromouse.pdf) e o [arquivo editável KiCad](../../hw/Micromouse.kicad_sch) representam a mesma revisão e permitem consultar os detalhes das conexões. Os conectores dos VL53L0X representam a interface lógica do projeto (pino 5 = XSHUT); conferir a ordem física dos terminais no módulo adquirido.
 
 ### 4.1 Conexões principais
 
@@ -188,7 +188,17 @@ O relatório técnico estabelece a seguinte sequência de montagem e verificaç�
 | Módulo VL53L0X com XSHUT acessível | 3 | J3, J4 e J5; fabricante/pinout do módulo a confirmar na BOM. |
 | IMU MPU6050 | 1 | J6. |
 | Módulo DRV8833 | 1 | `U6`. |
-| Motor GA12-N20-S0310D-E, 6 V | 2 | J1 e J2; relação de redução a confirmar na BOM. |
+| Motor GA12-N20-S0310D-E, 6 V (modelo sugerido) | 2 | J1 e J2; fonte: [lista de compras, item 9](../06-orcamento.md#lista-de-componentes). Relação de redução e identificação do fornecedor a confirmar. |
 | Resistores de monitoramento | 2 | R1: 100 kΩ; R2: 33 kΩ. |
 | Resistor de habilitação do driver | 1 | R4: 47 kΩ. |
 | Capacitores de filtragem | 7 | C2 e C4: 100 µF; C3, C6 e C8: 10 µF; C5 e C7: 100 nF. |
+
+### 6.1 Fonte da identificação dos motores
+
+O código **GA12-N20-S0310D-E** e a tensão nominal de **6 V** foram transcritos da [lista de compras do projeto, item 9 — Motor DC com encoder](../06-orcamento.md#lista-de-componentes), onde constam como **modelo sugerido**. Essa é a fonte interna da seleção; ainda não há ficha técnica ou link de fornecedor que confirme o código completo, a relação de redução e a corrente do motor adquirido. No esquemático, **J1 e J2 representam somente os dois terminais de potência**; os encoders permanecem reservados e não instalados na Rev 2.0.
+
+## 7. Histórico de versões
+
+| Versão | Data | Descrição | Autor |
+| :---: | :---: | :--- | :--- |
+| 2.0 | 21/10/2026 | Sincronização do esquemático KiCad, PDF e Figura 2: R2 de 33 kΩ, I²C em GPIO9/8, motores em GPIO10/3/20/21, XSHUT em GPIO0/1/2 e divisor em BAT_ADC_TEST. Inclusão da fonte interna do modelo sugerido dos motores. | Eduardo Gaspar |
