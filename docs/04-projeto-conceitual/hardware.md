@@ -15,7 +15,7 @@ O diagrama organiza os subsistemas e identifica as conexões de alimentação e 
 ```mermaid
 flowchart TB
     BAT["BT1 — Bateria LiPo 2S<br/>7,4 V nominal / 8,4 V máxima"]
-    F["F1 — Fusível de entrada"]
+    F["F1 — PPTC MF-R185<br/>Ihold: 1,85 A / Itrip: 3,7 A"]
     SW["SW1 — Chave geral"]
     VBAT["Barramento VBAT"]
     B3["U5 — MP1584EN<br/>Saída de 3,3 V"]
@@ -24,11 +24,11 @@ flowchart TB
     MCU["ESP32-C3 Super Mini<br/>Controle e firmware"]
     TOF["J3, J4 e J5<br/>Três sensores VL53L0X"]
     IMU["J6 — MPU6050<br/>Acelerômetro e giroscópio"]
-    I2C["Barramento I2C<br/>SDA: GPIO6 / SCL: GPIO7"]
-    DRV["DRV8833<br/>Ponte H dupla"]
+    I2C["Barramento I2C<br/>SDA: GPIO9 / SCL: GPIO8"]
+    DRV["U6 — DRV8833<br/>Ponte H dupla"]
     ML["J1 — Motor esquerdo"]
     MR["J2 — Motor direito"]
-    ADC["R1: 100 kΩ / R2: 39 kΩ<br/>Filtro C5: 100 nF"]
+    ADC["R1: 100 kΩ / R2: 33 kΩ<br/>Filtro C5: 100 nF"]
 
     BAT --> F --> SW --> VBAT
     VBAT --> B3
@@ -38,11 +38,12 @@ flowchart TB
     B3 -->|Alimentação| IMU
     B5 -->|Pino 5V da placa| MCU
     B6 -->|Potência: 6 V| DRV
-    VBAT --> ADC -->|GPIO2 — ADC| MCU
+    VBAT --> ADC --> TP["BAT_ADC_TEST<br/>ADC pendente na Rev 2.0"]
     MCU <-->|Dados e clock| I2C
     I2C <--> TOF
     I2C <--> IMU
-    MCU -->|PWM: GPIO0, GPIO1, GPIO10 e GPIO21| DRV
+    MCU -->|XSHUT: GPIO0, GPIO1 e GPIO2| TOF
+    MCU -->|PWM: GPIO10, GPIO3, GPIO20 e GPIO21| DRV
     DRV --> ML
     DRV --> MR
 ```
@@ -53,7 +54,7 @@ flowchart TB
 
 ### 3.1 Alimentação e proteção de entrada
 
-A bateria **BT1**, do tipo LiPo 2S, fornece energia ao robô. Sua linha positiva passa pelo **fusível F1** e pela **chave geral SW1** antes de formar o barramento de distribuição `VBAT`. O fusível protege a entrada contra sobrecorrente, enquanto a chave permite interromper a alimentação do conjunto.
+A bateria **BT1**, do tipo LiPo 2S, fornece energia ao robô. Sua linha positiva passa pelo **fusível F1** e pela **chave geral SW1** antes de formar o barramento de distribuição `VBAT`. F1 adota o PPTC **Bourns MF-R185** definido pela energia, com **Ihold = 1,85 A** e **Itrip = 3,7 A a 25 °C**. A chave permite interromper a alimentação do conjunto.
 
 O uso de uma fonte recarregável permite a operação móvel e autônoma. A distribuição em três conversores reduz a tensão da bateria para os níveis utilizados por cada subsistema e permite organizar separadamente as cargas de potência e os circuitos de sensoriamento e controle.
 
@@ -77,9 +78,9 @@ A escolha reúne processamento, periféricos de comunicação e conectividade em
 
 O sensoriamento de paredes utiliza **três módulos VL53L0X**, representados pelos conectores **J3, J4 e J5**. A distribuição funcional é frontal, esquerda e direita, permitindo reconhecer obstáculos e passagens nas direções relevantes à navegação.
 
-Os sensores utilizam medição por tempo de voo (_Time of Flight_ — ToF), recebem alimentação de **3,3 V** e compartilham o barramento **I²C**. Essa configuração concentra a comunicação em duas linhas: **SDA no GPIO6** e **SCL no GPIO7**.
+Os sensores utilizam medição por tempo de voo (_Time of Flight_ — ToF), recebem alimentação de **3,3 V** e compartilham o barramento **I²C**. Essa configuração concentra a comunicação em duas linhas: **SDA no GPIO9** e **SCL no GPIO8**.
 
-O gerenciamento de endereços dos três sensores faz parte da inicialização prevista no projeto, por meio do controle de habilitação dos módulos e da atribuição de endereços individuais. A aquisição das três distâncias fornece a referência para detectar paredes e manter o alinhamento nos corredores.
+Os três sensores iniciam no endereço I²C de 7 bits **0x29**. Cada módulo precisa expor XSHUT: **J3 esquerdo → GPIO0**, **J4 frontal → GPIO1** e **J5 direito → GPIO2**. Na inicialização, o firmware deve manter todos em reset (XSHUT baixo), liberar um por vez e atribuir endereços distintos, por exemplo **0x30, 0x31 e 0x32**, antes de liberar o próximo. Essa atribuição deve ser repetida a cada reinicialização; a rotina ainda precisa ser implementada no firmware. A aquisição das três distâncias fornece a referência para detectar paredes e manter o alinhamento nos corredores.
 
 ### 3.4 Unidade de medição inercial MPU6050
 
@@ -97,24 +98,24 @@ O controle independente dos motores permite tração diferencial: a combinação
 
 ### 3.6 Monitoramento da tensão da bateria
 
-O circuito de monitoramento utiliza **R1 de 100 kΩ**, **R2 de 39 kΩ** e **C5 de 100 nF**. O divisor reduz a tensão de `VBAT` para a entrada analógica do ESP32, enquanto o capacitor filtra transientes no nó de leitura.
+O circuito de monitoramento utiliza **R1 de 100 kΩ**, **R2 de 33 kΩ** e **C5 de 100 nF**. O divisor reduz a tensão de `VBAT` no ponto de teste, enquanto o capacitor filtra transientes nesse nó. A conexão a uma entrada analógica está pendente na Rev 2.0.
 
 A relação entre as tensões é:
 
 ```text
 V_ADC = V_BAT × R2 / (R1 + R2)
-V_ADC = V_BAT × 39 / 139
+V_ADC = V_BAT × 33 / 133
 ```
 
-Com a bateria em **8,4 V**, a tensão calculada no nó de medição é de aproximadamente **2,357 V**. Esse nó é conectado ao **GPIO2**, conforme o esquemático principal. A leitura permite acompanhar a tensão da fonte e fornecer dados sobre a condição da bateria ao firmware.
+Com a bateria em **8,4 V**, a tensão calculada no nó de medição é de aproximadamente **2,084 V**.
 
 ## 4. Esquemático elétrico
 
 O esquemático principal apresenta os símbolos elétricos, as referências dos componentes, as conexões de alimentação e sinais e os terminais dos módulos. A figura abaixo foi extraída do PDF disponível na pasta `hw`.
 
-[![Esquemático elétrico do Micromouse](../figs/hardware-esquematico.png)](../../hw/Micromouse.pdf)
+[![Esquemático elétrico do Micromouse](../figs/hardware-esquematico.png)](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/Micromouse.pdf)
 
-**Figura 2.** Esquemático elétrico do Micromouse, com bateria, fusível, chave, três conversores MP1584EN, ESP32-C3, sensores VL53L0X, MPU6050, DRV8833 e motores. O PDF permite ampliar a imagem para consultar os detalhes das conexões.
+**Figura 2.** Esquemático elétrico do Micromouse, com bateria, fusível, chave, três conversores MP1584EN, ESP32-C3, sensores VL53L0X, MPU6050, DRV8833 e motores. O PDF permite ampliar a imagem para consultar os detalhes das conexões. Os conectores dos VL53L0X representam a interface lógica do projeto (pino 5 = XSHUT); conferir a ordem física dos terminais no módulo adquirido.
 
 ### 4.1 Conexões principais
 
@@ -125,12 +126,13 @@ O esquemático principal apresenta os símbolos elétricos, as referências dos 
 | U2, saída de 5 V | Pino `5V` da placa ESP32-C3 | Alimentação da unidade de controle. |
 | U5, saída de 3,3 V | J3, J4, J5 e J6 | Alimentação dos sensores de distância e da IMU. |
 | U4, saída de 6 V | `VCC` de potência do módulo DRV8833 | Alimentação do acionamento. |
-| GPIO6 e GPIO7 | SDA e SCL dos sensores | Comunicação I²C compartilhada. |
-| GPIO0 e GPIO1 | IN1 e IN2 do DRV8833 | Comandos do motor esquerdo. |
-| GPIO10 e GPIO21 | IN3 e IN4 do DRV8833 | Comandos do motor direito. |
+| GPIO9 e GPIO8 | SDA e SCL dos sensores | Comunicação I²C compartilhada. |
+| GPIO10 e GPIO3 | IN1 e IN2 do DRV8833 | Comandos do motor esquerdo. |
+| GPIO20 e GPIO21 | IN3 e IN4 do DRV8833 | Comandos do motor direito. |
 | DRV8833, OUT1/OUT2 | J1, motor esquerdo | Saída de potência. |
 | DRV8833, OUT3/OUT4 | J2, motor direito | Saída de potência. |
-| VBAT → R1/R2 e C5 | GPIO2 | Medição analógica da bateria. |
+| GPIO0 / GPIO1 / GPIO2 | XSHUT de J3 / J4 / J5 | Habilitação individual dos VL53L0X. |
+| VBAT → R1/R2 e C5 | BAT_ADC_TEST | Ponto de teste; conexão ADC pendente. |
 | Terras dos módulos | GND comum | Referência elétrica do conjunto. |
 
 ### 4.2 Pinagem do ESP32-C3
@@ -139,15 +141,24 @@ A tabela identifica os **GPIOs lógicos**, os sinais e suas funções no circuit
 
 | GPIO / terminal | Periférico | Sinal | Função |
 | :---: | :--- | :--- | :--- |
-| **GPIO0** | DRV8833 | IN1 — motor esquerdo | Saída de controle PWM. |
-| **GPIO1** | DRV8833 | IN2 — motor esquerdo | Saída de controle PWM. |
-| **GPIO10** | DRV8833 | IN3 — motor direito | Saída de controle PWM. |
-| **GPIO21 / TX** | DRV8833 | IN4 — motor direito | Saída de controle PWM. |
-| **GPIO6** | VL53L0X e MPU6050 | SDA | Dados do barramento I²C. |
-| **GPIO7** | VL53L0X e MPU6050 | SCL | Clock do barramento I²C. |
-| **GPIO2** | Divisor R1/R2 | ADC de bateria | Entrada analógica de tensão. |
+| **GPIO9** | VL53L0X e MPU6050 | SDA | Dados I²C. |
+| **GPIO8** | VL53L0X e MPU6050 | SCL | Clock I²C. |
+| **GPIO0** | J3 — VL53L0X esquerdo | XSHUT | Habilitação individual. |
+| **GPIO1** | J4 — VL53L0X frontal | XSHUT | Habilitação individual. |
+| **GPIO2** | J5 — VL53L0X direito | XSHUT | Habilitação individual. |
+| **GPIO10 / GPIO3** | U6 — DRV8833 | IN1 / IN2 | PWM do motor esquerdo. |
+| **GPIO20 / GPIO21** | U6 — DRV8833 | IN3 / IN4 | PWM do motor direito. |
+| **GPIO4 / GPIO5** | Encoder esquerdo | A / B | Reservados; encoder não instalado. |
+| **GPIO6 / GPIO7** | Encoder direito | A / B | Reservados; encoder não instalado. |
+| **GPIO18 / GPIO19** | USB nativa | D− / D+ | Log e gravação; uso exclusivo da USB. |
 | **5V** | Conversor U2 | Alimentação da placa | Entrada de 5 V regulados. |
 | **GND** | Todos os subsistemas | Terra | Referência comum. |
+
+### 4.3 Inicialização e restrições
+
+O log da aplicação usa **Serial pela USB CDC nativa**, configurada em `platformio.ini`, liberando GPIO20/21 para os motores. **Isso não desativa as mensagens da ROM no GPIO21/U0TXD durante o reset**. A montagem precisa validar uma forma de manter o driver desabilitado durante o boot antes de energizar os motores; o resistor R4 existente não comprova essa proteção. Até essa validação, testar com as rodas suspensas.
+
+GPIO2, GPIO8 e GPIO9 são pinos de *strapping*. Validar os níveis durante o reset com os módulos conectados, incluindo os pull-ups I²C e a carga de XSHUT. O botão BOOT da Super Mini compartilha GPIO9: não o acionar durante a comunicação I²C. Conferir o pinout físico da placa; o símbolo do controlador identifica sinais lógicos, sem representar a ordem dos terminais da Super Mini.
 
 ## 5. Integração e sequência de montagem
 
@@ -159,7 +170,7 @@ O relatório técnico estabelece a seguinte sequência de montagem e verificaç�
 2. Ajustar os conversores individualmente para **3,3 V, 5 V e 6 V**, antes de conectar as cargas.
 3. Verificar o fusível e a interrupção da alimentação pela chave geral.
 4. Conectar a placa ESP32-C3 e verificar alimentação e gravação de firmware básico via USB.
-5. Executar uma varredura I²C nos GPIO6 e GPIO7 e verificar a identificação dos sensores.
+5. Inicializar os VL53L0X sequencialmente pelos três XSHUT, atribuir endereços distintos e executar uma varredura I²C nos GPIO9 e GPIO8. Verificar também a IMU.
 6. Testar os motores com as rodas suspensas, aplicando PWM progressivo e verificando o sentido de rotação.
 7. Integrar a aquisição de distâncias, as medidas inerciais e o controle de movimento.
 
@@ -168,17 +179,16 @@ O relatório técnico estabelece a seguinte sequência de montagem e verificaç�
 | Componente / conjunto | Quantidade | Referência no circuito |
 | :--- | :---: | :--- |
 | Bateria LiPo 2S | 1 | BT1. |
-| Fusível de entrada | 1 | F1. |
+| PPTC Bourns MF-R185 | 1 | F1: Ihold 1,85 A; Itrip 3,7 A a 25 °C. |
 | Chave geral | 1 | SW1. |
 | Conversor MP1584EN de 5 V | 1 | U2. |
 | Conversor MP1584EN de 3,3 V | 1 | U5. |
 | Conversor MP1584EN de 6 V | 1 | U4. |
 | Placa ESP32-C3 | 1 | U3. |
-| Sensor de distância VL53L0X | 3 | J3, J4 e J5. |
+| Módulo VL53L0X com XSHUT acessível | 3 | J3, J4 e J5; fabricante/pinout do módulo a confirmar na BOM. |
 | IMU MPU6050 | 1 | J6. |
-| Módulo DRV8833 | 1 | `U4-DRV8833_Module1`. |
-| Motor DC com redução | 2 | J1 e J2. |
-| Resistores de monitoramento | 2 | R1: 100 kΩ; R2: 39 kΩ. |
+| Módulo DRV8833 | 1 | `U6`. |
+| Motor GA12-N20-S0310D-E, 6 V | 2 | J1 e J2; relação de redução a confirmar na BOM. |
+| Resistores de monitoramento | 2 | R1: 100 kΩ; R2: 33 kΩ. |
 | Resistor de habilitação do driver | 1 | R4: 47 kΩ. |
 | Capacitores de filtragem | 7 | C2 e C4: 100 µF; C3, C6 e C8: 10 µF; C5 e C7: 100 nF. |
-
