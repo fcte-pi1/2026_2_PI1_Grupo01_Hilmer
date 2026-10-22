@@ -76,7 +76,7 @@ para consulta posterior no histórico (RF10), o que marca o nó final do fluxo.
 | Insumo | Origem | Resultado | Destino |
 |---|---|---|---|
 | Posicionamento do robô / início do desafio | Usuário | Próxima ação calculada | Micromouse |
-| Leituras do LiDAR e dos *encoders* | Hardware | Mapa do labirinto e localização atualizados | Micromouse |
+| Leituras dos sensores VL53L0X e dos *encoders* | Hardware | Mapa do labirinto e localização atualizados | Micromouse |
 | Dados de telemetria (posição, velocidade, bateria) | Micromouse | Registro persistido da corrida | Sistema Web |
 | Dados persistidos da corrida | Sistema Web | Dashboard atualizado e histórico consultável | Usuário |
 
@@ -243,7 +243,7 @@ As HUs com interface gráfica (HU-06, HU-07, HU-08, HU-10, HU-14 e HU-15) estão
   * **Quero** que o micromouse identifique a presença de paredes à frente, à esquerda e à direita de cada célula,
   * **Para que** o algoritmo de navegação saiba quais passagens estão livres e o mapa seja construído corretamente.
 * **Critérios de Aceitação:**
-  1. Ao chegar ao centro de cada célula (18 × 18 cm), o robô deve classificar os lados frontal, esquerdo e direito como `parede` ou `livre` a partir das leituras do LiDAR ToF 360°.
+  1. Ao chegar ao centro de cada célula (18 × 18 cm), o robô deve classificar os lados frontal, esquerdo e direito como `parede` ou `livre` a partir das leituras dos três sensores VL53L0X (ToF).
   2. A classificação deve ser feita com base em um limiar de distância definido em calibração, filtrando leituras espúrias (ex.: média de múltiplas amostras).
   3. Em teste de bancada com as configurações de parede conhecidas, a taxa de acerto da classificação deve ser de 100% nas células avaliadas.
 * **Protótipo da HU:** Não possui tela própria (*firmware*). As paredes identificadas são refletidas no `Maze Grid` do [Frame 02_Running](https://www.figma.com/design/90hJ4r7jT0yDMtCwJ0yzy9/Prot%C3%B3tipo-Telemetria-Web?node-id=13-211).
@@ -426,7 +426,7 @@ As HUs com interface gráfica (HU-06, HU-07, HU-08, HU-10, HU-14 e HU-15) estão
   * **Quero** que o micromouse execute automaticamente uma rotina de calibração dos sensores de distância e inerciais ao ser ligado,
   * **Para que** as leituras sejam confiáveis desde a primeira célula, sem ajustes manuais antes de cada tentativa.
 * **Critérios de Aceitação:**
-  1. Ao ser ligado na célula de partida, o robô deve calibrar o sensor de distância (LiDAR ToF), a IMU (*offset* do giroscópio com o robô parado) e zerar a contagem dos *encoders*.
+  1. Ao ser ligado na célula de partida, o robô deve calibrar os sensores de distância (três VL53L0X, ToF), a IMU (*offset* do giroscópio com o robô parado) e zerar a contagem dos *encoders*.
   2. Cada execução da autocalibração deve ser concluída em até 1 s (RNF-08) e, quando a primeira execução for bem-sucedida, o sistema deve estar pronto para largada em até 2 s após ligado (RNF-09).
   3. Caso algum sensor não responda ou retorne valores fora da faixa esperada, a calibração deve ser considerada malsucedida e a rotina deve ser executada novamente; o robô não deve iniciar o deslocamento enquanto a calibração não for bem-sucedida, e cada falha deve ser reportada na telemetria.
   4. Concluída a calibração com sucesso, o estado do robô deve ser informado ao *dashboard* como `Aguardando Largada`.
@@ -585,7 +585,7 @@ receber, persistir e apresentar a telemetria em tempo real e o histórico de cor
 - Firmware: `WiFi.h` e `HTTPClient.h` para o envio de telemetria via HTTP, `ArduinoJson`
   para serialização dos pacotes, leitura dos *encoders* por interrupção de GPIO
   (quadratura A/B), PWM nativo do ESP32-C3 para o DRV8833 (`GPIO4` a `GPIO7`), e leitura
-  do LiDAR TOF 360° por UART, no *baud rate* informado no manual do módulo comprado.
+  dos três sensores VL53L0X (ToF) por I²C.
 - Sistema Web: SDK oficial **`supabase-js`** no frontend, usado tanto para consultas
   (histórico de corridas) quanto para assinar mudanças em tempo real via Realtime
   (substitui um servidor Socket.IO próprio); Supabase Edge Functions em TypeScript para
@@ -808,7 +808,7 @@ lê-lo no navegador.
 
 #### Visões 4+1
 
-1. **Lógica:** módulos do firmware (Navegação, Percepção via LiDAR e *encoders*,
+1. **Lógica:** módulos do firmware (Navegação, Percepção via sensores VL53L0X e *encoders*,
    Comunicação) e do sistema web (Ingestão de Telemetria, Encerramento de Corrida,
    Dashboard, Histórico).
 2. **Processos:** no ESP32-C3, navegação e envio de telemetria rodam concorrentemente
