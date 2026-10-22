@@ -1,5 +1,8 @@
 # Dimensionamento e Análise dos Reguladores Step-Down (Buck)
 
+!!! warning "Dimensionamento a refazer"
+    Este documento foi feito antes da Rev 2.0 do _hardware_, para a arquitetura com LiDAR e encoders ativos. Na Rev 2.0, o LiDAR foi substituído por três sensores VL53L0X (I²C), entrou a IMU MPU6050 e os encoders estão reservados, não instalados (pendência). As cargas e os valores que dependem delas serão refeitos quando a Rev 2.0 for consolidada; ver o [Projeto Conceitual de _Hardware_](../hardware.md).
+
 ---
 
 ## 1. Contextualização e Metodologia de Projeto
