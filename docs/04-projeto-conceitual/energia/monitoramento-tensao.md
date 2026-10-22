@@ -20,7 +20,7 @@ Portanto, o circuito de sensoriamento analógico deve cumprir três requisitos f
 O circuito divisor de tensão é composto por dois resistores de filme metálico de precisão ($1\%$ de tolerância) conectados em série entre o barramento protegido da bateria (`+VBAT_PROT`) e o potencial de referência (`GND`):
 
 ```
-+VBAT_PROT o-----[ R1 = 100k ]-----+-----[ C1 = 100nF ]-----o GND
++VBAT_PROT o-----[ R1 = 100k ]-----+-----[ C5 = 100nF ]-----o GND
                                    |
                                    +-----[ R2 = 33k ]-------o GND
                                    |
@@ -59,7 +59,7 @@ Esse valor é perfeitamente suportado por resistores SMD miniatura de encapsulam
 
 ## 3. Projeto do Filtro Passa-Baixas Anti-Aliasing ($RC$)
 
-Para evitar o fenômeno de mascaramento (*aliasing*) na conversão A/D e rejeitar a ondulação de alta frequência originada da modulação PWM de $20\text{ kHz}$ dos motores N20, adiciona-se o capacitor cerâmico multicamada **$C_1$** em paralelo com $R_2$.
+Para evitar o fenômeno de mascaramento (*aliasing*) na conversão A/D e rejeitar a ondulação de alta frequência originada da modulação PWM de $20\text{ kHz}$ dos motores N20, adiciona-se o capacitor cerâmico multicamada **$C_5$** em paralelo com $R_2$.
 
 ### 3.1 Resistência Equivalente de Thevenin
 A impedância de saída vista pelo capacitor no nó de amostragem corresponde ao paralelo de $R_1$ e $R_2$:
@@ -67,9 +67,9 @@ A impedância de saída vista pelo capacitor no nó de amostragem corresponde ao
 $$R_{\text{th}} = R_1 \parallel R_2 = \frac{R_1 \cdot R_2}{R_1 + R_2} = \frac{100\text{ k}\Omega \cdot 33\text{ k}\Omega}{133\text{ k}\Omega} \approx \mathbf{24{,}81\text{ k}\Omega}$$
 
 ### 3.2 Frequência de Corte e Rejeição Harmônica
-Fixando **$C_1 = 100\text{ nF}$** (dielétrico X7R / C0G de alta estabilidade):
+Fixando **$C_5 = 100\text{ nF}$** (dielétrico X7R / C0G de alta estabilidade):
 
-$$f_c = \frac{1}{2\pi \cdot R_{\text{th}} \cdot C_1} = \frac{1}{2\pi \cdot 24.812\ \Omega \cdot 100 \times 10^{-9}\text{ F}} \approx \mathbf{64{,}14\text{ Hz}}$$
+$$f_c = \frac{1}{2\pi \cdot R_{\text{th}} \cdot C_5} = \frac{1}{2\pi \cdot 24.812\ \Omega \cdot 100 \times 10^{-9}\text{ F}} \approx \mathbf{64{,}14\text{ Hz}}$$
 
 A atenuação teórica introduzida na frequência fundamental do chaveamento PWM dos motores ($f_{\text{PWM}} = 20\text{ kHz}$) é calculada por:
 
@@ -131,7 +131,7 @@ Assim que a placa montada e os componentes estiverem disponíveis em bancada, se
 
 ### 6.3 Teste de Rejeição de Ruído Dinâmico
 1. Acionar os motores em regime de corrida (PWM alternando entre 30% e 80%).
-2. Capturar no osciloscópio o ruído pico a pico ($V_{\text{pp}}$) no nó do capacitor $C_1$.
+2. Capturar no osciloscópio o ruído pico a pico ($V_{\text{pp}}$) no nó do capacitor $C_5$.
 3. **Critério de Aceitação:** O ruído de comutação no pino analógico deve ser estritamente inferior a **$15\text{ mV}_{\text{pp}}$** (equivalente a $< 0{,}6\%$ de erro na faixa do ADC).
 
 ---
