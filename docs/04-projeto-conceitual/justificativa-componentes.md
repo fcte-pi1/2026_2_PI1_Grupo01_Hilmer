@@ -1,5 +1,8 @@
 # Justificativa dos Componentes de _Hardware_
 
+!!! warning "Documento da arquitetura v1"
+    Este documento descreve a arquitetura v1 do _hardware_ (setembro de 2026) e não foi atualizado. A arquitetura atual está no [Projeto Conceitual de _Hardware_](hardware.md) (Rev 2.0).
+
 _Documento de apresentação — função, motivo de utilização e pontos de validação técnica._
 
 ## 1. Objetivo
