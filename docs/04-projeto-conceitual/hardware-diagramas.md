@@ -6,7 +6,7 @@ O sistema organiza-se em quatro domínios: **energia**, com bateria, fusível, c
 
 ## 1. Diagrama de blocos
 
-O [diagrama de blocos atualizado](hardware.md#2-diagrama-de-blocos) apresenta os barramentos de alimentação, o I²C em GPIO9/8, os três XSHUT e o acionamento dos motores. A definição Mermaid fica na página principal para manter uma única versão do diagrama.
+O [diagrama de blocos](hardware.md#2-diagrama-de-blocos) apresenta os barramentos de alimentação, o I²C em GPIO9/8, os três XSHUT e o acionamento dos motores. A definição Mermaid fica na página principal para manter uma única versão do diagrama.
 
 ## 2. Esquemático elétrico
 
