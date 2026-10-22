@@ -13,19 +13,19 @@ Esta seção detalha os insumos e matérias-primas selecionados com base em crit
 ### 3.1 Estrutura Principal 
 A estrutura principal será em parte de Polímero PLA\PETG impresso em 3D. 
 ### 3.2 Componentes Externos e Revestimentos 
-Peças acessórias em PLA para suporte dos sensores e suporte do pacote de bateria Li-ion 2S.
+Peças acessórias em PLA para suporte dos sensores e suporte do pacote de bateria LiPo 2S.
 ### 3.3 Elementos de Fixação e União 
-Parafusos métricos M2 e M2.5 de aço inox para fixação da placa principal (MCU ESP32-C3) e do suporte do LiDAR. A equipe conta com a capacidade de criar apoios já impressos na estrutura para facilitar o encaixe e possíveis manutenções. 
+Parafusos métricos M2 e M2.5 de aço inox para fixação da placa principal (MCU ESP32-C3) e dos suportes dos sensores VL53L0X. A equipe conta com a capacidade de criar apoios já impressos na estrutura para facilitar o encaixe e possíveis manutenções. 
 
 ## 4. Partes fundamentais 
 O intuito dessa seção é mapeiar e definir os subconjuntos mecânicos e estruturais que compõem o sistema.
 
 ### 4.1 Chassi 
-Estrutura base de suporte mecânico responsável por alojar a bateria Li-ion 2S, fixar os suportes dos motores, manter os conversores Buck (+5V0 e +3V3) e garantir a estabilidade do robô 
+Estrutura base de suporte mecânico responsável por alojar a bateria LiPo 2S, fixar os suportes dos motores, manter os conversores Buck (+5V0 e +3V3) e garantir a estabilidade do robô 
 ### 4.2 Suportes 
 Suportes laterais para acoplamento rígido dos motores M1 (Esquerdo) e M2 (Direito).
-Torre/Suporte elevado para o sensor LiDAR ST-L50B2.
-Suporte com trava para a bateria Li-ion 2S.
+Suportes para os três sensores VL53L0X (frontal, esquerdo e direito); o CAD desses suportes é uma pendência da equipe de estrutura.
+Suporte com trava para a bateria LiPo 2S.
 ### 4.3 Atuadores 
 Motores e cilindros responsáveis pela execução dos movimentos e trabalho mecânico. 2x Motores DC com caixa de redução (tensão nominal de 6V). 
 ### 4.4 Transmissão 
@@ -39,16 +39,16 @@ Componentes de contato ou propulsão com o meio (solido ou fluido).
 ## 5. Explicação do desenho
 Esta seção traz uma leitura detalhada da geometria apresentada na representação gráfica, explicando o arranjo espacial dos componentes.
 ### 5.1 Vista Geral
-Descrição da disposição tridimensional do projeto e de seu posicionamento operacional.O robô apresenta uma configuração de tração diferencial simétrica. A bateria Li-ion 2S está posicionada na parte inferior central para manter o centro de gravidade o mais baixo possível, garantindo estabilidade nas acelerações. A placa com a MCU ESP32-C3-MINI-1 e o driver DRV8833 fica posicionada em nível intermediário, enquanto o LiDAR ST-L50B2 ocupa o topo da estrutura com campo de visão livre de 360° ou voltado para a frente/laterais.
+Descrição da disposição tridimensional do projeto e de seu posicionamento operacional.O robô apresenta uma configuração de tração diferencial simétrica. A bateria LiPo 2S está posicionada na parte inferior central para manter o centro de gravidade o mais baixo possível, garantindo estabilidade nas acelerações. A placa com a MCU ESP32-C3 Super Mini e o driver DRV8833 fica posicionada em nível intermediário, enquanto os três sensores VL53L0X ficam voltados para a frente e para as laterais, com o campo de medição livre.
 ### 5.2 Fluxo de Montagem 
 -Fixação dos motores M1 e M2 e dos rodízios de apoio na parte inferior do chassi;
 -Encaixe das rodas com acoplamento aos eixos dos encoders;
--Alojamento do pacote de Bateria Li-ion 2S com a BMS e chave de potência;
+-Alojamento do pacote de bateria LiPo 2S (sem BMS) e da chave de potência;
 -Fixação da placa de controle e conexões dos drivers DRV8833 e reguladores Buck;
--Montagem do sensor LiDAR ST-L50B2 no topo e roteamento final da fiação UART e de alimentação.
+-Montagem dos três sensores VL53L0X (frontal, esquerdo e direito) e roteamento final da fiação I²C e de alimentação.
 
 ### 5.3 Pontos de Atenção Visual 
-Passagem da fiação dos encoders e alimentação dos motores, posicionamento da chave de ligar/desligar de fácil acesso externo e alinhamento do sensor LiDAR para evitar bloqueio do feixe óptico. 
+Passagem da fiação dos encoders e alimentação dos motores, posicionamento da chave de ligar/desligar de fácil acesso externo e alinhamento dos sensores VL53L0X para evitar bloqueio do feixe óptico. 
 
 ## 6. Justificativa das principais decisões de projeto
 Esta seção argumenta os motivos técnicos, econômicos ou ergonômicos que fundamentaram as escolhas feitas ao longo da concepção.
