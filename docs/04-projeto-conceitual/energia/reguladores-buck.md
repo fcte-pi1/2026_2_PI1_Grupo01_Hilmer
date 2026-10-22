@@ -11,7 +11,7 @@ O sistema de alimentação do Micromouse opera a partir do barramento primário 
 
 1. **Barramento +6V0 (Atuação Eletromecânica):** Alimentado por regulador **LM2596 (3 A)**, dedicado exclusivamente aos pinos de potência `VM` do driver DRV8833 para acionar os motores GA12-N20 com tensão constante de 6,0 V e capacidade para suportar correntes de partida/travamento (*stall*) de **até ~3,0 A**.
 2. **Barramento +5V0 (Sensoriamento Primário):** Alimentado por regulador **LM2596-ADJ (1 A)**, dedicado à linha de potência do sensor óptico LiDAR ToF 360° (consumo nominal de 150 mA).
-3. **Barramento +3V3 (Controle e Sinais Digitais):** Alimentado por regulador síncrono de alta frequência **MP1584EN (1 A / 1,0 MHz)**, atendendo o microcontrolador ESP32-C3 Super Mini, encoders Hall e polarização lógica do DRV8833.
+3. **Barramento +3V3 (Controle e Sinais Digitais):** Alimentado por regulador síncrono de alta frequência **MP1584EN (1 A / 1,0 MHz)**, atendendo o microcontrolador ESP32-C3 Super Mini, encoders e polarização lógica do DRV8833.
 
 ---
 
@@ -67,7 +67,7 @@ $$L_{\text{mín}} = \frac{(V_{\text{in,max}} - V_{\text{out}}) \cdot D_{\text{mi
 > [!IMPORTANT]
 > **Diretriz de Segurança no Firmware:**  
 > A corrente de travamento de ~3 A é admitida apenas em regime **transitório** (50 ms a 200 ms).  
-> Se o microcontrolador comandar acionamento PWM para os motores mas os encoders Hall registrarem zero pulsos por mais de **500 ms**, o firmware zera automaticamente os sinais PWM, desarmando o consumo de potência e protegendo o conversor LM2596 e as escovas dos motores N20.
+> Se o microcontrolador comandar acionamento PWM para os motores mas os encoders registrarem zero pulsos por mais de **500 ms**, o firmware zera automaticamente os sinais PWM, desarmando o consumo de potência e protegendo o conversor LM2596 e as escovas dos motores N20.
 
 ---
 
@@ -160,7 +160,7 @@ flowchart TD
     BUCK_5V -->|"Linha +5V0 (150 mA)"| LIDAR["Sensor LiDAR ToF 360°"]
 
     BUCK_3V3 -->|"Linha +3V3 (123 mA)"| MCU["ESP32-C3 Super Mini"]
-    BUCK_3V3 --> ENCODERS["Encoders de Efeito Hall (x2)"]
+    BUCK_3V3 --> ENCODERS["Encoders (x2)"]
     BUCK_3V3 --> DRV_LOGIC["VCC Lógico DRV8833"]
 
     MCU -->|"Sinais PWM (0% a 100%)"| DRV_LOGIC
