@@ -46,7 +46,7 @@ $$V_{\text{pack}}(t) = 2 \cdot V_{\text{cel}}(Q_{\text{d}}(t))$$
 
 ## 3. Simulação Teórica Computacional
 
-O script de engenharia em Python [`scripts/curva_descarga_lipo.py`](file:///home/efaria/UnB/PI1/scripts/curva_descarga_lipo.py) simula o comportamento da bateria sob dois regimes operacionais:
+O script de engenharia em Python [`scripts/curva_descarga_lipo.py`](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/scripts/curva_descarga_lipo.py) simula o comportamento da bateria sob dois regimes operacionais:
 1. **Regime Nominal de Corrida ($476\text{ mA}$):** Robô em exploração contínua com motores N20 acionados, LiDAR ToF girando a 5 V e rádio/MCU a 3,3 V.
 2. **Regime de Baixo Consumo / Standby ($150\text{ mA}$):** Robô estático aguardando partida ou processando telemetria.
 
@@ -78,7 +78,7 @@ A correspondência exata entre o Estado de Carga (*State of Charge* — SoC), a 
 
 ## 5. Integração com a Camada de Firmware
 
-A curva matemática e a tabela de calibração foram exportadas para a biblioteca C++ do microcontrolador em [`src/firmware/lib/simulacao/TabelaDescargaLiPo.h`](file:///home/efaria/UnB/PI1/src/firmware/lib/simulacao/TabelaDescargaLiPo.h). Essa interface provê:
+A curva matemática e a tabela de calibração foram exportadas para a biblioteca C++ do microcontrolador em [`src/firmware/lib/simulacao/TabelaDescargaLiPo.h`](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/src/firmware/lib/simulacao/TabelaDescargaLiPo.h). Essa interface provê:
 
 ```cpp
 // Consulta de tensão teórica por tempo de corrida
