@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Roteiro de Testes de Bancada e Validação de Energia - Micromouse PI1</title>
+<style>
+  @page {
+    size: A4;
+    margin: 18mm 15mm 18mm 15mm;
+  }
+  body {
+    font-family: 'Liberation Sans', 'DejaVu Sans', Arial, sans-serif;
+    color: #1e293b;
+    line-height: 1.45;
+    font-size: 10pt;
+    margin: 0;
+    padding: 0;
+  }
+  .header {
+    border-bottom: 2px solid #2563eb;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .header h1 {
+    font-size: 16pt;
+    color: #0f172a;
+    margin: 0 0 4px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .header .subtitle {
+    font-size: 10pt;
+    color: #475569;
+    font-weight: 500;
+  }
+  .header .meta {
+    text-align: right;
+    font-size: 8.5pt;
+    color: #64748b;
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 7px;
+    font-size: 7.5pt;
+    font-weight: bold;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .badge-crit { background: #fee2e2; color: #b91c1c; border: 1px solid #f87171; }
+  .badge-warn { background: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
+  .badge-info { background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; }
+  .badge-ok   { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+
+  .notice-box {
+    background: #f8fafc;
+    border-left: 4px solid #2563eb;
+    padding: 8px 12px;
+    margin-bottom: 14px;
+    font-size: 9pt;
+    color: #334155;
+    border-radius: 0 4px 4px 0;
+  }
+  .warning-box {
+    background: #fffbeb;
+    border-left: 4px solid #f59e0b;
+    padding: 8px 12px;
+    margin-bottom: 14px;
+    font-size: 9pt;
+    color: #92400e;
+    border-radius: 0 4px 4px 0;
+  }
+
+  h2 {
+    font-size: 12pt;
+    color: #0f172a;
+    border-bottom: 1px solid #cbd5e1;
+    padding-bottom: 3px;
+    margin-top: 16px;
+    margin-bottom: 8px;
+  }
+  h3 {
+    font-size: 10.5pt;
+    color: #1e3a8a;
+    margin-top: 12px;
+    margin-bottom: 4px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 14px 0;
+    font-size: 8.5pt;
+  }
+  th, td {
+    border: 1px solid #cbd5e1;
+    padding: 5px 8px;
+    text-align: left;
+  }
+  th {
+    background-color: #f1f5f9;
+    color: #0f172a;
+    font-weight: 600;
+  }
+  tr:nth-child(even) td {
+    background-color: #f8fafc;
+  }
+
+  .step-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 5px;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    background: #ffffff;
+    page-break-inside: avoid;
+  }
+  .step-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 9.5pt;
+    color: #1e293b;
+    margin-bottom: 5px;
+    border-bottom: 1px dashed #e2e8f0;
+    padding-bottom: 3px;
+  }
+  .step-body {
+    font-size: 8.5pt;
+    color: #334155;
+  }
+  ul, ol {
+    margin: 4px 0 6px 18px;
+    padding: 0;
+  }
+  li {
+    margin-bottom: 3px;
+  }
+  .check-item {
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    border: 1.5px solid #64748b;
+    border-radius: 2px;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .expected {
+    background: #f0fdf4;
+    border-left: 3px solid #22c55e;
+    padding: 4px 8px;
+    margin-top: 5px;
+    font-size: 8pt;
+    color: #166534;
+  }
+  .page-break {
+    page-break-before: always;
+  }
+  .footer {
+    text-align: center;
+    font-size: 8pt;
+    color: #94a3b8;
+    margin-top: 15px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 6px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Roteiro de Testes — Energia & Hardware</h1>
+    <div class="subtitle">Micromouse PI1 • Validação Sequencial de Bancada (Rev 2.0)</div>
+  </div>
+  <div class="meta">
+    Projeto Integrador 1 — UnB FGA<br>
+    Substituição: 3x Sensores ToF Proximidade<br>
+    Data de Homologação: Outubro/2026
+  </div>
+</div>
+
+<div class="warning-box">
+  <strong>REGRA DE OURO DE SEGURANÇA:</strong> NUNCA conecte a ESP32-C3, os sensores VL53L0X, a IMU MPU6050 ou o driver DRV8833 antes de ajustar e medir com multímetro cada uma das saídas dos conversores Step-Down (3,3V, 5,0V e 6,0V). A tensão bruta da bateria (8,4V) destrói instantaneamente esses componentes caso aplicada de forma incorreta.
+</div>
+
+<h2>1. Equipamentos e Instrumentação Necessários</h2>
+<table>
+  <tr>
+    <th style="width:25%">Instrumento / Ferramenta</th>
+    <th style="width:40%">Função / Finalidade</th>
+    <th style="width:35%">Configuração Recomendada</th>
+  </tr>
+  <tr>
+    <td><strong>Multímetro Digital</strong></td>
+    <td>Medição de tensão DC, continuidade/curto e consumo de corrente (mA/A).</td>
+    <td>Escala 20V DC, continuidade sonora e escala 10A DC.</td>
+  </tr>
+  <tr>
+    <td><strong>Fonte DC Ajustável (Bancada)</strong></td>
+    <td>Alimentação controlada preliminar simulando a bateria LiPo 2S (7,4V - 8,4V).</td>
+    <td>Tensão ajustável 6,0V a 8,4V com limite de corrente em 1,5A.</td>
+  </tr>
+  <tr>
+    <td><strong>Cargas Resistivas / Reostato</strong></td>
+    <td>Testar os conversores sob carga real antes de plugar as placas sensíveis.</td>
+    <td>Resistores de potência: 33Ω 2W (3,3V), 10Ω 5W (5V), 20Ω 5W (6V).</td>
+  </tr>
+  <tr>
+    <td><strong>Chave Philips / Fenda de Ajuste</strong></td>
+    <td>Ajuste fino do trimpot multivoltas dos módulos reguladores MP1584EN.</td>
+    <td>Chave cerâmica ou de precisão isolada para ajuste fino.</td>
+  </tr>
+  <tr>
+    <td><strong>Cabo USB-C com Linhas de Dados</strong></td>
+    <td>Alimentação e gravação de firmware no ESP32-C3 Super Mini.</td>
+    <td>Certificar que transmite dados (não apenas cabo de carga).</td>
+  </tr>
+</table>
+
+<h2>2. Matriz Rápida de Componentes e Linhas de Alimentação</h2>
+<table>
+  <tr>
+    <th>Componente</th>
+    <th>Tensão de Entrada</th>
+    <th>Fonte de Origem</th>
+    <th>Consumo Nominal</th>
+    <th>Pino Crítico / Observação</th>
+  </tr>
+  <tr>
+    <td><strong>Bateria LiPo 2S</strong></td>
+    <td>7,4V nom. (8,4V máx.)</td>
+    <td>Química LiPo / Li-ion</td>
+    <td>Capacidade 650 mAh</td>
+    <td>Conector XT-30; corte de segurança em 6,6V (3,3V/célula).</td>
+  </tr>
+  <tr>
+    <td><strong>Fusível PPTC MF-R185</strong></td>
+    <td>VBAT (em série no V+)</td>
+    <td>Linha positiva da bateria</td>
+    <td>I_hold = 1,85A</td>
+    <td>I_trip = 3,7A. Desarma termicamente em sobrecorrente.</td>
+  </tr>
+  <tr>
+    <td><strong>Chave Geral SW1</strong></td>
+    <td>VBAT (em série após PPTC)</td>
+    <td>Linha protegida pelo fusível</td>
+    <td>Até 3A DC</td>
+    <td>Secciona 100% da energia do robô no estado OFF.</td>
+  </tr>
+  <tr>
+    <td><strong>Conversor Buck U5 (MP1584EN)</strong></td>
+    <td>VBAT (7,4V – 8,4V)</td>
+    <td>Barramento VBAT pós-chave</td>
+    <td>Saída: 3,3V / até 1A</td>
+    <td>Alimenta barramento lógico: 3x VL53L0X, MPU6050 e encoders.</td>
+  </tr>
+  <tr>
+    <td><strong>Conversor Buck U2 (MP1584EN)</strong></td>
+    <td>VBAT (7,4V – 8,4V)</td>
+    <td>Barramento VBAT pós-chave</td>
+    <td>Saída: 5,0V / até 1A</td>
+    <td>Conectado ao pino 5V (VIN) da ESP32-C3 Super Mini.</td>
+  </tr>
+  <tr>
+    <td><strong>Conversor Buck U4 (MP1584EN)</strong></td>
+    <td>VBAT (7,4V – 8,4V)</td>
+    <td>Barramento VBAT pós-chave</td>
+    <td>Saída: 6,0V / até 3A</td>
+    <td>Alimenta VM (potência) do DRV8833. Mantém torque estável.</td>
+  </tr>
+  <tr>
+    <td><strong>ESP32-C3 Super Mini</strong></td>
+    <td>5,0 V no pino 5V (VIN)</td>
+    <td>Saída do Buck U2 (5V)</td>
+    <td>~110 mA (picos 250mA)</td>
+    <td>Gera 3,3V interno para o chip. USB D-/D+ nos GPIO18/19 livres.</td>
+  </tr>
+  <tr>
+    <td><strong>3x Sensores VL53L0X</strong></td>
+    <td>3,3 V nos pinos VIN/VCC</td>
+    <td>Saída do Buck U5 (3,3V)</td>
+    <td>~20 mA cada (~60 mA tot)</td>
+    <td>SCL=GPIO8, SDA=GPIO9; XSHUT em GPIO0 (Esq), GPIO1 (Fr), GPIO2 (Dir).</td>
+  </tr>
+  <tr>
+    <td><strong>IMU MPU6050 (GY-521)</strong></td>
+    <td>3,3 V no pino VCC</td>
+    <td>Saída do Buck U5 (3,3V)</td>
+    <td>~4 mA</td>
+    <td>SCL=GPIO8, SDA=GPIO9; AD0 aterrado no GND (Endereço 0x68).</td>
+  </tr>
+  <tr>
+    <td><strong>Driver DRV8833</strong></td>
+    <td>VM = 6,0V | VCC/Lógica = 3,3V</td>
+    <td>Buck U4 (6V) e Pull-up 3,3V</td>
+    <td>Quiescente 3 mA / Picos 3A</td>
+    <td>Pino nSLEEP com pull-up de 47kΩ ao VCC; IN1..IN4 nos GPIO10,3,20,21.</td>
+  </tr>
+  <tr>
+    <td><strong>2x Motores N20 + Encoders</strong></td>
+    <td>Motores: 6V via DRV8833<br>Encoders: 3,3V via Buck U5</td>
+    <td>Saídas OUT1..OUT4 do driver<br>Encoders via linha 3,3V</td>
+    <td>Motores: 150mA nom / 1,5A stall<br>Encoders: 5mA cada</td>
+    <td>Encoders Canal A/B nos GPIO4/5 (Esq) e GPIO6/7 (Dir). Alimentar a 3,3V!</td>
+  </tr>
+  <tr>
+    <td><strong>Divisor de Tensão da Bateria</strong></td>
+    <td>VBAT (7,4V – 8,4V)</td>
+    <td>Ponto após SW1</td>
+    <td>Corrente desprezível (<0,1mA)</td>
+    <td>R1=100kΩ, R2=39kΩ, C5=100nF. Tensão máxima atenuada: 2,355V.</td>
+  </tr>
+</table>
+
+<div class="page-break"></div>
+
+<h2>3. Roteiro Passo a Passo de Testes Individuais</h2>
+
+<!-- TESTE 1 -->
+<div class="step-card">
+  <div class="step-header">
+    <span>TESTE 1: Inspeção Prévia de Continuidade e Não-Curto (Circuito Desenergizado)</span>
+    <span class="badge badge-crit">Fase Crítica 1</span>
+  </div>
+  <div class="step-body">
+    <strong>Objetivo:</strong> Assegurar que não existam curtos-circuitos entre as linhas de alimentação e o plano de terra unificado (GND).
+    <ol>
+      <li><span class="check-item"></span> Coloque o multímetro no modo de teste de continuidade sonora / medição de resistência.</li>
+      <li><span class="check-item"></span> Meça a resistência entre o terminal positivo do conector da bateria (VBAT) e o GND.</li>
+      <li><span class="check-item"></span> Meça a resistência entre cada uma das saídas reguladas (trilho 3,3V, trilho 5V, trilho 6V) e o GND.</li>
+      <li><span class="check-item"></span> Meça a continuidade da chave geral SW1 nas posições LIGADA e DESLIGADA.</li>
+    </ol>
+    <div class="expected">
+      <strong>Critério de Aceitação:</strong> Resistência aberta (>100 kΩ ou sinal sonoro ausente) entre VBAT/saídas e GND. Na chave SW1, resistência <0,5Ω na posição ON e resistência infinita (aberto) na posição OFF.
+    </div>
+  </div>
+</div>
+
+<!-- TESTE 2 -->
+<div class="step-card">
+  <div class="step-header">
+    <span>TESTE 2: Bateria LiPo 2S, Conector XT-30 e Fusível PPTC</span>
+    <span class="badge badge-info">Fase 2</span>
+  </div>
+  <div class="step-body">
+    <strong>Objetivo:</strong> Validar o estado de carga, o balanceamento de células e a proteção de entrada.
+    <ol>
+      <li><span class="check-item"></span> Meça com o multímetro a tensão total nos terminais do conector de potência XT-30 da bateria.</li>
+      <li><span class="check-item"></span> Conecte o multímetro no conector de balanceamento (JST-XHR-3P): meça Célula 1 (fios Preto e Azul) e Célula 2 (fios Azul e Vermelho).</li>
+      <li><span class="check-item"></span> Conecte a bateria com a chave SW1 aberta (OFF). Meça a tensão antes e depois do fusível PPTC (MF-R185).</li>
+      <li><span class="check-item"></span> Ligue a chave SW1 (sem cargas conectadas nos reguladores) e meça a tensão no barramento de entrada dos módulos MP1584EN.</li>
+    </ol>
+    <div class="expected">
+      <strong>Critério de Aceitação:</strong> Tensão total entre 7,4V e 8,4V. Diferença entre Célula 1 e Célula 2 menor que 0,05V (50 mV). Queda de tensão sobre o PPTC a vazio menor que 5 mV. Barramento VBAT pós-chave idêntico à tensão da bateria.
+    </div>
+  </div>
+</div>
+
+<!-- TESTE 3 -->
+<div class="step-card">
+  <div class="step-header">
+    <span>TESTE 3: Calibração e Regulação dos 3 Conversores Step-Down MP1584EN (A Vazio)</span>
+    <span class="badge badge-crit">Fase Crítica 3</span>
+  </div>
+  <div class="step-body">
+    <strong>Atenção:</strong> NÃO conecte o ESP32, nem os sensores, nem o driver de motores nesta etapa!
+    <ol>
+      <li><span class="check-item"></span> <strong>Regulador U5 (Sensores e Lógica):</strong> Ajuste o trimpot com chave de precisão até a saída marcar exatamente <strong>3,30 V ± 0,05 V</strong>.</li>
+      <li><span class="check-item"></span> <strong>Regulador U2 (ESP32-C3):</strong> Ajuste o trimpot até a saída marcar exatamente <strong>5,00 V ± 0,05 V</strong>.</li>
+      <li><span class="check-item"></span> <strong>Regulador U4 (Motores / DRV8833):</strong> Ajuste o trimpot até a saída marcar exatamente <strong>6,00 V ± 0,10 V</strong>.</li>
+      <li><span class="check-item"></span> Desligue a chave SW1, aguarde 5 segundos, religue e confirme se as três tensões retornam rigorosamente aos valores calibrados.</li>
+    </ol>
+    <div class="expected">
+      <strong>Critério de Aceitação:</strong> U5 = 3,30 V | U2 = 5,00 V | U4 = 6,00 V estáveis, sem oscilação térmica ou histerese após religar.
+    </div>
+  </div>
+</div>
+
+<!-- TESTE 4 -->
+<div class="step-card">
+  <div class="step-header">
+    <span>TESTE 4: Ensaio com Carga Resistiva Fictícia nos Conversores (Estabilidade Térmica)</span>
+    <span class="badge badge-warn">Fase 4</span>
+  </div>
+  <div class="step-body">
+    <strong>Objetivo:</strong> Testar se os reguladores mantêm a tensão sob demanda de corrente e se não aquecem excessivamente.
+    <ol>
+      <li><span class="check-item"></span> Conecte um resistor de 33 Ω (2W) na saída de 3,3V (~100 mA). Meça a tensão: deve permanecer em 3,3V.</li>
+      <li><span class="check-item"></span> Conecte um resistor de 10 Ω (5W) na saída de 5,0V (~500 mA). Meça a tensão: deve permanecer em 5,0V.</li>
+      <li><span class="check-item"></span> Conecte um resistor de 12 Ω (10W) na saída de 6,0V (~500 mA). Meça a tensão: deve permanecer em 6,0V.</li>
+      <li><span class="check-item"></span> Mantenha a carga durante 2 minutos e toque o encapsulamento do CI MP1584EN: o aquecimento deve ser moderado (< 45°C).</li>
+    </ol>
+    <div class="expected">
+      <strong>Critério de Aceitação:</strong> Queda de tensão sob carga menor que 3% (3,3V > 3,22V; 5,0V > 4,88V; 6,0V > 5,85V). Sem zumbido audível ou aquecimento anormal.
+    </div>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- TESTE 5 -->
+<div class="step-card">
+  <div class="step-header">
+    <span>TESTE 5: Divisor Resistivo de Monitoramento da Tensão da Bateria (ADC)</span>
+    <span class="badge badge-info">Fase 5</span>
+  </div>
+  <div class="step-body">
+    <strong>Objetivo:</strong> Validar o fator de atenuação para leitura segura da bateria pelo conversor analógico-digital da ESP32.
+    <ol>
+      <li><span class="check-item"></span> Com o circuito energizado em VBAT = 8,40 V, meça a tensão sobre o resistor R2 (39 kΩ) / capacitor C5 (100 nF).</li>
+      <li><span class="check-item"></span> Calcule o fator experimental: \(V_{	ext{ADC}} = 8{,}40 	imes rac{39}{100 + 39} pprox 2{,}355	ext{ V}\) (ou \(pprox 2{,}084	ext{ V}\) com R2=33kΩ).</li>
+      <li><span class="check-item"></span> Reduza a fonte de bancada para o limiar de bateria descarregada (6,60 V) e meça a saída do divisor.</li>
+    </ol>
+    <div class="expected">
+      <strong>Critério de Aceitação:</strong> Tensão máxima no ponto ADC ≤ 2,40 V (100% seguro para a entrada da ESP32 com atenuação de 11dB, cuja faixa vai até 2,6V–3,1V). Tensão em 6,60V = ~1,85V (R2=39kΩ) ou ~1,64V (R2=33kΩ).
+    </div>
+  </div>
+</div>
+
+<!-- TESTE 6 -->
+<div class="step-card">
+  <div class="step-header">
+    <span>TESTE 6: Energização e Consumo da Placa ESP32-C3 Super Mini</span>
+    <span class="badge badge-info">Fase 6</span>
+  </div>
+  <div class="step-body">
+    <strong>Objetivo:</strong> Validar a integração da unidade central de processamento.
+    <ol>
+      <li><span class="check-item"></span> Desligue a chave SW1. Conecte a saída de 5,0V do Buck U2 ao pino <strong>5V (VIN)</strong> da placa ESP32-C3 e o GND ao pino <strong>GND</strong>.</li>
+      <li><span class="check-item"></span> Ligue a chave SW1. Observe o LED de power da plaquinha acender.</li>
+      <li><span class="check-item"></span> Meça a tensão no pino <strong>3V3</strong> da ESP32-C3 (saída do LDO integrado da placa): deve registrar 3,30 V estável.</li>
+      <li><span class="check-item"></span> Conecte o cabo USB-C ao computador e faça upload de um sketch simples (ex: Pisca-LED / Serial Hello World).</li>
+    </ol>
+    <div class="expected">
+      <strong>Critério de Aceitação:</strong> Tensão no pino 3V3 do ESP32 entre 3,25V e 3,35V. Corrente consumida em repouso entre 25 mA e 45 mA. Upload do código via USB sem falhas.
+    </div>
+  </div>
+</div>
+
+<!-- TESTE 7 -->
+<div class="step-card">
+  <div class="step-header">
+    <span>TESTE 7: Barramento I2C, IMU MPU6050 e os 3 Sensores VL53L0X (Proximidade)</span>
+    <span class="badge badge-warn">Fase 7</span>
+  </div>
+  <div class="step-body">
+    <strong>Objetivo:</strong> Testar o endereçamento dinâmico via pinos XSHUT e a alimentação limpa de 3,3V nos sensores.
+    <ol>
+      <li><span class="check-item"></span> Com a alimentação desligada, conecte o VCC dos 3 VL53L0X e do MPU6050 na linha 3,3V do Buck U5, e compartilhe as linhas SCL (GPIO8) e SDA (GPIO9).</li>
+      <li><span class="check-item"></span> Conecte os pinos XSHUT: Esquerdo no GPIO0, Frontal no GPIO1, Direito no GPIO2. Conecte o pino AD0 do MPU6050 ao GND.</li>
+      <li><span class="check-item"></span> Carregue o firmware de <em>I2C Scanner com controle sequencial de XSHUT</em> (mantém os 3 em LOW, sobe GPIO0 e muda para 0x30, sobe GPIO1 e muda para 0x31, sobe GPIO2 e muda para 0x32).</li>
+      <li><span class="check-item"></span> Abra o Monitor Serial e verifique a detecção dos 4 dispositivos: <strong>0x68 (MPU6050)</strong>, <strong>0x30 (VL53L0X Esq)</strong>, <strong>0x31 (VL53L0X Frontal)</strong> e <strong>0x32 (VL53L0X Dir)</strong>.</li>
+      <li><span class="check-item"></span> Aproxime um obstáculo a 50 mm, 100 mm e 150 mm de cada sensor e confirme a variação correspondente da leitura em milímetros.</li>
+    </ol>
+    <div class="expected">
+      <strong>Critério de Aceitação:</strong> Barramento sem travamentos (ACK presente nos 4 endereços). Leituras dos sensores com precisão milimétrica e desvio < ±5 mm na faixa de 30 a 200 mm.
+    </div>
+  </div>
+</div>
+
+<!-- TESTE 8 -->
+<div class="step-card">
+  <div class="step-header">
+    <span>TESTE 8: Encoders de Quadratura dos Motores N20</span>
+    <span class="badge badge-info">Fase 8</span>
+  </div>
+  <div class="step-body">
+    <strong>Atenção:</strong> Os encoders DEVEM ser alimentados pela linha de 3,3V para fornecer sinais lógicos seguros (3,3V) aos GPIOs do ESP32-C3!
+    <ol>
+      <li><span class="check-item"></span> Conecte o VCC dos dois encoders na linha 3,3V do Buck U5 e GND no GND comum.</li>
+      <li><span class="check-item"></span> Conecte Canal A e B do Motor Esquerdo nos GPIO4 e GPIO5. Conecte Canal A e B do Motor Direito nos GPIO6 e GPIO7.</li>
+      <li><span class="check-item"></span> Gire manualmente as rodas para frente e para trás e observe a contagem incremental/decremental de pulsos no monitor serial.</li>
+    </ol>
+    <div class="expected">
+      <strong>Critério de Aceitação:</strong> Resposta de quadratura limpa sem perda de pulsos; contagem positiva ao girar para frente e negativa para trás. Nível de sinal medido com osciloscópio ou multímetro não ultrapassa 3,3 V.
+    </div>
+  </div>
+</div>
+
+<!-- TESTE 9 -->
+<div class="step-card">
+  <div class="step-header">
+    <span>TESTE 9: Driver DRV8833 e Acionamento de Potência dos Motores (Rodas Suspensas)</span>
+    <span class="badge badge-crit">Fase Crítica 9</span>
+  </div>
+  <div class="step-body">
+    <strong>Atenção:</strong> Execute este teste obrigatoriamente com o robô apoiado em um suporte com as rodas livres (fora do chão)!
+    <ol>
+      <li><span class="check-item"></span> Conecte o VM do DRV8833 na linha 6,0V do Buck U4. Certifique-se de que o capacitor de 470µF ou 100µF está posicionado bem próximo ao pino VM/GND do driver.</li>
+      <li><span class="check-item"></span> Verifique se o resistor de 47 kΩ está interligando o pino nSLEEP / EEP ao barramento positivo (ou acionado via nível alto) para habilitar as pontes H.</li>
+      <li><span class="check-item"></span> Conecte os sinais de comando: IN1=GPIO10, IN2=GPIO3 (Motor Esq) e IN3=GPIO20, IN4=GPIO21 (Motor Dir).</li>
+      <li><span class="check-item"></span> Envie sinais PWM progressivos (25%, 50%, 75% e 100%) e monitore com o multímetro a linha de 5,0V e 3,3V do ESP32.</li>
+    </ol>
+    <div class="expected">
+      <strong>Critério de Aceitação:</strong> Ambos os motores giram suavemente nos dois sentidos de acordo com o sinal PWM. Corrente a vazio dos motores em 6V entre 80 mA e 150 mA por motor. A tensão na linha 5V e 3,3V não deve apresentar queda (*sag*) perceptível (variação < 50 mV), prevenindo qualquer reset indesejado da ESP32-C3.
+    </div>
+  </div>
+</div>
+
+<!-- TESTE 10 -->
+<div class="step-card">
+  <div class="step-header">
+    <span>TESTE 10: Ensaio de Autonomia e Corte Preventivo por Subtensão (UVLO)</span>
+    <span class="badge badge-info">Fase 10</span>
+  </div>
+  <div class="step-body">
+    <strong>Objetivo:</strong> Comprovar a proteção ativa da bateria contra descarga profunda durante a missão.
+    <ol>
+      <li><span class="check-item"></span> Conecte a fonte de bancada ajustada inicialmente em 8,40 V simulando a bateria em carga máxima com o sistema operando.</li>
+      <li><span class="check-item"></span> Diminua gradualmente a tensão para 7,40 V (tensão nominal) e observe a estabilidade de todos os sensores e rotação dos motores.</li>
+      <li><span class="check-item"></span> Reduza a tensão até atingir <strong>6,60 V (3,30 V por célula)</strong>.</li>
+      <li><span class="check-item"></span> Verifique se o firmware detecta a tensão pelo pino ADC e executa imediatamente o corte dos sinais PWM (motores param) e emite alerta de bateria baixa.</li>
+    </ol>
+    <div class="expected">
+      <strong>Critério de Aceitação:</strong> Atuação segura do UVLO em 6,60 V antes que a bateria atinja o limite físico perigoso de 6,40 V / 6,00 V. Preservação integral da vida útil química do pack LiPo.
+    </div>
+  </div>
+</div>
+
+<h2>4. Folha de Registro e Visto de Bancada (Checklist de Homologação)</h2>
+<table>
+  <tr>
+    <th>Ensaio / Bloco</th>
+    <th>Valor Medido</th>
+    <th>Status (OK / NOK)</th>
+    <th>Data</th>
+    <th>Assinatura do Responsável</th>
+  </tr>
+  <tr>
+    <td>1. Continuidade e Ausência de Curto</td>
+    <td>R = __________ Ω</td>
+    <td>[ &nbsp; ] Aprovado</td>
+    <td>___/___/2026</td>
+    <td>_______________________________</td>
+  </tr>
+  <tr>
+    <td>2. Bateria LiPo 2S & Fusível PPTC</td>
+    <td>VBAT = ______ V | ΔV = ____ mV</td>
+    <td>[ &nbsp; ] Aprovado</td>
+    <td>___/___/2026</td>
+    <td>_______________________________</td>
+  </tr>
+  <tr>
+    <td>3. Buck U5 (Linha 3,3 V Sensores)</td>
+    <td>V_out = ______ V</td>
+    <td>[ &nbsp; ] Aprovado</td>
+    <td>___/___/2026</td>
+    <td>_______________________________</td>
+  </tr>
+  <tr>
+    <td>4. Buck U2 (Linha 5,0 V ESP32-C3)</td>
+    <td>V_out = ______ V</td>
+    <td>[ &nbsp; ] Aprovado</td>
+    <td>___/___/2026</td>
+    <td>_______________________________</td>
+  </tr>
+  <tr>
+    <td>5. Buck U4 (Linha 6,0 V Motores)</td>
+    <td>V_out = ______ V</td>
+    <td>[ &nbsp; ] Aprovado</td>
+    <td>___/___/2026</td>
+    <td>_______________________________</td>
+  </tr>
+  <tr>
+    <td>6. Divisor de Tensão ADC</td>
+    <td>V_adc = ______ V</td>
+    <td>[ &nbsp; ] Aprovado</td>
+    <td>___/___/2026</td>
+    <td>_______________________________</td>
+  </tr>
+  <tr>
+    <td>7. Placa ESP32-C3 Super Mini (VIN 5V)</td>
+    <td>I_rep = ______ mA</td>
+    <td>[ &nbsp; ] Aprovado</td>
+    <td>___/___/2026</td>
+    <td>_______________________________</td>
+  </tr>
+  <tr>
+    <td>8. Barramento I2C (MPU6050 + 3x VL53L0X)</td>
+    <td>End: 0x68, 0x30, 0x31, 0x32</td>
+    <td>[ &nbsp; ] Aprovado</td>
+    <td>___/___/2026</td>
+    <td>_______________________________</td>
+  </tr>
+  <tr>
+    <td>9. Encoders Motores (Linha 3,3 V)</td>
+    <td>Pulsos/rot: ______</td>
+    <td>[ &nbsp; ] Aprovado</td>
+    <td>___/___/2026</td>
+    <td>_______________________________</td>
+  </tr>
+  <tr>
+    <td>10. Driver DRV8833 & Motores (6,0 V)</td>
+    <td>I_motores = ______ mA</td>
+    <td>[ &nbsp; ] Aprovado</td>
+    <td>___/___/2026</td>
+    <td>_______________________________</td>
+  </tr>
+  <tr>
+    <td>11. Corte de Subtensão UVLO (6,60 V)</td>
+    <td>V_corte = ______ V</td>
+    <td>[ &nbsp; ] Aprovado</td>
+    <td>___/___/2026</td>
+    <td>_______________________________</td>
+  </tr>
+</table>
+
+<div class="footer">
+  Projeto Integrador 1 — Grupo 01 • Engenharia Automotiva / Eletrônica / Aeroespacial / Software • UnB FGA
+</div>
+
+</body>
+</html>
