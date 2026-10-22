@@ -144,6 +144,9 @@ Definida em `lib/nucleo/src/Pinos.h`, conforme os [diagramas de hardware](hardwa
 
 ## Acesso ao LiDAR: `ILidar` e `LidarSimulado`
 
+!!! note "Sensor em migração"
+    Na Rev 2.0 do _hardware_, o LiDAR foi substituído por três sensores VL53L0X (I²C) e entrou a IMU MPU6050. O código descrito nesta seção ainda usa o LiDAR e está em migração.
+
 ```mermaid
 classDiagram
     class ILidar {
@@ -400,6 +403,9 @@ Criadas em `src/main.cpp`. Navegação e telemetria rodam de forma concorrente, 
 A navegação tem prioridade maior para que o envio de dados nunca atrase o controle do robô. Por enquanto, as duas tarefas têm só o laço e a espera; a lógica entra nas tarefas das próximas sprints.
 
 ## Atuação: centralização no corredor e parada frontal
+
+!!! note "Sensor em migração"
+    O controle descrito nesta seção ainda lê as distâncias pelo LiDAR (`ILidar`). Na Rev 2.0 do _hardware_, o LiDAR foi substituído por três sensores VL53L0X (I²C), e o código está em migração.
 
 O módulo de atuação (`lib/atuacao`) leva o robô em linha reta mantendo-o no centro do corredor e o faz desacelerar e parar antes de uma parede frontal ([#191](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/191), PR [#359](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/359)). Atende aos critérios 1 e 2 da [HU-12](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/182) (RF-12). Como não depende do Arduino, é testado no ambiente `native`; só o driver do DRV8833 fica em `drivers_esp32`.
 
