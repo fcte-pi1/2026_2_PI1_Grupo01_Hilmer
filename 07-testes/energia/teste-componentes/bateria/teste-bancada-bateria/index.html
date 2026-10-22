@@ -1,0 +1,1828 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentação do projeto de Projeto Integrador 1 (PI1) — Grupo 01, professor Hilmer.">
+      
+      
+        <meta name="author" content="Grupo 01 - Hilmer">
+      
+      
+        <link rel="canonical" href="https://fcte-pi1.github.io/2026_2_PI1_Grupo01_Hilmer/07-testes/energia/teste-componentes/bateria/teste-bancada-bateria/">
+      
+      
+        <link rel="prev" href="../../../">
+      
+      
+        <link rel="next" href="../../../../hardware/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>7.2.1 Ensaio de Bancada de Baterias - PI1 · Grupo 01 (Hilmer) — 2026/2</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ensaio-de-bancada-e-inspecao-inicial-de-bateria-lipo-2s" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../../../../.." title="PI1 · Grupo 01 (Hilmer) — 2026/2" class="md-header__button md-logo" aria-label="PI1 · Grupo 01 (Hilmer) — 2026/2" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PI1 · Grupo 01 (Hilmer) — 2026/2
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              7.2.1 Ensaio de Bancada de Baterias
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para o modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para o modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para o modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para o modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fcte-pi1/2026_2_PI1_Grupo01_Hilmer
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../../.." title="PI1 · Grupo 01 (Hilmer) — 2026/2" class="md-nav__button md-logo" aria-label="PI1 · Grupo 01 (Hilmer) — 2026/2" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PI1 · Grupo 01 (Hilmer) — 2026/2
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fcte-pi1/2026_2_PI1_Grupo01_Hilmer
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../01-tap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1. TAP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../02-requisitos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2. Requisitos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../03-eap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3. EAP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../../04-projeto-conceitual/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4. Projeto conceitual
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    4. Projeto conceitual
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../04-projeto-conceitual/estruturas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 Estruturas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../04-projeto-conceitual/energia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Energia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../04-projeto-conceitual/energia/protecoes-entrada/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.1 Proteções de entrada
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../04-projeto-conceitual/energia/reguladores-buck/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.2 Reguladores Step-Down (Buck)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../04-projeto-conceitual/energia/curva-descarga-lipo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.3 Curva de Descarga e SoC LiPo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../04-projeto-conceitual/energia/monitoramento-tensao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.4 Monitoramento de Tensão (ADC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../04-projeto-conceitual/energia/ensaios-protecoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.5 Ensaios de subtensão e PPTC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../04-projeto-conceitual/hardware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 Hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../04-projeto-conceitual/hardware-diagramas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3.1 Diagramas de hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../04-projeto-conceitual/justificativa-componentes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3.2 Justificativa dos componentes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../04-projeto-conceitual/software/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Software
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../04-projeto-conceitual/firmware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4.1 Firmware: implementação
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../05-cronograma/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5. Cronograma
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../06-orcamento/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6. Orçamento
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7. Testes
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_8" id="__nav_8_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    7. Testes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../estrutura/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.1 Estrutura
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2 Energia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2.1 Ensaio de Bancada de Baterias
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2.1 Ensaio de Bancada de Baterias
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-identificacao-da-atividade-e-rastreabilidade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Identificação da Atividade e Rastreabilidade
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-setup-instrumental-de-bancada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Setup Instrumental de Bancada
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Setup Instrumental de Bancada">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-diagrama-em-blocos-do-setup-experimental" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Diagrama em Blocos do Setup Experimental
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-inspecao-visual-e-caracteristicas-da-bateria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Inspeção Visual e Características da Bateria
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Inspeção Visual e Características da Bateria">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-identificacao-do-componente" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Identificação do Componente
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-protocolo-de-inspecao-fisica" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Protocolo de Inspeção Física
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-metodologia-de-carga-balanceada-com-imax-b6-v3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Metodologia de Carga Balanceada com iMAX B6 V3
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-registro-de-evidencias-experimentais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Registro de Evidências Experimentais
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Registro de Evidências Experimentais">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-tabela-de-medicoes-eletricas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Tabela de Medições Elétricas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-evidencia-fotografica-do-setup-de-bancada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Evidência Fotográfica do Setup de Bancada
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-procedimento-de-seguranca-operacional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Procedimento de Segurança Operacional
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-criterios-de-pronto-e-conclusao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Critérios de Pronto e Conclusão
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../hardware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3 Hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../software/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.4 Software
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../integracao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5 Integração
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../08-avaliacao-de-desempenho/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8. Avaliação de desempenho
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../09-relatorio-de-encerramento/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9. Relatório de encerramento
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-identificacao-da-atividade-e-rastreabilidade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Identificação da Atividade e Rastreabilidade
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-setup-instrumental-de-bancada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Setup Instrumental de Bancada
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Setup Instrumental de Bancada">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-diagrama-em-blocos-do-setup-experimental" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Diagrama em Blocos do Setup Experimental
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-inspecao-visual-e-caracteristicas-da-bateria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Inspeção Visual e Características da Bateria
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Inspeção Visual e Características da Bateria">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-identificacao-do-componente" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Identificação do Componente
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-protocolo-de-inspecao-fisica" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Protocolo de Inspeção Física
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-metodologia-de-carga-balanceada-com-imax-b6-v3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Metodologia de Carga Balanceada com iMAX B6 V3
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-registro-de-evidencias-experimentais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Registro de Evidências Experimentais
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Registro de Evidências Experimentais">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-tabela-de-medicoes-eletricas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Tabela de Medições Elétricas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-evidencia-fotografica-do-setup-de-bancada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Evidência Fotográfica do Setup de Bancada
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-procedimento-de-seguranca-operacional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Procedimento de Segurança Operacional
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-criterios-de-pronto-e-conclusao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Critérios de Pronto e Conclusão
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/edit/main/docs/07-testes/energia/teste-componentes/bateria/teste-bancada-bateria.md" title="Editar esta página" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="ensaio-de-bancada-e-inspecao-inicial-de-bateria-lipo-2s">Ensaio de Bancada e Inspeção Inicial de Bateria (LiPo 2S)<a class="headerlink" href="#ensaio-de-bancada-e-inspecao-inicial-de-bateria-lipo-2s" title="Permanent link">&para;</a></h1>
+<hr />
+<h2 id="1-identificacao-da-atividade-e-rastreabilidade">1. Identificação da Atividade e Rastreabilidade<a class="headerlink" href="#1-identificacao-da-atividade-e-rastreabilidade" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Identificador da Issue:</strong> <code>#201 - Montar bancada de ensaio e inspeção de baterias</code></li>
+<li><strong>Subsistema:</strong> Energia e Alimentação</li>
+<li><strong>Elemento EAP:</strong> <code>2.1 Alimentação</code> e <code>2.2 Capacidade Energética</code></li>
+<li><strong>Requisitos Atendidos:</strong> <code>RNF-04</code> (Autonomia de bateria para completar os labirintos consecutivamente) e <code>RF-13</code> (Calibração e prontidão do hardware)</li>
+<li><strong>Objetivo:</strong> Estabelecer o setup instrumental de bancada, realizar a recepção, inspeção visual-mecânica, medição das tensões em circuito aberto (<span class="arithmatex">\(V_{OC}\)</span>) e processo de carga balanceada até a tensão de carga plena (<span class="arithmatex">\(8{,}40\text{ V}\)</span>) da bateria LiPo 2S do Micromouse, utilizando o carregador balanceador digital <strong>iMAX B6 V3</strong> e instrumentação de bancada.</li>
+</ul>
+<hr />
+<h2 id="2-setup-instrumental-de-bancada">2. Setup Instrumental de Bancada<a class="headerlink" href="#2-setup-instrumental-de-bancada" title="Permanent link">&para;</a></h2>
+<p>Para assegurar o balanceamento preciso célula a célula e a total segurança contra sobrecarga ou estresse térmico, o setup instrumental de bancada foi estruturado com os seguintes equipamentos:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Equipamento / Ferramenta</th>
+<th style="text-align: left;">Modelo / Especificações</th>
+<th style="text-align: left;">Função no Ensaio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Carregador / Balanceador Digital</strong></td>
+<td style="text-align: left;"><strong>iMAX B6 V3 (80W / 6A)</strong><br>Compatível com LiHV, LiPo, Li-ion, NiMH, Ni-Cd<br>Adaptador de alimentação DC: <strong>12V / 5A</strong></td>
+<td style="text-align: left;">Carga balanceada inteligente das 2 células via conector de balanceamento JST-XH e linha de potência XT30</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Fonte Regulável DC</strong></td>
+<td style="text-align: left;"><strong>Yaxun 1502DD</strong><br>Faixa: 0–15 V contínuos, 0–2 A com corte de sobrecorrente (OCP)</td>
+<td style="text-align: left;">Alimentação auxiliar de bancada, testes de calibração e emulação de carga CC</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Multímetro Digital</strong></td>
+<td style="text-align: left;"><strong>Digital True-RMS Calibrado</strong><br>Resolução de <span class="arithmatex">\(1\text{ mV}\)</span> DC, precisão básica <span class="arithmatex">\(\pm 0{,}5\%\)</span></td>
+<td style="text-align: left;">Verificação metrológica independente das tensões de saída e validação cruzada do balanceamento</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Carga Resistiva de Ensaio</strong></td>
+<td style="text-align: left;"><strong>Resistores Cerâmicos de Potência</strong> (<span class="arithmatex">\(10\,\Omega\)</span> / <span class="arithmatex">\(4{,}7\,\Omega\)</span>, <span class="arithmatex">\(10\text{ W}\)</span> a <span class="arithmatex">\(20\text{ W}\)</span>)</td>
+<td style="text-align: left;">Aplicação de carga resistiva de baixa intensidade para verificação de resposta em carga e estabilidade</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Cabos e Conexões</strong></td>
+<td style="text-align: left;">Cabo com conector XT30 e chicote balanceador JST-XH 3 pinos</td>
+<td style="text-align: left;">Conexão de baixa perda e alta confiabilidade com a bateria</td>
+</tr>
+</tbody>
+</table>
+<h3 id="21-diagrama-em-blocos-do-setup-experimental">2.1 Diagrama em Blocos do Setup Experimental<a class="headerlink" href="#21-diagrama-em-blocos-do-setup-experimental" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>graph LR
+    subgraph "Alimentação de Bancada"
+        Adaptador["Adaptador 12V / 5A"]
+        Fonte["Fonte Yaxun 1502DD&lt;br&gt;(Auxiliar / Calibração)"]
+    end
+
+    subgraph "Sistema de Carga e Monitoramento"
+        iMAX["Carregador Digital iMAX B6 V3&lt;br&gt;(Modo: LiPo Balance CHG 2S)"]
+        Multimetro["Multímetro Digital True-RMS&lt;br&gt;(Aferição Cruzada mV)"]
+    end
+
+    subgraph "Bateria sob Ensaio"
+        Pack["Bateria LiPo 2S&lt;br&gt;(Specs nominais desconhecidas)"]
+        XT30["Terminal Potência: XT30"]
+        JST["Terminal Balanceamento: JST-XH 3V"]
+    end
+
+    Adaptador --&gt;|"Alimentação DC 12V"| iMAX
+    iMAX --&gt;|"Linha de Carga Principal"| XT30
+    iMAX --&gt;|"Monitoramento Célula a Célula"| JST
+    XT30 --- Pack
+    JST --- Pack
+    Multimetro -.-&gt;|"Verificação Independente"| JST
+    Multimetro -.-&gt;|"Verificação Independente"| XT30</code></pre>
+<hr />
+<h2 id="3-inspecao-visual-e-caracteristicas-da-bateria">3. Inspeção Visual e Características da Bateria<a class="headerlink" href="#3-inspecao-visual-e-caracteristicas-da-bateria" title="Permanent link">&para;</a></h2>
+<h3 id="31-identificacao-do-componente">3.1 Identificação do Componente<a class="headerlink" href="#31-identificacao-do-componente" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Química / Tecnologia:</strong> Polímero de Lítio (LiPo).</li>
+<li><strong>Topologia:</strong> <strong>2S</strong> (duas células ligadas em série).</li>
+<li><strong>Tensão Nominal:</strong> <span class="arithmatex">\(7{,}40\text{ V}\)</span> (<span class="arithmatex">\(3{,}70\text{ V}\)</span> por célula).</li>
+<li><strong>Tensão Máxima de Carga Plena:</strong> <span class="arithmatex">\(8{,}40\text{ V}\)</span> (<span class="arithmatex">\(4{,}20\text{ V}\)</span> por célula).</li>
+<li><strong>Capacidade Nominal e Taxa de Descarga (C-Rating):</strong> <strong>Desconhecidas</strong> (bateria sem etiqueta externa de especificações ou folha de dados do fabricante).</li>
+</ul>
+<h3 id="32-protocolo-de-inspecao-fisica">3.2 Protocolo de Inspeção Física<a class="headerlink" href="#32-protocolo-de-inspecao-fisica" title="Permanent link">&para;</a></h3>
+<p>Devido à ausência de dados nominais de fábrica, a inspeção visual e mecânica foi executada com atenção redobrada:
+1. <strong>Invólucro (<em>Pouch</em>):</strong> Sem sinais de estufamento (<em>puffing</em>), sem perfurações, vincos profundos ou vazamentos de eletrólito.
+2. <strong>Chicote de Potência:</strong> Fiação de silicone flexível com conector XT30 devidamente soldado e isolado com termorretrátil.
+3. <strong>Chicote de Balanceamento:</strong> Conector JST-XH de 3 pinos sem oxidação, com polaridade conferida:
+   * Pino 1 (GND): Referência negativa comum (<span class="arithmatex">\(0\text{ V}\)</span>).
+   * Pino 2 (Célula 1): Tomada intermediária (<span class="arithmatex">\(V_{C1}\)</span>).
+   * Pino 3 (Célula 2): Terminal positivo do conjunto (<span class="arithmatex">\(V_{pack} = V_{C1} + V_{C2}\)</span>).</p>
+<hr />
+<h2 id="4-metodologia-de-carga-balanceada-com-imax-b6-v3">4. Metodologia de Carga Balanceada com iMAX B6 V3<a class="headerlink" href="#4-metodologia-de-carga-balanceada-com-imax-b6-v3" title="Permanent link">&para;</a></h2>
+<p>Pelo fato de a capacidade nominal não ser conhecida formalmente, adotou-se uma <strong>abordagem conservadora de segurança operacional</strong>:
+1. <strong>Seleção de Modo:</strong> Utilizou-se o programa <strong><code>LiPo BALANCE CHG</code></strong> (Carga Balanceada) no iMAX B6 V3, que garante que nenhuma célula exceda individualmente <span class="arithmatex">\(4{,}20\text{ V}\)</span>, equalizando o balanço de carga.
+2. <strong>Corrente de Carga Restrita (<span class="arithmatex">\(I_{chg}\)</span>):</strong> A corrente foi parametrizada em <strong><span class="arithmatex">\(0{,}5\text{ A}\)</span></strong> (taxa segura que garante ficar abaixo de <span class="arithmatex">\(1\text{C}\)</span> mesmo para baterias LiPo compactas de pequena capacidade).
+3. <strong>Tensão de Corte Automática:</strong> <span class="arithmatex">\(8{,}40\text{ V}\)</span> (<span class="arithmatex">\(4{,}20\text{ V}\)</span> por célula).
+4. <strong>Monitoramento Térmico e de Tempo:</strong> Ensaio realizado sob supervisão presencial contínua, com monitoramento da carcaça da bateria para garantir ausência de aquecimento.</p>
+<hr />
+<h2 id="5-registro-de-evidencias-experimentais">5. Registro de Evidências Experimentais<a class="headerlink" href="#5-registro-de-evidencias-experimentais" title="Permanent link">&para;</a></h2>
+<h3 id="51-tabela-de-medicoes-eletricas">5.1 Tabela de Medições Elétricas<a class="headerlink" href="#51-tabela-de-medicoes-eletricas" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parâmetro Mensurado</th>
+<th style="text-align: center;">Tensão Inicial (<span class="arithmatex">\(V_{OC}\)</span> em Repouso)</th>
+<th style="text-align: center;">Tensão Final (Pós-Carga Balanceada)</th>
+<th style="text-align: left;">Instrumento de Medição</th>
+<th style="text-align: left;">Tolerância / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Célula 1 (<span class="arithmatex">\(V_{C1}\)</span>)</strong></td>
+<td style="text-align: center;"><span class="arithmatex">\(3{,}78\text{ V}\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(4{,}20\text{ V}\)</span></td>
+<td style="text-align: left;">iMAX B6 V3 + Multímetro Digital</td>
+<td style="text-align: left;">Conforme (<span class="arithmatex">\(\pm 0{,}01\text{ V}\)</span>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Célula 2 (<span class="arithmatex">\(V_{C2}\)</span>)</strong></td>
+<td style="text-align: center;"><span class="arithmatex">\(3{,}77\text{ V}\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(4{,}20\text{ V}\)</span></td>
+<td style="text-align: left;">iMAX B6 V3 + Multímetro Digital</td>
+<td style="text-align: left;">Conforme (<span class="arithmatex">\(\pm 0{,}01\text{ V}\)</span>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Tensão Total (<span class="arithmatex">\(V_{pack}\)</span>)</strong></td>
+<td style="text-align: center;"><span class="arithmatex">\(7{,}55\text{ V}\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(8{,}40\text{ V}\)</span></td>
+<td style="text-align: left;">Multímetro True-RMS Calibrado</td>
+<td style="text-align: left;">Conforme</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Desbalanceamento (<span class="arithmatex">\(\Delta V\)</span>)</strong></td>
+<td style="text-align: center;"><span class="arithmatex">\(10\text{ mV}\)</span> (<span class="arithmatex">\(0{,}01\text{ V}\)</span>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ mV}\)</span> (<span class="arithmatex">\(0{,}00\text{ V}\)</span>)</td>
+<td style="text-align: left;">Calculado (<span class="arithmatex">\(\|V_{C1} - V_{C2}\|\)</span>)</td>
+<td style="text-align: left;">Balanceamento Perfeito</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Observação:</strong> A tensão inicial de <span class="arithmatex">\(7{,}55\text{ V}\)</span> (<span class="arithmatex">\(3{,}77\text{ V}\)</span> a <span class="arithmatex">\(3{,}78\text{ V}\)</span> por célula) evidenciou que a bateria estava preservada em nível seguro de armazenamento (<em>storage voltage</em>), sem descarga profunda. Ao término do ciclo no iMAX B6 V3, as duas células foram equalizadas exatamente em <span class="arithmatex">\(4{,}20\text{ V}\)</span>, totalizando <span class="arithmatex">\(8{,}40\text{ V}\)</span>.</p>
+</blockquote>
+<h3 id="52-evidencia-fotografica-do-setup-de-bancada">5.2 Evidência Fotográfica do Setup de Bancada<a class="headerlink" href="#52-evidencia-fotografica-do-setup-de-bancada" title="Permanent link">&para;</a></h3>
+<p>Abaixo está o registro da bancada instrumental de ensaios montada, contendo os equipamentos de medição, o carregador balanceador e a bateria conectada para inspeção e carga:</p>
+<p><img alt="Bancada instrumental de ensaio e inspeção das baterias" src="../../../../../figs/bateria-bancada.jpeg" width="800" /></p>
+<p><em>Figura 1: Bancada de medição e teste contendo carregador balanceador iMAX B6 V3, fonte de bancada, multímetro e bateria LiPo 2S.</em></p>
+<blockquote>
+<p>[!NOTE]
+O arquivo de evidência fotográfica deve estar localizado em <code>docs/figs/bateria-bancada.jpeg</code>.</p>
+</blockquote>
+<hr />
+<h2 id="6-procedimento-de-seguranca-operacional">6. Procedimento de Segurança Operacional<a class="headerlink" href="#6-procedimento-de-seguranca-operacional" title="Permanent link">&para;</a></h2>
+<p>Para mitigar riscos com células LiPo de características não catalogadas:
+1. <strong>Corrente de Carga Controlada:</strong> Fixação da corrente em <span class="arithmatex">\(0{,}5\text{ A}\)</span> no iMAX B6 V3, prevenindo estresse térmico ou sobreaquecimento do eletrólito.
+2. <strong>Superfície Incombustível e Contenção:</strong> Ensaio realizado em bancada limpa e desobstruída com envelope à prova de fogo (<em>LiPo Safe Bag</em>) à disposição.
+3. <strong>Inspeção Térmica Contínua:</strong> Verificação tátil e infravermelha durante todo o ciclo CC/CV; a célula permaneceu em temperatura ambiente (<span class="arithmatex">\(23\,^\circ\text{C} \pm 2\,^\circ\text{C}\)</span>), sem qualquer elevação térmica detectável.</p>
+<hr />
+<h2 id="7-criterios-de-pronto-e-conclusao">7. Critérios de Pronto e Conclusão<a class="headerlink" href="#7-criterios-de-pronto-e-conclusao" title="Permanent link">&para;</a></h2>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <strong>Setup de medição montado com fonte ajustável, carregador balanceador e multímetro digital calibrado:</strong> Setup instrumental operacional e validado.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <strong>Bateria LiPo 2S inspecionada e carregada à tensão de carga plena (8,4 V):</strong> Bateria inspecionada fisicamente, balanceada célula a célula e carregada exatamente até <span class="arithmatex">\(8{,}40\text{ V}\)</span> (<span class="arithmatex">\(4{,}20\text{ V}\)</span> por célula).</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <strong>Evidência registrada:</strong> Tabela de tensões preenchida e registro fotográfico ancorado.</li>
+</ul>
+<p><strong>Parecer:</strong> <strong>APROVADO</strong>. A bateria LiPo 2S encontra-se saudável, balanceada e na condição de plena carga (<span class="arithmatex">\(8{,}40\text{ V}\)</span>), pronta para alimentação dos reguladores Buck e testes dinâmicos de bancada do robô.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../../../" class="md-footer__link md-footer__link--prev" aria-label="Anterior: 7.2 Energia">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                7.2 Energia
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../../../hardware/" class="md-footer__link md-footer__link--next" aria-label="Próximo: 7.3 Hardware">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                7.3 Hardware
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../../..", "features": ["navigation.instant", "navigation.tracking", "navigation.top", "navigation.footer", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.action.edit"], "search": "../../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../../../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
