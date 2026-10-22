@@ -618,8 +618,8 @@ células de mapa), o que favorece um banco relacional sobre um NoSQL.
   `telemetria` e com `mapa_celulas`.
 - `telemetria`: id, corrida_id (FK), numero_sequencia, timestamp, posicao_linha,
   posicao_coluna, orientacao (`N`, `S`, `L` ou `O`, calculada por odometria
-  diferencial a partir dos *encoders*, já que a arquitetura de hardware não inclui
-  IMU), velocidade, tensao_bateria, corrente_bateria, tempo_decorrido,
+  diferencial a partir dos *encoders*),
+  velocidade, tensao_bateria, corrente_bateria, tempo_decorrido,
   estado_corrida, evento (nulo, `colisao` ou `objetivo_alcancado`). Restrição única
   em (corrida_id, numero_sequencia).
 - `mapa_celulas`: id, corrida_id (FK), linha, coluna, parede_norte, parede_sul,
