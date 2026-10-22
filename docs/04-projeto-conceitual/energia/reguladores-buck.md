@@ -11,7 +11,7 @@ O sistema de alimentação do Micromouse opera a partir do barramento primário 
 
 1. **Barramento +6V0 (Atuação Eletromecânica):** Alimentado por regulador **LM2596 (3 A)**, dedicado exclusivamente aos pinos de potência `VM` do driver DRV8833 para acionar os motores GA12-N20 com tensão constante de 6,0 V e capacidade para suportar correntes de partida/travamento (*stall*) de **até ~3,0 A**.
 2. **Barramento +5V0 (Sensoriamento Primário):** Alimentado por regulador **LM2596-ADJ (1 A)**, dedicado à linha de potência do sensor óptico LiDAR ToF 360° (consumo nominal de 150 mA).
-3. **Barramento +3V3 (Controle e Sinais Digitais):** Alimentado por regulador síncrono de alta frequência **MP1584EN (1 A / 1,0 MHz)**, atendendo o microcontrolador ESP32-C3-MINI-1, encoders Hall e polarização lógica do DRV8833.
+3. **Barramento +3V3 (Controle e Sinais Digitais):** Alimentado por regulador síncrono de alta frequência **MP1584EN (1 A / 1,0 MHz)**, atendendo o microcontrolador ESP32-C3 Super Mini, encoders Hall e polarização lógica do DRV8833.
 
 ---
 
@@ -123,7 +123,7 @@ A chave MOSFET permite tensão de *dropout* desprezível ($< 0{,}4\text{ V}$), g
 | :--- | :--- | :--- | :--- |
 | **CI Regulador Adotado** | **LM2596 Step-Down 3 A** | **LM2596-ADJ** | **MP1584EN** |
 | **Topologia / Chaveamento** | Buck bipolar (150 kHz) | Buck bipolar (150 kHz) | Buck MOSFET ($R_{\text{DS(on)}}=180\text{ m}\Omega$, 1,0 MHz) |
-| **Carga Alimentada** | Par de motores GA12-N20 (pinos VM) | Sensor LiDAR ToF 360° | ESP32-C3-MINI-1, Encoders, DRV8833 Lógica |
+| **Carga Alimentada** | Par de motores GA12-N20 (pinos VM) | Sensor LiDAR ToF 360° | ESP32-C3 Super Mini, Encoders, DRV8833 Lógica |
 | **Tensão Regulada ($V_{\text{out}}$)** | **$6{,}00\text{ V}$** | **$5{,}00\text{ V}$** | **$3{,}30\text{ V}$** |
 | **Tensão de Referência ($V_{\text{ref}}$)**| $1{,}23\text{ V}$ | $1{,}23\text{ V}$ | $0{,}80\text{ V}$ |
 | **Divisor de Feedback ($R_1, R_2$)** | $R_1 = 1{,}0\text{ k}\Omega$, $R_2 = 3{,}9\text{ k}\Omega$ (1%) | $R_1 = 1{,}0\text{ k}\Omega$, $R_2 = 3{,}06\text{ k}\Omega$ | $R_2 = 10\text{ k}\Omega$, $R_1 = 31{,}6\text{ k}\Omega$ (1%) |
@@ -159,7 +159,7 @@ flowchart TD
 
     BUCK_5V -->|"Linha +5V0 (150 mA)"| LIDAR["Sensor LiDAR ToF 360°"]
 
-    BUCK_3V3 -->|"Linha +3V3 (123 mA)"| MCU["ESP32-C3-MINI-1"]
+    BUCK_3V3 -->|"Linha +3V3 (123 mA)"| MCU["ESP32-C3 Super Mini"]
     BUCK_3V3 --> ENCODERS["Encoders de Efeito Hall (x2)"]
     BUCK_3V3 --> DRV_LOGIC["VCC Lógico DRV8833"]
 

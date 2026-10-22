@@ -6,7 +6,7 @@
 
 O monitoramento contínuo da tensão do barramento da bateria LiPo 2S (**$6{,}60\text{ V a }8{,}40\text{ V}$**) é essencial para estimar o Estado de Carga (SoC) em tempo real, transmitir telemetria para o Dashboard web e executar o corte de segurança de subtensão (*Under-Voltage Lockout* — UVLO) quando a bateria atinge $6{,}60\text{ V}$ ($3{,}30\text{ V/célula}$).
 
-Como o conversor analógico-digital (ADC) do microcontrolador **ESP32-C3-MINI-1** opera sob tensão máxima de alimentação de $3{,}3\text{ V}$, conectar o barramento de $8{,}4\text{ V}$ diretamente ao pino causaria a destruição imediata do silício. Adicionalmente, a comutação rápida da modulação PWM da ponte H dos motores ($20\text{ kHz}$) introduz ruídos de alta frequência no barramento elétrico.
+Como o conversor analógico-digital (ADC) do microcontrolador **ESP32-C3 Super Mini** opera sob tensão máxima de alimentação de $3{,}3\text{ V}$, conectar o barramento de $8{,}4\text{ V}$ diretamente ao pino causaria a destruição imediata do silício. Adicionalmente, a comutação rápida da modulação PWM da ponte H dos motores ($20\text{ kHz}$) introduz ruídos de alta frequência no barramento elétrico.
 
 Portanto, o circuito de sensoriamento analógico deve cumprir três requisitos fundamentais:
 1. **Atenuação Proporcional de Tensão:** Reduzir a faixa de $0\text{ V a }8{,}4\text{ V}$ para a região linear e de máxima resolução do ADC do ESP32-C3 ($0\text{ V a }2{,}50\text{ V}$ sob atenuação interna de 11 dB).
