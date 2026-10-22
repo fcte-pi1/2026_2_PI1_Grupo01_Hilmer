@@ -3,7 +3,7 @@
 /// @file Odometria.h
 /// @brief Estimativa da pose (célula e direção) pela odometria diferencial dos encoders.
 ///
-/// A arquitetura não tem IMU: a rotação vem da diferença entre os deslocamentos das duas rodas, e
+/// A odometria não usa a IMU: a rotação vem da diferença entre os deslocamentos das duas rodas, e
 /// o avanço, da média. Não depende do Arduino e só usa aritmética de inteiros.
 
 #include <stdint.h>
