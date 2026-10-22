@@ -8,42 +8,9 @@ O sistema organiza-se em quatro domínios: **energia**, com bateria, fusível, c
 
 O diagrama representa a distribuição de energia e as interfaces entre o microcontrolador, os sensores e o acionamento dos motores.
 
-```mermaid
-flowchart TB
-    BAT["BT1 — Bateria LiPo 2S<br/>7,4 V nominal / 8,4 V máxima"]
-    F["F1 — Fusível de entrada"]
-    SW["SW1 — Chave geral"]
-    VBAT["Barramento VBAT"]
-    B3["U5 — MP1584EN<br/>Saída de 3,3 V"]
-    B5["U2 — MP1584EN<br/>Saída de 5 V"]
-    B6["U4 — MP1584EN<br/>Saída de 6 V"]
-    MCU["ESP32-C3 Super Mini<br/>Controle e firmware"]
-    TOF["J3, J4 e J5<br/>Três sensores VL53L0X"]
-    IMU["J6 — MPU6050<br/>Acelerômetro e giroscópio"]
-    I2C["Barramento I2C<br/>SDA: GPIO6 / SCL: GPIO7"]
-    DRV["DRV8833<br/>Ponte H dupla"]
-    ML["J1 — Motor esquerdo"]
-    MR["J2 — Motor direito"]
-    ADC["R1: 100 kΩ / R2: 39 kΩ<br/>Filtro C5: 100 nF"]
+![Diagrama de blocos do hardware do Micromouse](../figs/hardware-diagrama-blocos.jpg)
 
-    BAT --> F --> SW --> VBAT
-    VBAT --> B3
-    VBAT --> B5
-    VBAT --> B6
-    B3 -->|Alimentação| TOF
-    B3 -->|Alimentação| IMU
-    B5 -->|Pino 5V da placa| MCU
-    B6 -->|Potência: 6 V| DRV
-    VBAT --> ADC -->|GPIO2 — ADC| MCU
-    MCU <-->|Dados e clock| I2C
-    I2C <--> TOF
-    I2C <--> IMU
-    MCU -->|PWM: GPIO0, GPIO1, GPIO10 e GPIO21| DRV
-    DRV --> ML
-    DRV --> MR
-```
-
-**Figura 1.** Diagrama de blocos elaborado a partir do esquemático. Todos os módulos compartilham a referência elétrica **GND**.
+**Figura 1.** Diagrama de blocos disponível em `hw/Diagrama-de-blocos.jpg`.
 
 ### 1.1 Fluxo de energia
 
