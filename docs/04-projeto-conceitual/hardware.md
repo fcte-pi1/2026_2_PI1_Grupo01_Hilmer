@@ -113,9 +113,9 @@ Com a bateria em **8,4 V**, a tensão calculada no nó de medição é de aproxi
 
 O esquemático principal, **Rev 2.0 de 21/10/2026**, apresenta os símbolos elétricos, as referências dos componentes, as conexões de alimentação e sinais e os terminais dos módulos. A figura abaixo foi extraída do PDF disponível na pasta `hw`.
 
-[![Esquemático elétrico do Micromouse](../figs/hardware-esquematico.png)](../../hw/Micromouse.pdf)
+[![Esquemático elétrico do Micromouse](../figs/hardware-esquematico.png)](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/Micromouse.pdf)
 
-**Figura 2.** Esquemático elétrico do Micromouse — **Rev 2.0**, com bateria, fusível, chave, três conversores MP1584EN, ESP32-C3, sensores VL53L0X, MPU6050, DRV8833 e motores. O [PDF](../../hw/Micromouse.pdf) e o [arquivo editável KiCad](../../hw/Micromouse.kicad_sch) representam a mesma revisão e permitem consultar os detalhes das conexões. Os conectores dos VL53L0X representam a interface lógica do projeto (pino 5 = XSHUT); conferir a ordem física dos terminais no módulo adquirido.
+**Figura 2.** Esquemático elétrico do Micromouse — **Rev 2.0**, com bateria, fusível, chave, três conversores MP1584EN, ESP32-C3, sensores VL53L0X, MPU6050, DRV8833 e motores. O [PDF](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/Micromouse.pdf) e o [arquivo editável KiCad](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/Micromouse.kicad_sch) representam a mesma revisão e permitem consultar os detalhes das conexões. Os conectores dos VL53L0X representam a interface lógica do projeto (pino 5 = XSHUT); conferir a ordem física dos terminais no módulo adquirido.
 
 ### 4.1 Conexões principais
 
