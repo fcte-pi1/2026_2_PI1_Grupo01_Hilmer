@@ -1187,6 +1187,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#consulta-ao-historico-de-corridas-no-supabase-hu-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consulta ao histórico de corridas no Supabase (HU-10)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2182,6 +2193,17 @@
     <span class="md-ellipsis">
       
         Implementação do frontend
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#consulta-ao-historico-de-corridas-no-supabase-hu-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consulta ao histórico de corridas no Supabase (HU-10)
       
     </span>
   </a>
@@ -3737,6 +3759,40 @@ das colunas da migração, então a troca não muda os componentes:</p>
   consumida". A tela assume % consumida e mostra a carga restante (<code>100 − consumo</code>), como no
   Frame 04. A unidade precisa ser fechada na HU-09.</li>
 </ul>
+<h4 id="consulta-ao-historico-de-corridas-no-supabase-hu-10">Consulta ao histórico de corridas no Supabase (HU-10)<a class="headerlink" href="#consulta-ao-historico-de-corridas-no-supabase-hu-10" title="Permanent link">&para;</a></h4>
+<p>O histórico de corridas do dashboard (<code>src/frontend/src/paginas/TelaHistorico.tsx</code>) foi
+integrado à tabela <code>corridas</code> do Supabase (tarefa
+<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/235">#235</a>, HU-10, RF10),
+substituindo os dados estáticos de exemplo pela consulta real via <code>supabase-js</code>.</p>
+<p><strong>Segurança e RLS.</strong> A leitura é realizada com a chave pública <code>anon</code>
+(<code>VITE_SUPABASE_ANON_KEY</code>), autorizada pela política RLS <code>"Leitura pública de corridas"</code>
+(definida na migração <code>20261014180500_seguranca_rls.sql</code>). A política concede exclusivamente
+permissão de <code>SELECT</code> para as roles <code>anon</code> e <code>authenticated</code>. Operações de escrita continuam
+bloqueadas no frontend e são mediadas exclusivamente pelas Edge Functions do backend (#233).</p>
+<p><strong>Hook <code>useCorridas</code>.</strong> Criado em <code>src/frontend/src/hooks/useCorridas.ts</code>, o hook encapsula
+o ciclo de vida da requisição e expõe os estados <code>{ corridas, carregando, erro, recarregar }</code>:</p>
+<ul>
+<li><strong>Consulta:</strong> executa <code>supabase.from('corridas').select('*').order('data_hora_inicio', { ascending: false })</code>,
+  garantindo que as tentativas mais recentes apareçam no topo da tabela.</li>
+<li><strong>Disparo sob demanda:</strong> a função <code>recarregar</code> permite reexecutar a busca quando o usuário
+  aciona o botão "Atualizar" no cabeçalho do histórico.</li>
+<li><strong>Tratamento de fallback:</strong> quando <code>supabase</code> for <code>null</code> (ausência de <code>.env.local</code>), o hook
+  carrega os dados simulados de <code>CORRIDAS_EXEMPLO</code>, permitindo que desenvolvedores de outras
+  áreas executem a interface localmente sem dependência externa.</li>
+</ul>
+<p><strong>Componentes e Regras de Interface.</strong></p>
+<ul>
+<li><strong><code>TelaHistorico</code>:</strong> dispara a busca no banco ao montar quando o usuário navega para a aba
+  Histórico. Gerencia o filtro por tipo de labirinto (Todos, 4×4, 8×4, 12×4), exibe o contador
+  de corridas visíveis, botão de atualização manual com indicador de carregamento e mensagem
+  de erro caso ocorra falha de rede.</li>
+<li><strong><code>TabelaHistorico</code>:</strong> renderiza as 7 colunas previstas na especificação (Data/Hora, Labirinto,
+  Tentativa com nota, Tempo final formatado em mm:ss.sss, Velocidade média em m/s, Carga
+  restante estimada da bateria em percentual e o Badge de status).</li>
+<li><strong>Tratamento de estado vazio:</strong> caso o banco de dados ainda não possua registros de corridas,
+  a interface exibe <code>"Nenhuma corrida registrada."</code>. Caso o usuário aplique um filtro que não
+  tenha correspondências, a mensagem passa a ser <code>"Nenhuma corrida registrada para este filtro."</code>.</li>
+</ul>
 <blockquote>
 <ul>
 <li><strong>Roteiro de testes funcionais:</strong></li>
@@ -4120,6 +4176,13 @@ das colunas da migração, então a troca não muda os componentes:</p>
 <td style="text-align: center;">19/10/2026</td>
 <td>Documenta a implementação do frontend: estrutura, variáveis de ambiente, telas, componentes e dados de exemplo (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/230">#230</a>)</td>
 <td>Eduardo Viana</td>
+<td>Ana Carolina Fialho</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.2</td>
+<td style="text-align: center;">19/10/2026</td>
+<td>Documenta a consulta do histórico de corridas no Supabase: hook useCorridas, ordenação e estado vazio (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/235">#235</a>)</td>
+<td>Rafael Lima</td>
 <td>Ana Carolina Fialho</td>
 </tr>
 </tbody>

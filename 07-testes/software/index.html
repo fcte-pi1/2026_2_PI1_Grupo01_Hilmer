@@ -1810,6 +1810,45 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#sprint-4-historico-de-corridas-com-dados-reais-supabase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sprint 4 · Histórico de corridas com dados reais (Supabase)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sprint 4 · Histórico de corridas com dados reais (Supabase)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#compilacao-e-tipagem-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compilação e tipagem (build)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#casos-de-teste-e-validacao-dos-criterios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Casos de teste e validação dos critérios
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2666,6 +2705,45 @@
     <span class="md-ellipsis">
       
         Pendências desta etapa
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sprint-4-historico-de-corridas-com-dados-reais-supabase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sprint 4 · Histórico de corridas com dados reais (Supabase)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sprint 4 · Histórico de corridas com dados reais (Supabase)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#compilacao-e-tipagem-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compilação e tipagem (build)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#casos-de-teste-e-validacao-dos-criterios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Casos de teste e validação dos critérios
       
     </span>
   </a>
@@ -5529,6 +5607,173 @@
 <li>Caminho do dashboard para criar corridas (decisão da #233): aceitar o JWT de um operador logado como alternativa ao <code>x-device-token</code> e responder ao CORS do navegador, junto com o login de operador da HU-15.</li>
 <li>Ingestão de telemetria e do mapa (<code>telemetria</code> e <code>mapa_celulas</code>) por Edge Function, com o mesmo token de dispositivo, em issue separada.</li>
 </ul>
+<hr />
+<h3 id="sprint-4-historico-de-corridas-com-dados-reais-supabase">Sprint 4 · Histórico de corridas com dados reais (Supabase)<a class="headerlink" href="#sprint-4-historico-de-corridas-com-dados-reais-supabase" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tarefa</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/235">#235 Tela de histórico com dados reais</a></td>
+</tr>
+<tr>
+<td>História de usuário</td>
+<td>HU-10 · Consultar histórico de corridas (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/44">#44</a>), RF10</td>
+</tr>
+<tr>
+<td>Código testado</td>
+<td><code>src/frontend</code> (branch <code>feat/235-tela-historico-dados-reais</code>)</td>
+</tr>
+<tr>
+<td>Data da execução</td>
+<td>19/10/2026</td>
+</tr>
+<tr>
+<td>Executado por</td>
+<td>Rafael Lima</td>
+</tr>
+<tr>
+<td>Documentação do código</td>
+<td><a href="../../04-projeto-conceitual/software/#consulta-ao-historico-de-corridas-no-supabase-hu-10">Software: consulta ao histórico no Supabase</a> e <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/tree/main/src/frontend">README do frontend</a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Ambiente de execução</strong></p>
+<table>
+<thead>
+<tr>
+<th>Componente</th>
+<th>Versão</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Node.js e npm</td>
+<td>Node.js v20+, npm 10+</td>
+</tr>
+<tr>
+<td>Ferramentas de build</td>
+<td>Vite 6.4.4 e TypeScript 5 (<code>tsc --noEmit</code>)</td>
+</tr>
+<tr>
+<td>Bibliotecas</td>
+<td>React 18.3, Recharts 2.13.3 e supabase-js 2.45.4</td>
+</tr>
+<tr>
+<td>Banco</td>
+<td>Projeto Supabase (PostgreSQL gerenciado com RLS), lido com a chave pública <code>anon</code></td>
+</tr>
+<tr>
+<td>Navegador</td>
+<td>Navegador baseado em Chromium (Google Chrome / Brave)</td>
+</tr>
+<tr>
+<td>Sistema operacional</td>
+<td>Linux (kernel 6.x / Ubuntu)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="compilacao-e-tipagem-build">Compilação e tipagem (build)<a class="headerlink" href="#compilacao-e-tipagem-build" title="Permanent link">&para;</a></h4>
+<blockquote>
+<p>[!NOTE]
+Para reproduzir localmente antes da integração com a <code>main</code>, garanta que esteja na branch <code>feat/235-tela-historico-dados-reais</code> (ou na branch <code>main</code> após a conclusão do <em>merge</em> do PR), pois as branches de documentação não contêm os arquivos fonte da aplicação.</p>
+</blockquote>
+<p>Comandos para reprodução:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a><span class="c1"># Acessar a branch com o código-fonte (ou main após o merge)</span>
+<a id="__codelineno-53-2" name="__codelineno-53-2" href="#__codelineno-53-2"></a>git<span class="w"> </span>checkout<span class="w"> </span>feat/235-tela-historico-dados-reais
+<a id="__codelineno-53-3" name="__codelineno-53-3" href="#__codelineno-53-3"></a>
+<a id="__codelineno-53-4" name="__codelineno-53-4" href="#__codelineno-53-4"></a><span class="c1"># Entrar no diretório do frontend e instalar as dependências</span>
+<a id="__codelineno-53-5" name="__codelineno-53-5" href="#__codelineno-53-5"></a><span class="nb">cd</span><span class="w"> </span>src/frontend
+<a id="__codelineno-53-6" name="__codelineno-53-6" href="#__codelineno-53-6"></a>npm<span class="w"> </span>install
+<a id="__codelineno-53-7" name="__codelineno-53-7" href="#__codelineno-53-7"></a>
+<a id="__codelineno-53-8" name="__codelineno-53-8" href="#__codelineno-53-8"></a><span class="c1"># Executar a verificação de tipos e o build</span>
+<a id="__codelineno-53-9" name="__codelineno-53-9" href="#__codelineno-53-9"></a>npm<span class="w"> </span>run<span class="w"> </span>build
+</code></pre></div>
+<p>Saída da compilação:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a>&gt; micromouse-dashboard@0.1.0 build
+<a id="__codelineno-54-2" name="__codelineno-54-2" href="#__codelineno-54-2"></a>&gt; tsc --noEmit &amp;&amp; vite build
+<a id="__codelineno-54-3" name="__codelineno-54-3" href="#__codelineno-54-3"></a>
+<a id="__codelineno-54-4" name="__codelineno-54-4" href="#__codelineno-54-4"></a>vite v6.4.4 building for production...
+<a id="__codelineno-54-5" name="__codelineno-54-5" href="#__codelineno-54-5"></a>transforming (1) src/main.tsx...
+<a id="__codelineno-54-6" name="__codelineno-54-6" href="#__codelineno-54-6"></a>✓ 717 modules transformed.
+<a id="__codelineno-54-7" name="__codelineno-54-7" href="#__codelineno-54-7"></a>rendering chunks (1)...
+<a id="__codelineno-54-8" name="__codelineno-54-8" href="#__codelineno-54-8"></a>dist/index.html                              0.60 kB │ gzip:   0.37 kB
+<a id="__codelineno-54-9" name="__codelineno-54-9" href="#__codelineno-54-9"></a>dist/assets/index-BkxvmZS-.css               8.65 kB │ gzip:   2.36 kB
+<a id="__codelineno-54-10" name="__codelineno-54-10" href="#__codelineno-54-10"></a>dist/assets/index-B4HLetex.js              391.67 kB │ gzip: 112.79 kB
+<a id="__codelineno-54-11" name="__codelineno-54-11" href="#__codelineno-54-11"></a>dist/assets/GraficoVelocidade--n061iNo.js  395.18 kB │ gzip: 108.76 kB
+<a id="__codelineno-54-12" name="__codelineno-54-12" href="#__codelineno-54-12"></a>✓ built in 1.43s
+</code></pre></div>
+<p>Verificação estática de tipos via <code>tsc --noEmit</code> concluída sem nenhum erro ou advertência de tipagem TypeScript.</p>
+<h4 id="casos-de-teste-e-validacao-dos-criterios">Casos de teste e validação dos critérios<a class="headerlink" href="#casos-de-teste-e-validacao-dos-criterios" title="Permanent link">&para;</a></h4>
+<p>Os testes verificaram os critérios de aceitação definidos na issue #235 e na HU-10:</p>
+<table>
+<thead>
+<tr>
+<th>Caso</th>
+<th>Critério avaliado</th>
+<th>Procedimento</th>
+<th>Resultado esperado</th>
+<th style="text-align: center;">Situação</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CT-HIST-01</td>
+<td>Listagem das 7 colunas</td>
+<td>Acessar aba Histórico com corridas retornadas pelo Supabase</td>
+<td>Tabela lista Data/Hora, Labirinto, Tentativa (com nota), Tempo Final, Velocidade média, Carga restante de bateria e Badge de Status</td>
+<td style="text-align: center;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td>CT-HIST-02</td>
+<td>Ordenação decrescente</td>
+<td>Inserir corridas em instantes diferentes e consultar o histórico</td>
+<td>Corridas ordenadas da mais recente para a mais antiga (<code>data_hora_inicio</code> decrescente)</td>
+<td style="text-align: center;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td>CT-HIST-03</td>
+<td>Estado vazio sem registros</td>
+<td>Consultar histórico quando a tabela <code>corridas</code> está vazia</td>
+<td>Exibe <code>"Nenhuma corrida registrada."</code> na área central da tabela</td>
+<td style="text-align: center;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td>CT-HIST-04</td>
+<td>Filtro por tipo de labirinto</td>
+<td>Selecionar filtro (4×4, 8×4, 12×4) com e sem corridas correspondentes</td>
+<td>Exibe apenas corridas do labirinto selecionado; caso não haja, exibe <code>"Nenhuma corrida registrada para este filtro."</code></td>
+<td style="text-align: center;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td>CT-HIST-05</td>
+<td>Atualização sob demanda</td>
+<td>Clicar no botão "Atualizar" no cabeçalho da tela de histórico</td>
+<td>Dispara nova requisição GET ao Supabase e reflete dados atualizados</td>
+<td style="text-align: center;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td>CT-HIST-06</td>
+<td>Feedback de carregamento e erro</td>
+<td>Simular latência e falha de conexão na requisição do Supabase</td>
+<td>Exibe mensagem de carregamento e, em falha, alerta de erro com botão de tentativa</td>
+<td style="text-align: center;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td>CT-HIST-07</td>
+<td>Modo de contingência (fallback)</td>
+<td>Executar a aplicação sem o arquivo <code>.env.local</code> (<code>supabase</code> nulo)</td>
+<td>Dashboard utiliza <code>CORRIDAS_EXEMPLO</code> sem interromper a navegação da aplicação</td>
+<td style="text-align: center;"><strong>Aprovado</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Resultado consolidado:</strong> 7 de 7 casos aprovados.</p>
 
 
 
