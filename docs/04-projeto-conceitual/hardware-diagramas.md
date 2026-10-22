@@ -1,101 +1,119 @@
 # Diagramas de _Hardware_ — Micromouse PI1
 
-Esta página apresenta a arquitetura de _hardware_ do Micromouse por meio de dois artefatos complementares: o **diagrama de blocos**, com a visão geral dos subsistemas e das conexões entre eles, e o **esquemático elétrico**, com os componentes, símbolos, ligações e pinagem dos dispositivos.
+Esta página apresenta o **diagrama de blocos** e o **esquemático elétrico** do Micromouse, com os subsistemas, as conexões de alimentação e sinais e a pinagem do controlador.
 
-A arquitetura organiza-se em quatro domínios: **energia** (bateria, proteção e regulação), **controle** (microcontrolador e _driver_), **atuação** (motores) e **sensoriamento e comunicação** (encoders e LiDAR). O dimensionamento de consumo e a escolha da fonte são detalhados em [4.2 Energia](energia.md).
-
----
+O sistema organiza-se em quatro domínios: **energia**, com bateria, fusível, chave e conversores; **controle**, com o ESP32-C3; **sensoriamento**, com três VL53L0X e a IMU MPU6050; e **atuação**, com o DRV8833 e dois motores DC com redução. A descrição dos subsistemas e as justificativas das escolhas estão no [projeto conceitual de hardware](hardware.md).
 
 ## 1. Diagrama de blocos
 
-O diagrama de blocos apresenta a visão geral do _hardware_, indicando os principais subsistemas e o fluxo de energia e de sinais entre eles.
+O diagrama representa a distribuição de energia e as interfaces entre o microcontrolador, os sensores e o acionamento dos motores.
 
-<figure markdown>
+```mermaid
+flowchart TB
+    BAT["BT1 — Bateria LiPo 2S<br/>7,4 V nominal / 8,4 V máxima"]
+    F["F1 — Fusível de entrada"]
+    SW["SW1 — Chave geral"]
+    VBAT["Barramento VBAT"]
+    B3["U5 — MP1584EN<br/>Saída de 3,3 V"]
+    B5["U2 — MP1584EN<br/>Saída de 5 V"]
+    B6["U4 — MP1584EN<br/>Saída de 6 V"]
+    MCU["ESP32-C3 Super Mini<br/>Controle e firmware"]
+    TOF["J3, J4 e J5<br/>Três sensores VL53L0X"]
+    IMU["J6 — MPU6050<br/>Acelerômetro e giroscópio"]
+    I2C["Barramento I2C<br/>SDA: GPIO6 / SCL: GPIO7"]
+    DRV["DRV8833<br/>Ponte H dupla"]
+    ML["J1 — Motor esquerdo"]
+    MR["J2 — Motor direito"]
+    ADC["R1: 100 kΩ / R2: 39 kΩ<br/>Filtro C5: 100 nF"]
 
-![Diagrama de blocos do hardware do Micromouse PI1](../figs/diagrama-blocos.jpeg){ width="900" }
+    BAT --> F --> SW --> VBAT
+    VBAT --> B3
+    VBAT --> B5
+    VBAT --> B6
+    B3 -->|Alimentação| TOF
+    B3 -->|Alimentação| IMU
+    B5 -->|Pino 5V da placa| MCU
+    B6 -->|Potência: 6 V| DRV
+    VBAT --> ADC -->|GPIO2 — ADC| MCU
+    MCU <-->|Dados e clock| I2C
+    I2C <--> TOF
+    I2C <--> IMU
+    MCU -->|PWM: GPIO0, GPIO1, GPIO10 e GPIO21| DRV
+    DRV --> ML
+    DRV --> MR
+```
 
-<figcaption>
+**Figura 1.** Diagrama de blocos elaborado a partir do esquemático. Todos os módulos compartilham a referência elétrica **GND**.
 
-**Figura 1.** Diagrama de blocos do _hardware_ do Micromouse PI1, com os subsistemas de energia, controle, atuação e sensoriamento.
+### 1.1 Fluxo de energia
 
-</figcaption>
+A bateria **BT1, LiPo 2S**, fornece **7,4 V nominais** e até **8,4 V em carga plena**. A linha positiva passa pelo **fusível F1** e pela **chave geral SW1**, formando o barramento `VBAT` que alimenta os três conversores MP1584EN e o circuito de monitoramento da bateria.
 
-</figure>
+| Conversor | Tensão de saída | Destino | Capacitores associados |
+| :--- | :---: | :--- | :--- |
+| **U2 — MP1584EN** | **5 V** | Pino `5V` da placa ESP32-C3 | C6: 10 µF; C2: 100 µF. |
+| **U5 — MP1584EN** | **3,3 V** | Sensores VL53L0X e MPU6050 | C8: 10 µF; C7: 100 nF. |
+| **U4 — MP1584EN** | **6 V** | Entrada de potência `VCC` do módulo DRV8833 | C3: 10 µF; C4: 100 µF. |
 
-### Fluxo de energia
+### 1.2 Controle e atuação
 
-* **Bateria Li-ion 2S** — 7,4 V nominal e 8,4 V máximo (carga plena).
-* **BMS (2S)** — gerenciamento da bateria: proteção contra subtensão, curto-circuito e balanceamento das células.
-* **Chave de potência (liga/desliga)** — comando geral da alimentação, em série com a saída do BMS.
-* **Barramento +VBAT_2S (7,4–8,4 V)** — distribui a tensão não regulada para os conversores e para o _driver_ de motores.
-* **Conversor Buck +5V0** — linha regulada de 5,0 V dedicada ao LiDAR.
-* **Conversor Buck +3V3** — linha regulada de 3,3 V para o ESP32-C3-MINI-1, os encoders e a lógica do DRV8833.
-* **GND comum** — referência única de terra para todo o sistema.
+A placa **ESP32-C3 Super Mini** processa as leituras dos sensores e gera os sinais de controle dos motores. O **DRV8833** recebe quatro comandos PWM e aciona os dois motores por sua ponte H dupla:
 
-### Controle e atuação
+- **Motor esquerdo — J1:** comandos IN1 e IN2, ligados aos GPIO0 e GPIO1; saídas de potência OUT1 e OUT2.
+- **Motor direito — J2:** comandos IN3 e IN4, ligados aos GPIO10 e GPIO21; saídas de potência OUT3 e OUT4.
 
-* **ESP32-C3-MINI-1** — unidade de controle, alimentada em +3V3.
-* **Módulo DRV8833 (ponte H dupla)** — recebe `VM = +VBAT_2S` diretamente do barramento (sem regulador intermediário de 6 V) e aciona os dois motores. Os canais lógicos são comandados por PWM do MCU:
-    * `GPIO4 → AIN1`, `GPIO5 → AIN2` (Motor M1);
-    * `GPIO6 → BIN1`, `GPIO7 → BIN2` (Motor M2).
-* **Motores M1 e M2** — motores DC de 6 V nominal, acionados pelas saídas `AOUT1/AOUT2` e `BOUT1/BOUT2`.
+O barramento regulado de **6 V** alimenta o estágio de potência. O controle independente dos motores permite a locomoção diferencial, incluindo avanço, recuo e curvas.
 
-### Sensoriamento e comunicação
+### 1.3 Sensoriamento e comunicação
 
-* **Encoders (quadratura incremental)** — leitura de rotação das rodas via GPIO:
-    * `Enc_L_A → GPIO0`, `Enc_L_B → GPIO1` (roda esquerda);
-    * `Enc_R_A → GPIO3`, `Enc_R_B → GPIO10` (roda direita).
-* **LiDAR (UART, +5V0)** — comunicação serial com o MCU:
-    * `UART TX (GPIO21)` do ESP32 → recepção do LiDAR;
-    * transmissão do LiDAR → `UART RX (GPIO20)` do ESP32, com divisor **R1/R2 condicional** para adequação de nível, quando necessário.
+Os três sensores **VL53L0X**, representados pelos conectores **J3, J4 e J5**, medem as distâncias das paredes nas direções frontal e laterais. A **MPU6050**, conectada em **J6**, fornece medidas de aceleração e taxa de rotação para apoiar a estimativa da orientação.
 
----
+Todos recebem alimentação de **3,3 V** e utilizam o barramento **I²C compartilhado**, com **SDA no GPIO6** e **SCL no GPIO7**. O gerenciamento dos endereços individuais dos sensores de distância integra a rotina de inicialização prevista no relatório técnico.
+
+### 1.4 Monitoramento da bateria
+
+O divisor de tensão utiliza **R1 de 100 kΩ** e **R2 de 39 kΩ**, com **C5 de 100 nF** para filtragem. O nó de leitura conecta-se ao **GPIO2** do ESP32-C3.
+
+A relação `V_ADC = V_BAT × 39/139` reduz a tensão de **8,4 V** para aproximadamente **2,357 V** na entrada analógica, permitindo acompanhar a condição da alimentação.
 
 ## 2. Esquemático elétrico
 
-O esquemático elétrico detalha os componentes, os símbolos elétricos, as conexões e a pinagem de cada dispositivo, permitindo a reprodução do circuito.
+O esquemático apresenta os símbolos elétricos, as referências dos componentes, as conexões e os terminais dos módulos. A imagem abaixo foi extraída do arquivo `hw/Micromouse.pdf`; o PDF pode ser aberto para ampliar os detalhes.
 
-<figure markdown>
+[![Esquemático elétrico do Micromouse PI1](../figs/hardware-esquematico.png)](../../hw/Micromouse.pdf)
 
-![Esquemático elétrico do hardware do Micromouse PI1](../figs/esquematico-eletrico.jpeg){ width="900" }
+**Figura 2.** Esquemático principal do Micromouse, com bateria LiPo 2S, proteção por fusível, chave geral, três conversores MP1584EN, ESP32-C3, VL53L0X, MPU6050, DRV8833 e motores.
 
-<figcaption>
+### 2.1 Conexões de alimentação e potência
 
-**Figura 2.** Esquemático elétrico do _hardware_ do Micromouse PI1, com pinagem do MCU, do _driver_ DRV8833, dos encoders e do LiDAR.
+| Origem | Destino | Função |
+| :--- | :--- | :--- |
+| BT1, terminal positivo | F1 → SW1 → VBAT | Entrada de energia com fusível e chave geral. |
+| VBAT | Entradas de U2, U4 e U5 | Alimentação dos conversores. |
+| U2, saída de 5 V | Terminal `5V` da placa ESP32-C3 | Alimentação do controlador. |
+| U5, saída de 3,3 V | J3, J4, J5 e J6 | Alimentação dos sensores. |
+| U4, saída de 6 V | `VCC` de potência do módulo DRV8833 | Alimentação dos motores pela ponte H. |
+| DRV8833, OUT1/OUT2 | J1 | Motor esquerdo. |
+| DRV8833, OUT3/OUT4 | J2 | Motor direito. |
+| VBAT | Divisor R1/R2 e filtro C5 | Monitoramento da tensão da bateria. |
+| Terras dos módulos | GND comum | Referência elétrica para alimentação e sinais. |
 
-</figcaption>
+O circuito de habilitação do DRV8833 inclui o resistor **R4 de 47 kΩ**, conforme representado no esquemático.
 
-</figure>
+### 2.2 Pinagem do microcontrolador
 
-### Alimentação e distribuição
+A tabela apresenta os GPIOs lógicos utilizados nas interfaces do circuito.
 
-* A bateria **BT1 (Li-ion 2S)** conecta-se ao **BMS 2S** pelos terminais `B+/B−`, com saída protegida em `P+/P−`.
-* A **chave de potência (SW1)** interrompe a linha `P+`, gerando o barramento **+VBAT_2S**.
-* O barramento +VBAT_2S alimenta, em paralelo, os conversores **Buck +5V0** e **Buck +3V3** (entradas `IN`, saídas `OUT` com capacitor de saída) e o pino **VM** do DRV8833.
-* Todos os blocos compartilham o **GND comum** (referência única de GND).
+| GPIO / terminal do ESP32-C3 | Destino / origem | Sinal | Função |
+| :---: | :--- | :--- | :--- |
+| **GPIO0** | DRV8833 | IN1 — motor esquerdo | Saída de controle PWM. |
+| **GPIO1** | DRV8833 | IN2 — motor esquerdo | Saída de controle PWM. |
+| **GPIO10** | DRV8833 | IN3 — motor direito | Saída de controle PWM. |
+| **GPIO21 / TX** | DRV8833 | IN4 — motor direito | Saída de controle PWM. |
+| **GPIO6** | VL53L0X e MPU6050 | SDA | Dados I²C. |
+| **GPIO7** | VL53L0X e MPU6050 | SCL | Clock I²C. |
+| **GPIO2** | Nó do divisor R1/R2 | ADC de bateria | Entrada analógica. |
+| **5V** | Saída do conversor U2 | Alimentação | Entrada de 5 V regulados na placa. |
+| **GND** | Todos os subsistemas | Terra | Referência comum. |
 
-### Controle e _driver_
-
-* O **ESP32-C3-MINI-1** é alimentado em **3V3** e comanda o **DRV8833 (ponte H dupla)**:
-    * `GPIO4 (PWM) → AIN1`, `GPIO5 (PWM) → AIN2`, `GPIO6 (PWM) → BIN1`, `GPIO7 (PWM) → BIN2`.
-    * Saídas de potência `AOUT1/AOUT2 → Motor M1` e `BOUT1/BOUT2 → Motor M2` (motores DC de 6 V nominal).
-
-### Sensores
-
-* **Encoder Esquerdo** — `Enc_L_A` e `Enc_L_B` conectados a `GPIO0`/`GPIO1`, com alimentação `VCC` e `GND`.
-* **Encoder Direito** — `Enc_R_A` e `Enc_R_B`, com alimentação `VCC` e `GND`.
-* **LiDAR (+5V0)** — pinos `TX`/`RX` ligados a `GPIO20 / Rx` e `GPIO21 / Tx` do ESP32, com blocos **R1/R2 condicionais** nas linhas `uart_lidar_tx` e `uart_lidar_rx` para adequação de nível.
-
----
-
-## 3. Pontos a definir / validar
-
-Itens críticos sinalizados nos diagramas que dependem de confirmação em bancada e nas folhas de dados:
-
-- [ ] Compatibilidade entre os **8,4 V máximos** do barramento e os limites do _driver_ e dos motores (nominais de 6 V).
-- [ ] **Níveis UART TTL** entre o ESP32-C3 e o LiDAR.
-- [ ] Necessidade de **pull-ups nos encoders**.
-- [ ] Necessidade e **valores de R1 / R2** para o divisor do LiDAR.
-- [ ] **Validação do datasheet do LiDAR** (protocolo, alimentação e compatibilidade elétrica).
-
-> **Observação:** a proteção dos motores de 6 V sob bateria plena (8,4 V) é tratada por **limitação de _duty cycle_ via software** no PWM do ESP32-C3, conforme detalhado em [4.2 Energia](energia.md).
+A montagem e a verificação do conjunto seguem a sequência descrita no relatório técnico: inspeção de continuidade, ajuste independente dos três conversores, verificação da chave e do fusível, teste da placa de controle, varredura do barramento I²C e acionamento progressivo dos motores com as rodas suspensas.
