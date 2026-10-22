@@ -12,4 +12,4 @@ O [diagrama de blocos atualizado](hardware.md#2-diagrama-de-blocos) apresenta os
 
 [![Esquemático elétrico do Micromouse](../figs/hardware-esquematico.png)](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/Micromouse.pdf)
 
-O PDF e o arquivo editável `hw/Micromouse.kicad_sch` descrevem as conexões. O divisor 100 kΩ / 33 kΩ termina em **BAT_ADC_TEST**, sem ligação ao GPIO2, reservado ao XSHUT direito. A interface ADC está pendente.
+O PDF e o arquivo editável `hw/Micromouse.kicad_sch` descrevem as conexões. O divisor 100 kΩ / 33 kΩ termina em **BAT_ADC_TEST**, sem ligação ao GPIO2, reservado ao XSHUT direito.
