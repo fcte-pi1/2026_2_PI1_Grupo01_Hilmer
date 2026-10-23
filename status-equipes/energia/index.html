@@ -1,0 +1,1871 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentação do projeto de Projeto Integrador 1 (PI1) — Grupo 01, professor Hilmer.">
+      
+      
+        <meta name="author" content="Grupo 01 - Hilmer">
+      
+      
+        <link rel="canonical" href="https://fcte-pi1.github.io/2026_2_PI1_Grupo01_Hilmer/status-equipes/energia/">
+      
+      
+        <link rel="prev" href="../eletronica/">
+      
+      
+        <link rel="next" href="../estrutura/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Energia - PI1 · Grupo 01 (Hilmer) — 2026/2</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#status-de-energia" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="PI1 · Grupo 01 (Hilmer) — 2026/2" class="md-header__button md-logo" aria-label="PI1 · Grupo 01 (Hilmer) — 2026/2" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PI1 · Grupo 01 (Hilmer) — 2026/2
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Energia
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para o modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para o modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para o modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para o modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fcte-pi1/2026_2_PI1_Grupo01_Hilmer
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PI1 · Grupo 01 (Hilmer) — 2026/2" class="md-nav__button md-logo" aria-label="PI1 · Grupo 01 (Hilmer) — 2026/2" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PI1 · Grupo 01 (Hilmer) — 2026/2
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fcte-pi1/2026_2_PI1_Grupo01_Hilmer
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Status das equipes
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Status das equipes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../software/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Software
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../eletronica/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Eletrônica
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Energia
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Energia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#onde-esta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Onde está
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#entregue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Entregue
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#em-revisao-documentacao-aberta-sem-revisao-registrada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Em revisão (documentação aberta, sem revisão registrada)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#em-aberto-bancada-e-relatorios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Em aberto (bancada e relatórios)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#precisa-ou-aguarda-de-outras-equipes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Precisa ou aguarda de outras equipes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-outras-equipes-aguardam-da-energia" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que outras equipes aguardam da energia
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fontes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fontes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historico-de-versoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Histórico de versões
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../estrutura/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Estrutura
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-tap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1. TAP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-requisitos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2. Requisitos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-eap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3. EAP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../04-projeto-conceitual/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4. Projeto conceitual
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    4. Projeto conceitual
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-projeto-conceitual/estruturas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 Estruturas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-projeto-conceitual/energia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Energia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-projeto-conceitual/energia/protecoes-entrada/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.1 Proteções de entrada
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-projeto-conceitual/energia/reguladores-buck/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.2 Reguladores Step-Down (Buck)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-projeto-conceitual/energia/curva-descarga-lipo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.3 Curva de Descarga e SoC LiPo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-projeto-conceitual/energia/monitoramento-tensao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.4 Monitoramento de Tensão (ADC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-projeto-conceitual/energia/ensaios-protecoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.5 Ensaios de subtensão e PPTC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-projeto-conceitual/hardware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 Hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-projeto-conceitual/hardware-diagramas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3.1 Diagramas de hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-projeto-conceitual/justificativa-componentes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3.2 Justificativa dos componentes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-projeto-conceitual/software/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Software
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../04-projeto-conceitual/firmware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4.1 Firmware: implementação
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-cronograma/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5. Cronograma
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-orcamento/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6. Orçamento
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../07-testes/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7. Testes
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    7. Testes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-testes/estrutura/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.1 Estrutura
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-testes/energia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2 Energia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-testes/energia/teste-componentes/bateria/teste-bancada-bateria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2.1 Ensaio de Bancada de Baterias
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-testes/hardware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3 Hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-testes/software/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.4 Software
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-testes/integracao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5 Integração
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-avaliacao-de-desempenho/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8. Avaliação de desempenho
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-relatorio-de-encerramento/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9. Relatório de encerramento
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#onde-esta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Onde está
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#entregue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Entregue
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#em-revisao-documentacao-aberta-sem-revisao-registrada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Em revisão (documentação aberta, sem revisão registrada)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#em-aberto-bancada-e-relatorios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Em aberto (bancada e relatórios)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#precisa-ou-aguarda-de-outras-equipes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Precisa ou aguarda de outras equipes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o-que-outras-equipes-aguardam-da-energia" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que outras equipes aguardam da energia
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fontes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fontes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historico-de-versoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Histórico de versões
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/edit/main/docs/status-equipes/energia.md" title="Editar esta página" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="status-de-energia">Status de Energia<a class="headerlink" href="#status-de-energia" title="Permanent link">&para;</a></h1>
+<p><strong>Gerente:</strong> Paulo Henrique Melo de Souza. <strong>Integrantes:</strong> Daniel Rodrigues Nascimento e Elias Faria de Oliveira.</p>
+<p><strong>Última atualização:</strong> 23/10/2026 (Sprint 5). <strong>Atualizado por:</strong> Ana Carolina Fialho (gerente geral), só para registrar os PRs integrados até 23/10; a partir daqui, o gerente de energia.</p>
+<p><strong>O que a equipe entrega:</strong> o sistema de energia do robô (bateria LiPo 2S, distribuição e regulação, carregamento e proteção) e os testes de energia. A entrega no GitHub é <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/117">Sistema de Energia (#117)</a>. Detalhes em <a href="../../04-projeto-conceitual/energia/">Energia</a> e <a href="../04-projeto-conceitual/protecoes-entrada.md">Proteções de entrada</a>.</p>
+<h2 id="onde-esta">Onde está<a class="headerlink" href="#onde-esta" title="Permanent link">&para;</a></h2>
+<p>A frente está na fase de dimensionamento, documentação e primeiros ensaios. Em 21/10 foi registrada a inspeção e carga da bateria em bancada (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/376">#376</a>); os ensaios de subtensão e BMS (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/340">#340</a>) são simulados. As demais tarefas de bancada, que dependem de componentes montados, estão abertas.</p>
+<h2 id="entregue">Entregue<a class="headerlink" href="#entregue" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Requisitos e perfil de consumo (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/195">#195</a>), arquitetura preliminar e orçamento de componentes (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/196">#196</a>).</li>
+<li>Dimensionamento da capacidade e da taxa C da LiPo 2S (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/198">#198</a>), com autonomia estimada na página de <a href="../../04-projeto-conceitual/energia/">Energia</a>.</li>
+<li>Componentes dos reguladores MP1584EN e LM2596 (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/199">#199</a>), incluindo o buck dedicado de 6 V para os motores (versão 1.4 da página).</li>
+<li>Proteção contra inversão de polaridade e sobrecorrente (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/200">#200</a>, PR #338 mesclado).</li>
+<li>Ensaios simulados de corte por subtensão e de BMS (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/340">#340</a>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/207">#207</a>) e bancada de ensaio com inspeção e carga da bateria (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/376">#376</a>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/201">#201</a>).</li>
+<li>EAP e cronograma de energia no GitHub Projects (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/197">#197</a>).</li>
+</ul>
+<h2 id="em-revisao-documentacao-aberta-sem-revisao-registrada">Em revisão (documentação aberta, sem revisão registrada)<a class="headerlink" href="#em-revisao-documentacao-aberta-sem-revisao-registrada" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><strong>PR</strong></th>
+<th><strong>Assunto</strong></th>
+<th style="text-align: center;"><strong>Issue</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/352">#352</a></td>
+<td>Curva de descarga da LiPo 2S e tabela de estado de carga</td>
+<td style="text-align: center;"><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/205">#205</a></td>
+</tr>
+<tr>
+<td style="text-align: center;"><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/353">#353</a></td>
+<td>Divisor resistivo e filtro anti-aliasing para o ADC</td>
+<td style="text-align: center;"><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/203">#203</a></td>
+</tr>
+<tr>
+<td style="text-align: center;"><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/346">#346</a></td>
+<td>Procedimento de recarga balanceada (POP)</td>
+<td style="text-align: center;"><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/210">#210</a></td>
+</tr>
+<tr>
+<td style="text-align: center;"><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/399">#399</a></td>
+<td>Atualização do projeto conceitual de energia</td>
+<td style="text-align: center;">não informada</td>
+</tr>
+<tr>
+<td style="text-align: center;"><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/312">#312</a></td>
+<td>Dimensionamento dos reguladores step-down (base <code>main</code>)</td>
+<td style="text-align: center;">não informada</td>
+</tr>
+</tbody>
+</table>
+<p>Os PRs #352 e #353 estão com base em <code>documentacao</code>, mas listam também arquivos de <code>src/firmware</code> e <code>src/backend</code>, o que indica branch com histórico misturado; vale conferir antes de mesclar.</p>
+<h2 id="em-aberto-bancada-e-relatorios">Em aberto (bancada e relatórios)<a class="headerlink" href="#em-aberto-bancada-e-relatorios" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Bancada e montagem:</strong> bancada de ensaio e baterias de teste (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/201">#201</a>), bucks em protoboard (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/202">#202</a>), eficiência e ripple (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/206">#206</a>), calibração do divisor no ADC (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/208">#208</a>), barramentos na PCB (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/212">#212</a>) e energização inicial (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/213">#213</a>).</li>
+<li><strong>Ensaios:</strong> autonomia em bancada (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/209">#209</a>), queda de tensão sob aceleração (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/214">#214</a>), capacitores de <em>bulk</em> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/216">#216</a>), autonomia em pista (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/217">#217</a>), corte por subtensão na pista (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/218">#218</a>) e troca rápida de bateria (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/219">#219</a>).</li>
+<li><strong>Relatórios:</strong> testes de energia para a ED1 (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/211">#211</a>), testes integrados para a ED2 (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/220">#220</a>), balanço energético (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/222">#222</a>) e packs para a apresentação (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/221">#221</a>).</li>
+<li>Sem responsável no GitHub: #202, #213, #216, #218, #219 e #221.</li>
+<li>A tabela de <a href="../../07-testes/energia/">Testes de Energia</a> tem as linhas 2.1 a 2.3 (subtensão e BMS, PPTC e bateria em bancada); as demais seguem vazias. É entrega da ED1 (26/10).</li>
+</ul>
+<h2 id="precisa-ou-aguarda-de-outras-equipes">Precisa ou aguarda de outras equipes<a class="headerlink" href="#precisa-ou-aguarda-de-outras-equipes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th><strong>De</strong></th>
+<th><strong>O quê</strong></th>
+<th style="text-align: center;"><strong>Dependência</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Eletrônica</td>
+<td>PCB física para soldar os barramentos e energizar a placa</td>
+<td style="text-align: center;">D6</td>
+</tr>
+<tr>
+<td>Eletrônica</td>
+<td>Esquemático alinhado ao buck de 6 V e ao divisor (R2 de 33 kΩ aqui; 39 kΩ no relatório de hardware de 10/10)</td>
+<td style="text-align: center;">D5</td>
+</tr>
+<tr>
+<td>Estrutura</td>
+<td>Labirinto de testes para os ensaios de autonomia em pista</td>
+<td style="text-align: center;">D4</td>
+</tr>
+<tr>
+<td>Software</td>
+<td>Tarefa de leitura da bateria no firmware e no dashboard (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/215">#215</a> é de energia; não há <em>issue</em> correspondente em software)</td>
+<td style="text-align: center;">D7</td>
+</tr>
+</tbody>
+</table>
+<h2 id="o-que-outras-equipes-aguardam-da-energia">O que outras equipes aguardam da energia<a class="headerlink" href="#o-que-outras-equipes-aguardam-da-energia" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th><strong>Quem</strong></th>
+<th><strong>O quê</strong></th>
+<th style="text-align: center;"><strong>Dependência</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Software</td>
+<td>Curva de descarga e tabela de estado de carga (PR #352) para a telemetria de bateria</td>
+<td style="text-align: center;">D7</td>
+</tr>
+<tr>
+<td>Estrutura</td>
+<td>Dimensões da bateria e do suporte</td>
+<td style="text-align: center;">D8</td>
+</tr>
+</tbody>
+</table>
+<p>Veja a tabela completa em <a href="../#dependencias-entre-equipes">Status das equipes</a>.</p>
+<h2 id="fontes">Fontes<a class="headerlink" href="#fontes" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/117">Entrega Sistema de Energia (#117)</a> · <a href="../../04-projeto-conceitual/energia/">Energia</a> · <a href="../../07-testes/energia/">Testes de energia</a> · <a href="../../05-cronograma/">Cronograma</a></p>
+<h2 id="historico-de-versoes">Histórico de versões<a class="headerlink" href="#historico-de-versoes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><strong>Versão</strong></th>
+<th style="text-align: center;"><strong>Data</strong></th>
+<th><strong>Descrição</strong></th>
+<th><strong>Autor(es)</strong></th>
+<th><strong>Revisor(es)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1.0</td>
+<td style="text-align: center;">19/10/2026</td>
+<td>Levantamento inicial a partir do GitHub e dos documentos do projeto</td>
+<td>Cláudio Henrique</td>
+<td>Paulo Henrique</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.1</td>
+<td style="text-align: center;">23/10/2026</td>
+<td>Registro dos PRs #340 e #376 integrados e do primeiro ensaio em bancada</td>
+<td>Ana Carolina Fialho</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../eletronica/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: Eletrônica">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                Eletrônica
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../estrutura/" class="md-footer__link md-footer__link--next" aria-label="Próximo: Estrutura">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                Estrutura
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.top", "navigation.footer", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.action.edit"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
