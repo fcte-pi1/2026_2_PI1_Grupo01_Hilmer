@@ -96,6 +96,7 @@ nav:
       - 4.2.3 Curva de Descarga e SoC LiPo: 04-projeto-conceitual/energia/curva-descarga-lipo.md
       - 4.2.4 Monitoramento de Tensão (ADC): 04-projeto-conceitual/energia/monitoramento-tensao.md
       - 4.2.5 Ensaios de subtensão e PPTC: 04-projeto-conceitual/energia/ensaios-protecoes.md
+      - 4.2.6 POP de recarga balanceada: 04-projeto-conceitual/energia/pop-recarga-bateria.md
       - 4.3 Hardware: 04-projeto-conceitual/hardware.md
       - 4.3.1 Diagramas de hardware: 04-projeto-conceitual/hardware-diagramas.md
       - 4.3.2 Justificativa dos componentes: 04-projeto-conceitual/justificativa-componentes.md
