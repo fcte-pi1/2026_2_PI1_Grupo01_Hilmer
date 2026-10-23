@@ -1372,6 +1372,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#navegacao-robustez-da-pose-e-do-passo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Navegação: robustez da pose e do passo
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Navegação: robustez da pose e do passo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regras-de-negocio-e-algoritmo_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de Negócio e Algoritmo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-da-classe_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface da Classe
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#navegacao-deteccao-do-objetivo-e-evento-na-telemetria" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1384,7 +1423,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#regras-de-negocio-e-algoritmo_6" class="md-nav__link">
+  <a href="#regras-de-negocio-e-algoritmo_7" class="md-nav__link">
     <span class="md-ellipsis">
       
         Regras de Negócio e Algoritmo
@@ -1473,7 +1512,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#regras-de-negocio-e-algoritmo_7" class="md-nav__link">
+  <a href="#regras-de-negocio-e-algoritmo_8" class="md-nav__link">
     <span class="md-ellipsis">
       
         Regras de Negócio e Algoritmo
@@ -1484,7 +1523,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#interface-da-classe_6" class="md-nav__link">
+  <a href="#interface-da-classe_7" class="md-nav__link">
     <span class="md-ellipsis">
       
         Interface da Classe
@@ -2304,6 +2343,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#navegacao-robustez-da-pose-e-do-passo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Navegação: robustez da pose e do passo
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Navegação: robustez da pose e do passo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regras-de-negocio-e-algoritmo_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de Negócio e Algoritmo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-da-classe_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface da Classe
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#navegacao-deteccao-do-objetivo-e-evento-na-telemetria" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2316,7 +2394,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#regras-de-negocio-e-algoritmo_6" class="md-nav__link">
+  <a href="#regras-de-negocio-e-algoritmo_7" class="md-nav__link">
     <span class="md-ellipsis">
       
         Regras de Negócio e Algoritmo
@@ -2405,7 +2483,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#regras-de-negocio-e-algoritmo_7" class="md-nav__link">
+  <a href="#regras-de-negocio-e-algoritmo_8" class="md-nav__link">
     <span class="md-ellipsis">
       
         Regras de Negócio e Algoritmo
@@ -2416,7 +2494,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#interface-da-classe_6" class="md-nav__link">
+  <a href="#interface-da-classe_7" class="md-nav__link">
     <span class="md-ellipsis">
       
         Interface da Classe
@@ -3244,6 +3322,94 @@
 <li><strong><code>letraDaDirecao(Direcao)</code></strong> (<code>Direcao.h</code>): <code>'N'</code>, <code>'L'</code>, <code>'S'</code> ou <code>'O'</code>, os valores da coluna <code>orientacao</code> do banco.</li>
 </ul>
 <p><strong>No <code>main.cpp</code>.</strong> A tarefa de navegação chama <code>atualizar</code> a cada 10 ms, um intervalo curto o bastante para cada atualização trazer um giro ou um avanço, e não os dois. A tarefa de telemetria lê a pose e acrescenta à linha de JSON dos encoders os campos <code>linha</code>, <code>coluna</code>, <code>orientacao</code> e <code>pose_valida</code>. Como as duas tarefas usam a mesma <code>Odometria</code>, todo acesso passa por uma seção crítica. O comando <code>Z</code> da bancada zera os encoders e reinicia a odometria na pose atual.</p>
+<h2 id="navegacao-robustez-da-pose-e-do-passo">Navegação: robustez da pose e do passo<a class="headerlink" href="#navegacao-robustez-da-pose-e-do-passo" title="Permanent link">&para;</a></h2>
+<p>A revisão do algoritmo de resolução (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/183">#183</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/349">#349</a>) encontrou dois problemas na <code>Navegacao</code> (<code>lib/navegacao</code>), corrigidos na <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/357">#357</a> (PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/400">#400</a>):</p>
+<ol>
+<li><strong>Leitura fora do vetor.</strong> <code>definirPose</code>, <code>moverPara</code> e o construtor aceitavam qualquer célula. Com uma pose fora do mapa, <code>decidirProximaDirecao</code> lia <code>distancias_</code> fora dos limites (comportamento indefinido, confirmado com o AddressSanitizer). Isso pode acontecer na prática: a <code>Odometria</code> limita a célula a 0..255 quando o robô sai da malha, e o <code>ArmazenamentoMapa::iniciarCorrida</code> troca o mapa por outro tamanho, deixando a pose antiga fora do mapa novo.</li>
+<li><strong>Passo pendente que nunca terminava.</strong> Se o sensor registrasse uma parede no caminho depois de o passo ser planejado, o robô continuava na origem, <code>confirmarPose</code> devolvia <code>EmAndamento</code> para sempre e <code>darPasso</code> recusava qualquer passo novo: o robô ficava parado.</li>
+</ol>
+<h3 id="regras-de-negocio-e-algoritmo_6">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_6" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Toda pose é validada contra o mapa</strong> (<code>Mapa::posValida</code>). Uma pose fora do mapa nunca é usada para ler o vetor de distâncias.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Entrada da pose</th>
+<th>Com célula fora do mapa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>definirPose(pose)</code></td>
+<td>Devolve <code>false</code> e nada muda: a pose e o passo pendente continuam os anteriores</td>
+</tr>
+<tr>
+<td><code>moverPara(linha, coluna, direcao)</code></td>
+<td>Mesmo comportamento (usa <code>definirPose</code>)</td>
+</tr>
+<tr>
+<td>Construtor com pose inicial</td>
+<td>Ignora a célula e começa na partida (0, 0), mantendo a direção informada</td>
+</tr>
+<tr>
+<td><code>confirmarPose(poseMedida)</code></td>
+<td>Devolve <code>Invalida</code> e nada muda (já era assim)</td>
+</tr>
+<tr>
+<td>Pose que ficou fora porque o mapa foi trocado</td>
+<td><code>decidirProximaDirecao</code> e <code>darPasso</code> devolvem <code>false</code>, sem ler o vetor</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Passo bloqueado por parede:</strong> se o robô ainda está na célula de origem e o mapa já mostra uma <code>Parede</code> entre a origem e a célula esperada, <code>confirmarPose</code> cancela o passo e devolve o novo resultado <strong><code>Bloqueado</code></strong>. O próximo <code>darPasso</code> replaneja a partir da pose atual.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Resultado de <code>confirmarPose</code></th>
+<th>Quando</th>
+<th>O que acontece</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Confirmada</code></td>
+<td>Robô na célula esperada (ou sem passo pendente)</td>
+<td>Adota a pose; o passo termina</td>
+</tr>
+<tr>
+<td><code>EmAndamento</code></td>
+<td>Robô ainda na origem, sem parede no caminho</td>
+<td>Adota a pose; o passo continua pendente</td>
+</tr>
+<tr>
+<td><strong><code>Bloqueado</code></strong></td>
+<td>Robô ainda na origem e há parede no caminho</td>
+<td>Adota a pose; <strong>o passo é cancelado</strong> para replanejar</td>
+</tr>
+<tr>
+<td><code>Divergente</code></td>
+<td>Robô em outra célula</td>
+<td>Adota a pose medida; o passo é cancelado para replanejar</td>
+</tr>
+<tr>
+<td><code>Invalida</code></td>
+<td>Pose medida fora do mapa</td>
+<td>Ignora a pose; nada muda</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Ordem com o mapa da corrida:</strong> a <code>Navegacao</code> guarda uma referência ao mapa e calcula o objetivo padrão (canto oposto à partida) na construção. Por isso, ela deve ser criada <strong>depois</strong> de <code>ArmazenamentoMapa::iniciarCorrida(...)</code>. Se o mapa for trocado por outro tamanho, é preciso chamar <code>definirObjetivo()</code> e <code>definirPose()</code> de novo.</li>
+</ul>
+<h3 id="interface-da-classe_6">Interface da Classe<a class="headerlink" href="#interface-da-classe_6" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>bool definirPose(const Pose&amp;)</code></strong> e <strong><code>bool moverPara(linha, coluna, direcao)</code>:</strong> passaram de <code>void</code> para <code>bool</code>; <code>false</code> quando a célula está fora do mapa.</li>
+<li><strong><code>void cancelarPasso()</code>:</strong> novo; cancela o passo pendente, e o próximo <code>darPasso()</code> replaneja.</li>
+<li><strong><code>ResultadoConfirmacao::Bloqueado</code>:</strong> novo valor do resultado de <code>confirmarPose</code>.</li>
+</ul>
 <h2 id="navegacao-deteccao-do-objetivo-e-evento-na-telemetria">Navegação: detecção do objetivo e evento na telemetria<a class="headerlink" href="#navegacao-deteccao-do-objetivo-e-evento-na-telemetria" title="Permanent link">&para;</a></h2>
 <p>O módulo de navegação (<code>lib/navegacao</code>) implementa a classe <code>DetectorObjetivo</code>, responsável por identificar o instante em que o robô alcança a célula de destino (canto diametralmente oposto à partida), acionar a parada imediata dos motores, disparar o congelamento do mapa final e sinalizar o evento pontual correspondente (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/189">#189</a>, HU-07 / RF-07).</p>
 <p>Em conjunto, a camada de comunicação (<code>lib/comunicacao</code>) provê a classe <code>TelemetriaJson</code>, que encapsula os dados de telemetria periódica e insere o evento pontual <code>"objetivo_alcancado"</code> em um único payload JSON transmitido via serial (USB nativa CDC), formatado com estrutura compatível com a tabela <code>telemetria</code> do Supabase para futura ingestão na nuvem (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/236">#236</a>) e acompanhamento no dashboard web (HU-14).</p>
@@ -3277,7 +3443,7 @@
     J--&gt;&gt;T: JSON formatado
     T-&gt;&gt;S: Serial.println(buffer)</code></pre>
 <p><strong>Figura 8.</strong> Fluxo de detecção da célula objetivo: ao confirmar que a célula da pose coincide com o destino sob a seção crítica <code>travaOdometria</code>, o robô freia imediatamente, congela o mapa explorado e envia o evento pontual único pela telemetria serial.</p>
-<h3 id="regras-de-negocio-e-algoritmo_6">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_6" title="Permanent link">&para;</a></h3>
+<h3 id="regras-de-negocio-e-algoritmo_7">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_7" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Cálculo da célula objetivo:</strong>
   O labirinto do micromouse inicia na célula <code>(0, 0)</code> no canto inferior esquerdo. O objetivo padrão do desafio situa-se no canto diametralmente oposto: linha <code>linhas - 1</code> e coluna <code>colunas - 1</code>.</li>
@@ -3453,7 +3619,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 </tbody>
 </table>
 <p>O cálculo considera o LiDAR no centro do robô, com o feixe abaixo do topo das paredes (5 cm). A folga lateral é pequena: ao virar de volta para o centro, a traseira do chassi gira para o lado da parede. Por isso o controle corrige com ângulos pequenos e ganhos baixos.</p>
-<h3 id="regras-de-negocio-e-algoritmo_7">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_7" title="Permanent link">&para;</a></h3>
+<h3 id="regras-de-negocio-e-algoritmo_8">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_8" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Erro lateral:</strong> deslocamento do robô para a direita do centro, em mm. Com parede dos dois lados, é <code>(esquerda − direita) / 2</code>; só com a da esquerda, <code>esquerda − 84</code>; só com a da direita, <code>84 − direita</code>. Leituras acima de 180 mm contam como lado sem parede; sem parede nenhuma, não há correção e o robô segue reto.</li>
 <li><strong>Correção PD:</strong> <code>(20 × erro + 15 × derivada) / 10</code>, em unidades de potência, limitada a 250. A derivada é a variação do erro entre leituras, em mm/s, com filtro passa-baixa de 40% contra o ruído do LiDAR. Ela recomeça do zero quando a referência muda (por exemplo, quando uma parede lateral acaba), para não reagir ao salto da leitura.</li>
@@ -3463,7 +3629,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <li><strong>Motores:</strong> potência de −1000 a 1000 por roda, positiva para a frente (a mesma convenção do <code>IEncoder</code>). O <code>MotoresDrv8833</code> usa PWM de 20 kHz e 10 bits, no modo <em>fast decay</em> do DRV8833, e freia ligando IN1 e IN2. O motor direito é invertido no <code>main.cpp</code>, pela montagem espelhada.</li>
 </ul>
 <p>Os ganhos, as potências e as distâncias de desaceleração estão em <code>ConfiguracaoControle.h</code> e são <strong>provisórios</strong>: foram ajustados numa simulação do corredor (<a href="../../07-testes/software/">Testes de Software</a>) e precisam ser confirmados na bancada.</p>
-<h3 id="interface-da-classe_6">Interface da Classe<a class="headerlink" href="#interface-da-classe_6" title="Permanent link">&para;</a></h3>
+<h3 id="interface-da-classe_7">Interface da Classe<a class="headerlink" href="#interface-da-classe_7" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong><code>ControleMovimento::atualizar(ILidar&amp;, IMotores&amp;, dtMs)</code>:</strong> lê o LiDAR, calcula e aplica nos motores; chame uma vez por leitura nova do LiDAR (cerca de 100 ms). Devolve o <code>EstadoMovimento</code>: <code>Cruzeiro</code>, <code>Desacelerando</code>, <code>ParadoNaParede</code>, <code>SemLeitura</code> ou <code>ParadoSemLeitura</code>.</li>
 <li><strong><code>ControleMovimento::calcular(const DistanciasLaterais*, dtMs)</code>:</strong> a mesma conta sem acessar o hardware; <code>nullptr</code> representa a falta de leitura. Devolve <code>PotenciaRodas</code> (<code>esquerda</code>, <code>direita</code>).</li>
@@ -4052,6 +4218,11 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <td><code>lib/navegacao</code> (<code>DetectorObjetivo</code>), <code>lib/comunicacao</code> (<code>TelemetriaJson</code>)</td>
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/189">#189</a> Detecção da célula objetivo e evento na telemetria</td>
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/43">HU-07</a> (RF07)</td>
+</tr>
+<tr>
+<td><code>lib/navegacao</code> (<code>Navegacao</code>: validação da pose, <code>cancelarPasso</code>, <code>Bloqueado</code>)</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/357">#357</a> Robustez da navegação</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/42">HU-01</a> (RF01)</td>
 </tr>
 </tbody>
 </table>

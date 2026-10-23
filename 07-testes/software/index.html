@@ -2278,6 +2278,67 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#sprint-5-robustez-da-navegacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sprint 5 · Robustez da navegação
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sprint 5 · Robustez da navegação">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#testes-unitarios-da-navegacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testes unitários da navegação
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verificacao-de-memoria-com-o-addresssanitizer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verificação de memória com o AddressSanitizer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#suite-completa-com-cobertura-e-build-da-placa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Suíte completa com cobertura e build da placa
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pendencias-desta-etapa_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pendências desta etapa
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3383,6 +3444,67 @@
     <span class="md-ellipsis">
       
         Casos de teste e validação dos critérios
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sprint-5-robustez-da-navegacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sprint 5 · Robustez da navegação
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sprint 5 · Robustez da navegação">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#testes-unitarios-da-navegacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testes unitários da navegação
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verificacao-de-memoria-com-o-addresssanitizer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verificação de memória com o AddressSanitizer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#suite-completa-com-cobertura-e-build-da-placa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Suíte completa com cobertura e build da placa
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pendencias-desta-etapa_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pendências desta etapa
       
     </span>
   </a>
@@ -7062,6 +7184,149 @@ Para reproduzir localmente antes da integração com a <code>main</code>, garant
 </tbody>
 </table>
 <p><strong>Resultado consolidado:</strong> 7 de 7 casos aprovados.</p>
+<h3 id="sprint-5-robustez-da-navegacao">Sprint 5 · Robustez da navegação<a class="headerlink" href="#sprint-5-robustez-da-navegacao" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tarefa</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/357">#357 Robustez da navegação: validar a pose e cancelar o passo pendente</a></td>
+</tr>
+<tr>
+<td>História de usuário</td>
+<td>HU-01 · Algoritmo de resolução (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/42">#42</a>), RF01</td>
+</tr>
+<tr>
+<td>Código testado</td>
+<td><code>src/firmware/lib/navegacao</code> (branch <code>fix/robustez-navegacao</code>, commit <code>d7c3644</code>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/400">#400</a>)</td>
+</tr>
+<tr>
+<td>Data da execução</td>
+<td>23/10/2026</td>
+</tr>
+<tr>
+<td>Executado por</td>
+<td>Ana Carolina Fialho</td>
+</tr>
+<tr>
+<td>Documentação do código</td>
+<td><a href="../../04-projeto-conceitual/firmware/#navegacao-robustez-da-pose-e-do-passo">Navegação: robustez da pose e do passo</a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Ambiente de execução:</strong> macOS (Apple Silicon), PlatformIO Core 6.2.0, <code>native</code> 1.2.1, Unity 2.6.1, <code>gcovr</code> 8.6 e Apple clang com AddressSanitizer e UndefinedBehaviorSanitizer.</p>
+<h4 id="testes-unitarios-da-navegacao">Testes unitários da navegação<a class="headerlink" href="#testes-unitarios-da-navegacao" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-61-1" name="__codelineno-61-1" href="#__codelineno-61-1"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native<span class="w"> </span>-f<span class="w"> </span>test_resolucao_mapa
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Caso de teste</th>
+<th>O que verifica</th>
+<th style="text-align: center;">Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test_pose_fora_do_mapa_e_recusada_nos_tres_tamanhos</code></td>
+<td><code>definirPose</code>, <code>moverPara</code> e o construtor recusam célula fora do mapa em 4×4, 8×4 e 12×4, sem mudar a pose nem o passo pendente</td>
+<td style="text-align: center;">Aprovado</td>
+</tr>
+<tr>
+<td><code>test_mapa_trocado_deixa_pose_fora_e_nao_le_o_vetor</code></td>
+<td>Mapa trocado de 12×4 para 4×4 (como no <code>iniciarCorrida</code>): <code>decidirProximaDirecao</code> e <code>darPasso</code> devolvem <code>false</code>; depois de redefinir objetivo e pose, a navegação volta a funcionar</td>
+<td style="text-align: center;">Aprovado</td>
+</tr>
+<tr>
+<td><code>test_parede_registrada_depois_do_passo_nao_prende_o_robo</code></td>
+<td>Parede registrada no caminho depois do planejamento: <code>confirmarPose</code> devolve <code>Bloqueado</code>, o passo é cancelado e o robô replaneja para Leste</td>
+<td style="text-align: center;">Aprovado</td>
+</tr>
+<tr>
+<td><code>test_sem_parede_no_caminho_passo_segue_em_andamento</code></td>
+<td>Caso normal: com parede fora do caminho, o passo segue <code>EmAndamento</code> e depois <code>Confirmada</code></td>
+<td style="text-align: center;">Aprovado</td>
+</tr>
+<tr>
+<td><code>test_cancelar_passo_libera_novo_passo</code></td>
+<td><code>cancelarPasso()</code> limpa o passo pendente e libera um novo <code>darPasso()</code></td>
+<td style="text-align: center;">Aprovado</td>
+</tr>
+<tr>
+<td>12 testes anteriores da suíte (#183)</td>
+<td>Flood fill, ciclo de passo e resolução dos labirintos simulados 4×4, 8×4 e 12×4</td>
+<td style="text-align: center;">Aprovados</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-62-1" name="__codelineno-62-1" href="#__codelineno-62-1"></a>native         test_resolucao_mapa  PASSED    00:00:06.074
+<a id="__codelineno-62-2" name="__codelineno-62-2" href="#__codelineno-62-2"></a>================= 17 test cases: 17 succeeded in 00:00:06.074 =================
+</code></pre></div>
+<h4 id="verificacao-de-memoria-com-o-addresssanitizer">Verificação de memória com o AddressSanitizer<a class="headerlink" href="#verificacao-de-memoria-com-o-addresssanitizer" title="Permanent link">&para;</a></h4>
+<p>Para confirmar que a leitura fora do vetor deixou de existir, as suítes da navegação e do mapa foram compiladas com <code>-fsanitize=address,undefined</code>. Para confirmar que o sanitizador detecta o problema, o mesmo cenário da issue (<code>definirPose({{9, 9}, Direcao::Norte})</code> seguido de <code>decidirProximaDirecao</code>) foi executado contra o código anterior à correção.</p>
+<table>
+<thead>
+<tr>
+<th>Execução</th>
+<th>Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Código <strong>anterior</strong> à correção (<code>main</code> antes do PR #400)</td>
+<td><strong>Erro detectado:</strong> <code>stack-buffer-overflow</code> em <code>Navegacao.cpp:120</code>, dentro de <code>decidirProximaDirecao</code></td>
+</tr>
+<tr>
+<td>Código <strong>corrigido</strong>, mesmo cenário</td>
+<td>Sem erro: a pose (9, 9) é recusada e a decisão usa a pose válida anterior</td>
+</tr>
+<tr>
+<td>Código corrigido, suítes <code>test_resolucao_mapa</code> e <code>test_mapeamento</code></td>
+<td><strong>36 de 36 aprovados</strong>, nenhum acesso inválido</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-63-1" name="__codelineno-63-1" href="#__codelineno-63-1"></a>==50977==ERROR: AddressSanitizer: stack-buffer-overflow on address 0x00016b80e7b7
+<a id="__codelineno-63-2" name="__codelineno-63-2" href="#__codelineno-63-2"></a>READ of size 1 at 0x00016b80e7b7 thread T0
+<a id="__codelineno-63-3" name="__codelineno-63-3" href="#__codelineno-63-3"></a>    #0 0x1045f5554 in micromouse::Navegacao::decidirProximaDirecao(micromouse::Direcao&amp;) Navegacao.cpp:120
+<a id="__codelineno-63-4" name="__codelineno-63-4" href="#__codelineno-63-4"></a>SUMMARY: AddressSanitizer: stack-buffer-overflow Navegacao.cpp:120 in micromouse::Navegacao::decidirProximaDirecao(micromouse::Direcao&amp;)
+</code></pre></div>
+<h4 id="suite-completa-com-cobertura-e-build-da-placa">Suíte completa com cobertura e build da placa<a class="headerlink" href="#suite-completa-com-cobertura-e-build-da-placa" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-64-1" name="__codelineno-64-1" href="#__codelineno-64-1"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native_cobertura
+<a id="__codelineno-64-2" name="__codelineno-64-2" href="#__codelineno-64-2"></a>gcovr<span class="w"> </span>--root<span class="w"> </span>.<span class="w"> </span>--filter<span class="w"> </span><span class="s1">'lib/'</span><span class="w"> </span>--object-directory<span class="w"> </span>.pio/build/native_cobertura<span class="w"> </span>--txt<span class="w"> </span>--fail-under-line<span class="w"> </span><span class="m">80</span>
+<a id="__codelineno-64-3" name="__codelineno-64-3" href="#__codelineno-64-3"></a>pio<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>esp32c3
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Verificação</th>
+<th>Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Todos os testes do firmware</td>
+<td><strong>267 de 267 aprovados</strong></td>
+</tr>
+<tr>
+<td>Cobertura das linhas de <code>lib/</code></td>
+<td><strong>98%</strong> (1157 de 1174); <code>Navegacao.cpp</code> com 94%</td>
+</tr>
+<tr>
+<td>Compilação para o ESP32-C3</td>
+<td><strong>Sucesso</strong></td>
+</tr>
+</tbody>
+</table>
+<h4 id="pendencias-desta-etapa_9">Pendências desta etapa<a class="headerlink" href="#pendencias-desta-etapa_9" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Integração com a <code>Odometria</code> (a célula troca 90 mm antes do centro): o mapa e o <code>darPasso</code> devem ser chamados com o robô perto do centro da célula. Fica para a integração do Épico 02, como registrado na issue.</li>
+</ul>
 
 
 
