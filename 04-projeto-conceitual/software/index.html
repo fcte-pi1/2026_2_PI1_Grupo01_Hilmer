@@ -1388,6 +1388,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#filtro-do-historico-por-labirinto-na-consulta-ao-banco-hu-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filtro do histórico por labirinto na consulta ao banco (HU-15)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#infraestrutura-de-testes-automatizados-e-cliente-supabase-simulado-394" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2434,6 +2445,17 @@
     <span class="md-ellipsis">
       
         Consulta ao histórico de corridas no Supabase (HU-10)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filtro-do-historico-por-labirinto-na-consulta-ao-banco-hu-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filtro do histórico por labirinto na consulta ao banco (HU-15)
       
     </span>
   </a>
@@ -4036,6 +4058,47 @@ o ciclo de vida da requisição e expõe os estados <code>{ corridas, carregando
   a interface exibe <code>"Nenhuma corrida registrada."</code>. Caso o usuário aplique um filtro que não
   tenha correspondências, a mensagem passa a ser <code>"Nenhuma corrida registrada para este filtro."</code>.</li>
 </ul>
+<h4 id="filtro-do-historico-por-labirinto-na-consulta-ao-banco-hu-15">Filtro do histórico por labirinto na consulta ao banco (HU-15)<a class="headerlink" href="#filtro-do-historico-por-labirinto-na-consulta-ao-banco-hu-15" title="Permanent link">&para;</a></h4>
+<p>O controle segmentado do histórico (<code>FiltroLabirinto</code>: Todos, Labirinto 1 (4×4), Labirinto 2
+(8×4) e Labirinto 3 (12×4), Frames <code>04_History_View_M1</code> a <code>M3</code>) passou a <strong>consultar o banco já
+filtrado</strong> (tarefa <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/234">#234</a>, HU-15). Antes, o <code>useCorridas</code> buscava todas as
+corridas e a tela escondia no navegador as de outros labirintos.</p>
+<pre class="mermaid"><code>sequenceDiagram
+    actor U as Usuário
+    participant F as FiltroLabirinto
+    participant T as TelaHistorico
+    participant H as useCorridas(labirintoId)
+    participant DB as Supabase · corridas
+    U-&gt;&gt;F: clica em "Labirinto 2 (8×4)"
+    F-&gt;&gt;T: aoMudar('8x4')
+    T-&gt;&gt;T: '8x4' → labirintoId = 2 (tabela labirintos)
+    T-&gt;&gt;H: useCorridas(2)
+    H-&gt;&gt;DB: select * where labirinto_id = 2&lt;br/&gt;order by data_hora_inicio desc
+    DB--&gt;&gt;H: só as corridas do labirinto 2
+    H--&gt;&gt;T: corridas
+    T--&gt;&gt;U: tabela e contagem do filtro</code></pre>
+<p><strong>Figura.</strong> Fluxo do filtro: a opção escolhida vira o <code>id</code> do labirinto, e o filtro vai na
+consulta ao banco. "Todos" consulta sem filtro.</p>
+<p><strong>Regras.</strong></p>
+<ul>
+<li><strong>Consulta filtrada:</strong> com um labirinto escolhido, o hook consulta
+  <code>corridas</code> com <code>.eq('labirinto_id', id)</code>; com "Todos", sem filtro. A ordenação continua da
+  mais recente para a mais antiga.</li>
+<li><strong>Troca de filtro:</strong> cada troca refaz a consulta, e o botão "Atualizar" repete a consulta
+  com o filtro atual.</li>
+<li><strong>Resposta fora de ordem:</strong> se a pessoa trocar o filtro depressa, só vale a resposta da
+  consulta mais recente. Uma resposta atrasada do filtro anterior é ignorada e não
+  sobrescreve a tabela.</li>
+<li><strong>Sem Supabase configurado:</strong> o filtro é aplicado às corridas de exemplo.</li>
+<li><strong>Filtro no navegador:</strong> continua só como garantia, para as corridas recebidas por props e
+  para um tipo de labirinto que não exista na tabela <code>labirintos</code> (nesse caso a tabela fica
+  vazia).</li>
+</ul>
+<p><strong>Interface.</strong> <code>useCorridas(labirintoId: number | null = null)</code>: <code>null</code> traz todas as corridas;
+um <code>id</code> traz só as daquele labirinto. O retorno não mudou: <code>{ corridas, carregando, erro, recarregar }</code>.</p>
+<p><strong>Observação para o backend.</strong> A coluna <code>corridas.labirinto_id</code> não tem índice nas migrações.
+Com poucas corridas por labirinto não faz diferença; se o histórico crescer, vale
+<code>CREATE INDEX ON corridas (labirinto_id);</code>.</p>
 <h4 id="infraestrutura-de-testes-automatizados-e-cliente-supabase-simulado-394">Infraestrutura de testes automatizados e cliente Supabase simulado (#394)<a class="headerlink" href="#infraestrutura-de-testes-automatizados-e-cliente-supabase-simulado-394" title="Permanent link">&para;</a></h4>
 <p>Para garantir a confiabilidade do dashboard e permitir que as próximas tarefas (#231, #234, #239 e #242) implementem testes de unidade e integração sem depender de conexão com o banco de dados nem expor chaves de serviço, foi desenvolvida a infraestrutura de testes automatizados em <code>src/frontend</code> (tarefa <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/394">#394</a>).</p>
 <p><strong>Tecnologias adotadas:</strong>
@@ -4456,6 +4519,13 @@ O workflow <code>.github/workflows/ci-frontend.yml</code> valida todo PR e <em>p
 <td>Documenta a infraestrutura de testes do frontend (Vitest e Testing Library), o cliente Supabase simulado e o CI (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/394">#394</a>)</td>
 <td>Rafael Lima</td>
 <td>Eduardo Viana</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.5</td>
+<td style="text-align: center;">24/10/2026</td>
+<td>Documenta o filtro do histórico por labirinto na consulta ao banco (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/234">#234</a>)</td>
+<td>Ana Carolina Fialho</td>
+<td>—</td>
 </tr>
 </tbody>
 </table>
