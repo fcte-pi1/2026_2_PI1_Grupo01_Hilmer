@@ -1,53 +1,10 @@
 // Testa as migrações e as funções SQL de corrida num PostgreSQL de verdade (PGlite, em WebAssembly).
 // Imita o Supabase: papéis anon/authenticated/service_role, publicação do Realtime e as permissões
-// padrão que o Supabase concede a anon e authenticated.
+// padrão que o Supabase concede a anon e authenticated (veja `ajudantes.ts`).
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
-import { fileURLToPath } from "node:url";
-import { PGlite } from "@electric-sql/pglite";
-
-const PASTA_MIGRACOES = fileURLToPath(new URL("../supabase/migrations/", import.meta.url));
-
-async function criarBanco(): Promise<PGlite> {
-  const db = new PGlite();
-  await db.exec(`
-    CREATE ROLE anon NOLOGIN;
-    CREATE ROLE authenticated NOLOGIN;
-    CREATE ROLE service_role NOLOGIN BYPASSRLS;
-    CREATE PUBLICATION supabase_realtime;
-    GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
-    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated, service_role;
-    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
-    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO anon, authenticated, service_role;
-  `);
-  const arquivos = readdirSync(PASTA_MIGRACOES).filter((f) => f.endsWith(".sql")).sort();
-  for (const arquivo of arquivos) {
-    await db.exec(readFileSync(join(PASTA_MIGRACOES, arquivo), "utf8"));
-  }
-  return db;
-}
-
-/** Executa como um papel do Supabase e volta ao administrador no fim. */
-async function como<T>(db: PGlite, papel: string, acao: () => Promise<T>): Promise<T> {
-  await db.exec(`SET ROLE ${papel}`);
-  try {
-    return await acao();
-  } finally {
-    await db.exec("RESET ROLE");
-  }
-}
-
-async function mensagemDeErro(promessa: Promise<unknown>): Promise<string> {
-  try {
-    await promessa;
-  } catch (e) {
-    return (e as Error).message;
-  }
-  return "";
-}
+import { como, criarBanco, mensagemDeErro } from "./ajudantes.ts";
 
 test("as migrações rodam em ordem e o seed traz os três labirintos com linhas e colunas certas", async () => {
   const db = await criarBanco();

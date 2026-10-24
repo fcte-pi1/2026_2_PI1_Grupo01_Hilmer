@@ -1,0 +1,135 @@
+{
+  "dimensao": "4x4",
+  "linhas": 4,
+  "colunas": 4,
+  "celulas": [
+    {
+      "linha": 0,
+      "coluna": 0,
+      "parede_norte": false,
+      "parede_sul": true,
+      "parede_leste": false,
+      "parede_oeste": true
+    },
+    {
+      "linha": 0,
+      "coluna": 1,
+      "parede_norte": false,
+      "parede_sul": true,
+      "parede_leste": true,
+      "parede_oeste": false
+    },
+    {
+      "linha": 0,
+      "coluna": 2,
+      "parede_norte": false,
+      "parede_sul": true,
+      "parede_leste": false,
+      "parede_oeste": true
+    },
+    {
+      "linha": 0,
+      "coluna": 3,
+      "parede_norte": false,
+      "parede_sul": true,
+      "parede_leste": true,
+      "parede_oeste": false
+    },
+    {
+      "linha": 1,
+      "coluna": 0,
+      "parede_norte": false,
+      "parede_sul": false,
+      "parede_leste": false,
+      "parede_oeste": true
+    },
+    {
+      "linha": 1,
+      "coluna": 1,
+      "parede_norte": false,
+      "parede_sul": false,
+      "parede_leste": false,
+      "parede_oeste": false
+    },
+    {
+      "linha": 1,
+      "coluna": 2,
+      "parede_norte": false,
+      "parede_sul": false,
+      "parede_leste": true,
+      "parede_oeste": false
+    },
+    {
+      "linha": 1,
+      "coluna": 3,
+      "parede_norte": false,
+      "parede_sul": false,
+      "parede_leste": true,
+      "parede_oeste": true
+    },
+    {
+      "linha": 2,
+      "coluna": 0,
+      "parede_norte": false,
+      "parede_sul": false,
+      "parede_leste": true,
+      "parede_oeste": true
+    },
+    {
+      "linha": 2,
+      "coluna": 1,
+      "parede_norte": false,
+      "parede_sul": false,
+      "parede_leste": false,
+      "parede_oeste": true
+    },
+    {
+      "linha": 2,
+      "coluna": 2,
+      "parede_norte": null,
+      "parede_sul": null,
+      "parede_leste": null,
+      "parede_oeste": null
+    },
+    {
+      "linha": 2,
+      "coluna": 3,
+      "parede_norte": false,
+      "parede_sul": false,
+      "parede_leste": true,
+      "parede_oeste": false
+    },
+    {
+      "linha": 3,
+      "coluna": 0,
+      "parede_norte": true,
+      "parede_sul": false,
+      "parede_leste": false,
+      "parede_oeste": true
+    },
+    {
+      "linha": 3,
+      "coluna": 1,
+      "parede_norte": true,
+      "parede_sul": false,
+      "parede_leste": false,
+      "parede_oeste": false
+    },
+    {
+      "linha": 3,
+      "coluna": 2,
+      "parede_norte": true,
+      "parede_sul": false,
+      "parede_leste": false,
+      "parede_oeste": false
+    },
+    {
+      "linha": 3,
+      "coluna": 3,
+      "parede_norte": true,
+      "parede_sul": false,
+      "parede_leste": true,
+      "parede_oeste": false
+    }
+  ]
+}

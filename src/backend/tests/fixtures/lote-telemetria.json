@@ -1,0 +1,62 @@
+{
+  "corrida_id": 1,
+  "amostras": [
+    {
+      "numero_sequencia": 1,
+      "posicao_linha": 0,
+      "posicao_coluna": 0,
+      "orientacao": "N",
+      "velocidade": 0.0,
+      "tensao_bateria": 0.0,
+      "corrente_bateria": 0.0,
+      "tempo_decorrido": 0.0,
+      "estado_corrida": "parado"
+    },
+    {
+      "numero_sequencia": 2,
+      "posicao_linha": 1,
+      "posicao_coluna": 0,
+      "orientacao": "N",
+      "velocidade": 0.12,
+      "tensao_bateria": 0.0,
+      "corrente_bateria": 0.0,
+      "tempo_decorrido": 1.0,
+      "estado_corrida": "explorando"
+    },
+    {
+      "numero_sequencia": 3,
+      "posicao_linha": 1,
+      "posicao_coluna": 1,
+      "orientacao": "L",
+      "velocidade": 0.18,
+      "tensao_bateria": 0.0,
+      "corrente_bateria": 0.0,
+      "tempo_decorrido": 2.0,
+      "estado_corrida": "explorando"
+    },
+    {
+      "numero_sequencia": 4,
+      "posicao_linha": 2,
+      "posicao_coluna": 3,
+      "orientacao": "N",
+      "velocidade": 0.3,
+      "tensao_bateria": 0.0,
+      "corrente_bateria": 0.0,
+      "tempo_decorrido": 3.0,
+      "estado_corrida": "explorando",
+      "evento": "colisao"
+    },
+    {
+      "numero_sequencia": 5,
+      "posicao_linha": 3,
+      "posicao_coluna": 3,
+      "orientacao": "N",
+      "velocidade": 0.06,
+      "tensao_bateria": 0.0,
+      "corrente_bateria": 0.0,
+      "tempo_decorrido": 4.0,
+      "estado_corrida": "parado",
+      "evento": "objetivo_alcancado"
+    }
+  ]
+}
