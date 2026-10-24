@@ -4,9 +4,11 @@
 /// Navegação e telemetria rodam em tarefas separadas e concorrentes, como no
 /// diagrama de atividades. Os encoders físicos de quadratura são decodificados por
 /// interrupção de hardware no ESP32-C3, alimentam a odometria (pose na malha) e são reportados na
-/// telemetria.
+/// telemetria. O giroscópio do MPU6050 é lido por uma tarefa própria, em intervalo fixo, pelo
+/// barramento I²C que ele divide com os sensores de distância.
 
 #include <Arduino.h>
+#include <Wire.h>
 
 // O log (`Serial`) tem que sair pela USB nativa: GPIO20/21, a UART0, são entradas do driver dos
 // motores. Se esta opção faltar no `platformio.ini`, o log iria para os pinos do motor direito.
@@ -14,11 +16,15 @@
 #error "Serial pela USB nativa: defina ARDUINO_USB_MODE=1 e ARDUINO_USB_CDC_ON_BOOT=1 no platformio.ini (Pinos.h)"
 #endif
 
+#include "AcompanhadorGiro.h"
 #include "ArmazenamentoMapa.h"
+#include "BarramentoI2c.h"
 #include "Configuracao.h"
+#include "ConfiguracaoImu.h"
 #include "ConversorDeslocamento.h"
 #include "DetectorObjetivo.h"
 #include "EncoderEsp32.h"
+#include "ImuMpu6050.h"
 #include "MedidorDeslocamento.h"
 #include "MotoresDrv8833.h"
 #include "Odometria.h"
@@ -66,6 +72,52 @@ static micromouse::MotoresDrv8833 motores(micromouse::pinos::MOTOR_ESQ_IN1,
                                           micromouse::pinos::MOTOR_DIR_IN4,
                                           false,
                                           true);
+
+/// Barramento I²C dos 3 VL53L0X e do MPU6050. Toda transação passa pelo mutex dele (`BarramentoI2c::Uso`),
+/// porque a tarefa da IMU e a navegação (sensores de distância) usam o barramento ao mesmo tempo.
+static micromouse::BarramentoI2c barramentoI2c(Wire);
+
+/// Giroscópio do MPU6050 (#378) e o acompanhamento do ângulo de giro. Só a tarefa da IMU os usa; as
+/// outras tarefas leem a cópia `leituraGiro` por `lerGiro()`.
+static micromouse::ImuMpu6050 imu(barramentoI2c);
+static micromouse::AcompanhadorGiro acompanhadorGiro(imu);
+static micromouse::LeituraGiro leituraGiro;
+static portMUX_TYPE travaGiro = portMUX_INITIALIZER_UNLOCKED;
+
+/// Cópia da última leitura do giroscópio: taxa e ângulo de giro (para os giros de 90° e 180°, #190,
+/// e para a proteção dos motores, #341), com a validade e os contadores.
+[[maybe_unused]] static micromouse::LeituraGiro lerGiro() {
+  portENTER_CRITICAL(&travaGiro);
+  const micromouse::LeituraGiro copia = leituraGiro;
+  portEXIT_CRITICAL(&travaGiro);
+  return copia;
+}
+
+/// Tarefa da IMU: lê o giroscópio a cada `PERIODO_LEITURA_IMU_MS` (10 ms), em intervalo fixo.
+///
+/// Prioridade 3, a maior: a leitura é curta (menos de 1 ms) e o ângulo só fica certo se o intervalo
+/// entre leituras não variar. Nos primeiros 2 s calibra o viés, com o robô parado na largada; se o
+/// robô se mexer, a calibração recomeça sozinha.
+static void tarefaImu(void*) {
+  acompanhadorGiro.iniciarCalibracao();
+  bool calibradoAnunciado = false;
+  TickType_t ultimoInstante = xTaskGetTickCount();
+  for (;;) {
+    vTaskDelayUntil(&ultimoInstante, pdMS_TO_TICKS(micromouse::PERIODO_LEITURA_IMU_MS));
+    // O `vTaskDelayUntil` acorda em múltiplos exatos do período, então o intervalo é o período.
+    const micromouse::LeituraGiro leitura = acompanhadorGiro.ciclo(micromouse::PERIODO_LEITURA_IMU_MS);
+
+    portENTER_CRITICAL(&travaGiro);
+    leituraGiro = leitura;
+    portEXIT_CRITICAL(&travaGiro);
+
+    if (!calibradoAnunciado && leitura.calibracao == micromouse::EstadoCalibracao::Calibrado) {
+      calibradoAnunciado = true;
+      Serial.printf("{\"status\":\"giroscopio_calibrado\",\"recusadas\":%lu}\n",
+                    static_cast<unsigned long>(leitura.calibracoesRecusadas));
+    }
+  }
+}
 
 /// Tarefa de navegação: ciclo percepção → decisão → atuação, a cada 10 ms.
 ///
@@ -154,7 +206,7 @@ static void tarefaTelemetria(void*) {
   }
 }
 
-/// Inicializa o log serial pela USB nativa, os encoders e cria as duas tarefas.
+/// Inicializa o log serial pela USB nativa, os encoders, o barramento I²C e a IMU, e cria as tarefas.
 void setup() {
   Serial.begin(115200);
   // Sem um computador conectado, a escrita na USB CDC esperaria o tempo limite a cada chamada e
@@ -169,6 +221,17 @@ void setup() {
   encoderEsq.iniciar();
   encoderDir.iniciar();
 
+  // Barramento I²C (ToF e IMU) e o MPU6050. Sem a IMU o firmware segue, sem ângulo de giro válido.
+  if (!barramentoI2c.iniciar(micromouse::pinos::I2C_SDA, micromouse::pinos::I2C_SCL)) {
+    Serial.println("{\"status\":\"falha_barramento_i2c\"}");
+  }
+  if (imu.iniciar()) {
+    Serial.printf("{\"status\":\"imu_iniciada\",\"who_am_i\":\"0x%02X\"}\n", imu.identificacao());
+  } else {
+    Serial.println("{\"status\":\"falha_imu\"}");
+  }
+
+  xTaskCreate(tarefaImu, "imu", 3072, nullptr, 3, nullptr);
   xTaskCreate(tarefaNavegacao, "navegacao", 4096, nullptr, 2, nullptr);
   xTaskCreate(tarefaTelemetria, "telemetria", 4096, nullptr, 1, nullptr);
 }
