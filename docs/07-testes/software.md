@@ -1945,3 +1945,127 @@ A infraestrutura entregue nesta issue desbloqueia a escrita de testes unitários
 - [#234 Filtro de histórico](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/234): expandirá os testes de filtros e paginação da tela de histórico.
 - [#239 Exibição de mapa e percurso](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/239): utilizará os testes de parsing e células de `labirinto.ts` integrados à grade visual.
 - [#242 Estado "Aguardando Largada"](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/242): utilizará o hook `useReproducaoCorrida` e os estados do painel.
+
+### Sprint 5 · Motores N20: freio no boot, duty máximo e motor travado sem encoder
+
+| Item | Valor |
+|---|---|
+| Tarefa | [#341 Motores N20 pelo DRV8833: novos pinos, tensão e proteção sem encoder](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/341) |
+| História de usuário | HU-01 · Algoritmo de Resolução ([#42](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/42)), RF01 |
+| Código testado | `src/firmware/lib/atuacao` e `lib/drivers_esp32/src/MotoresDrv8833` (branch `feat/341-motores-n20` com a `feat/341-protecao-pwm`: commits `ded7cdb`, `e1447bf` e `e3bc772`, PR [#396](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/396)) |
+| Data da execução | 24/10/2026 |
+| Executado por | Eduardo Viana |
+| Tipo de teste | Unitário e de integração, no computador, com `MotoresSimulados` e `LidarSimulado` |
+| Documentação do código | [Atuação: motores N20 e proteção sem encoder](../04-projeto-conceitual/firmware.md#atuacao-motores-n20-e-protecao-sem-encoder) |
+
+**Ambiente de execução:** Linux (Ubuntu 24.04), GCC 13.3, Unity 2.6.1 e ArduinoJson 7.4.2, com as mesmas bibliotecas do ambiente `native` (todas as de `lib/`, menos `drivers_esp32`). Cobertura medida com `gcov`, somando todas as suítes.
+
+!!! warning "Testes no computador"
+    Os motores, o ToF frontal e o giroscópio foram simulados. O freio no boot, o tranco pelos GPIO20/21 e o corte com uma roda presa só podem ser conferidos na bancada ([#381](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/381)).
+
+#### Critérios da issue e testes
+
+| Critério da #341 | Como foi verificado | Situação |
+|---|---|:-:|
+| Pinos conforme a Rev 2.0, vindos de `Pinos.h` | O `main.cpp` cria o `MotoresDrv8833` com `pinos::MOTOR_ESQ_IN1`, `MOTOR_ESQ_IN2`, `MOTOR_DIR_IN3` e `MOTOR_DIR_IN4` (GPIO10, 3, 20 e 21); `test_pinos` confere que nenhum GPIO se repete | Aprovado |
+| Motores em freio antes do PWM; tranco no boot documentado no README | Revisão do código: `motores.iniciar()` é a primeira linha do `setup()` e põe os pinos em nível alto antes de ligar o PWM, que começa com duty total; seção "Tranco no boot" no README do firmware | Aprovado no código; tranco a medir na bancada |
+| Duty máximo configurável e comprovado em teste no computador | 7 testes do duty em `test_motores` | Aprovado |
+| Motor travado por tempo contínuo em duty alto, sem variação do ToF frontal nem do giroscópio | 22 testes da `ProtecaoMotorTravado` e 8 da `MotoresComProtecao` | Aprovado no computador; as medidas reais entram com o ToF (PR [#391](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/391)) e a IMU (PR [#403](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/403)) |
+| Parâmetros provisórios listados no README do firmware | Tabela "Valores provisórios" da seção "Motores N20 (DRV8833)" | Aprovado |
+
+#### Duty máximo e `MotoresComProtecao`
+
+```bash
+pio test -e native -f test_motores
+```
+
+| Caso de teste | O que verifica | Resultado |
+|---|---|:-:|
+| `test_duty_total_pela_resolucao` | 10 bits dão 1023 de duty total; 8 bits, 255 | Aprovado |
+| `test_duty_maximo_e_a_fracao_configurada_do_total` | 70% de 1023 = 716 (arredonda para baixo); 50% = 511; 0% = 0; acima de 100% vale 100% | Aprovado |
+| `test_duty_maximo_em_uso_vem_da_configuracao` | `DUTY_MAXIMO_MOTORES` sai de `ConfiguracaoMotores.h` e não passa do duty total | Aprovado |
+| `test_potencia_maxima_vira_o_duty_maximo_e_nao_100_por_cento` | Potência 1000 para a frente e para trás vira o duty máximo, e não 1023 | Aprovado |
+| `test_potencias_menores_sao_proporcionais_ao_duty_maximo` | Potência 500 vira metade do duty máximo (358), e não 511 | Aprovado |
+| `test_nenhuma_potencia_passa_do_duty_maximo` | De −1500 a 1500, com e sem motor invertido, nenhuma entrada passa do duty máximo | Aprovado |
+| `test_freio_usa_o_duty_total` | O freio põe IN1 e IN2 em 1023: o limite não vale para ele | Aprovado |
+| `test_comandos_chegam_ao_driver_limitados` | O decorador repassa a potência ao driver, limitada a ±1000, e repassa o freio | Aprovado |
+| `test_robo_travado_e_freado_no_tempo_limite` | Cruzeiro sem movimento: monitorando até 400 ms e freado aos 500 ms, com 1 corte contado | Aprovado |
+| `test_travado_recusa_comandos_ate_liberar` | Travado, o comando de andar vira freio e é contado; ciclos seguintes não contam corte novo; depois de `liberar()`, os comandos voltam a chegar | Aprovado |
+| `test_robo_andando_ou_girando_nao_e_freado` | Andando 20 mm a cada 100 ms ou girando no lugar a 90 °/s, não há corte | Aprovado |
+| `test_potencia_baixa_ou_sem_leitura_frontal_nao_freia` | Potência 200 (zona morta) ou ToF frontal inválido nunca freiam | Aprovado |
+| `test_freio_comandado_zera_a_contagem` | Um freio pedido pelo controle zera a contagem; ao religar, ela recomeça do zero | Aprovado |
+| `test_configuracao_da_protecao_passa_pelo_decorador` | Com tempo limite de 200 ms na configuração, o decorador freia em 2 ciclos | Aprovado |
+| `test_integracao_controle_com_robo_preso` | Integração: o `ControleMovimento` manda cruzeiro pelo decorador com o `LidarSimulado` parado; freio em 5 ciclos (500 ms), e os 5 comandos seguintes são recusados | Aprovado |
+
+**Resultado:** 15 de 15 aprovados (14 unitários e 1 de integração).
+
+#### Detecção do motor travado (`ProtecaoMotorTravado`)
+
+```bash
+pio test -e native -f test_protecao_motor
+```
+
+| Grupo | Casos | O que verificam | Resultado |
+|---|:-:|---|:-:|
+| Regra do travamento | 6 | Duty alto sem movimento trava aos 500 ms (e não aos 499 ms); potência abaixo de 300 nunca trava; basta uma roda em duty alto; a ré também conta; 300 trava e 299 não | Aprovado |
+| Sinais de movimento | 6 | Aproximar ou afastar da parede não trava; girar no lugar, para os dois lados, não trava; variação frontal de exatamente 5 mm e taxa de exatamente 5 °/s contam como movimento, um a menos não | Aprovado |
+| Reinício da contagem | 6 | Sem leitura frontal, a contagem recomeça; potência baixa no meio zera; anda e depois prende, e a janela seguinte pega; travado só sai com `reiniciar()`; a configuração muda os 4 limites; `dt` zero não avança o tempo | Aprovado |
+| Integração com o `ControleMovimento` | 4 | Robô preso freado em 5 ciclos; robô andando até a parede nunca freado; depois de reiniciar, volta a andar; sem leitura do sensor, a proteção não dispara | Aprovado |
+
+**Resultado:** 22 de 22 aprovados (18 unitários e 4 de integração).
+
+```text
+test/test_motores/test_motores.cpp:223: test_duty_total_pela_resolucao [PASSED]
+test/test_motores/test_motores.cpp:224: test_duty_maximo_e_a_fracao_configurada_do_total [PASSED]
+test/test_motores/test_motores.cpp:225: test_duty_maximo_em_uso_vem_da_configuracao [PASSED]
+test/test_motores/test_motores.cpp:226: test_potencia_maxima_vira_o_duty_maximo_e_nao_100_por_cento [PASSED]
+test/test_motores/test_motores.cpp:227: test_potencias_menores_sao_proporcionais_ao_duty_maximo [PASSED]
+test/test_motores/test_motores.cpp:228: test_nenhuma_potencia_passa_do_duty_maximo [PASSED]
+test/test_motores/test_motores.cpp:229: test_freio_usa_o_duty_total [PASSED]
+test/test_motores/test_motores.cpp:230: test_comandos_chegam_ao_driver_limitados [PASSED]
+test/test_motores/test_motores.cpp:231: test_robo_travado_e_freado_no_tempo_limite [PASSED]
+test/test_motores/test_motores.cpp:232: test_travado_recusa_comandos_ate_liberar [PASSED]
+test/test_motores/test_motores.cpp:233: test_robo_andando_ou_girando_nao_e_freado [PASSED]
+test/test_motores/test_motores.cpp:234: test_potencia_baixa_ou_sem_leitura_frontal_nao_freia [PASSED]
+test/test_motores/test_motores.cpp:235: test_freio_comandado_zera_a_contagem [PASSED]
+test/test_motores/test_motores.cpp:236: test_configuracao_da_protecao_passa_pelo_decorador [PASSED]
+test/test_motores/test_motores.cpp:237: test_integracao_controle_com_robo_preso [PASSED]
+test/test_protecao_motor/test_protecao_motor.cpp:335: test_duty_alto_sem_movimento_trava_no_tempo_limite [PASSED]
+test/test_protecao_motor/test_protecao_motor.cpp:336: test_nao_trava_antes_do_tempo_limite [PASSED]
+test/test_protecao_motor/test_protecao_motor.cpp:337: test_potencia_baixa_nunca_trava [PASSED]
+test/test_protecao_motor/test_protecao_motor.cpp:338: test_basta_uma_roda_em_duty_alto [PASSED]
+test/test_protecao_motor/test_protecao_motor.cpp:339: test_re_em_duty_alto_tambem_trava [PASSED]
+test/test_protecao_motor/test_protecao_motor.cpp:340: test_limite_da_potencia_alta [PASSED]
+test/test_protecao_motor/test_protecao_motor.cpp:341: test_aproximacao_da_parede_nao_trava [PASSED]
+test/test_protecao_motor/test_protecao_motor.cpp:342: test_afastamento_da_parede_nao_trava [PASSED]
+test/test_protecao_motor/test_protecao_motor.cpp:343: test_giro_no_lugar_nao_trava [PASSED]
+test/test_protecao_motor/test_protecao_motor.cpp:344: test_giro_negativo_tambem_conta [PASSED]
+test/test_protecao_motor/test_protecao_motor.cpp:345: test_limite_da_variacao_frontal [PASSED]
+test/test_protecao_motor/test_protecao_motor.cpp:346: test_limite_da_taxa_de_giro [PASSED]
+test/test_protecao_motor/test_protecao_motor.cpp:347: test_sem_leitura_frontal_nao_trava_e_zera_a_contagem [PASSED]
+test/test_protecao_motor/test_protecao_motor.cpp:348: test_potencia_baixa_no_meio_zera_a_contagem [PASSED]
+test/test_protecao_motor/test_protecao_motor.cpp:349: test_trava_depois_de_andar_um_tempo [PASSED]
+test/test_protecao_motor/test_protecao_motor.cpp:350: test_travado_so_sai_com_reiniciar [PASSED]
+test/test_protecao_motor/test_protecao_motor.cpp:351: test_configuracao_altera_os_limites [PASSED]
+test/test_protecao_motor/test_protecao_motor.cpp:352: test_dt_zero_nao_avanca_o_tempo [PASSED]
+test/test_protecao_motor/test_protecao_motor.cpp:353: test_integracao_robo_preso_e_freado [PASSED]
+test/test_protecao_motor/test_protecao_motor.cpp:354: test_integracao_robo_andando_nao_e_freado [PASSED]
+test/test_protecao_motor/test_protecao_motor.cpp:355: test_integracao_destrava_e_volta_a_andar [PASSED]
+test/test_protecao_motor/test_protecao_motor.cpp:356: test_integracao_sem_leitura_nao_dispara_a_protecao [PASSED]
+```
+
+#### Cobertura, suíte completa e compilação da placa
+
+| Arquivo | Linhas | Cobertura |
+|---|:-:|:-:|
+| `lib/atuacao/src/MotoresComProtecao.cpp` e `.h` | 26 | 100% |
+| `lib/atuacao/src/ProtecaoMotorTravado.cpp` e `.h` | 49 | 100% |
+| `lib/atuacao/src/ConfiguracaoMotores.h` | 3 | 100% |
+| **Total do firmware** (`lib/`) | 1096 | **97,0%** |
+
+Suíte completa do firmware nesta branch: **299 de 299 aprovados**, em 21 suítes. O `MotoresDrv8833.cpp` e o `main.cpp` passaram pela verificação de sintaxe com os cabeçalhos do Arduino-ESP32 2.x e 3.x; o build completo (`pio run -e esp32c3`) é conferido pelo CI do PR.
+
+#### Pendências desta etapa
+
+- Ligar as medidas reais na proteção: a taxa do giroscópio quando a IMU (PR [#403](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/403)) chegar à `main`, e o ToF frontal com o driver dos VL53L0X (PR [#391](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/391)). Até lá, a proteção está no caminho dos comandos, mas não freia.
+- Bancada ([#381](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/381)): tranco no boot, sentido das rodas, duty máximo com a tensão real do VM e o corte com uma roda presa em potência de cruzeiro.
