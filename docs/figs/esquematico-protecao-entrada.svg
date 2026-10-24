@@ -152,16 +152,16 @@
   <rect x="775" y="115" width="118" height="265" fill="#eef7ee" stroke="#006400" stroke-width="2" rx="4"/>
   <text x="786" y="135" class="ref" fill="#004d00">INTEGRAÇÃO PCB</text>
   <text x="784" y="152" class="val" fill="#004d00">1: +VBAT_PROT</text>
-  <text x="784" y="168" class="note">→ Chave SW1 (KCD1)</text>
-  <text x="784" y="183" class="note">→ Buck +5V (LM2596)</text>
-  <text x="784" y="198" class="note">→ Buck +3V3 (MP1584)</text>
-  <text x="784" y="213" class="note">→ Ponte H (DRV8833)</text>
-  <text x="784" y="228" class="note">→ ADC UVLO (GPIO 2)</text>
+  <text x="784" y="168" class="note">→ Chave SW1 (VBAT)</text>
+  <text x="784" y="183" class="note">→ Buck +6V (MP1584 U4)</text>
+  <text x="784" y="198" class="note">→ Buck +5V (MP1584 U2)</text>
+  <text x="784" y="213" class="note">→ Buck +3V3 (MP1584 U5)</text>
+  <text x="784" y="228" class="note">→ ADC (BAT_ADC_TEST)</text>
   <text x="784" y="354" class="val" fill="#004d00">2: GND_COMUM</text>
 
   <!-- Title Block (Bottom Right KiCad Style) -->
   <rect x="480" y="392" width="426" height="54" fill="#fffafa" stroke="#840000" stroke-width="1"/>
   <text x="492" y="410" class="title-txt">PROJETO: Micromouse PI1 — Grupo 01 (Prof. Dr. Hilmer Neri)</text>
   <text x="492" y="426" class="note">FOLHA: Proteções de Entrada (PPTC + P-MOSFET High-Side) — Issue #200</text>
-  <text x="492" y="440" class="fp">Arquivo KiCad: hw/protecao_entrada.kicad_sch | Rev 1.0 | Out/2026</text>
+  <text x="492" y="440" class="fp">Arquivo KiCad: hw/protecao_entrada.kicad_sch | Rev 2.0 | Out/2026</text>
 </svg>

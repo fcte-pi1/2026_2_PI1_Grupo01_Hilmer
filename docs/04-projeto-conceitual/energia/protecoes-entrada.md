@@ -9,8 +9,8 @@ A fonte primária homologada para o robô é o pack **Tattu LiPo 2S1P 650 mAh 75
 Essa característica impõe dois requisitos críticos para o estágio de entrada da placa de circuito impresso (PCB):
 
 1. **Proteção contra Curto-Circuito e Travamento de Motores (Fusível Rearmável PPTC):** Um eventual curto-circuito acidental nos barramentos ou o travamento mecânico prolongado (*stall*) de ambos os micromotores GA12-N20 na pista geraria correntes elevadas capazes de carbonizar trilhas de cobre, danificar o driver DRV8833 ou provocar estufamento térmico das células da bateria. O uso de um fusível polimérico rearmável (**PPTC — *Polymeric Positive Temperature Coefficient***) garante o seccionamento automático sob anomalia e o rearme passivo após a remoção da falha, sem necessidade de substituição de fusíveis de vidro durante a competição.
-2. **Proteção Ativa contra Inversão de Polaridade (P-MOSFET High-Side):** Embora o conector XT-30 possua chanfro mecânico polarizado, testes de bancada com fontes ajustáveis, cabos adaptadores ou retrabalho de solda expõem o robô ao risco de conexão reversa, o que destruiria instantaneamente os reguladores LM2596, MP1584EN, o driver DRV8833 e o microcontrolador ESP32-C3.
-   * **Por que não utilizar um Diodo Schottky convencional em série?** Um diodo Schottky de potência apresenta queda de tensão direta típica de $V_F \approx 0{,}35\text{ V a }0{,}50\text{ V}$. Quando a bateria atinge o limiar inferior de operação em **6,60 V** (definido pelo corte de subtensão UVLO), um diodo reduziria a tensão entregue ao regulador Buck de 5 V (**LM2596**) para $\approx 6{,}15\text{ V}$, violando a tensão mínima de *dropout* do LM2596 ($V_{\text{in,mín}} = 5{,}0\text{ V} + 1{,}5\text{ V} = \mathbf{6{,}50\text{ V}}$) e desestabilizando o sensor LiDAR ToF.
+2. **Proteção Ativa contra Inversão de Polaridade (P-MOSFET High-Side):** Embora o conector XT-30 possua chanfro mecânico polarizado, testes de bancada com fontes ajustáveis, cabos adaptadores ou retrabalho de solda expõem o robô ao risco de conexão reversa, o que destruiria instantaneamente os três reguladores Buck **MP1584EN (`U2`, `U4`, `U5`)**, o driver **DRV8833 (`U6`)**, os sensores I²C (**3× `VL53L0X` e `MPU6050`**) e o microcontrolador **ESP32-C3 Super Mini (`U3`)**.
+   * **Por que não utilizar um Diodo Schottky convencional em série?** Um diodo Schottky de potência apresenta queda de tensão direta típica de $V_F \approx 0{,}35\text{ V a }0{,}50\text{ V}$. Quando a bateria atinge o limiar inferior de operação em **6,60 V** (definido pelo corte de subtensão UVLO), um diodo reduziria a tensão entregue na entrada dos conversores Step-Down para $\approx 6{,}10\text{ V}$, comprimindo a margem de regulação do conversor **MP1584EN de +6,0 V (`U4`)** dedicado aos motores e dissipando potência térmica desnecessária na placa.
    * **Solução Adotada:** Emprega-se um transistor **MOSFET de Canal P (P-MOSFET)** em configuração reversa *High-Side* com resistência de condução ultrabaixa ($R_{\text{DS(on)}} < 50\text{ m}\Omega$), reduzindo a queda de tensão no regime nominal para **menos de 0,02 V**.
 
 ---
@@ -21,7 +21,7 @@ O dimensionamento da janela de atuação das proteções baseia-se nas demandas 
 
 | Regime Operacional | Componentes Ativos e Condição | Corrente no Barramento 2S ($I_{\text{BAT}}$) | Duração Típica | Comportamento Esperado da Proteção |
 | :--- | :--- | :---: | :---: | :--- |
-| **1. Regime Nominal (Cruzeiro)** | ESP32-C3 + LiDAR + Encoders + 2× Motores N20 em velocidade constante | **$0{,}43\text{ A a }0{,}60\text{ A}$** | Contínuo (até 30 min) | Condução plena; queda $\Delta V_{\text{MOS}} < 0{,}05\text{ V}$; PPTC frio. |
+| **1. Regime Nominal (Cruzeiro)** | ESP32-C3 Super Mini + 3× Sensores ToF VL53L0X + IMU MPU6050 + 2× Motores N20 em velocidade constante | **$0{,}42\text{ A a }0{,}60\text{ A}$** | Contínuo (até 30 min) | Condução plena; queda $\Delta V_{\text{MOS}} < 0{,}05\text{ V}$; PPTC frio. |
 | **2. Pico Dinâmico (Arrancadas / Curvas)** | Partida simultânea dos 2 motores N20 + pico de transmissão Wi-Fi do ESP32 | **$1{,}40\text{ A a }1{,}75\text{ A}$** | Transitório ($< 500\text{ ms}$) | **Não deve desarmar** ($I_{\text{pico}} < I_{\text{hold}}$ do PPTC). |
 | **3. Travamento Mecânico (*Stall* Duplo)** | Roda bloqueada contra parede com PWM no teto de 71% ($V_{\text{ef}} = 6{,}0\text{ V}$, $I_{\text{stall,N20}} \approx 0{,}80\text{ A a }1{,}0\text{ A}$ por motor) + cargas lógicas | **$1{,}80\text{ A a }2{,}30\text{ A}$** | Segundos (até detecção por odometria) | Aquecimento gradual do PPTC; proteção primária pelo driver DRV8833 e odometria. |
 | **4. Sobrecarga Severa / Curto-Circuito** | Travamento sob tensão plena sem limitação PWM, falha na ponte H ou curto na PCB | **$> 3{,}50\text{ A}$** (até $48\text{ A}$ sem proteção) | Imediato | **Desarme obrigatório (*Trip*)** do fusível PPTC em poucos segundos. |
@@ -115,10 +115,10 @@ Homologa-se o fusível rearmável **Bourns Multifuse® MF-R185** (versão radial
 | Tempo Típico de Disparo (*Time-to-Trip*) | $T_{\text{trip}}$ | **$8{,}7\text{ s}$** (@ $3{,}7\text{ A}$) / **$0{,}6\text{ s}$** (@ $9{,}25\text{ A}$) | Proteção contra stall/curto | Conforme |
 | Potência Dissipada em Estado *Tripped* | $P_{d,\text{typ}}$ | **$1{,}00\text{ W}$** ($I_{\text{res}} \approx 120\text{ mA}$ @ $8{,}4\text{ V}$) | Estado travado seguro | Conforme |
 
-### 4.3 Cálculo de Queda de Tensão no PPTC e Balanço Global na Entrada do LM2596
+### 4.3 Cálculo de Queda de Tensão no PPTC e Balanço Global na Entrada dos Conversores MP1584EN
 
 1. **Queda de Tensão no PPTC ($\Delta V_{\text{PPTC}}$):**
-   * Em regime nominal ($I_{\text{nom}} = 0{,}432\text{ A}$, $R_{\text{típ}} = 0{,}045\ \Omega$):
+   * Em regime nominal ($I_{\text{nom}} \approx 0{,}426\text{ A a }0{,}432\text{ A}$, $R_{\text{típ}} = 0{,}045\ \Omega$):
      $$\Delta V_{\text{PPTC,nom}} = 0{,}432\text{ A} \cdot 0{,}045\ \Omega = \mathbf{0{,}0194\text{ V}} \ (\mathbf{19{,}4\text{ mV}})$$
    * Dissipação ôhmica nominal no PPTC:
      $$P_{D,\text{PPTC}} = (0{,}432)^2 \cdot 0{,}045 = \mathbf{0{,}0084\text{ W}} \ (\mathbf{8{,}4\text{ mW}})$$
@@ -127,20 +127,23 @@ Homologa-se o fusível rearmável **Bourns Multifuse® MF-R185** (versão radial
    Somando as resistências em série do fusível PPTC ($45\text{ m}\Omega$) e do P-MOSFET ($30\text{ m}\Omega$), a resistência equivalente total da malha de proteção é $R_{\text{prot,total}} = \mathbf{75\text{ m}\Omega}$ ($0{,}075\ \Omega$):
    $$\Delta V_{\text{total,nom}} = \Delta V_{\text{PPTC,nom}} + \Delta V_{\text{MOS,nom}} = 19{,}4\text{ mV} + 13{,}0\text{ mV} = \mathbf{32{,}4\text{ mV}} \ (\mathbf{0{,}0324\text{ V}})$$
 
-3. **Validação da Margem de *Dropout* do Regulador LM2596 (+5V0):**
+3. **Validação da Margem de Regulação dos Conversores Buck MP1584EN (`U4` +6V0 e `U2` +5V0):**
    Quando a bateria atinge a tensão mínima de corte por software (**$V_{\text{BAT,min}} = 6{,}600\text{ V}$**), a tensão efetiva entregue no barramento protegido `+VBAT_PROT` é:
-   $$V_{\text{PROT,min}} = 6{,}600\text{ V} - 0{,}0324\text{ V} = \mathbf{6{,}5676\text{ V}} > 6{,}500\text{ V} \ (V_{\text{dropout,LM2596}})$$
-   Comprova-se, portanto, que a malha de proteção preserva integralmente a estabilidade do barramento de $+5{,}0\text{ V}$ até o instante exato do desligamento por UVLO.
+   $$V_{\text{PROT,min}} = 6{,}600\text{ V} - 0{,}0324\text{ V} = \mathbf{6{,}5676\text{ V}}$$
+   Comprova-se, portanto, que a malha de proteção preserva integralmente a estabilidade do barramento de $+5{,}0\text{ V}$ (`U2` — `ESP32-C3 Super Mini`, cujo *dropout* no `MP1584EN` ocorre apenas abaixo de $\approx 5{,}35\text{ V}$) e mantém margem adequada para o conversor de $+6{,}0\text{ V}$ (`U4` — `DRV8833`) até o instante exato do desligamento por UVLO.
 
 ---
 
 ## 5. Esquemático Elétrico no KiCad e Pinagem de Integração
 
-O circuito foi desenhado de forma modular no arquivo nativo do KiCad [**`hw/protecao_entrada.kicad_sch`**](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/main/hw/protecao_entrada.kicad_sch), pronto para instanciação como folha hierárquica ou bloco direto no esquemático principal da placa-mãe.
+O circuito completo de proteção foi desenhado de forma modular no arquivo nativo do KiCad [**`hw/protecao_entrada.kicad_sch`**](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/protecao_entrada.kicad_sch), estruturado para instanciação como folha hierárquica ou bloco de proteção na placa-mãe.
+
+> **Nota sobre a Organização Modular do Esquemático (`Micromouse.kicad_sch`):**  
+> Na folha principal do esquemático ([`hw/Micromouse.pdf`](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/Micromouse.pdf)), o estágio de entrada é representado com o conector da bateria (`BT1`), o fusível rearmável PPTC (`F1` — Bourns MF-R185) e a chave geral (`SW1`), enquanto o bloco ativo contra inversão de polaridade composto pelo P-MOSFET `Q1` (`AO3407A`), diodo Zener `D_Z1` (`BZT52C12`) e resistor `R_G1` (`100 kΩ`) encontra-se detalhado no subesquemático dedicado `hw/protecao_entrada.kicad_sch` para integração modular na PCB.
 
 <figure markdown>
 
-![Esquemático da Malha de Proteção de Entrada do Micromouse](../figs/esquematico-protecao-entrada.svg){ width="900" }
+![Esquemático da Malha de Proteção de Entrada do Micromouse](../../figs/esquematico-protecao-entrada.svg){ width="900" }
 
 <figcaption>
 
@@ -154,7 +157,7 @@ O circuito foi desenhado de forma modular no arquivo nativo do KiCad [**`hw/prot
 
 | Referência KiCad | Componente / *Part Number* | Função na Malha | *Footprint* KiCad Definido |
 | :---: | :--- | :--- | :--- |
-| **`BT1` / `J1`** | Conector **AMASS XT30U-M** (Bateria Tattu 2S) | Entrada polarizada de alta corrente da bateria LiPo 2S | `Connector_AMASS:AMASS_XT30U-M_1x02_P5.0mm_Vertical` |
+| **`BT1`** | Conector **AMASS XT30U-M** (Bateria Tattu 2S) | Entrada polarizada de alta corrente da bateria LiPo 2S | `Connector_AMASS:AMASS_XT30U-M_1x02_P5.0mm_Vertical` |
 | **`F1`** | **Bourns MF-R185** (ou SMD **MF-MSMF185**) | Fusível rearmável PPTC ($I_{\text{hold}}=1{,}85\text{ A}$, $I_{\text{trip}}=3{,}7\text{ A}$, $30\text{ V}$) | `Fuse:Fuse_Bourns_MF-R185` *(Alt SMD: `Fuse:Fuse_1812_4532Metric`)* |
 | **`Q1`** | **AO3407A** (ou **DMP2035U**) | P-MOSFET Canal P ($R_{\text{DS(on)}}=28\text{ m}\Omega$, $-20\text{ V}$, $-4{,}3\text{ A}$) | `Package_TO_SOT_SMD:SOT-23` |
 | **`R_G1`** | Resistor SMD **$100\text{ k}\Omega$** ($1/8\text{ W}$, 1%) | Polarização *pull-down* do Gate para o `GND` | `Resistor_SMD:R_0805_2012Metric` |
@@ -169,8 +172,8 @@ Para a integração física e lógica do subcircuito `hw/protecao_entrada.kicad_
 | **`VBAT_RAW`** | Entrada | Pino `1 (+)` do conector XT-30 (`BT1`) | Terminal `1` do Fusível PPTC (`F1`) | $6{,}60\text{ V a }8{,}40\text{ V}$ (direto da LiPo) |
 | **`VBAT_FUSED`** | Interno | Terminal `2` do Fusível PPTC (`F1`) | Pino `3 (Drain)` do P-MOSFET (`Q1`) | $6{,}58\text{ V a }8{,}40\text{ V}$ (protegido contra sobrecorrente) |
 | **`GATE_BIAS`** | Interno | Pino `1 (Gate)` do P-MOSFET (`Q1`) | Terminal `1` de `R_G1` ($100\text{ k}\Omega$) e Ânodo (`2`) de `D_Z1` | $0\text{ V}$ em operação normal ($V_{GS} = -V_{\text{BAT}}$) |
-| **`+VBAT_PROT`** | **Saída Principal** | Pino `2 (Source)` de `Q1` e Cátodo (`1`) de `D_Z1` | Terminal `1` da Chave Geral `SW1` (KCD1) $\rightarrow$ Barramento **`+VBAT_2S`** (entradas `IN` do LM2596 e MP1584EN, pino `VM` do DRV8833 e resistor $R_1$ do divisor ADC GPIO 2) | $6{,}57\text{ V a }8{,}39\text{ V}$ (protegido contra inversão e curto) |
-| **`GND`** | **Referência Comum** | Pino `2 (-)` do conector XT-30 (`BT1`) e Pino `2` de `R_G1` | Nó central de **GND em Estrela** da PCB (retorno de potência do DRV8833, reguladores Buck e lógica do ESP32-C3) | $0{,}00\text{ V}$ |
+| **`+VBAT_PROT`** | **Saída Principal** | Pino `2 (Source)` de `Q1` e Cátodo (`1`) de `D_Z1` | Terminal `1` da Chave Geral `SW1` $\rightarrow$ Barramento **`VBAT`** (entradas `IN+` dos três conversores Buck **MP1584EN** `U2` +5V0, `U4` +6V0 e `U5` +3V3, e resistor $R_1$ do divisor de monitoramento de tensão **`BAT_ADC_TEST`**) | $6{,}57\text{ V a }8{,}39\text{ V}$ (protegido contra inversão e curto) |
+| **`GND`** | **Referência Comum** | Pino `2 (-)` do conector XT-30 (`BT1`) e Pino `2` de `R_G1` | Nó central de **GND em Estrela** da PCB (retorno de potência do DRV8833 `U6`, reguladores Buck `U2/U4/U5`, sensores `J3–J6` e lógica do ESP32-C3 Super Mini `U3`) | $0{,}00\text{ V}$ |
 
 ## 6. Referências Bibliográficas
 
@@ -186,3 +189,4 @@ Para a integração física e lógica do subcircuito `hw/protecao_entrada.kicad_
 | Versão | Data | Descrição | Autor(es) | Revisor(es) |
 | :---: | :---: | :--- | :--- | :--- |
 | 1.0 | 17/10/2026 | Elaboração do memorial de cálculo e esquemático da malha de proteção de entrada (P-MOSFET AO3407A e PPTC MF-R185) — Issue #200 | Paulo Melo | Equipe de Energia e Hardware |
+| 1.1 | 23/10/2026 | Alinhamento com a Revisão 2.0 de Hardware: atualização dos barramentos para 3× MP1584EN (`U2`, `U4`, `U5`), sensores `3× VL53L0X + MPU6050`, placa `ESP32-C3 Super Mini` (`U3`), nó `BAT_ADC_TEST` e nota de integração do subesquemático `hw/protecao_entrada.kicad_sch` | Paulo Melo | Equipe de Energia e Hardware |

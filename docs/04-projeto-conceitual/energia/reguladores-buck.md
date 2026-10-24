@@ -4,135 +4,141 @@
 
 ## 1. Contextualização e Metodologia de Projeto
 
-O sistema de alimentação do Micromouse opera a partir do barramento primário de bateria LiPo 2S (**$6{,}60\text{ V a }8{,}40\text{ V}$**, $V_{\text{nominal}} = 7{,}40\text{ V}$). Para garantir isolamento de ruído entre atuadores e processamento lógico, bem como imunidade eletromagnética contra transientes indutivos, adotou-se uma arquitetura com **três conversores chaveados Step-Down (Buck) independentes**:
+O sistema de alimentação do Micromouse opera a partir do barramento primário de bateria LiPo 2S (**$6{,}60\text{ V a }8{,}40\text{ V}$**, $V_{\text{nominal}} = 7{,}40\text{ V}$). Para garantir isolamento de ruído entre atuadores, processamento lógico e sensoriamento óptico/inercial, bem como imunidade eletromagnética contra transientes indutivos, adota-se uma arquitetura com **três conversores chaveados Step-Down (Buck) de alta frequência independentes baseados no CI MP1584EN** ($f_{\text{sw}} \approx 1{,}0\text{ MHz}$, chave MOSFET interna de canal N com $R_{\text{DS(on)}} \approx 180\text{ m}\Omega$, limite de pico de $3{,}0\text{ A}$):
 
-1. **Barramento +6V0 (Atuação Eletromecânica):** Alimentado por regulador **LM2596 (3 A)**, dedicado exclusivamente aos pinos de potência `VM` do driver DRV8833 para acionar os motores GA12-N20 com tensão constante de 6,0 V e capacidade para suportar correntes de partida/travamento (*stall*) de **até ~3,0 A**.
-2. **Barramento +5V0 (Sensoriamento Primário):** Alimentado por regulador **LM2596-ADJ (1 A)**, dedicado à linha de potência do sensor óptico LiDAR ToF 360° (consumo nominal de 150 mA).
-3. **Barramento +3V3 (Controle e Sinais Digitais):** Alimentado por regulador síncrono de alta frequência **MP1584EN (1 A / 1,0 MHz)**, atendendo o microcontrolador ESP32-C3-MINI-1, encoders Hall e polarização lógica do DRV8833.
+1. **Barramento `+6V0` (`U4` — Atuação Eletromecânica):** Alimentado por módulo regulador **MP1584EN (`U4`)** ajustado em $6{,}0\text{ V}$, dedicado ao pino de potência `VCC` do driver Ponte H **DRV8833 (`U6`)** e ao resistor de *pull-up* `R4 = 47 kΩ` do pino `EEP` (`nSLEEP`) para acionar os micromotores GA12-N20 (`J1` e `J2`) com tensão constante de $6{,}0\text{ V}$ e suporte a picos transitórios de partida/travamento (*stall*) de **até ~3,0 A**. Conta com filtragem externa dedicada na PCB ($C_3 = 10\ \mu\text{F}$ na entrada e $C_4 = 100\ \mu\text{F}$ na saída).
+2. **Barramento `+5V0` (`U2` — Processamento e Rádio Wi-Fi):** Alimentado por módulo regulador **MP1584EN (`U2`)** ajustado em $5{,}0\text{ V}$, dedicado à alimentação da placa **ESP32-C3 Super Mini (`U3`)** através do seu pino `5V` (consumo médio nominal de $130\text{ mA}$ e picos curtos de rádio Wi-Fi de até $350\text{ mA}$), isolando o regulador linear LDO interno da placa das oscilações do barramento de tração. Conta com filtragem externa na PCB ($C_6 = 10\ \mu\text{F}$ na entrada e $C_2 = 100\ \mu\text{F}$ na saída).
+3. **Barramento `+3V3` (`U5` — Sensoriamento Óptico e Inercial I²C):** Alimentado por módulo regulador **MP1584EN (`U5`)** ajustado em $3{,}3\text{ V}$, dedicado exclusivamente ao barramento de sensores I²C composto pelos **3 sensores laser ToF `VL53L0X` (`J3`, `J4`, `J5`)** e pela **IMU de 6 eixos `MPU6050` (`J6`)** (consumo médio combinado de $65\text{ mA}$). Conta com desacoplamento externo na PCB ($C_8 = 10\ \mu\text{F}$ na entrada e $C_7 = 100\text{ nF}$ cerâmico de alta frequência na saída).
 
 ---
 
-## 2. Dimensionamento do Regulador LM2596-ADJ (+6V0 — Motores DC e Stall de até ~3 A)
+## 2. Dimensionamento do Regulador MP1584EN — `U4` (+6V0 — Motores DC e Driver DRV8833)
 
-O regulador **LM2596** opera com frequência fixa de chaveamento de **$150\text{ kHz}$** e chave bipolar interna capaz de conduzir até **$3{,}0\text{ A}$ contínuos**, provendo estabilidade mecânica aos atuadores.
+O conversor **MP1584EN (`U4`)** opera com frequência nominal de chaveamento de **$1{,}0\text{ MHz}$** e chave MOSFET High-Side interna ($R_{\text{DS(on)}} \approx 180\text{ m}\Omega$, corrente limite de pico ciclo a ciclo de $3{,}0\text{ A a }3{,}5\text{ A}$), provendo alta eficiência, baixo volume ocupado na PCB e reduzida queda de tensão em *dropout*.
 
 ### 2.1 Razão Cíclica (*Duty Cycle*) e Análise de *Dropout Voltage*
-Adotando rendimento típico estimado em $\eta \approx 85\%$ ($0{,}85$):
+Adotando rendimento médio sob carga de tração estimado em $\eta \approx 85\%$ ($0{,}85$):
 
 $$D = \frac{V_{\text{out}}}{V_{\text{in}} \cdot \eta}$$
 
 * **Bateria em Plena Carga ($V_{\text{in}} = 8{,}4\text{ V}$):**
-  $$D_{\text{min}} = \frac{6{,}0}{8{,}4 \cdot 0{,}85} \approx 0{,}840 \implies \mathbf{84{,}0\%}$$
+  $$D_{\text{min}} = \frac{6{,}0}{8{,}4 \cdot 0{,}85} \approx 0{,}840 \implies \mathbf{84{,}0\%} \quad (\text{ideal sem perdas: } 71{,}4\%)$$
 * **Bateria em Tensão Nominal ($V_{\text{in}} = 7{,}4\text{ V}$):**
-  $$D_{\text{nom}} = \frac{6{,}0}{7{,}4 \cdot 0{,}85} \approx 0{,}954 \implies \mathbf{95{,}4\%}$$
+  $$D_{\text{nom}} = \frac{6{,}0}{7{,}4 \cdot 0{,}85} \approx 0{,}954 \implies \mathbf{95{,}4\%} \quad (\text{ideal sem perdas: } 81{,}1\%)$$
 
 **Comportamento em *Dropout* ($V_{\text{drop}}$):**  
-O transistor bipolar Darlington interno do LM2596 apresenta queda de saturação de $V_{\text{drop}} \approx 1{,}2\text{ V a }1{,}4\text{ V}$. A regulação perfeita em $6{,}0\text{ V}$ ocorre para $V_{\text{in}} \ge 6{,}0\text{ V} + 1{,}3\text{ V} = 7{,}3\text{ V}$.  
-Quando a bateria descarrega na faixa de $7{,}3\text{ V}$ até o corte UVLO de $6{,}6\text{ V}$, o conversor opera em razão cíclica máxima (~100%), entregando $V_{\text{out}} \approx V_{\text{in}} - V_{\text{drop}}$ (de $6{,}0\text{ V}$ até $\sim 5{,}2\text{ V}$). Como os micromotores N20 operam perfeitamente de 3 V a 6 V, essa ligeira diminuição na fase final da bateria causa apenas uma suave desaceleração na velocidade máxima sem qualquer impacto sobre a eletrônica digital ou algoritmos de controle.
+O estágio MOSFET do **MP1584EN** apresenta resistência em condução de apenas $R_{\text{DS(on)}} \approx 0{,}18\ \Omega$. Em regime nominal de corrida ($I_{\text{out}} = 0{,}30\text{ A}$), a queda resistiva na chave interna é de apenas $\Delta V_{\text{sw}} \approx 0{,}30\text{ A} \cdot 0{,}18\ \Omega = \mathbf{54\text{ mV}}$.  
+Considerando o ciclo de trabalho máximo do controlador PWM interno e a resistência série do indutor, o regulador `U4` sustenta a saída próxima de $6{,}0\text{ V}$ até o limiar de corte UVLO de **$6{,}60\text{ V}$** ($V_{\text{out}} \ge 5{,}85\text{ V}$), garantindo perfil cinemático uniforme aos motores GA12-N20 durante toda a descarga útil da bateria.
 
 ### 2.2 Malha de Realimentação (Feedback)
-Com tensão de referência interna $V_{\text{ref}} = 1{,}23\text{ V}$:
+Com tensão de referência interna $V_{\text{ref}} = 0{,}80\text{ V}$:
 
-$$V_{\text{out}} = V_{\text{ref}} \cdot \left(1 + \frac{R_2}{R_1}\right)$$
+$$V_{\text{out}} = V_{\text{ref}} \cdot \left(1 + \frac{R_{\text{fb1}}}{R_{\text{fb2}}}\right)$$
 
-Fixando $R_1 = 1{,}0\text{ k}\Omega$:
+Fixando o resistor inferior da malha em $R_{\text{fb2}} = 10\text{ k}\Omega$:
 
-$$R_2 = 1{,}0\text{ k}\Omega \cdot \left(\frac{6{,}0}{1{,}23} - 1\right) \approx \mathbf{3{,}88\text{ k}\Omega}$$
+$$R_{\text{fb1}} = 10\text{ k}\Omega \cdot \left(\frac{6{,}0}{0{,}80} - 1\right) = \mathbf{65{,}0\text{ k}\Omega}$$
 
-* **Componente Selecionado:** Resistor comercial E96 de **$3{,}9\text{ k}\Omega \ (1\%)$**, gerando $V_{\text{out}} = \mathbf{6{,}027\text{ V}}$ (erro relativo ínfimo de $+0{,}45\%$) ou calibração por trimpot multivoltas em módulo comercial para $6{,}00\text{ V} \pm 0{,}02\text{ V}$.
+* **Componente Selecionado:** Resistor comercial E96 de **$64{,}9\text{ k}\Omega \ (1\%)$**, gerando $V_{\text{out}} = \mathbf{5{,}992\text{ V}}$ (erro relativo de $-0{,}13\%$) ou calibração fina por trimpot no módulo `MP1584EN` para $6{,}00\text{ V} \pm 0{,}02\text{ V}$.
 
-### 2.3 Indutor de Potência ($L$) Dimensionado para 3 A de Stall
-Para suportar o pico de travamento (*stall*) de $I_{\text{out,stall}} = 3{,}0\text{ A}$ com ondulação máxima de corrente de $\Delta I_L = 30\% \cdot 3{,}0\text{ A} = 0{,}90\text{ A}$ a $f_{\text{sw}} = 150\text{ kHz}$:
+### 2.3 Indutor de Potência ($L$), Diodo Schottky e Capacitores (`C3` e `C4`)
+Para operação a $f_{\text{sw}} = 1{,}0\text{ MHz}$ com ondulação de corrente no indutor $\Delta I_L = 0{,}60\text{ A}$:
 
-$$L_{\text{mín}} = \frac{(V_{\text{in,max}} - V_{\text{out}}) \cdot D_{\text{min}}}{\Delta I_L \cdot f_{\text{sw}}} = \frac{(8{,}4 - 6{,}0) \cdot 0{,}840}{0{,}90 \cdot 150.000} \approx \mathbf{14{,}93\ \mu\text{H}}$$
+$$L_{\text{mín}} = \frac{(V_{\text{in,max}} - V_{\text{out}}) \cdot (V_{\text{out}} / V_{\text{in,max}})}{\Delta I_L \cdot f_{\text{sw}}} = \frac{(8{,}4 - 6{,}0) \cdot 0{,}714}{0{,}60 \cdot 1.000.000} \approx \mathbf{2{,}86\ \mu\text{H}}$$
 
-* **Componente Selecionado:** Indutor blindado toroidal de **$22\ \mu\text{H}$ a $33\ \mu\text{H}$** com corrente contínua $I_{\text{rms}} \ge 3{,}0\text{ A}$ e corrente de saturação $I_{\text{sat}} \ge 4{,}0\text{ A}$ (ex.: série CDRH127), impedindo saturação magnética em partidas rápidas.
+* **Indutor Selecionado:** Indutor blindado SMD de perfil baixo de **$4{,}7\ \mu\text{H}$ a $10\ \mu\text{H}$** com corrente eficaz $I_{\text{rms}} \ge 3{,}0\text{ A}$ e corrente de saturação $I_{\text{sat}} \ge 3{,}5\text{ A}$, prevenindo saturação magnética nas partidas rápidas.
+* **Diodo de Recirculação:** Schottky **B340A / SS34** ($V_R = 40\text{ V}$, $I_F = 3{,}0\text{ A}$, $V_F \le 0{,}45\text{ V}$).
+* **Capacitores de Desacoplamento Externos no Esquemático (`Micromouse.kicad_sch`):**
+  * **Entrada (`C3`):** Capacitor de **$10\ \mu\text{F}$** próximo ao pino `IN+` de `U4` (complementando os capacitores MLCC internos do módulo).
+  * **Saída (`C4`):** Capacitor de **$100\ \mu\text{F}$** no barramento `+6V` junto ao pino `VCC` do driver `DRV8833` (`U6`), atuando como reservatório de carga para amortecer os degraus de corrente de comutação das pontes H.
 
-### 2.4 Diodo Schottky e Capacitores
-* **Diodo de Recirculação:** **SS54** (SMD) ou **1N5822** ($V_R = 40\text{ V}$, $I_F = 5{,}0\text{ A}$, $V_F \le 0{,}45\text{ V}$).
-* **Capacitor de Entrada ($C_{\text{in}}$):** Eletrolítico Low-ESR de **$470\ \mu\text{F} \ / \ 16\text{ V}$** em paralelo com cerâmico de **$100\text{ nF}$**.
-* **Capacitor de Saída ($C_{\text{out}}$):** Eletrolítico Low-ESR de **$470\ \mu\text{F} \ / \ 10\text{ V}$** em paralelo com cerâmico de **$100\text{ nF}$**.
-
-### 2.5 Análise Térmica e Diretriz de Proteção contra Stall Prolongado
+### 2.4 Análise Térmica e Diretriz de Proteção contra Stall Prolongado
 1. **Regime Nominal de Corrida ($I_{\text{out}} = 0{,}30\text{ A}$):**
-   $$P_{\text{d,nom}} = (6{,}0\text{ V} \cdot 0{,}30\text{ A}) \cdot \left(\frac{1}{0{,}85} - 1\right) \approx \mathbf{0{,}32\text{ W}} \implies \Delta T \approx 11{,}2\text{ °C} \implies T_j \approx \mathbf{36{,}2\text{ °C}}$$
-   *(Operação perfeitamente fria e estável em corrida).*
-2. **Regime Transitório de Stall ($I_{\text{out}} = 3{,}0\text{ A}$):**
+   $$P_{\text{d,nom}} = (6{,}0\text{ V} \cdot 0{,}30\text{ A}) \cdot \left(\frac{1}{0{,}85} - 1\right) \approx \mathbf{0{,}32\text{ W}} \implies \Delta T \approx 16{,}0\text{ °C} \ (R_{\theta JA} \approx 50\text{ °C/W SOIC-8E}) \implies T_j \approx \mathbf{41{,}0\text{ °C}}$$
+   *(Operação fria e de alta eficiência em regime de exploração e corrida).*
+2. **Regime Transitório de Stall ($I_{\text{out}} \approx 2{,}0\text{ A a }3{,}0\text{ A}$):**
    $$P_{\text{d,stall}} = (6{,}0\text{ V} \cdot 3{,}0\text{ A}) \cdot \left(\frac{1}{0{,}80} - 1\right) \approx \mathbf{4{,}50\text{ W}}$$
-   *(Uma dissipação contínua de 4,5 W provocaria desarme térmico em segundos).*
+   *(O CI MP1584EN possui limitação de corrente pulso a pulso em ~3,5 A e desligamento térmico interno a $160\text{ °C}$).*
 
 > [!IMPORTANT]
 > **Diretriz de Segurança no Firmware:**  
-> A corrente de travamento de ~3 A é admitida apenas em regime **transitório** (50 ms a 200 ms).  
-> Se o microcontrolador comandar acionamento PWM para os motores mas os encoders Hall registrarem zero pulsos por mais de **500 ms**, o firmware zera automaticamente os sinais PWM, desarmando o consumo de potência e protegendo o conversor LM2596 e as escovas dos motores N20.
+> A corrente de travamento (*stall*) é admitida apenas em regime **transitório** (50 ms a 200 ms durante arrancadas e reversões).  
+> Caso o microcontrolador comande acionamento PWM para o driver `DRV8833` (`U6`), mas a leitura inercial da IMU `MPU6050` (`J6`) e a variação de distância dos sensores frontais/laterais `VL53L0X` (`J3–J5`) indiquem imobilidade mecânica por mais de **500 ms**, o firmware zera imediatamente os sinais PWM (`GPIO10, 3, 20, 21`), protegendo o conversor `U4`, a ponte H `U6` e as escovas dos motores N20.
 
 ---
 
-## 3. Dimensionamento do Regulador LM2596-ADJ (+5V0 — Sensor LiDAR ToF)
+## 3. Dimensionamento do Regulador MP1584EN — `U2` (+5V0 — Placa ESP32-C3 Super Mini `U3`)
 
-### 3.1 Razão Cíclica e Dropout
-Com rendimento $\eta \approx 82\%$ ($0{,}82$):
-* $V_{\text{in}} = 8{,}4\text{ V} \implies D_{\text{min}} = \frac{5{,}0}{8{,}4 \cdot 0{,}82} \approx \mathbf{72{,}5\%}$
-* $V_{\text{in}} = 6{,}6\text{ V} \implies D_{\text{max}} = \frac{5{,}0}{6{,}6 \cdot 0{,}82} \approx \mathbf{92{,}3\%}$
+O barramento de $+5{,}0\text{ V}$ gerado pelo conversor **MP1584EN (`U2`)** alimenta exclusivamente o pino **`5V`** da placa microcontroladora **ESP32-C3 Super Mini (`U3`)** (consumo médio de $130\text{ mA}$ e picos de transmissão Wi-Fi de até $350\text{ mA}$). Essa topologia em cascata (Buck chaveado $7{,}4\text{ V} \to 5{,}0\text{ V}$ seguido do regulador LDO linear interno de $5{,}0\text{ V} \to 3{,}3\text{ V}$ da própria placa Super Mini) proporciona dupla rejeição de *ripple* (PSRR) para a CPU e o transceptor RF.
+
+### 3.1 Razão Cíclica e Margem de *Dropout*
+Com rendimento $\eta \approx 86\%$ ($0{,}86$) a $f_{\text{sw}} = 1{,}0\text{ MHz}$:
+* $V_{\text{in}} = 8{,}4\text{ V} \implies D_{\text{min}} = \frac{5{,}0}{8{,}4 \cdot 0{,}86} \approx \mathbf{69{,}2\%}$
+* $V_{\text{in}} = 6{,}6\text{ V} \implies D_{\text{max}} = \frac{5{,}0}{6{,}6 \cdot 0{,}86} \approx \mathbf{88{,}1\%}$
 
 **Compatibilidade de *Dropout*:**  
-Com queda interna de saturação $V_{\text{drop}} \approx 1{,}5\text{ V}$, a tensão de entrada mínima requerida é:
-$$V_{\text{in,mín\_reg}} = 5{,}0\text{ V} + 1{,}5\text{ V} = \mathbf{6{,}50\text{ V}}$$
-Como o desarme por software (UVLO) encerra a missão aos **$6{,}60\text{ V}$**, o regulador opera 100% do tempo em regime perfeitamente linear, sem reiniciar o LiDAR.
+Graças à chave MOSFET interna do MP1584EN ($R_{\text{DS(on)}} \approx 180\text{ m}\Omega$), a queda de tensão interna a $130\text{ mA}$ é inferior a $0{,}35\text{ V}$, exigindo tensão mínima de entrada de apenas:
+$$V_{\text{in,mín\_reg}} \approx 5{,}0\text{ V} + 0{,}35\text{ V} = \mathbf{5{,}35\text{ V}}$$
+Como o desarme por software (UVLO) encerra a missão aos **$6{,}60\text{ V}$**, o conversor `U2` opera com folga superior a **$1{,}25\text{ V}$** acima do *dropout*, eliminando qualquer risco de reinicialização (*brownout reset*) do `ESP32-C3 Super Mini` durante picos de motores.
 
-### 3.2 Feedback e Componentes Passivos
-* **Divisor de Feedback:** $R_1 = 1{,}0\text{ k}\Omega$, $R_2 = 1{,}0\text{ k}\Omega \cdot (5{,}0/1{,}23 - 1) \approx \mathbf{3{,}06\text{ k}\Omega}$ (resistor E96 de $3{,}09\text{ k}\Omega$ ou trimpot calibrado para $5{,}00\text{ V} \pm 0{,}02\text{ V}$).
-* **Indutor ($L$):** Para $\Delta I_L = 0{,}30\text{ A}$ a $150\text{ kHz}$:
-  $$L_{\text{mín}} = \frac{(8{,}4 - 5{,}0) \cdot 0{,}725}{0{,}30 \cdot 150.000} \approx \mathbf{54{,}8\ \mu\text{H}} \implies \text{Adota-se } 47\ \mu\text{H a } 68\ \mu\text{H} \ (I_{\text{sat}} \ge 2{,}0\text{ A})$$
-* **Diodo Schottky:** **SS34** / **1N5822** ($40\text{ V} / 3\text{ A}$, $V_F \le 0{,}45\text{ V}$).
-* **Capacitores:** $C_{\text{in}} = 220\ \mu\text{F} \ / \ 16\text{ V}$ Low-ESR em paralelo com $100\text{ nF}$; $C_{\text{out}} = 330\ \mu\text{F} \ / \ 10\text{ V}$ Low-ESR em paralelo com $100\text{ nF}$.
-* **Dissipação Térmica em Carga Nominal (150 mA):** $P_d \approx 0{,}13\text{ W} \implies T_j \approx \mathbf{29{,}6\text{ °C}}$.
+### 3.2 Feedback e Componentes Passivos (`C6` e `C2`)
+* **Divisor de Feedback:** Com $V_{\text{ref}} = 0{,}80\text{ V}$ e $R_{\text{fb2}} = 10\text{ k}\Omega$:
+  $$R_{\text{fb1}} = 10\text{ k}\Omega \cdot \left(\frac{5{,}0}{0{,}80} - 1\right) = \mathbf{52{,}5\text{ k}\Omega} \implies \text{Resistor E96 de } 52{,}3\text{ k}\Omega \ (1\%) \text{ ou trimpot calibrado para } 5{,}00\text{ V} \pm 0{,}02\text{ V}$$
+* **Indutor ($L$):** Para $\Delta I_L = 0{,}30\text{ A}$ a $1{,}0\text{ MHz}$:
+  $$L_{\text{mín}} = \frac{(8{,}4 - 5{,}0) \cdot (5{,}0 / 8{,}4)}{0{,}30 \cdot 1.000.000} \approx \mathbf{6{,}75\ \mu\text{H}} \implies \text{Adota-se } \mathbf{6{,}8\ \mu\text{H a } 10\ \mu\text{H}} \ (I_{\text{sat}} \ge 2{,}0\text{ A})$$
+* **Diodo Schottky:** **SS24 / B230A** ($40\text{ V} / 2\text{ A}$, $V_F \approx 0{,}40\text{ V}$).
+* **Capacitores Externos no Esquemático (`Micromouse.kicad_sch`):**
+  * **Entrada (`C6`):** **$10\ \mu\text{F}$** na entrada `IN+` de `U2`.
+  * **Saída (`C2`):** **$100\ \mu\text{F}$** na linha `+5V` conectada ao pino `5V` de `U3`, suprindo instantaneamente os pulsos de corrente de até $350\text{ mA}$ das rajadas de pacotes Wi-Fi.
+* **Dissipação Térmica em Carga Nominal ($130\text{ mA}$):**
+  $$P_d = (5{,}0\text{ V} \cdot 0{,}130\text{ A}) \cdot \left(\frac{1}{0{,}86} - 1\right) \approx \mathbf{0{,}106\text{ W}} \implies T_j \approx \mathbf{30{,}3\text{ °C}}$$
 
 ---
 
-## 4. Dimensionamento do Regulador MP1584EN (+3V3 — MCU e Lógica)
+## 4. Dimensionamento do Regulador MP1584EN — `U5` (+3V3 — Sensores I²C VL53L0X e MPU6050)
 
-O **MP1584EN** opera em frequência elevada programada em **$1{,}0\text{ MHz}$**, empregando chave interna MOSFET de canal N ($R_{\text{DS(on)}} \approx 180\text{ m}\Omega$).
+O terceiro conversor **MP1584EN (`U5`)** opera em **$1{,}0\text{ MHz}$** e alimenta de forma dedicada e isolada o barramento de $+3{,}3\text{ V}$ dos sensores I²C: os **3 sensores laser Time-of-Flight `VL53L0X` (`J3` esquerdo, `J4` frontal, `J5` direito — $3 \times 20\text{ mA} = 60\text{ mA}$)** e a **unidade de medição inercial `MPU6050` (`J6` — $5\text{ mA}$)**, totalizando corrente média de **$65\text{ mA}$** ($0{,}065\text{ A}$).
 
-### 4.1 Razão Cíclica e Dropout
+### 4.1 Razão Cíclica e Isolamento Óptico/Inercial
 Com rendimento $\eta \approx 88\%$ ($0{,}88$):
 * $V_{\text{in}} = 8{,}4\text{ V} \implies D_{\text{min}} = \frac{3{,}3}{8{,}4 \cdot 0{,}88} \approx \mathbf{44{,}6\%}$
 * $V_{\text{in}} = 6{,}6\text{ V} \implies D_{\text{max}} = \frac{3{,}3}{6{,}6 \cdot 0{,}88} \approx \mathbf{56{,}8\%}$
 
-A chave MOSFET permite tensão de *dropout* desprezível ($< 0{,}4\text{ V}$), garantindo regulação estável mesmo em descarga profunda.
+A segregação dos sensores em `U5` (separado do microcontrolador em `U2` e dos motores em `U4`) garante que os emissores laser VCSEL de $940\text{ nm}$ dos sensores `VL53L0X` e o conversor A/D interno de 16 bits do giroscópio `MPU6050` operem sobre uma referência de $3{,}30\text{ V}$ livre de modulação por carga de rádio ou de tração.
 
-### 4.2 Feedback e Componentes Passivos
-* **Divisor de Feedback:** Com $V_{\text{ref}} = 0{,}80\text{ V}$ e $R_2 = 10\text{ k}\Omega$:
-  $$R_1 = 10\text{ k}\Omega \cdot \left(\frac{3{,}3}{0{,}80} - 1\right) = \mathbf{31{,}25\text{ k}\Omega} \implies \text{Resistor E96 de } 31{,}6\text{ k}\Omega \ (1\%)$$
+### 4.2 Feedback e Componentes Passivos (`C8` e `C7`)
+* **Divisor de Feedback:** Com $V_{\text{ref}} = 0{,}80\text{ V}$ e $R_{\text{fb2}} = 10\text{ k}\Omega$:
+  $$R_{\text{fb1}} = 10\text{ k}\Omega \cdot \left(\frac{3{,}3}{0{,}80} - 1\right) = \mathbf{31{,}25\text{ k}\Omega} \implies \text{Resistor E96 de } 31{,}6\text{ k}\Omega \ (1\%)$$
 * **Indutor de Alta Frequência ($L$):** Para $\Delta I_L = 0{,}30\text{ A}$ a $1{,}0\text{ MHz}$:
-  $$L_{\text{mín}} = \frac{(8{,}4 - 3{,}3) \cdot 0{,}446}{0{,}30 \cdot 1.000.000} \approx \mathbf{7{,}58\ \mu\text{H}} \implies \text{Adota-se } 4{,}7\ \mu\text{H a } 10\ \mu\text{H} \ (I_{\text{sat}} \ge 2{,}0\text{ A})$$
-* **Diodo Schottky:** **SS24** / **B230A** ($40\text{ V} / 2\text{ A}$, $V_F \approx 0{,}40\text{ V}$).
-* **Capacitores Cerâmicos Multicamada (MLCC):**
-  * $C_{\text{in}}$: Dois cerâmicos MLCC de $10\ \mu\text{F} \ / \ 16\text{ V}$ X7R em paralelo com $100\text{ nF}$.
-  * $C_{\text{out}}$: Dois cerâmicos MLCC de $22\ \mu\text{F} \ / \ 10\text{ V}$ X7R em paralelo com $100\text{ nF}$ (ondulação $< 15\text{ mV}$).
-* **Dissipação Térmica Nominal (~123 mA):** $P_d \approx 0{,}055\text{ W} \implies T_j \approx \mathbf{28{,}3\text{ °C}}$.
+  $$L_{\text{mín}} = \frac{(8{,}4 - 3{,}3) \cdot 0{,}446}{0{,}30 \cdot 1.000.000} \approx \mathbf{7{,}58\ \mu\text{H}} \implies \text{Adota-se } \mathbf{6{,}8\ \mu\text{H a } 10\ \mu\text{H}} \ (I_{\text{sat}} \ge 2{,}0\text{ A})$$
+* **Diodo Schottky:** **SS24 / B230A** ($40\text{ V} / 2\text{ A}$, $V_F \approx 0{,}40\text{ V}$).
+* **Capacitores Externos no Esquemático (`Micromouse.kicad_sch`):**
+  * **Entrada (`C8`):** **$10\ \mu\text{F}$** na entrada `IN+` de `U5`.
+  * **Saída (`C7`):** Capacitor cerâmico de **$100\text{ nF}$** na saída `+3,3V` (em paralelo com os capacitores MLCC de $22\ \mu\text{F}$ internos do módulo `MP1584EN`), filtrando ruídos de alta frequência nos pinos `VDD` de `J3`, `J4`, `J5` e `J6` (ondulação $< 15\text{ mV}_{\text{pp}}$).
+* **Dissipação Térmica Nominal ($65\text{ mA}$):**
+  $$P_d = (3{,}3\text{ V} \cdot 0{,}065\text{ A}) \cdot \left(\frac{1}{0{,}88} - 1\right) \approx \mathbf{0{,}029\text{ W}} \implies T_j \approx \mathbf{26{,}5\text{ °C}}$$
 
 ---
 
 ## 5. Tabela Comparativa Consolidada dos Três Reguladores
 
-| Parâmetro de Projeto | Linha +6V0 (Motores / VM DRV8833) | Linha +5V0 (Sensor LiDAR ToF) | Linha +3V3 (MCU, Encoders, Lógica) |
+| Parâmetro de Projeto | Linha `+6V0` (`U4` — Motores / DRV8833) | Linha `+5V0` (`U2` — MCU ESP32-C3) | Linha `+3V3` (`U5` — Sensores I²C) |
 | :--- | :--- | :--- | :--- |
-| **CI Regulador Adotado** | **LM2596 Step-Down 3 A** | **LM2596-ADJ** | **MP1584EN** |
-| **Topologia / Chaveamento** | Buck bipolar (150 kHz) | Buck bipolar (150 kHz) | Buck MOSFET ($R_{\text{DS(on)}}=180\text{ m}\Omega$, 1,0 MHz) |
-| **Carga Alimentada** | Par de motores GA12-N20 (pinos VM) | Sensor LiDAR ToF 360° | ESP32-C3-MINI-1, Encoders, DRV8833 Lógica |
+| **Designador e CI Regulador** | **`U4` — MP1584EN** | **`U2` — MP1584EN** | **`U5` — MP1584EN** |
+| **Topologia / Chaveamento** | Buck MOSFET ($R_{\text{DS(on)}}=180\text{ m}\Omega$, $1{,}0\text{ MHz}$) | Buck MOSFET ($R_{\text{DS(on)}}=180\text{ m}\Omega$, $1{,}0\text{ MHz}$) | Buck MOSFET ($R_{\text{DS(on)}}=180\text{ m}\Omega$, $1{,}0\text{ MHz}$) |
+| **Carga Principal Alimentada** | Pino `VCC` do DRV8833 (`U6`), *pull-up* `R4` e Motores N20 (`J1`, `J2`) | Pino `5V` da placa **ESP32-C3 Super Mini (`U3`)** | **3× ToF VL53L0X (`J3–J5`)** + **IMU MPU6050 (`J6`)** |
 | **Tensão Regulada ($V_{\text{out}}$)** | **$6{,}00\text{ V}$** | **$5{,}00\text{ V}$** | **$3{,}30\text{ V}$** |
-| **Tensão de Referência ($V_{\text{ref}}$)**| $1{,}23\text{ V}$ | $1{,}23\text{ V}$ | $0{,}80\text{ V}$ |
-| **Divisor de Feedback ($R_1, R_2$)** | $R_1 = 1{,}0\text{ k}\Omega$, $R_2 = 3{,}9\text{ k}\Omega$ (1%) | $R_1 = 1{,}0\text{ k}\Omega$, $R_2 = 3{,}06\text{ k}\Omega$ | $R_2 = 10\text{ k}\Omega$, $R_1 = 31{,}6\text{ k}\Omega$ (1%) |
-| **Consumo em Regime Nominal** | $0{,}30\text{ A}$ ($1{,}80\text{ W}$) | $0{,}15\text{ A}$ ($0{,}75\text{ W}$) | $0{,}123\text{ A}$ nom. / $0{,}35\text{ A}$ pico ($0{,}41\text{ W}$) |
-| **Capacidade de Corrente de Projeto**| **Até 3,0 A em stall** | **1,0 A contínuo** | **1,0 A contínuo** (3 A pico do CI) |
-| **Indutância de Projeto ($L$)** | $22\ \mu\text{H}$ a $33\ \mu\text{H}$ ($I_{\text{sat}} \ge 4{,}0\text{ A}$) | $47\ \mu\text{H}$ a $68\ \mu\text{H}$ ($I_{\text{sat}} \ge 2{,}0\text{ A}$) | $4{,}7\ \mu\text{H}$ a $10\ \mu\text{H}$ ($I_{\text{sat}} \ge 2{,}0\text{ A}$) |
-| **Diodo Schottky de Recirculação** | SS54 / 1N5822 ($40\text{ V} \ / \ 5\text{ A}$) | SS34 / 1N5822 ($40\text{ V} \ / \ 3\text{ A}$) | SS24 / B230A ($40\text{ V} \ / \ 2\text{ A}$) |
-| **Capacitores de Entrada / Saída**| $C_{\text{in}} = 470\ \mu\text{F}$, $C_{\text{out}} = 470\ \mu\text{F}$ | $C_{\text{in}} = 220\ \mu\text{F}$, $C_{\text{out}} = 330\ \mu\text{F}$ | $C_{\text{in}} = 20\ \mu\text{F}$ MLCC, $C_{\text{out}} = 44\ \mu\text{F}$ MLCC |
-| **Potência Dissipada em Regime** | $0{,}32\text{ W}$ (nom.) / transitório no stall | $0{,}13\text{ W}$ (nom.) / $1{,}10\text{ W}$ (1 A) | $0{,}055\text{ W}$ (nom.) / $0{,}45\text{ W}$ (1 A) |
-| **Temperatura Junção ($T_j$) Estimada**| **$36{,}2\text{ °C}$** (nom.) | **$29{,}6\text{ °C}$** (nom.) / **$63{,}5\text{ °C}$** (1 A) | **$28{,}3\text{ °C}$** (nom.) / **$51{,}9\text{ °C}$** (1 A) |
-| **Mecanismo de Proteção Crítico** | Corte PWM se stall $> 500\text{ ms}$ | Operação acima do dropout $\ge 6{,}5\text{ V}$ | Proteção térmica interna a $160\text{ °C}$ |
-| **Status de Homologação** | **Aprovado para Tração** | **Aprovado para LiDAR** | **Aprovado para Controle** |
+| **Tensão de Referência ($V_{\text{ref}}$)**| $0{,}80\text{ V}$ | $0{,}80\text{ V}$ | $0{,}80\text{ V}$ |
+| **Divisor de Feedback ($R_{\text{fb1}}, R_{\text{fb2}}$)** | $R_{\text{fb2}} = 10\text{ k}\Omega$, $R_{\text{fb1}} = 64{,}9\text{ k}\Omega$ (1%) | $R_{\text{fb2}} = 10\text{ k}\Omega$, $R_{\text{fb1}} = 52{,}3\text{ k}\Omega$ (1%) | $R_{\text{fb2}} = 10\text{ k}\Omega$, $R_{\text{fb1}} = 31{,}6\text{ k}\Omega$ (1%) |
+| **Consumo em Regime Nominal** | $0{,}300\text{ A}$ ($1{,}80\text{ W}$) | $0{,}130\text{ A}$ nom. / $0{,}35\text{ A}$ pico Wi-Fi ($0{,}65\text{ W}$) | $0{,}065\text{ A}$ nom. / $0{,}12\text{ A}$ pico laser ($0{,}215\text{ W}$) |
+| **Capacidade de Corrente do Módulo**| **Até 3,0 A pico (*stall* transitório)** | **1,5 A contínuo / 3,0 A pico** | **1,5 A contínuo / 3,0 A pico** |
+| **Indutância de Projeto ($L$)** | $4{,}7\ \mu\text{H}$ a $10\ \mu\text{H}$ ($I_{\text{sat}} \ge 3{,}5\text{ A}$) | $6{,}8\ \mu\text{H}$ a $10\ \mu\text{H}$ ($I_{\text{sat}} \ge 2{,}0\text{ A}$) | $6{,}8\ \mu\text{H}$ a $10\ \mu\text{H}$ ($I_{\text{sat}} \ge 2{,}0\text{ A}$) |
+| **Diodo Schottky de Recirculação** | B340A / SS34 ($40\text{ V} \ / \ 3\text{ A}$) | SS24 / B230A ($40\text{ V} \ / \ 2\text{ A}$) | SS24 / B230A ($40\text{ V} \ / \ 2\text{ A}$) |
+| **Capacitores Externos na PCB**| `C3 = 10 µF` (ent.), `C4 = 100 µF` (saída) | `C6 = 10 µF` (ent.), `C2 = 100 µF` (saída) | `C8 = 10 µF` (ent.), `C7 = 100 nF` (saída) |
+| **Potência Dissipada em Regime** | $0{,}32\text{ W}$ (nom.) / transitório no stall | $0{,}106\text{ W}$ (nom.) / $0{,}28\text{ W}$ (pico) | $0{,}029\text{ W}$ (nom.) |
+| **Temperatura Junção ($T_j$) Estimada**| **$41{,}0\text{ °C}$** (nom.) | **$30{,}3\text{ °C}$** (nom.) | **$26{,}5\text{ °C}$** (nom.) |
+| **Mecanismo de Proteção Crítico** | Corte PWM se *stall* $> 500\text{ ms}$ + UVLO $6{,}6\text{ V}$ | Folga $> 1{,}25\text{ V}$ acima do *dropout* em $6{,}6\text{ V}$ | Isolamento de ruído e *shutdown* térmico a $160\text{ °C}$ |
+| **Status de Homologação** | **Aprovado para Tração (`U4`)** | **Aprovado para Controle (`U2`)** | **Aprovado para Sensores I²C (`U5`)** |
 
 ---
 
@@ -140,27 +146,28 @@ A chave MOSFET permite tensão de *dropout* desprezível ($< 0{,}4\text{ V}$), g
 
 ```mermaid
 flowchart TD
-    BAT["Bateria LiPo 2S (7,4 V nom / 8,4 V máx)"] --> FUSE["Fusível Rearmável PPTC MF-R185"]
-    FUSE --> PMOS["P-MOSFET High-Side (AO3407A)"]
+    BAT["Bateria LiPo 2S BT1 (7,4 V nom / 8,4 V máx)"] --> FUSE["Fusível Rearmável PPTC F1 (MF-R185)"]
+    FUSE --> PMOS["P-MOSFET High-Side Q1 (AO3407A - Subesquemático)"]
     PMOS --> SW1["Chave Geral Liga/Desliga (SW1)"]
     
-    SW1 --> DIV["Divisor Resistivo 100k/33k + Filtro 100nF"]
-    DIV --> ADC["Pino GPIO 2 (ADC1_CH2) ESP32-C3"]
+    SW1 --> DIV["Divisor Resistivo R1=100k / R2=33k + Filtro C5=100nF"]
+    DIV --> ADC["Nó BAT_ADC_TEST (Canal ADC1 ESP32-C3)"]
 
-    SW1 --> BUCK_6V["Buck LM2596 (Regulado em 6,0 V / 3 A)"]
-    SW1 --> BUCK_5V["Buck LM2596 (Regulado em 5,0 V / 1 A)"]
-    SW1 --> BUCK_3V3["Buck MP1584EN (Regulado em 3,3 V / 1 A)"]
+    SW1 --> BUCK_6V["Buck MP1584EN U4 (Regulado em 6,0 V / C3=10µF, C4=100µF)"]
+    SW1 --> BUCK_5V["Buck MP1584EN U2 (Regulado em 5,0 V / C6=10µF, C2=100µF)"]
+    SW1 --> BUCK_3V3["Buck MP1584EN U5 (Regulado em 3,3 V / C8=10µF, C7=100nF)"]
 
-    BUCK_6V -->|"Linha +6V0 (até 3 A stall)"| DRV_VM["Pinos VM (Driver DRV8833)"]
-    DRV_VM --> MOTORES["Par de Motores N20 (M1 e M2)"]
+    BUCK_6V -->|"Linha +6V0 (0,30 A nom / até 3 A pico)"| DRV_VM["Pino VCC + Pull-up R4=47k (Driver DRV8833 U6)"]
+    DRV_VM --> MOTORES["Par de Motores DC GA12-N20 (J1 Esq / J2 Dir)"]
 
-    BUCK_5V -->|"Linha +5V0 (150 mA)"| LIDAR["Sensor LiDAR ToF 360°"]
+    BUCK_5V -->|"Linha +5V0 (130 mA)"| MCU["Pino 5V — ESP32-C3 Super Mini (U3)"]
 
-    BUCK_3V3 -->|"Linha +3V3 (123 mA)"| MCU["ESP32-C3-MINI-1"]
-    BUCK_3V3 --> ENCODERS["Encoders de Efeito Hall (x2)"]
-    BUCK_3V3 --> DRV_LOGIC["VCC Lógico DRV8833"]
+    BUCK_3V3 -->|"Linha +3V3 (60 mA)"| TOF["3× Sensores Laser ToF VL53L0X (J3, J4, J5)"]
+    BUCK_3V3 -->|"Linha +3V3 (5 mA)"| IMU["IMU 6 Eixos MPU6050 (J6)"]
 
-    MCU -->|"Sinais PWM (0% a 100%)"| DRV_LOGIC
+    MCU -->|"I²C (GPIO9/8) + XSHUT (GPIO0/1/2)"| TOF
+    MCU -->|"Barramento I²C (GPIO9 SDA / GPIO8 SCL)"| IMU
+    MCU -->|"Sinais PWM 3,3 V (GPIO10, 3, 20, 21)"| DRV_VM
 ```
 
 ---
@@ -171,21 +178,21 @@ Para validação em bancada após o recebimento dos componentes e placas:
 
 ### 7.1 Regulação de Carga e Linha (*Line & Load Regulation*)
 1. Conectar fonte DC regulável na entrada simulando a faixa de bateria ($6{,}6\text{ V a }8{,}4\text{ V}$).
-2. Aplicar degraus de corrente de carga através de carga eletrônica ativa (0 mA, 150 mA, 300 mA e 1,0 A).
-3. Registrar a variação de tensão em cada linha com multímetro digital.  
+2. Aplicar degraus de corrente de carga através de carga eletrônica ativa ($0\text{ mA}$, $65\text{ mA}$, $130\text{ mA}$, $300\text{ mA}$ e $1{,}0\text{ A}$).
+3. Registrar a variação de tensão em cada linha (`U4` $+6{,}0\text{ V}$, `U2` $+5{,}0\text{ V}$ e `U5` $+3{,}3\text{ V}$) com multímetro digital.  
    * **Critério de Aceitação:** Regulação de carga $\le \pm 2\%$ da tensão nominal especificada.
 
 ### 7.2 Medição de Ondulação (*Ripple*) com Osciloscópio
-1. Conectar ponta de prova atenuada 1X acoplada em AC com mola de aterramento curta diretamente sobre os terminais do capacitor de saída $C_{\text{out}}$.
-2. Medir a tensão pico a pico ($V_{\text{pp}}$) do chaveamento em frequência fundamental ($150\text{ kHz}$ e $1{,}0\text{ MHz}$).  
+1. Conectar ponta de prova atenuada 1X acoplada em AC com mola de aterramento curta diretamente sobre os terminais dos capacitores de saída (`C4`, `C2` e `C7`).
+2. Medir a tensão pico a pico ($V_{\text{pp}}$) do chaveamento na frequência fundamental dos conversores `MP1584EN` ($\approx 1{,}0\text{ MHz}$).  
    * **Critério de Aceitação:**  
-     * Linha +6V0: $V_{\text{ripple}} < 100\text{ mV}_{\text{pp}}$.  
-     * Linha +5V0: $V_{\text{ripple}} < 50\text{ mV}_{\text{pp}}$.  
-     * Linha +3V3: $V_{\text{ripple}} < 25\text{ mV}_{\text{pp}}$.
+     * Linha `+6V0` (`U4`): $V_{\text{ripple}} < 100\text{ mV}_{\text{pp}}$.  
+     * Linha `+5V0` (`U2`): $V_{\text{ripple}} < 50\text{ mV}_{\text{pp}}$.  
+     * Linha `+3V3` (`U5`): $V_{\text{ripple}} < 25\text{ mV}_{\text{pp}}$.
 
 ### 7.3 Ensaio Térmico de Estresse sob Stall
-1. Submeter o regulador de 6,0 V a pulso de carga de 2,5 A a 3,0 A por 500 ms com termopar monitorando o encapsulamento TO-263 / TO-220.
-2. Confirmar que a elevação térmica transitória não ultrapassa 60 °C e que a tensão não sofre colapso.
+1. Submeter o regulador `U4` ($6{,}0\text{ V}$) a pulso de carga de $2{,}5\text{ A}$ a $3{,}0\text{ A}$ por $500\text{ ms}$ com termopar monitorando o encapsulamento `SOIC-8E` do CI `MP1584EN`.
+2. Confirmar que a elevação térmica transitória não ultrapassa $60\text{ °C}$ e que a tensão não sofre colapso.
 
 ---
 
@@ -196,3 +203,4 @@ Para validação em bancada após o recebimento dos componentes e placas:
 | 1.0 | 12/10/2026 | Dimensionamento dos reguladores Step-Down LM2596 e MP1584EN (#199) | Elias Oliveira | Equipe de Hardware |
 | 1.1 | 18/10/2026 | Inclusão do regulador dedicado de 6 V para os motores com suporte a stall de até 3 A | Elias Oliveira | Bruno Duarte |
 | 1.2 | 20/10/2026 | Modularização no diretório `energia/` e adição do protocolo de ensaios de bancada | Elias Oliveira | Equipe de Energia |
+| 2.0 | 23/10/2026 | Alinhamento com a Revisão 2.0 de Hardware: padronização dos três conversores Step-Down para o CI MP1584EN (`U4` +6V0, `U2` +5V0, `U5` +3V3), realocação de cargas (`ESP32-C3 Super Mini` em 5 V e `3× VL53L0X + MPU6050` em 3,3 V) e sincronização dos capacitores (`C2–C8`) com o esquemático oficial | Paulo Melo | Equipe de Energia e Hardware |

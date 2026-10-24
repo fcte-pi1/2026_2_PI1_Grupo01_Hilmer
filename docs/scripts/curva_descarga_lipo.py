@@ -27,8 +27,8 @@ A = 0.440                          # Amplitude da zona exponencial inicial (V)
 B = 16.0                           # Coeficiente da zona exponencial (1/Ah)
 
 # Corrente de Missao Nominal do Micromouse
-# Buck 6V (Motores) + Buck 5V (LiDAR) + Buck 3V3 (ESP32) -> ~3.52 W / 7.4 V = ~0.476 A
-CORRENTE_MISSAO_A = 0.476
+# Buck 6V U4 (Motores N20) + Buck 5V U2 (ESP32-C3 Super Mini) + Buck 3V3 U5 (3x VL53L0X + MPU6050) -> ~3.15 W / 7.4 V = ~0.426 A
+CORRENTE_MISSAO_A = 0.426
 
 
 def calcular_tensao_celula(q_descarregada_ah, corrente_a):
@@ -89,7 +89,7 @@ def gerar_grafico_svg(caminho_svg):
     def y_pixel(v_val):
         return margin_top + ((v_max - v_val) / (v_max - v_min)) * plot_height
 
-    # Gerar trajetoria da curva nominal (476 mA)
+    # Gerar trajetoria da curva nominal (426 mA)
     pontos_nominal = []
     tempo_passo = 30  # segundos
     t_seg = 0
@@ -173,7 +173,7 @@ def gerar_grafico_svg(caminho_svg):
     v30 = calcular_tensao_pack(30 * 60, CORRENTE_MISSAO_A)
     y30 = y_pixel(v30)
     svg.append(f'<circle cx="{x30:.1f}" cy="{y30:.1f}" r="5" fill="#2563eb" stroke="#ffffff" stroke-width="2" />')
-    svg.append(f'<text x="{x30 + 10:.1f}" y="{y30 - 8:.1f}" font-size="11" font-weight="bold" fill="#1d4ed8">{v30:.2f} V aos 30 min (~60% SoC)</text>')
+    svg.append(f'<text x="{x30 + 10:.1f}" y="{y30 - 8:.1f}" font-size="11" font-weight="bold" fill="#1d4ed8">{v30:.2f} V aos 30 min (~67% SoC)</text>')
 
     # Marcador no ponto de corte UVLO
     if t_uvlo_nominal:
@@ -186,7 +186,7 @@ def gerar_grafico_svg(caminho_svg):
     leg_y = margin_top + plot_height - 60
     svg.append(f'<rect x="{leg_x}" y="{leg_y}" width="250" height="50" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" />')
     svg.append(f'<line x1="{leg_x + 10}" y1="{leg_y + 16}" x2="{leg_x + 35}" y2="{leg_y + 16}" stroke="#2563eb" stroke-width="3" />')
-    svg.append(f'<text x="{leg_x + 42}" y="{leg_y + 20}" font-size="11" fill="#1e293b">Regime Nominal de Missão (476 mA)</text>')
+    svg.append(f'<text x="{leg_x + 42}" y="{leg_y + 20}" font-size="11" fill="#1e293b">Regime Nominal de Missão (426 mA)</text>')
     svg.append(f'<line x1="{leg_x + 10}" y1="{leg_y + 34}" x2="{leg_x + 35}" y2="{leg_y + 34}" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,3" />')
     svg.append(f'<text x="{leg_x + 42}" y="{leg_y + 38}" font-size="11" fill="#475569">Standby / Eletrônica Apenas (150 mA)</text>')
 
@@ -204,7 +204,7 @@ def gerar_tabela_soc():
     """
     print("\n" + "="*70)
     print(" TABELA DE MAPEAMENTO: ESTADO DE CARGA (SoC) vs TENSAO LiPo 2S")
-    print(" Pack: Tattu 650mAh 75C | Corrente Nominal: 476 mA")
+    print(" Pack: Tattu 650mAh 75C | Corrente Nominal: 426 mA")
     print("="*70)
     print(f"{'SoC (%)':<10} | {'V_pack Carga (V)':<18} | {'V_celula Carga (V)':<20} | {'Capacidade Rest. (mAh)'}")
     print("-" * 70)
@@ -213,7 +213,7 @@ def gerar_tabela_soc():
     # 100% ate 0% de 10 em 10
     for soc in range(100, -1, -10):
         q_d = CAPACIDADE_NOMINAL_AH * (1.0 - (soc / 100.0))
-        # Para carga a 476 mA
+        # Para carga a 426 mA
         v_cell_carga = calcular_tensao_celula(q_d, CORRENTE_MISSAO_A)
         v_pack_carga = v_cell_carga * 2
         cap_rest = CAPACIDADE_NOMINAL_AH * (soc / 100.0) * 1000

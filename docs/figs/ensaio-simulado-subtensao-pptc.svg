@@ -29,7 +29,7 @@
   <!-- ==================== LEFT PANEL: ENSAIO 1 (RAMPA DE SUBTENSÃO) ==================== -->
   <rect x="20" y="42" width="445" height="378" rx="6" class="panel"/>
   <text x="242" y="62" text-anchor="middle" class="title">Ensaio 1: Rampa Decrescente de Tensão (8,4 V → 6,0 V)</text>
-  <text x="242" y="77" text-anchor="middle" class="subtitle">Taxa: -0,05 V/s | Divisor ADC GPIO 2 (0,2481x) + Supervisor BMS 2S</text>
+  <text x="242" y="77" text-anchor="middle" class="subtitle">Taxa: -0,05 V/s | Divisor ADC BAT_ADC_TEST / C5 (0,2481x) + Supervisor BMS 2S</text>
 
   <!-- Plot Area Left: x=68..440 (w=372), y=95..335 (h=240) -->
   <!-- Y-axis: 0V to 9.0V (y = 335 - (V/9.0)*240) -->

@@ -9,8 +9,8 @@ Este documento registra a metodologia de modelagem, os parâmetros de simulaçã
 A validação das proteções contra descarga profunda (subtensão) e sobrecorrente no Micromouse abrange duas camadas complementares de segurança:
 
 1. **Proteção contra Subtensão em Duplo Estágio ($6{,}60\text{ V}$ Operacional e $6{,}40\text{ V}$ Limite Físico):**
-   * **Estágio Primário Operacional ($6{,}60\text{ V}$ — UVLO via Firmware no ESP32-C3):** Como o pack homologado **Tattu LiPo 2S 650 mAh 75C** opera acoplado ao conversor Step-Down **LM2596 (+5V0)** — cuja tensão mínima de *dropout* é de $6{,}50\text{ V}$ ($5{,}0\text{ V} + 1{,}5\text{ V}$) —, o monitoramento analógico via divisor resistivo ($R_1 = 100\text{ k}\Omega$, $R_2 = 33\text{ k}\Omega$) no pino **`GPIO 2 (ADC1_CH2)`** atua preventivamente ao atingir **$6{,}60\text{ V}$ ($3{,}30\text{ V/célula}$)**, cortando os sinais PWM do driver DRV8833 antes que ocorra perda de regulação no sensor LiDAR ToF.
-   * **Estágio Limite de Bancada / BMS 2S ($6{,}40\text{ V}$ — Seccionamento de Emergência):** Na rampa decrescente contínua em fonte ajustável de bancada, o limiar estrito de **$6{,}40\text{ V}$ ($3{,}20\text{ V/célula}$)** corresponde ao ponto clássico de corte de subtensão (*Over-Discharge Detection Voltage* $V_{\text{OD}}$) de supervisores BMS 2S dedicados (baseados em CIs da família HY2112 / S-8252), no qual o MOSFET de descarga secciona fisicamente o barramento de saída (`P+ = 0,00 V`) para impedir danos químicos irreversíveis às células de lítio.
+   * **Estágio Primário Operacional ($6{,}60\text{ V}$ — UVLO via Firmware no ESP32-C3 Super Mini `U3`):** Como o pack homologado **Tattu LiPo 2S 650 mAh 75C** alimenta os três conversores Step-Down **MP1584EN** (`U4` +6V0 para o driver DRV8833, `U2` +5V0 para o ESP32-C3 Super Mini e `U5` +3V3 para os 3 sensores ToF VL53L0X e a IMU MPU6050), o monitoramento analógico via divisor resistivo ($R_1 = 100\text{ k}\Omega$, $R_2 = 33\text{ k}\Omega$ e filtro $C_5 = 100\text{ nF}$, nó **`BAT_ADC_TEST`** acoplado ao `ADC1`) atua preventivamente ao atingir **$6{,}60\text{ V}$ ($3{,}30\text{ V/célula}$)**, cortando os sinais PWM do driver DRV8833 (`U6`) antes que ocorra perda de regulação no barramento de $+6{,}0\text{ V}$ dos motores.
+   * **Estágio Limite de Bancada / BMS 2S Externo de Referência ($6{,}40\text{ V}$ — Seccionamento de Emergência):** Como packs LiPo RC de alta descarga (75C) não possuem BMS integrado de fábrica, na rampa decrescente contínua em fonte ajustável de bancada avalia-se também o limiar estrito de **$6{,}40\text{ V}$ ($3{,}20\text{ V/célula}$)** correspondente ao ponto clássico de corte de subtensão (*Over-Discharge Detection Voltage* $V_{\text{OD}}$) de módulos supervisores BMS 2S dedicados de proteção secundária (baseados em CIs da família HY2112 / S-8252), no qual o MOSFET de descarga secciona fisicamente o barramento de saída (`P+ = 0,00 V`) para impedir danos químicos irreversíveis às células de lítio.
 2. **Proteção contra Sobrecorrente via Fusível Rearmável PPTC ($> 3{,}5\text{ A}$):**
    * Avalia-se o comportamento eletrotérmico dinâmico do termistor polimérico **Bourns MF-R185 / MF-MSMF185** ($I_{\text{hold}} = 1{,}85\text{ A}$, $I_{\text{trip}} = 3{,}55\text{ A a }3{,}70\text{ A}$, $V_{\text{max}} = 30\text{ V}$), comprovando tanto a estabilidade contínua sob corrente nominal e picos de partida ($\le 1{,}85\text{ A}$) quanto a velocidade de transição para o estado de alta impedância (*tripped state*) sob correntes de falta superiores a **$3{,}5\text{ A}$**.
 
@@ -38,22 +38,22 @@ Aplicou-se na entrada do sistema uma rampa decrescente de tensão iniciando em p
 
 $$V_{\text{BAT}}(t) = 8{,}40 - 0{,}05 \cdot t \quad [\text{V}]$$
 
-Considerando a queda ôhmica nominal na malha de entrada ($\Delta V_{\text{prot}} \approx 0{,}032\text{ V}$ a $0{,}432\text{ A}$), a tensão entregue ao divisor resistivo no pino **`GPIO 2 (ADC1_CH2)`** é dada por:
+Considerando a queda ôhmica nominal na malha de entrada ($\Delta V_{\text{prot}} \approx 0{,}032\text{ V}$ a $0{,}426\text{ A}\text{–}0{,}432\text{ A}$), a tensão entregue ao divisor resistivo no nó **`BAT_ADC_TEST` (`C5 = 100 nF` / Canal `ADC1` do `ESP32-C3 Super Mini`)** é dada por:
 
 $$V_{\text{ADC}}(t) = V_{\text{BAT}}(t) \cdot \left(\frac{R_2}{R_1 + R_2}\right) = V_{\text{BAT}}(t) \cdot \left(\frac{33\text{ k}\Omega}{100\text{ k}\Omega + 33\text{ k}\Omega}\right) = 0{,}24812 \cdot V_{\text{BAT}}(t)$$
 
 ### 3.2 Registro de Medições Elétricas na Rampa de Subtensão
 
-A tabela abaixo apresenta os pontos de medição coletados ao longo da varredura decrescente da fonte ajustável, registrando o comportamento simultâneo do **UVLO de Firmware ($6{,}60\text{ V}$)**, dos reguladores Buck e do **Corte Físico do BMS 2S ($6{,}40\text{ V}$)**:
+A tabela abaixo apresenta os pontos de medição coletados ao longo da varredura decrescente da fonte ajustável, registrando o comportamento simultâneo do **UVLO de Firmware ($6{,}60\text{ V}$)**, dos reguladores Buck **MP1584EN** e do **Corte Físico do BMS 2S ($6{,}40\text{ V}$)**:
 
-| Instante ($t$) | Tensão na Fonte ($V_{\text{BAT}}$) | Tensão por Célula ($V_{\text{cell}}$) | Tensão no Pino ADC ($V_{\text{ADC}}$) | Leitura Digital ADC (12 bits) | Saída Buck +5V0 (LM2596) | Saída Buck +3V3 (MP1584) | Estado PWM Motores (UVLO) | Saída `P+` do BMS 2S | Eventos e Diagnóstico de Bancada |
+| Instante ($t$) | Tensão na Fonte ($V_{\text{BAT}}$) | Tensão por Célula ($V_{\text{cell}}$) | Tensão no Nó ADC ($V_{\text{ADC}}$) | Leitura Digital ADC (12 bits) | Saída Buck +5V0 (MP1584 `U2`) | Saída Buck +3V3 (MP1584 `U5`) | Estado PWM Motores (UVLO) | Saída `P+` do BMS 2S | Eventos e Diagnóstico de Bancada |
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
 | **$0{,}0\text{ s}$** | **$8{,}40\text{ V}$** | $4{,}20\text{ V}$ | $2{,}084\text{ V}$ | `2586` | $5{,}00\text{ V}$ | $3{,}30\text{ V}$ | **Ativo (71% máx.)** | **$8{,}38\text{ V}$ (ON)** | Plena carga; operação nominal de pista. |
 | **$10{,}0\text{ s}$** | **$7{,}90\text{ V}$** | $3{,}95\text{ V}$ | $1{,}960\text{ V}$ | `2432` | $5{,}00\text{ V}$ | $3{,}30\text{ V}$ | **Ativo** | **$7{,}88\text{ V}$ (ON)** | Descarga normal; barramentos regulados estáveis. |
 | **$20{,}0\text{ s}$** | **$7{,}40\text{ V}$** | $3{,}70\text{ V}$ | $1{,}836\text{ V}$ | `2278` | $5{,}00\text{ V}$ | $3{,}30\text{ V}$ | **Ativo** | **$7{,}38\text{ V}$ (ON)** | Tensão nominal da bateria LiPo 2S. |
 | **$32{,}0\text{ s}$** | **$6{,}80\text{ V}$** | $3{,}40\text{ V}$ | $1{,}687\text{ V}$ | `2094` | $5{,}00\text{ V}$ | $3{,}30\text{ V}$ | **Alerta Bateria Baixa** | **$6{,}78\text{ V}$ (ON)** | Telemetria emite alerta preventivo de fim de carga. |
-| **$36{,}0\text{ s}$** | **$6{,}60\text{ V}$** | **$3{,}30\text{ V}$** | **$1{,}638\text{ V}$** | **`2032`** | **$5{,}00\text{ V}$** | **$3{,}30\text{ V}$** | **CORTE UVLO (0%)** | **$6{,}58\text{ V}$ (ON)** | **Atuação do UVLO embarcado:** tração desligada acima do *dropout* do LM2596 ($6{,}50\text{ V}$). |
-| **$38{,}0\text{ s}$** | **$6{,}50\text{ V}$** | $3{,}25\text{ V}$ | $1{,}613\text{ V}$ | `2001` | $4{,}98\text{ V}$ | $3{,}30\text{ V}$ | **Bloqueado (0%)** | **$6{,}49\text{ V}$ (ON)** | Limiar de *dropout* do conversor de 5 V; motores já inativos. |
+| **$36{,}0\text{ s}$** | **$6{,}60\text{ V}$** | **$3{,}30\text{ V}$** | **$1{,}638\text{ V}$** | **`2032`** | **$5{,}00\text{ V}$** | **$3{,}30\text{ V}$** | **CORTE UVLO (0%)** | **$6{,}58\text{ V}$ (ON)** | **Atuação do UVLO embarcado:** tração desligada preservando a regulação dos Bucks MP1584EN (`U4` +6V0 e `U2` +5V0). |
+| **$38{,}0\text{ s}$** | **$6{,}50\text{ V}$** | $3{,}25\text{ V}$ | $1{,}613\text{ V}$ | `2001` | $5{,}00\text{ V}$ | $3{,}30\text{ V}$ | **Bloqueado (0%)** | **$6{,}49\text{ V}$ (ON)** | Motores inativos; reguladores de 5 V (`U2`) e 3,3 V (`U5`) mantêm folga plena. |
 | **$40{,}0\text{ s}$** | **$6{,}40\text{ V}$** | **$3{,}20\text{ V}$** | **$1{,}588\text{ V}$** | **`1970`** | **$0{,}00\text{ V}$** | **$0{,}00\text{ V}$** | **Desenergizado** | **$0{,}00\text{ V}$ (OFF)** | **Atuação comprovada em 6,40 V:** corte físico do BMS 2S secciona o barramento em $t_{\text{delay}} = 98\text{ ms}$. |
 | **$48{,}0\text{ s}$** | **$6{,}00\text{ V}$** | $3{,}00\text{ V}$ | $0{,}000\text{ V}$ | `0` | $0{,}00\text{ V}$ | $0{,}00\text{ V}$ | **Desenergizado** | **$0{,}00\text{ V}$ (OFF)** | Sistema permanece em bloqueio seguro (*latched*) até recarga acima da histerese ($> 6{,}80\text{ V}$). |
 
@@ -97,11 +97,11 @@ A Figura 1 consolida as curvas temporais obtidas nos dois ensaios: à esquerda, 
 
 <figure markdown>
 
-![Gráficos dos Ensaios Simulados de Corte por Subtensão e Desarme do Fusível PPTC](../figs/ensaio-simulado-subtensao-pptc.svg){ width="920" }
+![Gráficos dos Ensaios Simulados de Corte por Subtensão e Desarme do Fusível PPTC](../../figs/ensaio-simulado-subtensao-pptc.svg){ width="920" }
 
 <figcaption>
 
-**Figura 1.** Resultados gráficos dos ensaios simulados da Issue #207: (Esquerda) Rampa decrescente de tensão de $8{,}4\text{ V}$ a $6{,}0\text{ V}$ comprovando atuação em $6{,}60\text{ V}$ (UVLO embarcado) e $6{,}40\text{ V}$ (corte BMS 2S); (Direita) Curvas de desarme (*Time-to-Trip*) do fusível PPTC Bourns MF-R185 sob sobrecorrente acima de $3{,}5\text{ A}$.
+**Figura 1.** Resultados gráficos dos ensaios simulados da Issue #207: (Esquerda) Rampa decrescente de tensão de $8{,}4\text{ V}$ a $6{,}0\text{ V}$ comprovando atuação em $6{,}60\text{ V}$ (UVLO embarcado via `BAT_ADC_TEST` / `C5`) e $6{,}40\text{ V}$ (corte BMS 2S); (Direita) Curvas de desarme (*Time-to-Trip*) do fusível PPTC Bourns MF-R185 sob sobrecorrente acima de $3{,}5\text{ A}$.
 
 </figcaption>
 
@@ -122,3 +122,4 @@ A Figura 1 consolida as curvas temporais obtidas nos dois ensaios: à esquerda, 
 | Versão | Data | Descrição | Autor(es) | Revisor(es) |
 | :---: | :---: | :--- | :--- | :--- |
 | 1.0 | 17/10/2026 | Elaboração do relatório de ensaio simulado de corte por subtensão (6,6 V / 6,4 V) e desarme do fusível PPTC (> 3,5 A) | Paulo Melo | Equipe de Energia |
+| 1.1 | 23/10/2026 | Alinhamento com a Revisão 2.0 de Hardware: substituição das referências ao LM2596/LiDAR pelos conversores MP1584EN (`U2`, `U4`, `U5`), placa `ESP32-C3 Super Mini` (`U3`) e nó `BAT_ADC_TEST` (`C5 = 100 nF`) | Paulo Melo | Equipe de Energia e Hardware |

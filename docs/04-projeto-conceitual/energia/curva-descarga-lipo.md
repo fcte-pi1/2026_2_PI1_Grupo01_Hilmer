@@ -32,7 +32,7 @@ $$V_{\text{pack}}(t) = 2 \cdot V_{\text{cel}}(Q_{\text{d}}(t))$$
 | :--- | :---: | :---: | :---: | :--- |
 | **Tensão do Patamar Eletroquímico** | $E_0$ | **$3{,}740$** | $\text{V}$ | Tensão de circuito aberto intrínseca da célula |
 | **Resistência Interna por Célula** | $R$ | **$15$** | $\text{m}\Omega$ | Resistência ôhmica interna ($30\text{ m}\Omega$ total no pack 2S) |
-| **Corrente Média em Corrida** | $I$ | **$0{,}476$** | $\text{A}$ | Demanda líquida contínua do robô a 7,4 V nominal |
+| **Corrente Média em Corrida** | $I$ | **$0{,}426$** | $\text{A}$ | Demanda líquida contínua do robô a 7,4 V nominal |
 | **Coeficiente de Polarização** | $K$ | **$0{,}085$** | $\text{V}$ | Efeito de polarização e saturação na zona final de descarga |
 | **Capacidade Nominal da Célula** | $Q$ | **$0{,}650$** | $\text{Ah}$ | Capacidade de catálogo ($650\text{ mAh}$) |
 | **Carga Descarregada Acumulada** | $Q_{\text{d}}$ | $I \cdot t$ | $\text{Ah}$ | Integral da corrente de descarga ao longo do tempo |
@@ -43,8 +43,8 @@ $$V_{\text{pack}}(t) = 2 \cdot V_{\text{cel}}(Q_{\text{d}}(t))$$
 
 ## 3. Simulação Teórica Computacional
 
-O script de engenharia em Python [`scripts/curva_descarga_lipo.py`](file:///home/efaria/UnB/PI1/scripts/curva_descarga_lipo.py) simula o comportamento da bateria sob dois regimes operacionais:
-1. **Regime Nominal de Corrida ($476\text{ mA}$):** Robô em exploração contínua com motores N20 acionados, LiDAR ToF girando a 5 V e rádio/MCU a 3,3 V.
+O script de engenharia em Python [`scripts/curva_descarga_lipo.py`](../../scripts/curva_descarga_lipo.py) simula o comportamento da bateria sob dois regimes operacionais:
+1. **Regime Nominal de Corrida ($426\text{ mA}$):** Robô em exploração contínua com motores N20 acionados ($6{,}0\text{ V}$ via `U4`), placa `ESP32-C3 Super Mini` com rádio ativo ($5{,}0\text{ V}$ via `U2`) e barramento I²C de sensores com 3× ToF `VL53L0X` e IMU `MPU6050` ($3{,}3\text{ V}$ via `U5`).
 2. **Regime de Baixo Consumo / Standby ($150\text{ mA}$):** Robô estático aguardando partida ou processando telemetria.
 
 O gráfico vetorial resultante demonstra a correlação entre tempo decorrido, tensão de terminal e o corte regulamentar de 30 minutos (**RNF-04**):
@@ -55,27 +55,27 @@ O gráfico vetorial resultante demonstra a correlação entre tempo decorrido, t
 
 ## 4. Tabela de Correlação: Estado de Carga (SoC) vs. Tensão de Terminal
 
-A correspondência exata entre o Estado de Carga (*State of Charge* — SoC), a tensão nos terminais do pack 2S sob carga nominal de $476\text{ mA}$ e a capacidade remanescente é apresentada na tabela a seguir:
+A correspondência exata entre o Estado de Carga (*State of Charge* — SoC), a tensão nos terminais do pack 2S sob carga nominal de $426\text{ mA}$ e a capacidade remanescente é apresentada na tabela a seguir:
 
 | Estado de Carga (SoC) | Tensão do Pack 2S ($V_{\text{pack}}$) | Tensão por Célula ($V_{\text{cel}}$) | Capacidade Restante (mAh) | Regime Operacional / Diagnóstico |
 | :---: | :---: | :---: | :---: | :--- |
 | **100%** | **8,35 V a 8,40 V** | 4,17 V a 4,20 V | 650 mAh | Bateria plena pós-carregamento balanceado |
 | **90%**  | 7,78 V | 3,89 V | 585 mAh | Fim da zona de decaimento exponencial inicial |
 | **80%**  | 7,57 V | 3,78 V | 520 mAh | Início do platô estável de corrida |
-| **70%**  | 7,48 V | 3,74 V | 455 mAh | Platô nominal de regime permanente |
-| **60%**  | 7,43 V | 3,72 V | 390 mAh | **Ponto operacional aos 30 min de prova (RNF-04)** |
+| **70%**  | 7,48 V | 3,74 V | 455 mAh | Platô nominal (~67% SoC aos 30 min de prova — **RNF-04**) |
+| **60%**  | 7,44 V | 3,72 V | 390 mAh | Operação contínua em platô nominal |
 | **50%**  | 7,39 V | 3,69 V | 325 mAh | Metade da carga útil |
-| **40%**  | 7,31 V | 3,66 V | 260 mAh | Operação em corrida contínua segura |
-| **30%**  | 7,19 V | 3,59 V | 195 mAh | Alerta amarelo no Dashboard de telemetria |
+| **40%**  | 7,32 V | 3,66 V | 260 mAh | Operação em corrida contínua segura |
+| **30%**  | 7,19 V | 3,60 V | 195 mAh | Alerta amarelo no Dashboard de telemetria |
 | **20%**  | 6,92 V | 3,46 V | 130 mAh | Aproximação do joelho de descarga rápida |
-| **10%**  | 6,09 V | 3,04 V | 65 mAh | Zona de esgotamento acentuado |
+| **10%**  | 6,09 V | 3,05 V | 65 mAh | Zona de esgotamento acentuado |
 | **0% (Corte UVLO)**| **6,60 V** | **3,30 V** | **~45 mAh (7%)** | **Desarme forçado via software (PWM = 0)** |
 
 ---
 
 ## 5. Integração com a Camada de Firmware
 
-A curva matemática e a tabela de calibração foram exportadas para a biblioteca C++ do microcontrolador em [`src/firmware/lib/simulacao/TabelaDescargaLiPo.h`](file:///home/efaria/UnB/PI1/src/firmware/lib/simulacao/TabelaDescargaLiPo.h). Essa interface provê:
+A curva matemática e a tabela de calibração foram exportadas para a biblioteca C++ do microcontrolador em `src/firmware/lib/simulacao/TabelaDescargaLiPo.h`. Essa interface provê:
 
 ```cpp
 // Consulta de tensão teórica por tempo de corrida
@@ -86,9 +86,9 @@ float estimarSoCPorTensao(float tensaoPackMedida);
 ```
 
 ### Regras de Proteção Implementadas:
-1. **Supervisão Contínua de Tensão:** Leituras periódicas do ADC com filtro de média móvel para rejeitar ruídos de chaveamento da ponte H.
-2. **Desarme Automático (*UVLO Lockout*):** Caso a tensão atestada seja $\le 6{,}60\text{ V}$ por mais de 3 amostragens consecutivas, o firmware zera os sinais de modulação PWM para o driver DRV8833, congelando a movimentação e emitindo alerta crítico no telemetria.
-3. **Preservação do Regulador LM2596 (LiDAR):** O corte em 6,60 V assegura que o conversor Step-Down de 5 V opere estritamente acima do seu patamar de *dropout* ($V_{\text{in}} \ge 5{,}0\text{ V} + 1{,}5\text{ V} = 6{,}50\text{ V}$), impedindo reinicializações do sensor óptico.
+1. **Supervisão Contínua de Tensão:** Leituras periódicas do ADC (`BAT_ADC_TEST` / `ADC1`) com filtro passivo (`C5 = 100 nF`) e média móvel para rejeitar ruídos de chaveamento da ponte H.
+2. **Desarme Automático (*UVLO Lockout*):** Caso a tensão atestada seja $\le 6{,}60\text{ V}$ por mais de 3 amostragens consecutivas, o firmware zera os sinais de modulação PWM para o driver DRV8833 (`U6`), congelando a movimentação e emitindo alerta crítico na telemetria.
+3. **Preservação da Regulação dos Conversores Buck MP1584EN (`U4` +6V0, `U2` +5V0 e `U5` +3V3):** O corte em 6,60 V assegura que os três conversores Step-Down `MP1584EN` operem com margem de tensão adequada em suas entradas, mantendo estáveis os barramentos dos motores (`+6,0 V`), do microcontrolador `ESP32-C3 Super Mini` (`+5,0 V`) e dos sensores laser `VL53L0X` e IMU `MPU6050` (`+3,3 V`).
 
 ---
 
@@ -97,7 +97,7 @@ float estimarSoCPorTensao(float tensaoPackMedida);
 Para consolidar a homologação experimental assim que o pack físico e a carga de teste estiverem disponíveis, estabelece-se o seguinte protocolo de ensaio em bancada:
 
 ### 6.1 Instrumentação de Teste Necessária
-1. **Carga Eletrônica Ativa DC Programável** (ou banco resistivo cerâmico comutável com $R_{\text{carga}} \approx 15{,}5\ \Omega$ para drenar $476\text{ mA}$ em $7{,}4\text{ V}$).
+1. **Carga Eletrônica Ativa DC Programável** (ou banco resistivo cerâmico comutável com $R_{\text{carga}} \approx 17{,}4\ \Omega$ para drenar $426\text{ mA}$ em $7{,}4\text{ V}$).
 2. **Multímetro Digital de Precisão (DMM)** com interface de aquisição de dados (leitura mínima de 4½ dígitos para registrar $V_{\text{pack}}$ a cada 5 segundos).
 3. **Shunt de Corrente / Amperímetro** em série para monitorar estabilidade da drenagem.
 4. **Sensor de Temperatura Termopar tipo K** fixado na superfície externa do pack para monitorar elevação térmica ($T_{\text{pack}} \le 45\text{ °C}$).
@@ -105,7 +105,7 @@ Para consolidar a homologação experimental assim que o pack físico e a carga 
 ### 6.2 Procedimento Experimental
 1. Carregar o pack LiPo 2S até $8{,}40\text{ V} \pm 0{,}02\text{ V}$ em carregador balanceador inteligente (corrente de 0,6 A em modo *LiPo Balance*).
 2. Deixar a célula em repouso térmico por 30 minutos após a carga.
-3. Conectar à carga ativa ajustada em modo Corrente Constante ($CC = 476\text{ mA}$).
+3. Conectar à carga ativa ajustada em modo Corrente Constante ($CC = 426\text{ mA}$).
 4. Iniciar o registrador de dados (*data logger*) sincronizado com o disparo da carga.
 5. Encerrar a descarga imediatamente ao atingir o limiar de corte de **$6{,}60\text{ V}$**.
 6. Exportar os dados de tempo e tensão para formato CSV em `data/ensaios/descarga_lipo_experimental.csv`.
@@ -122,3 +122,4 @@ Para consolidar a homologação experimental assim que o pack físico e a carga 
 | :---: | :---: | :--- | :--- | :--- |
 | 1.0 | 18/10/2026 | Criação do modelo de Shepherd modificado, simulação em Python e tabela SoC para o firmware (#139) | Elias Oliveira | Bruno Duarte |
 | 1.1 | 20/10/2026 | Modularização no diretório `energia/` e adição do protocolo de ensaios de bancada planejado | Elias Oliveira | Equipe de Energia |
+| 1.2 | 23/10/2026 | Alinhamento com a Revisão 2.0 de Hardware: atualização da corrente média de missão para 426 mA, substituição das referências ao LM2596/LiDAR pelos conversores MP1584EN (`U2`, `U4`, `U5`), sensores `3× VL53L0X + MPU6050` e nó `BAT_ADC_TEST` (`C5 = 100 nF`) | Paulo Melo | Equipe de Energia e Hardware |

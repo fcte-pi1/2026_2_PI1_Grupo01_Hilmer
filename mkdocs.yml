@@ -12,6 +12,7 @@ docs_dir: docs
 # README interno da pasta de figuras não vai para a navegação.
 not_in_nav: |
   /figs/README.md
+  /scripts/README.md
 
 theme:
   name: material
@@ -79,7 +80,7 @@ markdown_extensions:
       generic: true
 
 extra_javascript:
-  - javascripts/mathjax.js
+  - scripts/mathjax.js
   - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
 
 nav:
