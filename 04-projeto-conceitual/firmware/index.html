@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1105,13 +1105,85 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#sensores-de-distancia-interface-ilidar-e-lidarsimulado" class="md-nav__link">
+  <a href="#sensores-de-distancia-interface-isensordistancia-e-sensordistanciasimulado" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Sensores de distância: interface ILidar e LidarSimulado
+        Sensores de distância: interface ISensorDistancia e SensorDistanciaSimulado
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sensores-de-distancia-3-vl53l0x-tofvl53l0x" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sensores de distância: 3 VL53L0X (TofVl53l0x)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sensores de distância: 3 VL53L0X (TofVl53l0x)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ligacao-e-enderecos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ligação e endereços
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regras-de-negocio-e-algoritmo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de Negócio e Algoritmo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-da-classe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface da Classe
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bancada-dos-vl53l0x" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bancada dos VL53L0X
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#simulacao-dos-vl53l0x-e-integracao-com-o-mapa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simulação dos VL53L0X e integração com o mapa
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1161,45 +1233,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#regras-de-negocio-e-algoritmo" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Regras de Negócio e Algoritmo
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#interface-da-classe" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Interface da Classe
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#mapeamento-atualizacao-do-mapa" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Mapeamento: atualização do mapa
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Mapeamento: atualização do mapa">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#regras-de-negocio-e-algoritmo_1" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1227,15 +1260,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#mapeamento-mapa-final-da-corrida" class="md-nav__link">
+  <a href="#mapeamento-atualizacao-do-mapa" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Mapeamento: mapa final da corrida
+        Mapeamento: atualização do mapa
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Mapeamento: mapa final da corrida">
+    <nav class="md-nav" aria-label="Mapeamento: atualização do mapa">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1251,6 +1284,45 @@
         
           <li class="md-nav__item">
   <a href="#interface-da-classe_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface da Classe
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapeamento-mapa-final-da-corrida" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mapeamento: mapa final da corrida
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Mapeamento: mapa final da corrida">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regras-de-negocio-e-algoritmo_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de Negócio e Algoritmo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-da-classe_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Interface da Classe
@@ -1300,45 +1372,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#regras-de-negocio-e-algoritmo_3" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Regras de Negócio e Algoritmo
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#interface-da-classe_3" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Interface da Classe
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#comunicacao-serializacao-do-mapa-em-json" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Comunicação: serialização do mapa em JSON
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Comunicação: serialização do mapa em JSON">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#regras-de-negocio-e-algoritmo_4" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1366,15 +1399,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#navegacao-odometria" class="md-nav__link">
+  <a href="#comunicacao-serializacao-do-mapa-em-json" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Navegação: odometria
+        Comunicação: serialização do mapa em JSON
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Navegação: odometria">
+    <nav class="md-nav" aria-label="Comunicação: serialização do mapa em JSON">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1405,15 +1438,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#navegacao-robustez-da-pose-e-do-passo" class="md-nav__link">
+  <a href="#navegacao-odometria" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Navegação: robustez da pose e do passo
+        Navegação: odometria
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Navegação: robustez da pose e do passo">
+    <nav class="md-nav" aria-label="Navegação: odometria">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1444,6 +1477,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#navegacao-robustez-da-pose-e-do-passo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Navegação: robustez da pose e do passo
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Navegação: robustez da pose e do passo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regras-de-negocio-e-algoritmo_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de Negócio e Algoritmo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-da-classe_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface da Classe
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#navegacao-deteccao-do-objetivo-e-evento-na-telemetria" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1456,7 +1528,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#regras-de-negocio-e-algoritmo_7" class="md-nav__link">
+  <a href="#regras-de-negocio-e-algoritmo_8" class="md-nav__link">
     <span class="md-ellipsis">
       
         Regras de Negócio e Algoritmo
@@ -1545,7 +1617,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#regras-de-negocio-e-algoritmo_8" class="md-nav__link">
+  <a href="#regras-de-negocio-e-algoritmo_9" class="md-nav__link">
     <span class="md-ellipsis">
       
         Regras de Negócio e Algoritmo
@@ -1556,7 +1628,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#interface-da-classe_7" class="md-nav__link">
+  <a href="#interface-da-classe_8" class="md-nav__link">
     <span class="md-ellipsis">
       
         Interface da Classe
@@ -2120,13 +2192,85 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#sensores-de-distancia-interface-ilidar-e-lidarsimulado" class="md-nav__link">
+  <a href="#sensores-de-distancia-interface-isensordistancia-e-sensordistanciasimulado" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Sensores de distância: interface ILidar e LidarSimulado
+        Sensores de distância: interface ISensorDistancia e SensorDistanciaSimulado
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sensores-de-distancia-3-vl53l0x-tofvl53l0x" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sensores de distância: 3 VL53L0X (TofVl53l0x)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sensores de distância: 3 VL53L0X (TofVl53l0x)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ligacao-e-enderecos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ligação e endereços
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regras-de-negocio-e-algoritmo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de Negócio e Algoritmo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-da-classe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface da Classe
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bancada-dos-vl53l0x" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bancada dos VL53L0X
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#simulacao-dos-vl53l0x-e-integracao-com-o-mapa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simulação dos VL53L0X e integração com o mapa
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2176,45 +2320,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#regras-de-negocio-e-algoritmo" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Regras de Negócio e Algoritmo
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#interface-da-classe" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Interface da Classe
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#mapeamento-atualizacao-do-mapa" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Mapeamento: atualização do mapa
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Mapeamento: atualização do mapa">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#regras-de-negocio-e-algoritmo_1" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2242,15 +2347,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#mapeamento-mapa-final-da-corrida" class="md-nav__link">
+  <a href="#mapeamento-atualizacao-do-mapa" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Mapeamento: mapa final da corrida
+        Mapeamento: atualização do mapa
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Mapeamento: mapa final da corrida">
+    <nav class="md-nav" aria-label="Mapeamento: atualização do mapa">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2266,6 +2371,45 @@
         
           <li class="md-nav__item">
   <a href="#interface-da-classe_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface da Classe
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapeamento-mapa-final-da-corrida" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mapeamento: mapa final da corrida
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Mapeamento: mapa final da corrida">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regras-de-negocio-e-algoritmo_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de Negócio e Algoritmo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-da-classe_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Interface da Classe
@@ -2315,45 +2459,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#regras-de-negocio-e-algoritmo_3" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Regras de Negócio e Algoritmo
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#interface-da-classe_3" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Interface da Classe
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#comunicacao-serializacao-do-mapa-em-json" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Comunicação: serialização do mapa em JSON
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Comunicação: serialização do mapa em JSON">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#regras-de-negocio-e-algoritmo_4" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2381,15 +2486,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#navegacao-odometria" class="md-nav__link">
+  <a href="#comunicacao-serializacao-do-mapa-em-json" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Navegação: odometria
+        Comunicação: serialização do mapa em JSON
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Navegação: odometria">
+    <nav class="md-nav" aria-label="Comunicação: serialização do mapa em JSON">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2420,15 +2525,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#navegacao-robustez-da-pose-e-do-passo" class="md-nav__link">
+  <a href="#navegacao-odometria" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Navegação: robustez da pose e do passo
+        Navegação: odometria
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Navegação: robustez da pose e do passo">
+    <nav class="md-nav" aria-label="Navegação: odometria">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2459,6 +2564,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#navegacao-robustez-da-pose-e-do-passo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Navegação: robustez da pose e do passo
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Navegação: robustez da pose e do passo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regras-de-negocio-e-algoritmo_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de Negócio e Algoritmo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-da-classe_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface da Classe
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#navegacao-deteccao-do-objetivo-e-evento-na-telemetria" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2471,7 +2615,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#regras-de-negocio-e-algoritmo_7" class="md-nav__link">
+  <a href="#regras-de-negocio-e-algoritmo_8" class="md-nav__link">
     <span class="md-ellipsis">
       
         Regras de Negócio e Algoritmo
@@ -2560,7 +2704,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#regras-de-negocio-e-algoritmo_8" class="md-nav__link">
+  <a href="#regras-de-negocio-e-algoritmo_9" class="md-nav__link">
     <span class="md-ellipsis">
       
         Regras de Negócio e Algoritmo
@@ -2571,7 +2715,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#interface-da-classe_7" class="md-nav__link">
+  <a href="#interface-da-classe_8" class="md-nav__link">
     <span class="md-ellipsis">
       
         Interface da Classe
@@ -2724,7 +2868,7 @@
 <td>Sensores de distância</td>
 <td>LiDAR 360° por UART</td>
 <td><strong>3 VL53L0X</strong> (esquerdo, frontal e direito) por I²C</td>
-<td>A interface <code>ILidar</code> continua; muda o driver por trás dela (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/391">#391</a>, em revisão)</td>
+<td>A interface dos sensores de distância continua (renomeada de <code>ILidar</code> para <code>ISensorDistancia</code> no PR #391); muda o driver por trás dela (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/391">#391</a>, em revisão)</td>
 </tr>
 <tr>
 <td>Orientação</td>
@@ -2759,7 +2903,7 @@
     p1 --&gt; p2["firmware.bin&lt;br/&gt;gravado no ESP32-C3"]
     c1 --&gt; c2["programa de teste&lt;br/&gt;executado no computador"]</code></pre>
 <p><strong>Figura 2.</strong> Os dois ambientes de compilação definidos no <code>platformio.ini</code>: <code>esp32c3</code> gera o firmware gravado na placa e <code>native</code> compila e executa os testes no computador.</p>
-<p>A lógica do robô (direções, mapa, classificação de paredes) não usa nada do Arduino, por isso compila nos dois ambientes. Assim, ela pode ser testada no computador, sem a placa e sem o sensor. Quando a lógica precisa dos sensores de distância, os testes usam o <code>LidarSimulado</code>, um sensor simulado que devolve as leituras escolhidas pelo próprio teste.</p>
+<p>A lógica do robô (direções, mapa, classificação de paredes) não usa nada do Arduino, por isso compila nos dois ambientes. Assim, ela pode ser testada no computador, sem a placa e sem o sensor. Quando a lógica precisa dos sensores de distância, os testes usam o <code>SensorDistanciaSimulado</code>, um sensor simulado que devolve as leituras escolhidas pelo próprio teste.</p>
 <table>
 <thead>
 <tr>
@@ -2791,6 +2935,7 @@
 </tr>
 </tbody>
 </table>
+<p>Há ainda o ambiente <strong><code>bancada_tof</code></strong>, que herda o <code>esp32c3</code> mas compila só <code>src/bancada/bancada_tof.cpp</code>: um firmware de teste dos sensores de distância, usado na bancada com a eletrônica (veja <a href="#bancada-dos-vl53l0x">Bancada dos VL53L0X</a>). O <code>esp32c3</code> exclui a pasta <code>src/bancada/</code> (<code>build_src_filter</code>), então o firmware do robô não muda.</p>
 <h2 id="estrutura-de-pastas">Estrutura de pastas<a class="headerlink" href="#estrutura-de-pastas" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -2814,7 +2959,11 @@
 </tr>
 <tr>
 <td><code>lib/hal</code></td>
-<td>Interfaces de hardware: <code>ILidar</code> (sensores de distância), <code>IEncoder</code>, <code>IMotores</code> e <code>IImu</code> (PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/403">#403</a>, em revisão)</td>
+<td>Interfaces de hardware: <code>ISensorDistancia</code> (sensores de distância), <code>IEncoder</code>, <code>IMotores</code> e <code>IImu</code> (PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/403">#403</a>, em revisão)</td>
+</tr>
+<tr>
+<td><code>lib/tof</code></td>
+<td>Regra de validade das leituras dos 3 VL53L0X (<code>CombinadorTof</code>) e seus parâmetros (<code>ConfiguracaoTof.h</code>), sem Arduino (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a>)</td>
 </tr>
 <tr>
 <td><code>lib/encoders</code></td>
@@ -2841,10 +2990,6 @@
 <td>Calibração do viés e ângulo de giro do giroscópio (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378">#378</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/403">#403</a>, em revisão)</td>
 </tr>
 <tr>
-<td><code>lib/tof</code></td>
-<td>Combinação das leituras dos 3 VL53L0X (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/391">#391</a>, em revisão)</td>
-</tr>
-<tr>
 <td><code>lib/lidar</code></td>
 <td>Código do LiDAR da versão anterior do hardware; <strong>não é usado</strong> e deve ser removido</td>
 </tr>
@@ -2854,11 +2999,19 @@
 </tr>
 <tr>
 <td><code>lib/simulacao</code></td>
-<td>Falsos para os testes: <code>LidarSimulado</code>, <code>LabirintoSimulado</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/224">#224</a>), <code>EncoderSimulado</code>, <code>MotoresSimulados</code> e <code>ImuSimulado</code> (PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/403">#403</a>, em revisão)</td>
+<td>Falsos para os testes: <code>SensorDistanciaSimulado</code>, <code>LabirintoSimulado</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/224">#224</a>), <code>TofSimulado</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a>), <code>EncoderSimulado</code>, <code>MotoresSimulados</code> e <code>ImuSimulado</code> (PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/403">#403</a>, em revisão)</td>
 </tr>
 <tr>
 <td><code>lib/drivers_esp32</code></td>
-<td>Drivers que dependem do Arduino: encoders, motores pelo DRV8833 e, em revisão, os VL53L0X (PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/391">#391</a>); o driver do MPU6050 está em desenvolvimento (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378">#378</a>)</td>
+<td>Drivers que dependem do Arduino: 3 VL53L0X pelo I²C (<code>TofVl53l0x</code>), encoders, motores pelo DRV8833 e Wi-Fi; o driver do MPU6050 está em desenvolvimento (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378">#378</a>)</td>
+</tr>
+<tr>
+<td><code>src/bancada/</code></td>
+<td>Programas de bancada, fora do firmware do robô: <code>bancada_tof.cpp</code> testa os VL53L0X no hardware (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a>)</td>
+</tr>
+<tr>
+<td><code>scripts/</code></td>
+<td>Ferramentas de bancada no computador: <code>bancada_tof.py</code> (menu dos VL53L0X) e <code>calibrar_deslocamento_18cm.py</code> (encoders); os testes dos scripts ficam em <code>scripts/testes/</code></td>
 </tr>
 <tr>
 <td><code>test/</code></td>
@@ -3046,14 +3199,15 @@
 <li>O esquemático ainda descreve os encoders como "reservados; encoder não instalado". Com os encoders disponíveis, a eletrônica precisa atualizar essa nota.</li>
 </ul>
 </div>
-<h2 id="sensores-de-distancia-interface-ilidar-e-lidarsimulado">Sensores de distância: interface <code>ILidar</code> e <code>LidarSimulado</code><a class="headerlink" href="#sensores-de-distancia-interface-ilidar-e-lidarsimulado" title="Permanent link">&para;</a></h2>
-<p>Na Rev 2.0, o robô mede as paredes com <strong>3 sensores VL53L0X</strong> (esquerdo, frontal e direito), que medem a distância por tempo de voo da luz (<em>Time of Flight</em>, ToF). A lógica do firmware recebe essas distâncias pela interface <code>ILidar</code>. O nome é herdado da primeira versão do hardware: a interface continuou a mesma, e por isso a percepção, o mapa e o controle de movimento não precisaram mudar. O driver dos VL53L0X está em revisão (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/391">#391</a>).</p>
+<h2 id="sensores-de-distancia-interface-isensordistancia-e-sensordistanciasimulado">Sensores de distância: interface <code>ISensorDistancia</code> e <code>SensorDistanciaSimulado</code><a class="headerlink" href="#sensores-de-distancia-interface-isensordistancia-e-sensordistanciasimulado" title="Permanent link">&para;</a></h2>
+<p>Na Rev 2.0, o robô mede as paredes com <strong>3 sensores VL53L0X</strong> (esquerdo, frontal e direito), que medem a distância por tempo de voo da luz (<em>Time of Flight</em>, ToF). A lógica do firmware recebe essas distâncias pela interface <code>ISensorDistancia</code>. Até o PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/391">#391</a>, ela se chamava <code>ILidar</code> (e o simulado, <code>LidarSimulado</code>), nome herdado da primeira versão do hardware; a troca do nome foi feita num commit só, e a percepção, o mapa e o controle de movimento não mudaram (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a>).</p>
 <pre class="mermaid"><code>classDiagram
-    class ILidar {
+    class ISensorDistancia {
         &lt;&lt;interface: sensores de distância&gt;&gt;
         +lerDistanciasLaterais(saida) bool
+        +idadeUltimaLeituraMs() uint32_t
     }
-    class LidarSimulado {
+    class SensorDistanciaSimulado {
         +CAPACIDADE_FILA = 16
         +definirLeituraFixa(leitura)
         +enfileirarLeitura(leitura) bool
@@ -3063,14 +3217,31 @@
         +lerDistanciasLaterais(saida) bool
     }
     class TofVl53l0x {
-        &lt;&lt;drivers_esp32, em revisão no PR 391&gt;&gt;
+        &lt;&lt;drivers_esp32, Rev 2.0&gt;&gt;
+        +iniciar() bool
+        +lerDistanciasLaterais(saida) bool
+        +idadeUltimaLeituraMs() uint32_t
+        +amostra(lado) AmostraTof
+    }
+    class TofSimulado {
+        &lt;&lt;simulacao: amostras brutas&gt;&gt;
+        +posicionar(pose)
+        +forcarAmostra(lado, mm)
+        +simularFalha(lado, falha)
         +lerDistanciasLaterais(saida) bool
     }
-    ILidar &lt;|.. LidarSimulado
-    ILidar &lt;|.. TofVl53l0x</code></pre>
-<p><strong>Figura 3.</strong> Interface dos sensores de distância e suas implementações: o <code>LidarSimulado</code>, usado nos testes, e o driver dos 3 VL53L0X.</p>
-<p><strong>Contrato de <code>ILidar::lerDistanciasLaterais</code>:</strong> retorna <code>true</code> e preenche <code>saida</code> (em mm) quando há leitura válida das três direções; retorna <code>false</code> quando o sensor não responde ou a leitura é inválida. Nesse caso, o conteúdo de <code>saida</code> não deve ser usado.</p>
-<p><strong><code>LidarSimulado</code></strong> devolve o que o teste configurar. A cada leitura, segue esta ordem:</p>
+    class LidarUart {
+        &lt;&lt;lidar, sem uso desde a Rev 2.0&gt;&gt;
+        +lerDistanciasLaterais(saida) bool
+    }
+    ISensorDistancia &lt;|.. SensorDistanciaSimulado
+    ISensorDistancia &lt;|.. TofVl53l0x
+    ISensorDistancia &lt;|.. TofSimulado
+    ISensorDistancia &lt;|.. LidarUart</code></pre>
+<p><strong>Figura 3.</strong> Interface <code>ISensorDistancia</code> e suas implementações: o <code>SensorDistanciaSimulado</code>, que devolve as leituras escolhidas pelo teste, o <code>TofVl53l0x</code>, driver dos 3 VL53L0X da Rev 2.0, o <code>TofSimulado</code>, que simula os 3 VL53L0X num labirinto passando pelo <code>CombinadorTof</code> real, e o <code>LidarUart</code>, do LiDAR da primeira versão do hardware, que fica no código sem uso até depois da ED1.</p>
+<p><strong>Contrato de <code>ISensorDistancia::lerDistanciasLaterais</code>:</strong> retorna <code>true</code> e preenche <code>saida</code> (em mm) quando há leitura válida das três direções; retorna <code>false</code> quando o sensor não responde ou a leitura é inválida. Nesse caso, o conteúdo de <code>saida</code> não deve ser usado. Medida fora da faixa do sensor <strong>não</strong> é inválida: sai limitada à faixa (no <code>TofVl53l0x</code>, "sem alvo" vira o alcance máximo, lado livre, e "perto demais" vira o mínimo, parede).</p>
+<p><strong>Contrato de <code>ISensorDistancia::idadeUltimaLeituraMs</code>:</strong> idade, em ms, da amostra mais antiga que compõe a última leitura, medida no momento da chamada. Serve para a navegação não reagir duas vezes ao mesmo dado. A implementação padrão devolve 0 (leitura sempre nova), o que vale para o <code>SensorDistanciaSimulado</code>.</p>
+<p><strong><code>SensorDistanciaSimulado</code></strong> devolve o que o teste configurar. A cada leitura, segue esta ordem:</p>
 <ol>
 <li>com a falha ligada (<code>simularFalha(true)</code>), a leitura falha e a fila não é consumida;</li>
 <li>se houver leituras na fila, entrega a mais antiga e a remove;</li>
@@ -3079,13 +3250,201 @@
 <li>caso contrário, a leitura falha.</li>
 </ol>
 <p>A fila é circular, com capacidade fixa de 16 leituras; <code>enfileirarLeitura</code> retorna <code>false</code> quando ela está cheia.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">LidarSimulado</span><span class="w"> </span><span class="n">lidar</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">SensorDistanciaSimulado</span><span class="w"> </span><span class="n">lidar</span><span class="p">;</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">lidar</span><span class="p">.</span><span class="n">definirLeituraFixa</span><span class="p">({</span><span class="mi">500</span><span class="p">,</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span><span class="w"> </span><span class="mi">500</span><span class="p">});</span><span class="w">  </span><span class="c1">// corredor livre</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">lidar</span><span class="p">.</span><span class="n">enfileirarLeitura</span><span class="p">({</span><span class="mi">90</span><span class="p">,</span><span class="w"> </span><span class="mi">90</span><span class="p">,</span><span class="w"> </span><span class="mi">270</span><span class="p">});</span><span class="w">     </span><span class="c1">// depois, parede à frente e à esquerda</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">ILidar</span><span class="o">&amp;</span><span class="w"> </span><span class="n">sensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lidar</span><span class="p">;</span><span class="w">                     </span><span class="c1">// a lógica recebe só a interface</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">ISensorDistancia</span><span class="o">&amp;</span><span class="w"> </span><span class="n">sensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lidar</span><span class="p">;</span><span class="w">           </span><span class="c1">// a lógica recebe só a interface</span>
 </code></pre></div>
+<h2 id="sensores-de-distancia-3-vl53l0x-tofvl53l0x">Sensores de distância: 3 VL53L0X (<code>TofVl53l0x</code>)<a class="headerlink" href="#sensores-de-distancia-3-vl53l0x-tofvl53l0x" title="Permanent link">&para;</a></h2>
+<p>Na Rev 2.0 do hardware (21/10/2026), o LiDAR por UART deu lugar a <strong>3 sensores VL53L0X</strong> pelo I²C: um à esquerda, um à frente e um à direita. O <code>TofVl53l0x</code> (<code>lib/drivers_esp32</code>) implementa a <code>ISensorDistancia</code>, então o resto do firmware não mudou (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/36">HU-02</a>). A regra que decide se uma leitura vale fica no <code>CombinadorTof</code> (<code>lib/tof</code>), sem Arduino, e é testada no computador; o driver só conversa com os sensores pela biblioteca <code>pololu/VL53L0X</code> (1.3.1), que entra apenas no ambiente <code>esp32c3</code>.</p>
+<pre class="mermaid"><code>flowchart LR
+    s1["VL53L0X frente&lt;br/&gt;0x31"] --&gt; drv
+    s2["VL53L0X esquerda&lt;br/&gt;0x30"] --&gt; drv
+    s3["VL53L0X direita&lt;br/&gt;0x32"] --&gt; drv
+    drv["TofVl53l0x&lt;br/&gt;I²C, XSHUT, modo contínuo"] -- "medida bruta,&lt;br/&gt;falha e instante" --&gt; comb["CombinadorTof&lt;br/&gt;faixa, limitação e idade"]
+    comb -- "DistanciasLaterais limitadas&lt;br/&gt;ou false" --&gt; interface["ISensorDistancia&lt;br/&gt;percepção, navegação, controle"]
+    comb -- "amostra(lado)" --&gt; diag["Bancada e diagnóstico&lt;br/&gt;estado bruto de cada sensor"]</code></pre>
+<p><strong>Figura 4.</strong> Caminho de uma leitura: o driver lê cada sensor que tem medida pronta, o <code>CombinadorTof</code> classifica a medida, limita à faixa as que ficaram fora dela e monta a leitura das três direções, e quem precisar do valor bruto (a bancada, por exemplo) consulta a amostra do sensor.</p>
+<h3 id="ligacao-e-enderecos">Ligação e endereços<a class="headerlink" href="#ligacao-e-enderecos" title="Permanent link">&para;</a></h3>
+<p>Os três sensores dividem o barramento I²C com o MPU6050. Todos saem do reset no endereço de fábrica, 0x29, por isso cada um tem o seu pino XSHUT. Os valores ficam em <code>Pinos.h</code>, e o driver os recebe por parâmetro.</p>
+<table>
+<thead>
+<tr>
+<th>Sensor</th>
+<th style="text-align: center;">XSHUT</th>
+<th style="text-align: center;">Endereço I²C</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Esquerdo (J3)</td>
+<td style="text-align: center;">GPIO0</td>
+<td style="text-align: center;">0x30</td>
+</tr>
+<tr>
+<td>Frontal (J4)</td>
+<td style="text-align: center;">GPIO1</td>
+<td style="text-align: center;">0x31</td>
+</tr>
+<tr>
+<td>Direito (J5)</td>
+<td style="text-align: center;">GPIO2</td>
+<td style="text-align: center;">0x32</td>
+</tr>
+<tr>
+<td>Barramento</td>
+<td style="text-align: center;">SDA GPIO9, SCL GPIO8</td>
+<td style="text-align: center;">MPU6050 em 0x68</td>
+</tr>
+</tbody>
+</table>
+<p>Um <code>static_assert</code> em <code>Pinos.h</code> reprova a compilação se dois endereços coincidirem ou se algum deles for o 0x29 ou o 0x68.</p>
+<h3 id="regras-de-negocio-e-algoritmo">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Inicialização (<code>iniciar()</code>):</strong> os três XSHUT vão a nível baixo (sensores em reset); depois, um sensor por vez é solto, inicializado e recebe o seu endereço, e só então o próximo é solto. Cada sensor fica em modo contínuo com o tempo de medição configurado. Um sensor que não responde volta para o reset, para não ocupar o 0x29 e atrapalhar os seguintes; <code>sensorIniciado(lado)</code> diz quais iniciaram.</li>
+<li><strong>Leitura sem espera:</strong> a cada <code>lerDistanciasLaterais()</code>, o driver consulta o registrador de medida pronta de cada sensor e só lê os que têm medida nova. Nunca espera o sensor terminar, então a tarefa de navegação (10 ms) não trava.</li>
+<li><strong>Classificação de cada medida</strong> (<code>CombinadorTof::classificar</code>):</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Estado</th>
+<th>Quando</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Valida</code></td>
+<td>Entre 30 e 1200 mm</td>
+</tr>
+<tr>
+<td><code>AbaixoDoMinimo</code></td>
+<td>Abaixo de 30 mm, onde o VL53L0X perde a precisão</td>
+</tr>
+<tr>
+<td><code>ForaDeAlcance</code></td>
+<td>Acima de 1200 mm, incluindo os 8190/8191 mm que o sensor devolve sem alvo</td>
+</tr>
+<tr>
+<td><code>Falha</code></td>
+<td>Sem resposta no I²C ou tempo de espera estourado</td>
+</tr>
+<tr>
+<td><code>SemAmostra</code></td>
+<td>O sensor ainda não entregou nenhuma medida</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Fora da faixa não derruba a leitura:</strong> a medida sai limitada à faixa, como a percepção (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/379">#379</a>) trata. <code>ForaDeAlcance</code> vira 1200 mm, lado livre: no 12×4, "nada à frente" é uma leitura normal. <code>AbaixoDoMinimo</code> vira 30 mm, parede muito perto: o sensor lateral pode ler menos de 30 mm com o robô desviado. Antes da revisão do PR #391, um lado fora da faixa derrubava a leitura dos três.</li>
+<li><strong>Leitura válida:</strong> <code>lerDistanciasLaterais()</code> devolve <code>true</code> com os três sensores respondendo (nenhum em <code>Falha</code> ou <code>SemAmostra</code>) e com a amostra mais antiga dentro de 100 ms. Um sensor que para de medir faz a leitura falhar pela idade.</li>
+<li><strong>Amostra bruta exposta:</strong> <code>amostra(lado)</code> devolve a última medida de cada sensor, com o estado e a distância brutos e o instante, mesmo quando a leitura sai limitada.</li>
+<li><strong>Referência das distâncias:</strong> as medidas partem da face de cada sensor, não do centro do robô. A conversão para a geometria do robô e os limiares de parede são da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/379">#379</a>; a compensação do desvio de cada sensor, da calibração (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/240">#240</a>).</li>
+</ul>
+<p><strong>Parâmetros</strong> (<code>ConfiguracaoTof.h</code>, todos <strong>provisórios</strong>, a validar na bancada da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/175">#175</a>):</p>
+<table>
+<thead>
+<tr>
+<th>Parâmetro</th>
+<th>Valor</th>
+<th>Origem</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tempo de medição (<em>timing budget</em>)</td>
+<td>33 ms</td>
+<td>Padrão do VL53L0X: cerca de 30 medidas por segundo, precisão razoável até 1,2 m</td>
+</tr>
+<tr>
+<td>Período no modo contínuo</td>
+<td>0 (uma medida emendada na outra)</td>
+<td>Biblioteca <code>pololu/VL53L0X</code></td>
+</tr>
+<tr>
+<td>Faixa válida</td>
+<td>30 a 1200 mm</td>
+<td>Datasheet do VL53L0X, modo padrão em ambiente interno</td>
+</tr>
+<tr>
+<td>Idade máxima da leitura</td>
+<td>100 ms</td>
+<td>Cerca de 3 medidas perdidas</td>
+</tr>
+<tr>
+<td>Tempo limite no I²C</td>
+<td>50 ms</td>
+<td>Estimativa</td>
+</tr>
+<tr>
+<td>Espera depois de soltar o XSHUT</td>
+<td>10 ms</td>
+<td>O datasheet dá até 1,2 ms; a folga cobre o regulador do módulo</td>
+</tr>
+</tbody>
+</table>
+<h3 id="interface-da-classe">Interface da Classe<a class="headerlink" href="#interface-da-classe" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>TofVl53l0x(TwoWire&amp;, frente, esquerda, direita, config)</code>:</strong> recebe o barramento já iniciado (<code>Wire.begin(SDA, SCL)</code>) e a <code>ConexaoTof</code> (pino XSHUT e endereço) de cada sensor.</li>
+<li><strong><code>bool iniciar()</code>:</strong> sequência de XSHUT e endereços; <code>true</code> se os três iniciaram. Pode ser chamado de novo para reiniciar os sensores.</li>
+<li><strong><code>bool lerDistanciasLaterais(DistanciasLaterais&amp;)</code></strong> e <strong><code>uint32_t idadeUltimaLeituraMs() const</code>:</strong> o contrato da <code>ISensorDistancia</code>; a idade é <code>CombinadorTof::IDADE_DESCONHECIDA</code> enquanto algum sensor não entregou amostra.</li>
+<li><strong><code>const AmostraTof&amp; amostra(Lado) const</code>:</strong> distância bruta, <code>EstadoAmostraTof</code> e instante da última medida do sensor.</li>
+<li><strong><code>CombinadorTof</code>:</strong> <code>classificar(distancia, falhou)</code>, <code>registrar(lado, distancia, falhou, agoraMs)</code>, <code>distancias(agoraMs, saida)</code> (já com as distâncias limitadas), <code>idadeMs(agoraMs)</code> e <code>reiniciar()</code>.</li>
+</ul>
+<p><strong>No <code>main.cpp</code>.</strong> O <code>setup()</code> inicia o barramento e chama <code>iniciar()</code>; se algum sensor falhar, o log diz qual. A tarefa de navegação lê os sensores a cada 10 ms e guarda uma cópia, protegida por seção crítica, que a telemetria envia nos campos <code>tof_frente_mm</code>, <code>tof_esq_mm</code>, <code>tof_dir_mm</code>, <code>tof_valida</code> e <code>tof_idade_ms</code>.</p>
+<h3 id="bancada-dos-vl53l0x">Bancada dos VL53L0X<a class="headerlink" href="#bancada-dos-vl53l0x" title="Permanent link">&para;</a></h3>
+<p>Para a equipe de software e a eletrônica validarem o driver no hardware montado, há um firmware de bancada (<code>src/bancada/bancada_tof.cpp</code>, ambiente <code>bancada_tof</code>) e um menu no computador (<code>scripts/bancada_tof.py</code>). O firmware mantém os motores freados e responde a comandos pela serial; o menu grava esse firmware e conduz o roteiro, com resultado APROVADO, REPROVADO ou OBSERVADO em cada verificação e um relatório em Markdown no fim.</p>
+<table>
+<thead>
+<tr>
+<th>Etapa</th>
+<th>O que verifica</th>
+<th>Critério provisório</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Fiação</td>
+<td>Com os outros em reset, cada XSHUT liga só o seu sensor, que aparece no 0x29</td>
+<td>O sensor aparece sozinho; com todos em reset, ninguém no 0x29</td>
+</tr>
+<tr>
+<td>2. Inicialização</td>
+<td><code>iniciar()</code> e varredura do barramento</td>
+<td>0x30, 0x31 e 0x32 presentes e 0x29 livre</td>
+</tr>
+<tr>
+<td>3. Taxa e tempo</td>
+<td>Estatística de 5 s com obstáculo diante dos três</td>
+<td>20 a 40 Hz por sensor, leitura em até 5 ms, ≥ 95% de leituras válidas</td>
+</tr>
+<tr>
+<td>4. Régua</td>
+<td>Média, erro e desvio contra distâncias medidas</td>
+<td>Erro até ±10 mm ou ±5%</td>
+</tr>
+<tr>
+<td>5. Fora da faixa</td>
+<td>Sensor sem alvo e sensor encostado</td>
+<td>Leitura válida, limitada a 1200 mm ou 30 mm (campo <code>limitada</code>), com <code>ForaDeAlcance</code> ou <code>AbaixoDoMinimo</code> na amostra; outro estado do sensor fica registrado como OBSERVADO para a <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/379">#379</a></td>
+</tr>
+<tr>
+<td>6. Sensor ausente (opcional)</td>
+<td>Um sensor desconectado com a placa desligada</td>
+<td>Os outros dois iniciam e a leitura falha</td>
+</tr>
+</tbody>
+</table>
+<p>O passo a passo de uso está no <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/main/src/firmware/README.md#bancada-dos-vl53l0x">README do firmware</a>. O CI compila o <code>bancada_tof</code> junto com o firmware do robô e roda os testes do menu (<code>scripts/testes/test_bancada_tof.py</code>, job "Scripts de bancada"), que conferem cada etapa com respostas falsas da placa, sem hardware nem <code>pyserial</code>.</p>
+<h3 id="simulacao-dos-vl53l0x-e-integracao-com-o-mapa">Simulação dos VL53L0X e integração com o mapa<a class="headerlink" href="#simulacao-dos-vl53l0x-e-integracao-com-o-mapa" title="Permanent link">&para;</a></h3>
+<p>O <code>TofSimulado</code> (<code>lib/simulacao</code>) faz no computador o papel do driver: gera a amostra bruta de cada sensor no <a href="#labirinto-simulado-labirintosimulado"><code>LabirintoSimulado</code></a> e a passa pelo <code>CombinadorTof</code> real. Assim a regra de validade entra nos testes de integração.</p>
+<ul>
+<li><strong>Amostra bruta:</strong> a distância do centro do robô à parede menos 30 mm (o recuo provisório dos sensores, o mesmo da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/379">#379</a>); além de 1200 mm, o sensor devolve 8190 mm (sem alvo), como o real.</li>
+<li><strong>Casos do sensor real:</strong> <code>forcarAmostra(lado, mm)</code> troca a próxima amostra de um lado (por exemplo, sensor encostado na parede) e <code>simularFalha(lado, true)</code> faz um sensor parar de responder.</li>
+<li><strong><code>test_integracao_tof</code>:</strong> explora os labirintos 4×4, 8×4 e 12×4 por <code>TofSimulado → CombinadorTof → ClassificadorParede → AtualizadorMapa → Mapa</code> e confere que o mapa final é igual ao labirinto. Como os exemplos não passam de 1140 mm brutos, há também um 12×4 em serpentina, com corredores de uma linha inteira (2070 mm do centro), que só se fecha com o "sem alvo" tratado como livre.</li>
+</ul>
 <h2 id="labirinto-simulado-labirintosimulado">Labirinto simulado: <code>LabirintoSimulado</code><a class="headerlink" href="#labirinto-simulado-labirintosimulado" title="Permanent link">&para;</a></h2>
-<p>O <code>LabirintoSimulado</code> (<code>lib/simulacao</code>) é um labirinto com todas as paredes conhecidas, usado como verdade de referência nos testes. Com ele, o <code>LidarSimulado</code> deixa de depender de leituras digitadas à mão: basta posicionar o robô numa célula, e o sensor simulado devolve o que os sensores de distância reais veriam ali. Isso permite testar a classificação de paredes (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/174">#174</a>) e a atualização do mapa (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/177">#177</a>) num labirinto inteiro, sem hardware.</p>
+<p>O <code>LabirintoSimulado</code> (<code>lib/simulacao</code>) é um labirinto com todas as paredes conhecidas, usado como verdade de referência nos testes. Com ele, o <code>SensorDistanciaSimulado</code> deixa de depender de leituras digitadas à mão: basta posicionar o robô numa célula, e o sensor simulado devolve o que os sensores de distância reais veriam ali. Isso permite testar a classificação de paredes (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/174">#174</a>) e a atualização do mapa (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/177">#177</a>) num labirinto inteiro, sem hardware.</p>
 <p><strong>Formato do labirinto.</strong> O labirinto é escrito em texto, no formato clássico de micromouse. Cada célula ocupa 4 colunas e 2 linhas de texto; <code>+</code> marca os cantos, <code>---</code> uma parede horizontal e <code>|</code> uma parede vertical. A primeira linha é a borda Norte, e a partida (0, 0) é a célula do canto inferior esquerdo, com as mesmas convenções do <code>Mapa</code> e de <code>Direcao.h</code>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>+---+---+---+---+
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>|       |       |
@@ -3097,7 +3456,7 @@
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>|   |           |
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>+---+---+---+---+
 </code></pre></div>
-<p><strong>Figura 4.</strong> Labirinto 4×4 de exemplo (<code>LABIRINTO_4X4</code>), com a partida (0, 0) no canto inferior esquerdo.</p>
+<p><strong>Figura 5.</strong> Labirinto 4×4 de exemplo (<code>LABIRINTO_4X4</code>), com a partida (0, 0) no canto inferior esquerdo.</p>
 <p>Cada parede aparece uma única vez no texto, entre as duas células que ela separa. Por isso, o lado leste de uma célula e o lado oeste da vizinha nunca discordam. Ao carregar o texto, o <code>LabirintoSimulado</code> recusa:</p>
 <table>
 <thead>
@@ -3181,7 +3540,7 @@
 <td>Distâncias à frente, à esquerda e à direita para a pose; devolve <code>false</code> sem labirinto carregado ou com a célula fora dele</td>
 </tr>
 <tr>
-<td><code>LidarSimulado::usarLabirinto(labirinto)</code> e <code>posicionar(pose)</code></td>
+<td><code>SensorDistanciaSimulado::usarLabirinto(labirinto)</code> e <code>posicionar(pose)</code></td>
 <td>Modo labirinto: a leitura passa a vir do labirinto, depois da falha e da fila e antes da leitura fixa. O labirinto não é copiado e precisa continuar existindo; sem <code>posicionar</code>, vale a leitura fixa</td>
 </tr>
 </tbody>
@@ -3269,7 +3628,7 @@
 <p>[!WARNING]
 <strong>Valores provisórios:</strong> os limiares e offsets foram calculados a partir da geometria teórica do labirinto e do esquemático Rev 2.0. A calibração final dos offsets e limiares reais depende da validação física na bancada de ensaios com os sensores montados no chassi (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/175">#175</a>).</p>
 </blockquote>
-<h3 id="regras-de-negocio-e-algoritmo">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo" title="Permanent link">&para;</a></h3>
+<h3 id="regras-de-negocio-e-algoritmo_1">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_1" title="Permanent link">&para;</a></h3>
 <ol>
 <li><strong>Tratamento defensivo de limites operacionais:</strong></li>
 <li><strong>Fora de alcance (<span class="arithmatex">\(&gt; 1200\text{ mm}\)</span> ou <span class="arithmatex">\(\ge 8190\text{ mm}\)</span>):</strong> Indica ausência de eco refletor próximo (lado livre). O método <code>tratarDistancia()</code> satura a medida em <span class="arithmatex">\(1200\text{ mm}\)</span> (<span class="arithmatex">\(&gt; \text{limiar} \to \text{Livre}\)</span>).</li>
@@ -3281,7 +3640,7 @@
 <li>Cada direção avalia a distância filtrada contra o seu respectivo limiar (<code>limiarFrenteMm</code>, <code>limiarEsquerdaMm</code>, <code>limiarDireitaMm</code>). Se a distância filtrada for <span class="arithmatex">\(\le \text{limiar}\)</span>, classifica como <code>EstadoParede::Parede</code>; caso contrário, <code>EstadoParede::Livre</code>.</li>
 <li><strong>Comportamento Fail-Safe:</strong> Se o vetor de amostras for nulo ou vazio (<code>quantidade == 0</code>), retorna <code>EstadoParede::Desconhecido</code> para todos os lados.</li>
 </ol>
-<h3 id="interface-da-classe">Interface da Classe<a class="headerlink" href="#interface-da-classe" title="Permanent link">&para;</a></h3>
+<h3 id="interface-da-classe_1">Interface da Classe<a class="headerlink" href="#interface-da-classe_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Construtores:</strong></li>
 <li><code>ClassificadorParede()</code>: inicializa com a <code>ConfiguracaoPercepcao</code> padrão.</li>
@@ -3305,7 +3664,7 @@
 </ul>
 <h2 id="mapeamento-atualizacao-do-mapa">Mapeamento: atualização do mapa<a class="headerlink" href="#mapeamento-atualizacao-do-mapa" title="Permanent link">&para;</a></h2>
 <p>O módulo de mapeamento (<code>lib/mapeamento</code>) implementa a classe <code>AtualizadorMapa</code>, responsável por integrar a percepção à representação espacial: converte as observações relativas dos sensores de distância (frente, esquerda e direita) na pose atual do robô em direções cardeais absolutas (Norte, Leste, Sul e Oeste) e registra as paredes no <code>Mapa</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/177">#177</a>).</p>
-<h3 id="regras-de-negocio-e-algoritmo_1">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_1" title="Permanent link">&para;</a></h3>
+<h3 id="regras-de-negocio-e-algoritmo_2">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Conversão de Eixos:</strong> A partir de <code>pose.direcao</code>, calcula a direção absoluta para cada lado via <code>direcaoAbsoluta</code>:</li>
 <li>Robô ao Norte: Frente <span class="arithmatex">\(\rightarrow\)</span> Norte, Esquerda <span class="arithmatex">\(\rightarrow\)</span> Oeste, Direita <span class="arithmatex">\(\rightarrow\)</span> Leste.</li>
@@ -3316,7 +3675,7 @@
 <li><strong>Tratamento de Conflito:</strong> Se a leitura contradiz o mapa (ex.: sensor detecta livre onde já havia parede), o mapa <strong>preserva o valor antigo</strong> e o atualizador sinaliza <code>temConflito = true</code> em <code>ResultadoAtualizacao</code>. A política de decisão fica a cargo do algoritmo de navegação (#188).</li>
 <li><strong>Fail-Safe / Desconhecido:</strong> Classificações com valor <code>Desconhecido</code> ou poses fora das dimensões válidas do mapa retornam <code>Invalida</code> e não alteram o mapa.</li>
 </ul>
-<h3 id="interface-da-classe_1">Interface da Classe<a class="headerlink" href="#interface-da-classe_1" title="Permanent link">&para;</a></h3>
+<h3 id="interface-da-classe_2">Interface da Classe<a class="headerlink" href="#interface-da-classe_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Entrada principal:</strong> <code>Mapa &amp;mapa</code>, <code>const Pose &amp;pose</code>, <code>const ClassificadorParede::ResultadoClassificacao &amp;classificacao</code></li>
 <li><strong>Sobrecarga de conveniência:</strong> <code>Mapa &amp;mapa</code>, <code>const Pose &amp;pose</code>, <code>const ClassificadorParede &amp;classificador</code>, <code>const DistanciasLaterais *amostras</code>, <code>size_t quantidadeAmostras</code>, realizando a classificação internamente antes do registro.</li>
@@ -3331,8 +3690,8 @@
     Explorando --&gt; Congelado: congelarMapa() ao alcançar o objetivo
     Congelado --&gt; Congelado: novo congelarMapa() é recusado e escritas em mapa() não mudam o mapa final
     Congelado --&gt; Explorando: iniciarCorrida() (nova corrida)</code></pre>
-<p><strong>Figura 5.</strong> Ciclo de vida do mapa final no <code>ArmazenamentoMapa</code>: o congelamento só acontece uma vez por corrida e só uma nova corrida o destrava.</p>
-<h3 id="regras-de-negocio-e-algoritmo_2">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_2" title="Permanent link">&para;</a></h3>
+<p><strong>Figura 6.</strong> Ciclo de vida do mapa final no <code>ArmazenamentoMapa</code>: o congelamento só acontece uma vez por corrida e só uma nova corrida o destrava.</p>
+<h3 id="regras-de-negocio-e-algoritmo_3">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Congelamento por cópia:</strong> <code>congelarMapa()</code> copia o mapa da corrida para <code>mapaFinal_</code>. A cópia isola o resultado: a navegação pode continuar escrevendo no mapa da corrida (por exemplo, no caminho de volta à partida) sem alterar o mapa final, nem o JSON gerado a partir dele.</li>
 <li><strong>Uma vez por corrida:</strong> congelar antes de <code>iniciarCorrida()</code> ou congelar de novo é recusado (<code>false</code>), e o mapa final continua o da primeira vez. <code>iniciarCorrida()</code> destrava o congelamento para a próxima corrida.</li>
@@ -3340,7 +3699,7 @@
 <li><strong>Serialização no formato da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/178">#178</a> (tarefa 5.3.3):</strong> <code>MapaJson::serializarFinal(armazenamento, saida, capacidade)</code> gera o mesmo JSON de <code>serializar()</code>, mas do mapa final. Sem mapa congelado, devolve <code>0</code> e deixa <code>saida</code> com uma string vazia.</li>
 <li><strong>Memória sem alocação dinâmica:</strong> os dois mapas ficam dentro do objeto, que passou de 196 para 392 bytes (dois <code>Mapa</code> de 195 bytes e dois indicadores), cerca de 0,1% dos 320 KB de RAM do ESP32-C3.</li>
 </ul>
-<h3 id="interface-da-classe_2">Interface da Classe<a class="headerlink" href="#interface-da-classe_2" title="Permanent link">&para;</a></h3>
+<h3 id="interface-da-classe_3">Interface da Classe<a class="headerlink" href="#interface-da-classe_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong><code>bool congelarMapa()</code>:</strong> <code>true</code> se congelou; <code>false</code> se a corrida não foi iniciada ou se o mapa já estava congelado.</li>
 <li><strong><code>bool mapaCongelado() const</code>:</strong> <code>true</code> depois do congelamento, até a próxima <code>iniciarCorrida()</code>.</li>
@@ -3388,7 +3747,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Figura 6.</strong> Distâncias calculadas pelo <em>flood fill</em> num mapa 4×4 sem paredes internas conhecidas, com o objetivo (3, 3) no canto superior direito (0) e a partida (0, 0) no canto inferior esquerdo (6). Na partida, virado para o Norte, as vizinhas Norte (1, 0) e Leste (0, 1) empatam com distância 5; o desempate escolhe a frente, o Norte. Se os sensores revelarem uma parede ao Norte, o próximo cálculo descarta essa vizinha e o robô segue para Leste.</p>
+<p><strong>Figura 7.</strong> Distâncias calculadas pelo <em>flood fill</em> num mapa 4×4 sem paredes internas conhecidas, com o objetivo (3, 3) no canto superior direito (0) e a partida (0, 0) no canto inferior esquerdo (6). Na partida, virado para o Norte, as vizinhas Norte (1, 0) e Leste (0, 1) empatam com distância 5; o desempate escolhe a frente, o Norte. Se os sensores revelarem uma parede ao Norte, o próximo cálculo descarta essa vizinha e o robô segue para Leste.</p>
 <h3 id="ciclo-de-um-passo-decisao-movimento-e-confirmacao-pelos-sensores">Ciclo de um passo: decisão, movimento e confirmação pelos sensores<a class="headerlink" href="#ciclo-de-um-passo-decisao-movimento-e-confirmacao-pelos-sensores" title="Permanent link">&para;</a></h3>
 <p>A <code>Navegacao</code> não considera que o robô andou só porque decidiu andar. Um passo tem três etapas, e cada uma tem um responsável:</p>
 <table>
@@ -3424,7 +3783,7 @@
     PassoPendente --&gt; PassoPendente: confirmarPose() → Invalida (pose fora do mapa, ignorada)
     PassoPendente --&gt; SemPasso: confirmarPose() → Confirmada (chegou à célula esperada)
     PassoPendente --&gt; SemPasso: confirmarPose() → Divergente (outra célula, replaneja a partir dela)</code></pre>
-<p><strong>Figura 7.</strong> Estados de um passo na <code>Navegacao</code>: enquanto há passo pendente, <code>darPasso()</code> recusa um novo passo, e só a confirmação dos sensores conclui ou cancela o passo.</p>
+<p><strong>Figura 8.</strong> Estados de um passo na <code>Navegacao</code>: enquanto há passo pendente, <code>darPasso()</code> recusa um novo passo, e só a confirmação dos sensores conclui ou cancela o passo.</p>
 <table>
 <thead>
 <tr>
@@ -3457,7 +3816,7 @@
 </tbody>
 </table>
 <p>A pose medida é sempre a referência: a navegação nunca “teletransporta” o robô para a célula que ela mesma escolheu. Se uma roda patinar ou uma parede impedir o movimento, os sensores informam onde o robô de fato está, e a decisão seguinte parte dali.</p>
-<h3 id="regras-de-negocio-e-algoritmo_3">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_3" title="Permanent link">&para;</a></h3>
+<h3 id="regras-de-negocio-e-algoritmo_4">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Leitura antes da decisão:</strong> a decisão usa as paredes da célula atual que já estão no mapa. Por isso o ciclo da navegação deve ler os sensores de distância e atualizar o mapa (<code>AtualizadorMapa</code>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/177">#177</a>) antes de cada <code>darPasso()</code>; se a leitura falhar, o robô não decide e lê de novo, em vez de avançar com a parede da frente desconhecida. Os testes nos labirintos simulados seguem essa ordem; na <code>tarefaNavegacao</code> ela entra com a integração ao movimento.</li>
 <li><strong>Parede de trás:</strong> os sensores de distância medem frente, esquerda e direita. A parede de trás é a passagem por onde o robô veio ou, na partida, a borda do labirinto, que o <code>Mapa</code> já conhece.</li>
@@ -3465,7 +3824,7 @@
 <li><strong>Sem custo de giro:</strong> a distância conta células, não giros. O desempate pela frente reduz manobras, mas o caminho escolhido não é necessariamente o de menos curvas.</li>
 <li><strong>Erros de sensor:</strong> uma parede classificada como <code>Livre</code> por engano é tratada como passagem. A correção do erro acumulado pelas paredes é a <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/188">#188</a>.</li>
 </ul>
-<h3 id="interface-da-classe_3">Interface da Classe<a class="headerlink" href="#interface-da-classe_3" title="Permanent link">&para;</a></h3>
+<h3 id="interface-da-classe_4">Interface da Classe<a class="headerlink" href="#interface-da-classe_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Construtores:</strong> <code>Navegacao(const Mapa&amp;)</code>, com o objetivo no canto oposto e a partida em (0, 0) virada para o Norte; <code>Navegacao(const Mapa&amp;, PosicaoCelula objetivo, Pose poseInicial)</code>, com objetivo e pose inicial escolhidos.</li>
 <li><strong><code>bool darPasso(Direcao&amp; direcao)</code>:</strong> decide e inicia um passo; <code>false</code> se já há passo pendente, se não há caminho ou se o robô já está no objetivo.</li>
@@ -3488,7 +3847,7 @@
 <a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="p">]</span>
 <a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="p">}</span>
 </code></pre></div>
-<p><strong>Figura 8.</strong> JSON de um mapa 4×4 recém-criado (só o perímetro conhecido), formatado aqui para leitura: a saída real não tem espaços nem quebras de linha.</p>
+<p><strong>Figura 9.</strong> JSON de um mapa 4×4 recém-criado (só o perímetro conhecido), formatado aqui para leitura: a saída real não tem espaços nem quebras de linha.</p>
 <table>
 <thead>
 <tr>
@@ -3515,14 +3874,14 @@
 </tr>
 </tbody>
 </table>
-<h3 id="regras-de-negocio-e-algoritmo_4">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_4" title="Permanent link">&para;</a></h3>
+<h3 id="regras-de-negocio-e-algoritmo_5">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Buffer do chamador:</strong> <code>MapaJson::serializar(mapa, saida, capacidade)</code> escreve o JSON num buffer de tamanho fixo fornecido por quem chama, terminado em <code>\0</code>. A ArduinoJson usa memória dinâmica só durante a conversão e a libera ao final.</li>
 <li><strong>Tamanho máximo:</strong> <code>TAMANHO_MAX_JSON_MAPA</code> (5.100 bytes) é o maior tamanho, sem o <code>\0</code>, do JSON de um mapa 12×4 com as 48 células conhecidas e todas as paredes internas <code>Livre</code>. É o pior caso, porque <code>false</code> ocupa mais caracteres que <code>true</code> ou <code>null</code>, e o perímetro continua <code>true</code>. Esse buffer é maior que a pilha das tarefas (4.096 bytes), então precisa ser <code>static</code> ou global.</li>
 <li><strong>Fail-safe de capacidade:</strong> se o buffer não comporta o JSON inteiro, ou é nulo, ou tem capacidade zero, a função devolve <code>0</code> e deixa <code>saida</code> com uma string vazia, sem escrever além da capacidade informada.</li>
 <li><strong>Imutabilidade e determinismo:</strong> serializar não altera o <code>Mapa</code> (a telemetria só lê; a navegação segue com o mesmo mapa, HU-04), e duas serializações do mesmo mapa produzem o mesmo texto.</li>
 </ul>
-<h3 id="interface-da-classe_4">Interface da Classe<a class="headerlink" href="#interface-da-classe_4" title="Permanent link">&para;</a></h3>
+<h3 id="interface-da-classe_5">Interface da Classe<a class="headerlink" href="#interface-da-classe_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Entrada:</strong> <code>const Mapa &amp;mapa</code>, <code>char *saida</code>, <code>size_t capacidade</code> (tamanho de <code>saida</code> em bytes, incluindo o <code>\0</code>)</li>
 <li><strong>Saída:</strong> <code>size_t</code>, o número de caracteres escritos sem o <code>\0</code>; <code>0</code> quando a serialização falha</li>
@@ -3540,8 +3899,8 @@
     M --&gt; P
     P --&gt; C["Pose: célula e direção"]
     H --&gt; C</code></pre>
-<p><strong>Figura 7.</strong> Da contagem dos encoders à pose: a diferença entre as rodas gira a direção, e a média das rodas avança o robô na direção atual.</p>
-<h3 id="regras-de-negocio-e-algoritmo_5">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_5" title="Permanent link">&para;</a></h3>
+<p><strong>Figura 10.</strong> Da contagem dos encoders à pose: a diferença entre as rodas gira a direção, e a média das rodas avança o robô na direção atual.</p>
+<h3 id="regras-de-negocio-e-algoritmo_6">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_6" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Convenção de sinal:</strong> a contagem de cada roda aumenta quando ela avança (<code>IEncoder</code>). Girar para a direita (sentido horário, Norte para Leste) faz a roda esquerda avançar mais, então <code>contagem esquerda − contagem direita</code> cresce.</li>
 <li><strong>Orientação:</strong> o giro acumulado é a diferença entre as rodas dividida por <code>pulsosDiferenciaisPor90Graus</code>, arredondada para o múltiplo de 90° mais próximo. Uma roda um pouco mais rápida em linha reta não muda a direção, e a direção só passa para a seguinte depois de 45°.</li>
@@ -3577,7 +3936,7 @@
 </tr>
 </tbody>
 </table>
-<h3 id="interface-da-classe_5">Interface da Classe<a class="headerlink" href="#interface-da-classe_5" title="Permanent link">&para;</a></h3>
+<h3 id="interface-da-classe_6">Interface da Classe<a class="headerlink" href="#interface-da-classe_6" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong><code>Odometria(configuracao, inicial)</code>:</strong> parâmetros e pose de partida (padrão: célula (0, 0) virada para o Norte).</li>
 <li><strong><code>void atualizar(int32_t contagemEsquerda, int32_t contagemDireita)</code></strong> e <strong><code>atualizar(const IEncoder&amp;, const IEncoder&amp;)</code>:</strong> atualiza a pose a partir das contagens acumuladas.</li>
@@ -3592,7 +3951,7 @@
 <li><strong>Leitura fora do vetor.</strong> <code>definirPose</code>, <code>moverPara</code> e o construtor aceitavam qualquer célula. Com uma pose fora do mapa, <code>decidirProximaDirecao</code> lia <code>distancias_</code> fora dos limites (comportamento indefinido, confirmado com o AddressSanitizer). Isso pode acontecer na prática: a <code>Odometria</code> limita a célula a 0..255 quando o robô sai da malha, e o <code>ArmazenamentoMapa::iniciarCorrida</code> troca o mapa por outro tamanho, deixando a pose antiga fora do mapa novo.</li>
 <li><strong>Passo pendente que nunca terminava.</strong> Se o sensor registrasse uma parede no caminho depois de o passo ser planejado, o robô continuava na origem, <code>confirmarPose</code> devolvia <code>EmAndamento</code> para sempre e <code>darPasso</code> recusava qualquer passo novo: o robô ficava parado.</li>
 </ol>
-<h3 id="regras-de-negocio-e-algoritmo_6">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_6" title="Permanent link">&para;</a></h3>
+<h3 id="regras-de-negocio-e-algoritmo_7">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_7" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Toda pose é validada contra o mapa</strong> (<code>Mapa::posValida</code>). Uma pose fora do mapa nunca é usada para ler o vetor de distâncias.</li>
 </ul>
@@ -3668,7 +4027,7 @@
 <ul>
 <li><strong>Ordem com o mapa da corrida:</strong> a <code>Navegacao</code> guarda uma referência ao mapa e calcula o objetivo padrão (canto oposto à partida) na construção. Por isso, ela deve ser criada <strong>depois</strong> de <code>ArmazenamentoMapa::iniciarCorrida(...)</code>. Se o mapa for trocado por outro tamanho, é preciso chamar <code>definirObjetivo()</code> e <code>definirPose()</code> de novo.</li>
 </ul>
-<h3 id="interface-da-classe_6">Interface da Classe<a class="headerlink" href="#interface-da-classe_6" title="Permanent link">&para;</a></h3>
+<h3 id="interface-da-classe_7">Interface da Classe<a class="headerlink" href="#interface-da-classe_7" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong><code>bool definirPose(const Pose&amp;)</code></strong> e <strong><code>bool moverPara(linha, coluna, direcao)</code>:</strong> passaram de <code>void</code> para <code>bool</code>; <code>false</code> quando a célula está fora do mapa.</li>
 <li><strong><code>void cancelarPasso()</code>:</strong> novo; cancela o passo pendente, e o próximo <code>darPasso()</code> replaneja.</li>
@@ -3706,8 +4065,8 @@
     T-&gt;&gt;J: serializar(PacoteTelemetria {..., evento: "objetivo_alcancado" ou null})
     J--&gt;&gt;T: JSON formatado
     T-&gt;&gt;S: Serial.println(buffer)</code></pre>
-<p><strong>Figura 8.</strong> Fluxo de detecção da célula objetivo: ao confirmar que a célula da pose coincide com o destino sob a seção crítica <code>travaOdometria</code>, o robô freia imediatamente, congela o mapa explorado e envia o evento pontual único pela telemetria serial.</p>
-<h3 id="regras-de-negocio-e-algoritmo_7">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_7" title="Permanent link">&para;</a></h3>
+<p><strong>Figura 11.</strong> Fluxo de detecção da célula objetivo: ao confirmar que a célula da pose coincide com o destino sob a seção crítica <code>travaOdometria</code>, o robô freia imediatamente, congela o mapa explorado e envia o evento pontual único pela telemetria serial.</p>
+<h3 id="regras-de-negocio-e-algoritmo_8">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_8" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Cálculo da célula objetivo:</strong>
   O labirinto do micromouse inicia na célula <code>(0, 0)</code> no canto inferior esquerdo. O objetivo padrão do desafio situa-se no canto diametralmente oposto: linha <code>linhas - 1</code> e coluna <code>colunas - 1</code>.</li>
@@ -3833,13 +4192,13 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <h2 id="atuacao-centralizacao-no-corredor-e-parada-frontal">Atuação: centralização no corredor e parada frontal<a class="headerlink" href="#atuacao-centralizacao-no-corredor-e-parada-frontal" title="Permanent link">&para;</a></h2>
 <p>O módulo de atuação (<code>lib/atuacao</code>) leva o robô em linha reta mantendo-o no centro do corredor e o faz desacelerar e parar antes de uma parede frontal (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/191">#191</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/359">#359</a>). Atende aos critérios 1 e 2 da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/182">HU-12</a> (RF-12). Como não depende do Arduino, é testado no ambiente <code>native</code>; só o driver do DRV8833 fica em <code>drivers_esp32</code>.</p>
 <pre class="mermaid"><code>flowchart LR
-    lidar["Sensores de distância (ILidar)&lt;br/&gt;frente, esquerda, direita"] --&gt; controle["ControleMovimento"]
+    lidar["Sensores de distância (ISensorDistancia)&lt;br/&gt;frente, esquerda, direita"] --&gt; controle["ControleMovimento"]
     controle --&gt; lateral["ControladorCentralizacao&lt;br/&gt;correção lateral (PD)"]
     controle --&gt; frontal["PerfilParadaFrontal&lt;br/&gt;potência base"]
     controle --&gt; motores["IMotores&lt;br/&gt;potência de cada roda"]
     motores -. implementa .-&gt; drv["MotoresDrv8833&lt;br/&gt;PWM nos GPIO 4 a 7"]
     motores -. implementa .-&gt; sim["MotoresSimulados&lt;br/&gt;testes"]</code></pre>
-<p><strong>Figura 9.</strong> Fluxo do controle de movimento: a cada leitura dos sensores de distância, a distância frontal define a potência base, as distâncias laterais definem a correção, e o resultado vai para os motores pela interface <code>IMotores</code>.</p>
+<p><strong>Figura 12.</strong> Fluxo do controle de movimento: a cada leitura dos sensores de distância, a distância frontal define a potência base, as distâncias laterais definem a correção, e o resultado vai para os motores pela interface <code>IMotores</code>.</p>
 <h3 id="geometria-considerada">Geometria considerada<a class="headerlink" href="#geometria-considerada" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -3883,7 +4242,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 </tbody>
 </table>
 <p>O cálculo foi feito para um único sensor no centro do robô, com o feixe abaixo do topo das paredes (5 cm). Na Rev 2.0, cada VL53L0X fica numa posição diferente do chassi, que a estrutura ainda vai informar; os limiares serão recalculados para os 3 sensores na <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/379">#379</a>. A folga lateral é pequena: ao virar de volta para o centro, a traseira do chassi gira para o lado da parede. Por isso o controle corrige com ângulos pequenos e ganhos baixos.</p>
-<h3 id="regras-de-negocio-e-algoritmo_8">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_8" title="Permanent link">&para;</a></h3>
+<h3 id="regras-de-negocio-e-algoritmo_9">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_9" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Erro lateral:</strong> deslocamento do robô para a direita do centro, em mm. Com parede dos dois lados, é <code>(esquerda − direita) / 2</code>; só com a da esquerda, <code>esquerda − 84</code>; só com a da direita, <code>84 − direita</code>. Leituras acima de 180 mm contam como lado sem parede; sem parede nenhuma, não há correção e o robô segue reto.</li>
 <li><strong>Correção PD:</strong> <code>(20 × erro + 15 × derivada) / 10</code>, em unidades de potência, limitada a 250. A derivada é a variação do erro entre leituras, em mm/s, com filtro passa-baixa de 40% contra o ruído dos sensores de distância. Ela recomeça do zero quando a referência muda (por exemplo, quando uma parede lateral acaba), para não reagir ao salto da leitura.</li>
@@ -3893,9 +4252,9 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <li><strong>Motores:</strong> potência de −1000 a 1000 por roda, positiva para a frente (a mesma convenção do <code>IEncoder</code>). O <code>MotoresDrv8833</code> usa PWM de 20 kHz e 10 bits, no modo <em>fast decay</em> do DRV8833, e freia ligando IN1 e IN2. O motor direito é invertido no <code>main.cpp</code>, pela montagem espelhada.</li>
 </ul>
 <p>Os ganhos, as potências e as distâncias de desaceleração estão em <code>ConfiguracaoControle.h</code> e são <strong>provisórios</strong>: foram ajustados numa simulação do corredor (<a href="../../07-testes/software/">Testes de Software</a>) e precisam ser confirmados na bancada.</p>
-<h3 id="interface-da-classe_7">Interface da Classe<a class="headerlink" href="#interface-da-classe_7" title="Permanent link">&para;</a></h3>
+<h3 id="interface-da-classe_8">Interface da Classe<a class="headerlink" href="#interface-da-classe_8" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong><code>ControleMovimento::atualizar(ILidar&amp;, IMotores&amp;, dtMs)</code>:</strong> lê os sensores de distância, calcula e aplica nos motores; chame uma vez por leitura nova (cerca de 100 ms). Devolve o <code>EstadoMovimento</code>: <code>Cruzeiro</code>, <code>Desacelerando</code>, <code>ParadoNaParede</code>, <code>SemLeitura</code> ou <code>ParadoSemLeitura</code>.</li>
+<li><strong><code>ControleMovimento::atualizar(ISensorDistancia&amp;, IMotores&amp;, dtMs)</code>:</strong> lê os sensores de distância, calcula e aplica nos motores; chame uma vez por leitura nova (cerca de 100 ms). Devolve o <code>EstadoMovimento</code>: <code>Cruzeiro</code>, <code>Desacelerando</code>, <code>ParadoNaParede</code>, <code>SemLeitura</code> ou <code>ParadoSemLeitura</code>.</li>
 <li><strong><code>ControleMovimento::calcular(const DistanciasLaterais*, dtMs)</code>:</strong> a mesma conta sem acessar o hardware; <code>nullptr</code> representa a falta de leitura. Devolve <code>PotenciaRodas</code> (<code>esquerda</code>, <code>direita</code>).</li>
 <li><strong><code>ControleMovimento::reiniciar()</code>:</strong> destrava a parada e esquece o histórico da centralização, para um novo trecho reto.</li>
 <li><strong><code>ControladorCentralizacao::calcular(leitura, dtMs)</code></strong> e <strong><code>PerfilParadaFrontal::potenciaBase(frenteMm)</code>:</strong> as duas partes, testadas separadamente.</li>
@@ -3934,7 +4293,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <td>Frente, esquerda e direita com o robô virado para Leste</td>
 </tr>
 <tr>
-<td><code>test_simulacao/test_lidar_simulado.cpp</code></td>
+<td><code>test_simulacao/test_sensor_distancia_simulado.cpp</code></td>
 <td><code>test_sem_leitura_configurada_a_leitura_falha</code></td>
 <td>Sem configuração, a leitura falha</td>
 </tr>
@@ -3960,7 +4319,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 </tr>
 <tr>
 <td></td>
-<td><code>test_pode_ser_usado_pela_interface_ILidar</code></td>
+<td><code>test_pode_ser_usado_pela_interface_ISensorDistancia</code></td>
 <td>O simulado funciona por meio da interface</td>
 </tr>
 <tr>
@@ -4373,6 +4732,126 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <td><code>test_letra_da_direcao_segue_o_banco_de_dados</code></td>
 <td><code>N</code>, <code>L</code>, <code>S</code> e <code>O</code> como na coluna <code>orientacao</code></td>
 </tr>
+<tr>
+<td><code>test_tof/test_tof.cpp</code></td>
+<td><code>test_sem_amostras_a_leitura_falha</code></td>
+<td>Sem amostras, a leitura falha e a idade é desconhecida</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_tres_amostras_validas_montam_a_leitura_por_lado</code></td>
+<td>Cada sensor vai para o seu campo de <code>DistanciasLaterais</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_classificacao_nos_limites_da_faixa</code></td>
+<td>29 e 30 mm, 1200 e 1201 mm, e 8190, 8191 e 65535 mm</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_falha_tem_prioridade_sobre_a_distancia</code></td>
+<td>Sensor sem resposta é <code>Falha</code>, qualquer que seja a distância</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_sensor_com_falha_invalida_a_leitura</code></td>
+<td>Um sensor em falha invalida a leitura</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_fora_de_alcance_vale_limitado_ao_maximo_e_fica_exposto_por_sensor</code></td>
+<td>"Sem alvo" (8190 mm) vale como 1200 mm, e a amostra bruta continua disponível</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_abaixo_do_minimo_vale_limitado_ao_minimo</code></td>
+<td>Medida abaixo de 30 mm vale como 30 mm</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_os_tres_lados_fora_da_faixa_ainda_montam_a_leitura</code></td>
+<td>Os três fora da faixa, cada um limitado ao seu extremo</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_falha_derruba_a_leitura_mesmo_com_os_outros_fora_da_faixa</code></td>
+<td>A falha continua recusando a leitura</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_leitura_fora_da_faixa_velha_tambem_falha</code></td>
+<td>A limitação não dispensa o limite de 100 ms</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_sensor_que_nunca_mediu_invalida_a_leitura</code></td>
+<td>Faltando um sensor, a leitura falha</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_a_idade_e_a_da_amostra_mais_antiga</code></td>
+<td>A idade da leitura é a do sensor mais atrasado</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_leitura_velha_falha_e_volta_quando_chega_amostra_nova</code></td>
+<td>Limite exato de 100 ms; um sensor parado segura a leitura até voltar</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_leitura_volta_depois_de_uma_falha</code></td>
+<td>Depois de uma falha, a próxima medida válida restaura a leitura</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_idade_correta_quando_o_relogio_da_a_volta</code></td>
+<td>A idade continua certa quando o contador de ms volta a zero</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_reiniciar_esquece_as_amostras</code></td>
+<td><code>reiniciar()</code> volta todos os sensores a <code>SemAmostra</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_configuracao_altera_faixa_e_idade</code></td>
+<td>Faixa, limitação e idade vêm da <code>ConfiguracaoTof</code></td>
+</tr>
+<tr>
+<td><code>test_integracao_tof/test_integracao_tof.cpp</code></td>
+<td><code>test_mapa_final_identico_ao_labirinto_4x4</code>, <code>_8x4</code> e <code>_12x4</code></td>
+<td>Pelas amostras brutas dos ToF, o mapa final fica igual ao labirinto</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_corredores_sem_alvo_viram_passagem_livre_e_o_mapa_fecha</code></td>
+<td>12×4 com corredores longos: "sem alvo" vira livre e a exploração cobre as 48 células</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_amostra_bruta_e_a_distancia_da_face_do_sensor</code></td>
+<td>O <code>TofSimulado</code> entrega 30 mm a menos que a distância do centro</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_sensor_sem_alvo_entrega_o_alcance_maximo</code></td>
+<td>Amostra de 8190 mm e leitura de 1200 mm</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_sensor_encostado_registra_parede</code></td>
+<td>12 mm na esquerda vira 30 mm e a parede entra no mapa sem conflito</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_sensor_sem_resposta_nao_altera_o_mapa</code></td>
+<td>Sensor em falha: leitura recusada e mapa inalterado; volta ao religar</td>
+</tr>
+<tr>
+<td><code>test_pinos/test_pinos.cpp</code></td>
+<td><code>test_enderecos_dos_vl53l0x_conferem_com_a_issue_344</code></td>
+<td>Endereços 0x30, 0x31 e 0x32, distintos do 0x29 e do 0x68</td>
+</tr>
 </tbody>
 </table>
 <p>Para rodar, dentro de <code>src/firmware</code>:</p>
@@ -4424,7 +4903,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/36">HU-02</a> (RF02)</td>
 </tr>
 <tr>
-<td><code>ILidar</code>, <code>DistanciasLaterais</code></td>
+<td><code>ISensorDistancia</code>, <code>DistanciasLaterais</code></td>
 <td>Base para <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a> Driver dos VL53L0X (antes, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/173">#173</a>, do LiDAR) e <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/174">#174</a> Classificação</td>
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/36">HU-02</a> (RF02)</td>
 </tr>
@@ -4493,19 +4972,25 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/357">#357</a> Robustez da navegação</td>
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/42">HU-01</a> (RF01)</td>
 </tr>
+<tr>
+<td><code>lib/tof</code> (<code>CombinadorTof</code>), <code>TofVl53l0x</code>, <code>ISensorDistancia::idadeUltimaLeituraMs</code>, endereços em <code>Pinos.h</code>, firmware e menu de bancada</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a> Driver dos 3 sensores VL53L0X</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/36">HU-02</a> (RF02)</td>
+</tr>
 </tbody>
 </table>
 <h2 id="proximos-passos">Próximos passos<a class="headerlink" href="#proximos-passos" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Simulador de labirinto</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/224">#224</a>), concluído: a atualização do mapa (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/177">#177</a>) já pode ser validada num labirinto simulado inteiro (veja <a href="#labirinto-simulado-labirintosimulado">Labirinto simulado</a>).</li>
-<li><strong>CI do firmware</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/223">#223</a>), concluído no PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/295">#295</a>: todo PR para a <code>main</code> roda os testes nativos com cobertura mínima de 80% e o build do ESP32-C3. Os checks são obrigatórios na proteção da <code>main</code>.</li>
-<li><strong>Rev 2.0 do hardware:</strong> pinagem concluída (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/377">#377</a>); em revisão, o driver dos 3 VL53L0X (PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/391">#391</a>), a IMU (PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/403">#403</a>) e a detecção de motor travado (PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/396">#396</a>); abertos, os limiares para os VL53L0X (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/379">#379</a>) e o deslocamento sem encoder (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380">#380</a>). A remoção do código do LiDAR (<code>lib/lidar</code>) e a troca do nome <code>ILidar</code> para um nome de sensor de distância ficam para um PR de código.</li>
+<li><strong>CI do firmware</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/223">#223</a>), concluído no PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/295">#295</a>: todo PR para a <code>main</code> roda os testes nativos com cobertura mínima de 80% e o build do ESP32-C3. Os checks são obrigatórios na proteção da <code>main</code>. Com o PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/391">#391</a>, o build também compila o <code>bancada_tof</code>, e o job "Scripts de bancada" roda os testes dos scripts de <code>scripts/</code>.</li>
+<li><strong>Rev 2.0 do hardware:</strong> pinagem concluída (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/377">#377</a>); em revisão, o driver dos 3 VL53L0X (PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/391">#391</a>), a IMU (PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/403">#403</a>) e a detecção de motor travado (PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/396">#396</a>); abertos, os limiares para os VL53L0X (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/379">#379</a>) e o deslocamento sem encoder (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380">#380</a>). A remoção do código do LiDAR (<code>lib/lidar</code>) e a troca do nome <code>ISensorDistancia</code> para um nome de sensor de distância ficam para um PR de código.</li>
 <li><strong>Validar com o hardware:</strong> a bancada da Rev 2.0 (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/381">#381</a>): I²C com os 3 VL53L0X e o MPU6050, motores N20 e o tranco no boot pelos GPIO20/21 (veja <a href="#pinagem">Pinagem</a>).</li>
 <li><strong>Formato JSON do mapa</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/178">#178</a>): o formato foi validado com as outras equipes. O dashboard (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/239">#239</a>) aceitou o JSON e vai tratar <code>null</code> como área não explorada, e a tabela <code>mapa_celulas</code> passou a aceitar <code>null</code> nas colunas <code>parede_*</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/228">#228</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/328">#328</a>). Falta o envio de fato da lista de células ao banco, que entra com a telemetria (Épico 03).</li>
 <li><strong>Mapa final serializado</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/180">#180</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/330">#330</a>), concluído: o mapa é congelado e serializado ao alcançar o objetivo e testado no labirinto simulado. Falta a navegação chamar <code>congelarMapa()</code> quando detectar o objetivo (Épico 02) e o envio do JSON do mapa final ao servidor, vinculado à corrida criada pela Edge Function <code>corridas</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/233">#233</a>), no Épico 03.</li>
 <li><strong>Algoritmo de resolução sobre o mapa</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/183">#183</a>), concluído: a <code>Navegacao</code> decide o próximo passo por <em>flood fill</em> com o mapa parcial e foi testada nos labirintos simulados 4×4, 8×4 e 12×4 (veja <a href="#navegacao-algoritmo-de-resolucao-do-labirinto">Navegação: algoritmo de resolução do labirinto</a>). Falta ligar a navegação ao robô: o controle de movimento (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/184">#184</a>) executa a direção decidida, e a odometria (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/187">#187</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/343">#343</a>) informa a pose a <code>confirmarPose()</code>, dentro de <code>tarefaNavegacao</code>.</li>
 <li><strong>Detecção do objetivo</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/189">#189</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/351">#351</a>), concluídos: o robô detecta a chegada à célula objetivo (canto diametralmente oposto à partida), freia os motores imediatamente via DRV8833, congela o mapa explorado através de <code>congelarMapa()</code> e emite o evento <code>objetivo_alcancado</code> na telemetria JSON periódica. Falta o envio do JSON do mapa final ao servidor, vinculado à corrida criada pela Edge Function <code>corridas</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/233">#233</a>), no Épico 03.</li>
 <li><strong>Odometria</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/187">#187</a>): a lógica, os testes no computador e a ligação no <code>main.cpp</code> estão prontos. Falta a bancada: medir os pulsos de diferença entre as rodas num giro de 90° (hoje 625, provisório), testar giros de 90° e 180° e um percurso de 3 células, e registrar o erro.</li>
+<li><strong>Sensores VL53L0X</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a>): o driver, a regra de validade (com fora da faixa limitado à faixa), o teste de integração com o mapa e a ligação no <code>main.cpp</code> estão prontos, e o build da placa compila. Falta rodar o roteiro da <a href="#bancada-dos-vl53l0x">bancada</a> com o hardware montado (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/175">#175</a>) e trocar os valores provisórios de <code>ConfiguracaoTof.h</code> pelos medidos. Dependem desta tarefa a percepção para ToF (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/379">#379</a>), a calibração (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/240">#240</a>), o boot (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/50">#50</a>) e a recuperação de falhas do I²C (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/241">#241</a>).</li>
 </ul>
 <h2 id="historico-de-versoes">Histórico de versões<a class="headerlink" href="#historico-de-versoes" title="Permanent link">&para;</a></h2>
 <table>
@@ -4573,6 +5058,13 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <td style="text-align: center;">23/10/2026</td>
 <td>Atualização para a Rev 2.0 do hardware: seção nova, pinagem conferida com o esquemático, sensores de distância VL53L0X no lugar do LiDAR, pastas e próximos passos; criação deste histórico (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/382">#382</a>)</td>
 <td>Ana Carolina Fialho</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.1</td>
+<td style="text-align: center;">24/10/2026</td>
+<td>Driver dos 3 VL53L0X: ligação, endereços, regra de validade com fora da faixa limitado, bancada e seus testes no CI, <code>TofSimulado</code> e integração com o mapa; interface renomeada para <code>ISensorDistancia</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a>)</td>
+<td>Marllon Fausto</td>
 <td>—</td>
 </tr>
 </tbody>
@@ -4672,10 +5164,10 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.top", "navigation.footer", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.action.edit"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.top", "navigation.footer", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.action.edit"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
         <script src="../../javascripts/mathjax.js"></script>
       
