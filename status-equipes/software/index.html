@@ -1715,6 +1715,11 @@
 <td>Documentação da robustez da navegação (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/357">#357</a>)</td>
 <td style="text-align: center;">Documentação</td>
 </tr>
+<tr>
+<td style="text-align: center;">—</td>
+<td>Testes do frontend (Vitest e Testing Library) e CI (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/394">#394</a>)</td>
+<td style="text-align: center;">Testes / CI</td>
+</tr>
 </tbody>
 </table>
 <h2 id="em-aberto-por-prioridade-para-a-ed1-2610">Em aberto, por prioridade para a ED1 (26/10)<a class="headerlink" href="#em-aberto-por-prioridade-para-a-ed1-2610" title="Permanent link">&para;</a></h2>
@@ -1723,7 +1728,7 @@
 <li><strong>Sensores e movimento:</strong> driver dos VL53L0X (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a>), limiares para ToF (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/379">#379</a>), IMU (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378">#378</a>), deslocamento sem encoder (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380">#380</a>), motores N20 (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/341">#341</a>) e execução dos movimentos entre células (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/184">#184</a>).</li>
 <li><strong>Navegação:</strong> correção do erro acumulado pelas paredes (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/188">#188</a>) e detecção de colisão e recuperação sem perda do mapa (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/192">#192</a>).</li>
 <li><strong>Telemetria:</strong> envio do ESP32 ao Supabase (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/236">#236</a>), buffer e reenvio (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/238">#238</a>), dashboard ao vivo (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/231">#231</a>) e mapa e percurso no dashboard (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/239">#239</a>).</li>
-<li><strong>Frontend:</strong> testes com Vitest e Testing Library e CI do frontend (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/394">#394</a>), que destrava as demais tarefas do dashboard.</li>
+<li><strong>Frontend:</strong> testes com Vitest e Testing Library e CI do frontend (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/394">#394</a>), implementados na branch feat e documentados, destravando as demais tarefas do dashboard (#231, #234, #239 e #242).</li>
 </ul>
 <p><strong>Depois da ED1:</strong> corrida completa (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/185">#185</a>), latência (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/237">#237</a>), filtro do histórico (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/234">#234</a>), teste ponta a ponta (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/232">#232</a>), calibração (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/240">#240</a>), falha de I²C (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/241">#241</a>), estado "Aguardando Largada" (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/242">#242</a>) e controle de rumo pelo giroscópio (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/190">#190</a>, APT).</p>
 <h2 id="precisa-ou-aguarda-de-outras-equipes">Precisa ou aguarda de outras equipes<a class="headerlink" href="#precisa-ou-aguarda-de-outras-equipes" title="Permanent link">&para;</a></h2>
@@ -1779,7 +1784,7 @@
 <li>A ED1 é em 26/10 e a percepção com os VL53L0X (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/379">#379</a>) e a IMU (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378">#378</a>) seguem abertas; os testes de software com o hardware real dependem delas e do hardware montado.</li>
 <li>Não consta nos documentos nenhum teste do firmware com o hardware Rev 2.0 concluído; os testes registrados rodam no computador. A <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/381">#381</a> prevê que, sem hardware a tempo, a validação em bancada passe para a ED2.</li>
 <li>Até os encoders dos N20 serem integrados ao firmware, o deslocamento é estimado pelo comando dos motores e corrigido pelos ToF (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380">#380</a>); com os encoders já disponíveis, vale rever com a equipe o escopo da #380 e da detecção de motor travado (#341), que foram pensadas para o robô sem encoder.</li>
-<li>O frontend ainda não tem testes automatizados nem CI (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/394">#394</a>).</li>
+<li>A infraestrutura de testes automatizados e o CI do frontend foram configurados com sucesso (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/394">#394</a>), mitigando o risco de regressões no dashboard.</li>
 </ul>
 <h2 id="fontes">Fontes<a class="headerlink" href="#fontes" title="Permanent link">&para;</a></h2>
 <p><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues?q=is%3Aissue+label%3Asoftware">Épicos e tarefas de software</a> · <a href="../../05-cronograma/#software-epicos-sprints-e-historias-de-usuario">Cronograma de software</a> · <a href="../../07-testes/software/">Testes de software</a> · <a href="../../04-projeto-conceitual/hardware/">Projeto conceitual de hardware</a></p>
@@ -1808,6 +1813,13 @@
 <td>Atualização para a Rev 2.0 do hardware: entregas, PRs em revisão, prioridades da ED1 (#377 a #382 e #394), dependências e riscos</td>
 <td>Ana Carolina Fialho</td>
 <td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.2</td>
+<td style="text-align: center;">23/10/2026</td>
+<td>Atualiza status da infraestrutura de testes do frontend e CI (#394)</td>
+<td>Rafael Lima</td>
+<td>Eduardo Viana</td>
 </tr>
 </tbody>
 </table>

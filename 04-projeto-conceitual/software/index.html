@@ -1387,6 +1387,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#infraestrutura-de-testes-automatizados-e-cliente-supabase-simulado-394" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Infraestrutura de testes automatizados e cliente Supabase simulado (#394)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2423,6 +2434,17 @@
     <span class="md-ellipsis">
       
         Consulta ao histórico de corridas no Supabase (HU-10)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#infraestrutura-de-testes-automatizados-e-cliente-supabase-simulado-394" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Infraestrutura de testes automatizados e cliente Supabase simulado (#394)
       
     </span>
   </a>
@@ -4014,6 +4036,21 @@ o ciclo de vida da requisição e expõe os estados <code>{ corridas, carregando
   a interface exibe <code>"Nenhuma corrida registrada."</code>. Caso o usuário aplique um filtro que não
   tenha correspondências, a mensagem passa a ser <code>"Nenhuma corrida registrada para este filtro."</code>.</li>
 </ul>
+<h4 id="infraestrutura-de-testes-automatizados-e-cliente-supabase-simulado-394">Infraestrutura de testes automatizados e cliente Supabase simulado (#394)<a class="headerlink" href="#infraestrutura-de-testes-automatizados-e-cliente-supabase-simulado-394" title="Permanent link">&para;</a></h4>
+<p>Para garantir a confiabilidade do dashboard e permitir que as próximas tarefas (#231, #234, #239 e #242) implementem testes de unidade e integração sem depender de conexão com o banco de dados nem expor chaves de serviço, foi desenvolvida a infraestrutura de testes automatizados em <code>src/frontend</code> (tarefa <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/394">#394</a>).</p>
+<p><strong>Tecnologias adotadas:</strong>
+- <strong>Vitest:</strong> executor de testes nativo para projetos Vite com suporte direto a ESM e TypeScript sem etapa extra de compilação.
+- <strong>Testing Library (<code>@testing-library/react</code> e <code>@testing-library/jest-dom</code>):</strong> testes centrados no comportamento do usuário a partir da árvore de acessibilidade do DOM.
+- <strong>JSDOM:</strong> ambiente de emulação do DOM do navegador em Node.js.
+- <strong>V8 Coverage (<code>@vitest/coverage-v8</code>):</strong> mensuração de cobertura de código por linhas, funções, <em>branches</em> e <em>statements</em>.</p>
+<p><strong>Cliente Supabase simulado reutilizável (<code>src/test/supabaseSimulado.ts</code>).</strong>
+Para isolar os testes de requisições de rede reais, foi criada a fábrica <code>criarClienteSupabaseSimulado</code>. O cliente provê:
+- <strong>Padrão Query Builder:</strong> suporta métodos encadeados como <code>.from('corridas').select('*').order('data_hora_inicio', { ascending: false }).eq(...).limit(...)</code>. Retorna um objeto que implementa <code>PromiseLike</code> (método <code>.then()</code>), comportando-se como uma <em>Promise</em> idêntica ao cliente real do <code>@supabase/supabase-js</code>.
+- <strong>Canais Realtime:</strong> suporte a <code>.channel(nome).on('postgres_changes', filtro, callback).subscribe()</code>, permitindo testar fluxos reativos em que novas telemetrias ou corridas chegam via WebSocket simulado.
+- <strong>Disparo de eventos:</strong> o método <code>cliente.emitirRealtime(tabela, evento, novoRegistro)</code> despacha payloads formatados aos ouvintes de forma assíncrona (<code>queueMicrotask</code>), reproduzindo o comportamento do Supabase Realtime nos testes de componentes e hooks.
+- <strong>Injeção via mock:</strong> no Vitest, os testes substituem o cliente real por <code>vi.mock('../lib/supabase', () =&gt; ({ supabase: clienteSimulado }))</code>, permitindo que os componentes executem seu ciclo de vida completo sem alterações no código de produção.</p>
+<p><strong>Integração Contínua (CI):</strong>
+O workflow <code>.github/workflows/ci-frontend.yml</code> valida todo PR e <em>push</em> para a branch <code>main</code>, executando <code>npm ci</code>, a suíte de testes com cobertura (<code>npm run test:cobertura</code>) e a verificação estática de tipos e build (<code>npm run build</code>). O workflow opera sem filtro de caminhos, garantindo conformidade com a política de proteção de branch do repositório.</p>
 <blockquote>
 <ul>
 <li><strong>Roteiro de testes funcionais:</strong></li>
@@ -4412,6 +4449,13 @@ o ciclo de vida da requisição e expõe os estados <code>{ corridas, carregando
 <td>Atualiza o contexto, os critérios da HU-02 e da HU-13 e a arquitetura para a Rev 2.0 do hardware: 3 VL53L0X e MPU6050 por I²C no lugar do LiDAR, e pinagem nova (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/382">#382</a>)</td>
 <td>Ana Carolina Fialho</td>
 <td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.4</td>
+<td style="text-align: center;">23/10/2026</td>
+<td>Documenta a infraestrutura de testes do frontend (Vitest e Testing Library), o cliente Supabase simulado e o CI (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/394">#394</a>)</td>
+<td>Rafael Lima</td>
+<td>Eduardo Viana</td>
 </tr>
 </tbody>
 </table>
