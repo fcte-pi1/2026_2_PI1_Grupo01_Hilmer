@@ -1788,20 +1788,24 @@
 <hr />
 <h2 id="1-contextualizacao-e-requisitos-de-projeto-issue-203">1. Contextualização e Requisitos de Projeto (Issue #203)<a class="headerlink" href="#1-contextualizacao-e-requisitos-de-projeto-issue-203" title="Permanent link">&para;</a></h2>
 <p>O monitoramento contínuo da tensão do barramento da bateria LiPo 2S (<strong><span class="arithmatex">\(6{,}60\text{ V a }8{,}40\text{ V}\)</span></strong>) é essencial para estimar o Estado de Carga (SoC) em tempo real, transmitir telemetria para o Dashboard web e executar o corte de segurança de subtensão (<em>Under-Voltage Lockout</em> — UVLO) quando a bateria atinge <span class="arithmatex">\(6{,}60\text{ V}\)</span> (<span class="arithmatex">\(3{,}30\text{ V/célula}\)</span>).</p>
-<p>Como o conversor analógico-digital (ADC) do microcontrolador <strong>ESP32-C3-MINI-1</strong> opera sob tensão máxima de alimentação de <span class="arithmatex">\(3{,}3\text{ V}\)</span>, conectar o barramento de <span class="arithmatex">\(8{,}4\text{ V}\)</span> diretamente ao pino causaria a destruição imediata do silício. Adicionalmente, a comutação rápida da modulação PWM da ponte H dos motores (<span class="arithmatex">\(20\text{ kHz}\)</span>) introduz ruídos de alta frequência no barramento elétrico.</p>
+<p>Como o conversor analógico-digital (ADC) da placa microcontroladora <strong>ESP32-C3 Super Mini (<code>U3</code>)</strong> opera sob tensão máxima lógica de <span class="arithmatex">\(3{,}3\text{ V}\)</span>, conectar o barramento de <span class="arithmatex">\(8{,}4\text{ V}\)</span> diretamente ao pino causaria a destruição imediata do silício. Adicionalmente, a comutação rápida da modulação PWM da ponte H dos motores (<span class="arithmatex">\(20\text{ kHz}\)</span>) introduz ruídos de alta frequência no barramento elétrico.</p>
 <p>Portanto, o circuito de sensoriamento analógico deve cumprir três requisitos fundamentais:
 1. <strong>Atenuação Proporcional de Tensão:</strong> Reduzir a faixa de <span class="arithmatex">\(0\text{ V a }8{,}4\text{ V}\)</span> para a região linear e de máxima resolução do ADC do ESP32-C3 (<span class="arithmatex">\(0\text{ V a }2{,}50\text{ V}\)</span> sob atenuação interna de 11 dB).
 2. <strong>Consumo Quiescente Desprezível:</strong> Minimizar a corrente drenada continuamente pelo divisor resistivo para não descarregar a bateria em repouso (<span class="arithmatex">\(I_{\text{div}} &lt; 100\ \mu\text{A}\)</span>).
-3. <strong>Filtragem Passa-Baixas Anti-Aliasing:</strong> Eliminar harmônicos e transientes de chaveamento do PWM dos motores (<span class="arithmatex">\(20\text{ kHz}\)</span>) e das fontes Buck (<span class="arithmatex">\(150\text{ kHz}\)</span> e <span class="arithmatex">\(1{,}0\text{ MHz}\)</span>) antes do processo de amostragem digital pelo ADC.</p>
+3. <strong>Filtragem Passa-Baixas Anti-Aliasing:</strong> Eliminar harmônicos e transientes de chaveamento do PWM dos motores (<span class="arithmatex">\(20\text{ kHz}\)</span>) e dos três conversores Buck <strong>MP1584EN</strong> (<span class="arithmatex">\(\approx 1{,}0\text{ MHz}\)</span>) antes do processo de amostragem digital pelo ADC.</p>
 <hr />
 <h2 id="2-dimensionamento-do-divisor-resistivo-de-tensao">2. Dimensionamento do Divisor Resistivo de Tensão<a class="headerlink" href="#2-dimensionamento-do-divisor-resistivo-de-tensao" title="Permanent link">&para;</a></h2>
-<p>O circuito divisor de tensão é composto por dois resistores de filme metálico de precisão (<span class="arithmatex">\(1\%\)</span> de tolerância) conectados em série entre o barramento protegido da bateria (<code>+VBAT_PROT</code>) e o potencial de referência (<code>GND</code>):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>+VBAT_PROT o-----[ R1 = 100k ]-----+-----[ C1 = 100nF ]-----o GND
+<p>O circuito divisor de tensão é composto por dois resistores de filme metálico de precisão (<span class="arithmatex">\(1\%\)</span> de tolerância) conectados em série entre o barramento pós-chave da bateria (<code>VBAT</code> / <code>+VBAT_PROT</code>) e o potencial de referência (<code>GND</code>), com filtragem capacitiva através de <strong><code>C5</code></strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>+VBAT_PROT o-----[ R1 = 100k ]-----+-----[ C5 = 100nF ]-----o GND
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>                                   |
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>                                   +-----[ R2 = 33k ]-------o GND
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>                                   |
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>                                   o----&gt; GPIO 2 (ADC1_CH2) ESP32-C3
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>                                   o----&gt; BAT_ADC_TEST (Canal ADC1 ESP32-C3 Super Mini)
 </code></pre></div>
+<blockquote>
+<p><strong>Nota de Integração com o Esquemático (<code>Micromouse.kicad_sch</code>):</strong><br />
+Como o pino <code>GPIO 2</code> é utilizado para o sinal de habilitação <code>XSHUT</code> do sensor laser ToF direito (<code>J5</code> — <code>VL53L0X</code>), a saída do divisor resistivo (<code>R1 = 100 kΩ</code>, <code>R2 = 33 kΩ</code> e capacitor de filtro <strong><code>C5 = 100 nF</code></strong>) é disponibilizada na rede <strong><code>BAT_ADC_TEST</code></strong>, devendo ser conectada a um canal livre do bloco <code>ADC1</code> do <code>ESP32-C3 Super Mini</code> (<code>U3</code>), como o pino <strong><code>GPIO 4 (ADC1_CH4)</code></strong>, para leitura analógica em malha fechada.</p>
+</blockquote>
 <p>A relação de transferência de tensão é dada por:</p>
 <div class="arithmatex">\[V_{\text{ADC}} = V_{\text{BAT}} \cdot \left(\frac{R_2}{R_1 + R_2}\right) = V_{\text{BAT}} \cdot K_{\text{div}}\]</div>
 <p>Adotando os valores padronizados da série E96/E24 com <strong><span class="arithmatex">\(R_1 = 100\text{ k}\Omega\)</span></strong> e <strong><span class="arithmatex">\(R_2 = 33\text{ k}\Omega\)</span></strong>:</p>
@@ -1824,13 +1828,13 @@
 <p>Esse valor é perfeitamente suportado por resistores SMD miniatura de encapsulamento 0603 ou 0805 (<span class="arithmatex">\(1/10\text{ W}\)</span> ou <span class="arithmatex">\(1/8\text{ W}\)</span>) e não impacta a autonomia do robô.</p>
 <hr />
 <h2 id="3-projeto-do-filtro-passa-baixas-anti-aliasing-rc">3. Projeto do Filtro Passa-Baixas Anti-Aliasing (<span class="arithmatex">\(RC\)</span>)<a class="headerlink" href="#3-projeto-do-filtro-passa-baixas-anti-aliasing-rc" title="Permanent link">&para;</a></h2>
-<p>Para evitar o fenômeno de mascaramento (<em>aliasing</em>) na conversão A/D e rejeitar a ondulação de alta frequência originada da modulação PWM de <span class="arithmatex">\(20\text{ kHz}\)</span> dos motores N20, adiciona-se o capacitor cerâmico multicamada <strong><span class="arithmatex">\(C_1\)</span></strong> em paralelo com <span class="arithmatex">\(R_2\)</span>.</p>
+<p>Para evitar o fenômeno de mascaramento (<em>aliasing</em>) na conversão A/D e rejeitar a ondulação de alta frequência originada da modulação PWM de <span class="arithmatex">\(20\text{ kHz}\)</span> dos motores N20, adiciona-se o capacitor cerâmico multicamada <strong><span class="arithmatex">\(C_5\)</span></strong> (<code>C5 = 100 nF</code>) em paralelo com <span class="arithmatex">\(R_2\)</span>.</p>
 <h3 id="31-resistencia-equivalente-de-thevenin">3.1 Resistência Equivalente de Thevenin<a class="headerlink" href="#31-resistencia-equivalente-de-thevenin" title="Permanent link">&para;</a></h3>
 <p>A impedância de saída vista pelo capacitor no nó de amostragem corresponde ao paralelo de <span class="arithmatex">\(R_1\)</span> e <span class="arithmatex">\(R_2\)</span>:</p>
 <div class="arithmatex">\[R_{\text{th}} = R_1 \parallel R_2 = \frac{R_1 \cdot R_2}{R_1 + R_2} = \frac{100\text{ k}\Omega \cdot 33\text{ k}\Omega}{133\text{ k}\Omega} \approx \mathbf{24{,}81\text{ k}\Omega}\]</div>
 <h3 id="32-frequencia-de-corte-e-rejeicao-harmonica">3.2 Frequência de Corte e Rejeição Harmônica<a class="headerlink" href="#32-frequencia-de-corte-e-rejeicao-harmonica" title="Permanent link">&para;</a></h3>
-<p>Fixando <strong><span class="arithmatex">\(C_1 = 100\text{ nF}\)</span></strong> (dielétrico X7R / C0G de alta estabilidade):</p>
-<div class="arithmatex">\[f_c = \frac{1}{2\pi \cdot R_{\text{th}} \cdot C_1} = \frac{1}{2\pi \cdot 24.812\ \Omega \cdot 100 \times 10^{-9}\text{ F}} \approx \mathbf{64{,}14\text{ Hz}}\]</div>
+<p>Fixando <strong><span class="arithmatex">\(C_5 = 100\text{ nF}\)</span></strong> (dielétrico X7R / C0G de alta estabilidade):</p>
+<div class="arithmatex">\[f_c = \frac{1}{2\pi \cdot R_{\text{th}} \cdot C_5} = \frac{1}{2\pi \cdot 24.812\ \Omega \cdot 100 \times 10^{-9}\text{ F}} \approx \mathbf{64{,}14\text{ Hz}}\]</div>
 <p>A atenuação teórica introduzida na frequência fundamental do chaveamento PWM dos motores (<span class="arithmatex">\(f_{\text{PWM}} = 20\text{ kHz}\)</span>) é calculada por:</p>
 <div class="arithmatex">\[|H(j\omega)| = \frac{1}{\sqrt{1 + \left(\frac{f}{f_c}\right)^2}} = \frac{1}{\sqrt{1 + \left(\frac{20.000}{64{,}14}\right)^2}} \approx \frac{1}{311{,}8} \approx \mathbf{0{,}0032}\]</div>
 <p>Em escala logarítmica decibel:</p>
@@ -1838,21 +1842,24 @@
 <p>O filtro atenua em <strong>aproximadamente 50 dB (redução de mais de 300 vezes)</strong> qualquer oscilação gerada pelas comutações da ponte H, entregando ao conversor ADC uma leitura de tensão DC estável e limpa.</p>
 <hr />
 <h2 id="4-simulacao-computacional-e-diagrama-de-bode">4. Simulação Computacional e Diagrama de Bode<a class="headerlink" href="#4-simulacao-computacional-e-diagrama-de-bode" title="Permanent link">&para;</a></h2>
-<p>O comportamento analítico em frequência do circuito divisor com filtro anti-aliasing foi validado através do script em Python <a href="file:///home/efaria/UnB/PI1/scripts/simulacao_divisor_antialiasing.py"><code>scripts/simulacao_divisor_antialiasing.py</code></a>, gerando o diagrama de Bode vetorial reproduzido abaixo:</p>
+<p>O comportamento analítico em frequência do circuito divisor com filtro anti-aliasing foi validado através de simulação em Python (<code>scripts/simulacao_divisor_antialiasing.py</code>), gerando o diagrama de Bode vetorial reproduzido abaixo:</p>
 <p><img alt="Diagrama de Bode do Filtro Anti-Aliasing" src="../../figs/bode-filtro-antialiasing.svg" /></p>
 <hr />
 <h2 id="5-implementacao-no-firmware-e-processamento-digital">5. Implementação no Firmware e Processamento Digital<a class="headerlink" href="#5-implementacao-no-firmware-e-processamento-digital" title="Permanent link">&para;</a></h2>
-<p>No microcontrolador ESP32-C3:
-* <strong>Canal ADC Vinculado:</strong> Pino analógico <strong>GPIO 2 (ADC1_CH2)</strong>.
+<p>Na placa microcontroladora <strong>ESP32-C3 Super Mini (<code>U3</code>)</strong>:
+* <strong>Nó Analógico Vinculado:</strong> Rede <strong><code>BAT_ADC_TEST</code></strong> roteada a um canal livre do periférico <code>ADC1</code> (pino <strong><code>GPIO 4 / ADC1_CH4</code></strong>, visto que <code>GPIO 0, 1, 2</code> operam nos sinais <code>XSHUT</code> dos sensores <code>VL53L0X</code> e <code>GPIO 3</code> atua no <code>IN2</code> do <code>DRV8833</code>).
 * <strong>Configuração de Atenuação:</strong> Atenuação configurada para <code>ADC_ATTEN_DB_11</code> (faixa calibrada de até 2500 mV).
-* <strong>Filtro Digital por Software:</strong> O firmware realiza uma média móvel de 16 amostras com intervalo de amostragem de 50 ms (<span class="arithmatex">\(20\text{ Hz}\)</span>), complementando o filtro passivo de hardware.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">// Equação de conversão no firmware</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kt">float</span><span class="w"> </span><span class="n">tensaoAdcMv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="n">analogReadMilliVolts</span><span class="p">(</span><span class="n">GPIO_NUM_2</span><span class="p">);</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kt">float</span><span class="w"> </span><span class="n">tensaoBateriaReal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">tensaoAdcMv</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1000.0f</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">0.24812f</span><span class="p">;</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tensaoBateriaReal</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">6.60f</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="n">acionarDesarmeSubtensaoUVLO</span><span class="p">();</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">}</span>
+* <strong>Filtro Digital por Software:</strong> O firmware realiza uma média móvel de 16 amostras com intervalo de amostragem de 50 ms (<span class="arithmatex">\(20\text{ Hz}\)</span>), complementando o filtro passivo de hardware (<code>C5 = 100 nF</code>).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">// Pino ADC1 conectado ao nó BAT_ADC_TEST (ex.: GPIO_NUM_4 / ADC1_CH4)</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">constexpr</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">PINO_BAT_ADC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GPIO_NUM_4</span><span class="p">;</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1">// Equação de conversão no firmware</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="kt">float</span><span class="w"> </span><span class="n">tensaoAdcMv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="n">analogReadMilliVolts</span><span class="p">(</span><span class="n">PINO_BAT_ADC</span><span class="p">);</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="kt">float</span><span class="w"> </span><span class="n">tensaoBateriaReal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">tensaoAdcMv</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1000.0f</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">0.24812f</span><span class="p">;</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tensaoBateriaReal</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">6.60f</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="n">acionarDesarmeSubtensaoUVLO</span><span class="p">();</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="p">}</span>
 </code></pre></div>
 <hr />
 <h2 id="6-protocolo-de-ensaio-de-bancada-e-validacao-experimental-planejado">6. Protocolo de Ensaio de Bancada e Validação Experimental (Planejado)<a class="headerlink" href="#6-protocolo-de-ensaio-de-bancada-e-validacao-experimental-planejado" title="Permanent link">&para;</a></h2>
@@ -1860,7 +1867,7 @@
 <h3 id="61-instrumentacao-necessaria">6.1 Instrumentação Necessária<a class="headerlink" href="#61-instrumentacao-necessaria" title="Permanent link">&para;</a></h3>
 <ol>
 <li><strong>Fonte DC de Bancada Ajustável</strong> com resolução de 1 mV.</li>
-<li><strong>Multímetro Digital de Alta Precisão (DMM 4½ dígitos)</strong> para medir a tensão de entrada e a saída do divisor simultaneamente.</li>
+<li><strong>Multímetro Digital de Alta Precisão (DMM 4½ dígitos)</strong> para medir a tensão de entrada e a saída do divisor (<code>BAT_ADC_TEST</code>) simultaneamente.</li>
 <li><strong>Osciloscópio Digital</strong> para monitorar o nó do pino ADC enquanto os motores N20 comutam em PWM de 20 kHz.</li>
 </ol>
 <h3 id="62-procedimento-experimental-de-calibracao">6.2 Procedimento Experimental de Calibração<a class="headerlink" href="#62-procedimento-experimental-de-calibracao" title="Permanent link">&para;</a></h3>
@@ -1868,7 +1875,7 @@
 <li>Variar a tensão da fonte ajustável de <span class="arithmatex">\(6{,}00\text{ V}\)</span> a <span class="arithmatex">\(8{,}50\text{ V}\)</span> em passos de <span class="arithmatex">\(0{,}50\text{ V}\)</span>.</li>
 <li>Para cada patamar, anotar:</li>
 <li>Tensão exata da fonte (<span class="arithmatex">\(V_{\text{fonte}}\)</span>);</li>
-<li>Tensão medida no pino ADC com multímetro (<span class="arithmatex">\(V_{\text{ADC\_real}}\)</span>);</li>
+<li>Tensão medida no nó <code>BAT_ADC_TEST</code> com multímetro (<span class="arithmatex">\(V_{\text{ADC\_real}}\)</span>);</li>
 <li>Tensão reportada pelo microcontrolador via telemetria serial (<code>V_telemetria</code>).</li>
 <li>Calcular a constante de escala real:
    $<span class="arithmatex">\(K_{\text{calibrado}} = \frac{V_{\text{ADC\_real}}}{V_{\text{fonte}}}\)</span>$</li>
@@ -1877,7 +1884,7 @@
 <h3 id="63-teste-de-rejeicao-de-ruido-dinamico">6.3 Teste de Rejeição de Ruído Dinâmico<a class="headerlink" href="#63-teste-de-rejeicao-de-ruido-dinamico" title="Permanent link">&para;</a></h3>
 <ol>
 <li>Acionar os motores em regime de corrida (PWM alternando entre 30% e 80%).</li>
-<li>Capturar no osciloscópio o ruído pico a pico (<span class="arithmatex">\(V_{\text{pp}}\)</span>) no nó do capacitor <span class="arithmatex">\(C_1\)</span>.</li>
+<li>Capturar no osciloscópio o ruído pico a pico (<span class="arithmatex">\(V_{\text{pp}}\)</span>) no nó do capacitor <span class="arithmatex">\(C_5\)</span> (<code>BAT_ADC_TEST</code>).</li>
 <li><strong>Critério de Aceitação:</strong> O ruído de comutação no pino analógico deve ser estritamente inferior a <strong><span class="arithmatex">\(15\text{ mV}_{\text{pp}}\)</span></strong> (equivalente a <span class="arithmatex">\(&lt; 0{,}6\%\)</span> de erro na faixa do ADC).</li>
 </ol>
 <hr />
@@ -1906,6 +1913,13 @@
 <td style="text-align: left;">Modularização no diretório <code>energia/</code> e adição do protocolo de calibração em bancada</td>
 <td style="text-align: left;">Elias Oliveira</td>
 <td style="text-align: left;">Equipe de Energia</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.2</td>
+<td style="text-align: center;">23/10/2026</td>
+<td style="text-align: left;">Alinhamento com a Revisão 2.0 de Hardware: atualização do capacitor de filtro para <code>C5 = 100 nF</code>, placa <code>ESP32-C3 Super Mini</code> (<code>U3</code>), conversores <code>MP1584EN</code> e nó <code>BAT_ADC_TEST</code> (realocação do <code>GPIO2</code> ocupado pelo <code>XSHUT</code> direito)</td>
+<td style="text-align: left;">Paulo Melo</td>
+<td style="text-align: left;">Equipe de Energia e Hardware</td>
 </tr>
 </tbody>
 </table>
@@ -2009,7 +2023,7 @@
     
       <script src="../../../assets/javascripts/bundle.c21346df.min.js"></script>
       
-        <script src="../../../javascripts/mathjax.js"></script>
+        <script src="../../../scripts/mathjax.js"></script>
       
         <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       

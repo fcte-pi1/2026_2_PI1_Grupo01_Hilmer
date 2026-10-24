@@ -1756,12 +1756,15 @@
 <p>A arquitetura do Micromouse organiza a distribuição de potência e os níveis lógicos a partir da fonte principal de alimentação. O subsistema elétrico divide-se em barramentos de potência e barramentos de regulação chaveada. O perfil de carga foi levantado com base nas especificações dos componentes e nas medições preliminares.</p>
 <p>Para o dimensionamento da autonomia contínua, padronizou-se o ciclo de missão unitário em <strong>600 segundos (10 minutos)</strong> de exploração e tomada de tempo, e a missão estendida de homologação em <strong>1.800 segundos (30 minutos)</strong> para cumprir a resolução consecutiva dos 3 labirintos da competição (<strong>RNF-04</strong>).</p>
 <ul>
-<li><strong>ESP32-C3-MINI-1 (MCU e Telemetria):</strong> Opera sob linha regulada de 3,3 V derivada de conversor Buck de alta frequência (MP1584EN). Consumo médio nominal de <strong>110 mA (0,11 A)</strong> em processamento de controle e transmissões periódicas de rádio.</li>
-<li><strong>Motores DC GA12-N20 com Redução (Par de Atuadores M1 e M2):</strong> Tensão nominal de catálogo de 6,0 V, alimentados por linha regulada dedicada de +6,0 V gerada por conversor Buck LM2596 de 3 A conectado aos pinos VM do driver DRV8833. Consumo médio dinâmico em piso de corrida estimado em <strong>0,15 A por motor (0,30 A conjunto)</strong>, com picos de travamento (<em>stall</em>) de até <strong>~1,5 A por motor (~3,0 A conjunto)</strong>.</li>
-<li><strong>Driver Ponte H Dupla (DRV8833 - Lógica de Controle):</strong> Alimentação lógica e pinos de sinal PWM a 3,3 V comutados pelos GPIOs do microcontrolador. Apresenta consumo quiescente de <strong>3 mA (0,003 A)</strong>.</li>
-<li><strong>Encoders Incrementais de Efeito Hall (2 unidades):</strong> Conectados via interrupções de quadratura aos GPIOs do MCU e alimentados pela linha de 3,3 V. Consumo conjunto estimado em <strong>10 mA (0,01 A)</strong>.</li>
-<li><strong>Sensor LiDAR ToF 360° (Sensoriamento Primário de Pista):</strong> Opera com linha dedicada de alimentação de 5,0 V (+5V0) derivada de conversor Buck LM2596 e interface serial UART. Apresenta consumo nominal médio de <strong>150 mA (0,15 A)</strong> em rotação contínua e varredura óptica.</li>
+<li><strong>Placa ESP32-C3 Super Mini (<code>U3</code> — MCU e Telemetria Wi-Fi/BLE):</strong> Opera alimentada pelo pino <strong><code>5V</code></strong> sob linha regulada de 5,0 V (<code>+5V0</code>) derivada do conversor Buck de alta frequência <strong>MP1584EN (<code>U2</code>)</strong>, utilizando seu regulador linear LDO interno para suprir 3,3 V ao núcleo de processamento RISC-V. Consumo médio nominal de <strong>130 mA (0,130 A)</strong> em processamento de controle e transmissões periódicas de rádio (com picos transitórios de rádio de até 350 mA).</li>
+<li><strong>Motores DC GA12-N20 com Redução (Par de Atuadores <code>M1</code> e <code>M2</code> em <code>J1</code> e <code>J2</code>):</strong> Tensão nominal de catálogo de 6,0 V, alimentados por linha regulada dedicada de +6,0 V (<code>+6V0</code>) gerada pelo conversor Buck <strong>MP1584EN (<code>U4</code>)</strong> conectado ao pino <code>VCC</code> (potência de motores) do driver DRV8833 (<code>U6</code>). Consumo médio dinâmico em piso de corrida estimado em <strong>0,15 A por motor (0,300 A conjunto)</strong>, com picos transitórios de travamento (<em>stall</em>) de até <strong>~1,5 A por motor (~3,0 A conjunto)</strong>.</li>
+<li><strong>Driver Ponte H Dupla (DRV8833 <code>U6</code> — Lógica e Controle):</strong> Pinos de sinal PWM (<code>IN1..IN4</code> nos <code>GPIO10</code>, <code>GPIO3</code>, <code>GPIO20</code> e <code>GPIO21</code>) comutados a 3,3 V pelo microcontrolador e pino de habilitação <code>EEP</code> (<code>nSLEEP</code>) mantido em nível alto via resistor de <em>pull-up</em> <code>R4 = 47 kΩ</code>. Apresenta consumo quiescente de <strong>3 mA (0,003 A)</strong>.</li>
+<li><strong>Sensores Laser Time-of-Flight VL53L0X (3 unidades — <code>J3</code> Esquerdo, <code>J4</code> Frontal, <code>J5</code> Direito):</strong> Responsáveis pelo sensoriamento primário de distância às paredes do labirinto. Operam sob a linha regulada dedicada de 3,3 V (<code>+3V3</code>) derivada do conversor Buck <strong>MP1584EN (<code>U5</code>)</strong>, comunicando-se via barramento I²C (<code>GPIO9 SDA</code>, <code>GPIO8 SCL</code>) com pinos de endereçamento individuais <code>XSHUT</code> (<code>GPIO0</code>, <code>GPIO1</code> e <code>GPIO2</code>). Apresentam consumo nominal médio de <strong>20 mA por sensor (60 mA / 0,060 A para o conjunto de 3 unidades)</strong> em amostragem óptica contínua (<em>active ranging</em>).</li>
+<li><strong>Unidade de Medição Inercial — IMU MPU6050 (1 unidade — <code>J6</code>):</strong> Acelerômetro e giroscópio MEMS de 6 eixos conectado ao barramento I²C (<code>GPIO9 SDA</code>, <code>GPIO8 SCL</code>) e alimentado pela linha regulada de 3,3 V (<code>+3V3</code>) do conversor <strong>MP1584EN (<code>U5</code>)</strong> para suporte à estimativa de atitude e correção angular. Apresenta consumo médio nominal de <strong>5 mA (0,005 A)</strong>.</li>
 </ul>
+<blockquote>
+<p><strong>Nota sobre Expansão de Encoders:</strong> Os conectores dos motores (<code>J1</code> e <code>J2</code>) utilizam 2 vias dedicadas para a alimentação da armadura DC, mantendo os pinos <code>GPIO4/5</code> e <code>GPIO6/7</code> reservados no microcontrolador para eventual expansão de encoders de quadratura.</p>
+</blockquote>
 <hr />
 <h2 id="2-calculo-da-energia-consumida-por-componente">2. Cálculo da Energia Consumida por Componente<a class="headerlink" href="#2-calculo-da-energia-consumida-por-componente" title="Permanent link">&para;</a></h2>
 <p>O cálculo de energia elétrica em regime de corrente contínua adota a relação fundamental:</p>
@@ -1783,48 +1786,48 @@
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;">ESP32-C3-MINI-1</td>
-<td style="text-align: center;">3,3 V</td>
-<td style="text-align: center;">0,110 A</td>
+<td style="text-align: left;">Placa ESP32-C3 Super Mini (<code>U3</code> — pino <code>5V</code>)</td>
+<td style="text-align: center;">5,0 V</td>
+<td style="text-align: center;">0,130 A</td>
 <td style="text-align: center;">600 s</td>
-<td style="text-align: center;">217,80 J</td>
+<td style="text-align: center;">390,00 J</td>
 </tr>
 <tr>
-<td style="text-align: left;">Motores DC N20 (Par M1 + M2)</td>
+<td style="text-align: left;">Motores DC GA12-N20 (Par <code>M1</code> + <code>M2</code> em <code>J1</code>/<code>J2</code>)</td>
 <td style="text-align: center;">6,0 V</td>
 <td style="text-align: center;">0,300 A</td>
 <td style="text-align: center;">600 s</td>
 <td style="text-align: center;">1.080,00 J</td>
 </tr>
 <tr>
-<td style="text-align: left;">Driver DRV8833 (Lógica)</td>
+<td style="text-align: left;">Driver Ponte H DRV8833 (<code>U6</code> — Lógica e Controle)</td>
 <td style="text-align: center;">3,3 V</td>
 <td style="text-align: center;">0,003 A</td>
 <td style="text-align: center;">600 s</td>
 <td style="text-align: center;">5,94 J</td>
 </tr>
 <tr>
-<td style="text-align: left;">Encoders Incrementais (Par)</td>
+<td style="text-align: left;">Sensores Laser ToF VL53L0X (3× — <code>J3</code>, <code>J4</code>, <code>J5</code>)</td>
 <td style="text-align: center;">3,3 V</td>
-<td style="text-align: center;">0,010 A</td>
+<td style="text-align: center;">0,060 A</td>
 <td style="text-align: center;">600 s</td>
-<td style="text-align: center;">19,80 J</td>
+<td style="text-align: center;">118,80 J</td>
 </tr>
 <tr>
-<td style="text-align: left;">Sensor LiDAR ToF 360°</td>
-<td style="text-align: center;">5,0 V</td>
-<td style="text-align: center;">0,150 A</td>
+<td style="text-align: left;">Sensor Inercial IMU MPU6050 (<code>J6</code>)</td>
+<td style="text-align: center;">3,3 V</td>
+<td style="text-align: center;">0,005 A</td>
 <td style="text-align: center;">600 s</td>
-<td style="text-align: center;">450,00 J</td>
+<td style="text-align: center;">9,90 J</td>
 </tr>
 </tbody>
 </table>
 <hr />
 <h2 id="3-estimativa-do-consumo-total-de-energia">3. Estimativa do Consumo Total de Energia<a class="headerlink" href="#3-estimativa-do-consumo-total-de-energia" title="Permanent link">&para;</a></h2>
 <p>A demanda energética líquida total calculada para um ciclo unitário de 10 minutos de missão (<span class="arithmatex">\(E_{\text{total}}\)</span>) é obtida pela soma das parcelas energéticas de cada componente:</p>
-<div class="arithmatex">\[E_{\text{total}} = 217,80 + 1080,00 + 5,94 + 19,80 + 450,00 = \mathbf{1.773,54\text{ J}}\]</div>
+<div class="arithmatex">\[E_{\text{total}} = 390,00 + 1080,00 + 5,94 + 118,80 + 9,90 = \mathbf{1.604,64\text{ J}}\]</div>
 <p>Convertendo para Watt-hora (Wh) utilizando a equivalência padrão (<span class="arithmatex">\(1\text{ Wh} = 3600\text{ J}\)</span>):</p>
-<div class="arithmatex">\[E_{\text{Wh}} = \frac{E_{\text{total}}}{3600} = \frac{1773,54}{3600} \approx \mathbf{0,493\text{ Wh}}\]</div>
+<div class="arithmatex">\[E_{\text{Wh}} = \frac{E_{\text{total}}}{3600} = \frac{1604,64}{3600} \approx \mathbf{0,446\text{ Wh}}\]</div>
 <hr />
 <h2 id="4-escolha-e-dimensionamento-da-fonte-de-alimentacao">4. Escolha e Dimensionamento da Fonte de Alimentação<a class="headerlink" href="#4-escolha-e-dimensionamento-da-fonte-de-alimentacao" title="Permanent link">&para;</a></h2>
 <h3 id="41-margem-de-seguranca-e-eficiencia-energetica">4.1 Margem de Segurança e Eficiência Energética<a class="headerlink" href="#41-margem-de-seguranca-e-eficiencia-energetica" title="Permanent link">&para;</a></h3>
@@ -1833,25 +1836,25 @@
 2. <strong>Perdas Térmicas nos Conversores:</strong> O chaveamento e a resistência parasita das bobinas e diodos internos dos reguladores Step-Down degradam parte da potência útil em calor.
 3. <strong>Preservação Química da Célula:</strong> Células à base de lítio sofrem danos de capacidade irreversíveis quando descarregadas abaixo de 20% de sua reserva total (profundidade de descarga limite de 80% DoD).</p>
 <p>A energia total demandada na fonte para uma corrida unitária de 10 minutos é:</p>
-<div class="arithmatex">\[E_{\text{necessária}} = \frac{E_{\text{Wh}}}{\eta \cdot (1 - \text{Margem})} = \frac{0,493}{0,85 \cdot (1 - 0,40)} \approx \mathbf{0,967\text{ Wh}}\]</div>
+<div class="arithmatex">\[E_{\text{necessária}} = \frac{E_{\text{Wh}}}{\eta \cdot (1 - \text{Margem})} = \frac{0,446}{0,85 \cdot (1 - 0,40)} \approx \mathbf{0,874\text{ Wh}}\]</div>
 <h3 id="42-capacidade-minima-teorica-requerida">4.2 Capacidade Mínima Teórica Requerida<a class="headerlink" href="#42-capacidade-minima-teorica-requerida" title="Permanent link">&para;</a></h3>
 <p>Adotando topologia recarregável <strong>LiPo 2S</strong> com tensão nominal de <span class="arithmatex">\(V_{\text{nominal}} = 7{,}4\text{ V}\)</span> (8,4 V em plena carga e corte de subtensão operacional em 6,6 V / 3,3 V por célula):</p>
-<div class="arithmatex">\[\text{Capacidade Teórica (Ah)} = \frac{E_{\text{necessária}}}{V_{\text{nominal}}} = \frac{0,967\text{ Wh}}{7,4\text{ V}} \approx 0,1306\text{ Ah} \implies \mathbf{130\text{ mAh}}\]</div>
+<div class="arithmatex">\[\text{Capacidade Teórica (Ah)} = \frac{E_{\text{necessária}}}{V_{\text{nominal}}} = \frac{0,874\text{ Wh}}{7,4\text{ V}} \approx 0,1181\text{ Ah} \implies \mathbf{118\text{ mAh}}\]</div>
 <h3 id="43-validacao-de-autonomia-para-os-3-labirintos-consecutivos-rnf-04">4.3 Validação de Autonomia para os 3 Labirintos Consecutivos (RNF-04)<a class="headerlink" href="#43-validacao-de-autonomia-para-os-3-labirintos-consecutivos-rnf-04" title="Permanent link">&para;</a></h3>
 <p>O requisito <strong>RNF-04</strong> exige autonomia ininterrupta para completar as 3 configurações de labirinto da competição (4×4, 8×4 e 12×4 células), cada uma com teto regulamentar de 10 minutos (<strong>RNF-03</strong>), totalizando <strong>30 minutos contínuos (<span class="arithmatex">\(t_{\text{total}} = 1.800\text{ s} = 0{,}5\text{ h}\)</span>)</strong> no pior cenário de estresse.</p>
 <p>Calculando a potência média drenada da bateria sob rendimento de 85% dos conversores chaveados Buck:
-* Potência útil das cargas lógicas e sensores (+5V0 e +3V3): <span class="arithmatex">\(P_{\text{lógica}} \approx 1{,}19\text{ W} \implies P_{\text{fonte, lógica}} = \frac{1,19}{0,85} \approx 1{,}40\text{ W}\)</span>
-* Potência útil dos motores sob linha regulada de +6V0 (<span class="arithmatex">\(I = 0{,}30\text{ A}\)</span> contínuo): <span class="arithmatex">\(P_{\text{motores}} = 6{,}0\text{ V} \cdot 0{,}30\text{ A} = 1{,}80\text{ W} \implies P_{\text{fonte, motores}} = \frac{1,80}{0,85} \approx 2{,}12\text{ W}\)</span>
-* <strong>Potência média total drenada da bateria:</strong> <span class="arithmatex">\(P_{\text{bat\_total}} \approx 1{,}40 + 2{,}12 = \mathbf{3{,}52\text{ W}}\)</span></p>
+* Potência útil das cargas lógicas e sensores (+5V0 <code>U2</code> e +3V3 <code>U5</code>): <span class="arithmatex">\(P_{\text{lógica}} = 0{,}650 + 0{,}224 \approx 0{,}874\text{ W} \implies P_{\text{fonte, lógica}} = \frac{0,874}{0,85} \approx 1{,}03\text{ W}\)</span>
+* Potência útil dos motores sob linha regulada de +6V0 (<code>U4</code>, <span class="arithmatex">\(I = 0{,}30\text{ A}\)</span> contínuo): <span class="arithmatex">\(P_{\text{motores}} = 6{,}0\text{ V} \cdot 0{,}30\text{ A} = 1{,}80\text{ W} \implies P_{\text{fonte, motores}} = \frac{1,80}{0,85} \approx 2{,}12\text{ W}\)</span>
+* <strong>Potência média total drenada da bateria:</strong> <span class="arithmatex">\(P_{\text{bat\_total}} \approx 1{,}03 + 2{,}12 = \mathbf{3{,}15\text{ W}}\)</span></p>
 <p>A corrente média contínua consumida do barramento de 7,4 V nominal é:</p>
-<div class="arithmatex">\[I_{\text{bat\_médio}} = \frac{P_{\text{bat\_total}}}{V_{\text{nominal}}} = \frac{3{,}52\text{ W}}{7,4\text{ V}} \approx \mathbf{0{,}476\text{ A}} \ (\mathbf{476\text{ mA}})\]</div>
+<div class="arithmatex">\[I_{\text{bat\_médio}} = \frac{P_{\text{bat\_total}}}{V_{\text{nominal}}} = \frac{3{,}15\text{ W}}{7,4\text{ V}} \approx \mathbf{0{,}426\text{ A}} \ (\mathbf{426\text{ mA}})\]</div>
 <p>Portanto, a capacidade consumida durante os 30 minutos ininterruptos de missão é:</p>
-<div class="arithmatex">\[C_{\text{consumida\_30min}} = I_{\text{bat\_médio}} \cdot 0,5\text{ h} = 476\text{ mA} \cdot 0,5\text{ h} = \mathbf{238\text{ mAh}}\]</div>
+<div class="arithmatex">\[C_{\text{consumida\_30min}} = I_{\text{bat\_médio}} \cdot 0,5\text{ h} = 426\text{ mA} \cdot 0,5\text{ h} = \mathbf{213\text{ mAh}}\]</div>
 <p>Aplicando o fator de segurança química de 80% de profundidade máxima de descarga (DoD):</p>
-<div class="arithmatex">\[C_{\text{mínima\_30min}} = \frac{238\text{ mAh}}{0,80} = \mathbf{297{,}5\text{ mAh}}\]</div>
+<div class="arithmatex">\[C_{\text{mínima\_30min}} = \frac{213\text{ mAh}}{0,80} \approx \mathbf{266{,}3\text{ mAh}}\]</div>
 <hr />
 <h2 id="5-homologacao-do-pack-comercial-selecionado">5. Homologação do Pack Comercial Selecionado<a class="headerlink" href="#5-homologacao-do-pack-comercial-selecionado" title="Permanent link">&para;</a></h2>
-<p>Com base no dimensionamento de 130 mAh (missão unitária) e na demanda estendida de 297,5 mAh (3 labirintos), homologa-se formalmente o seguinte pack comercial:</p>
+<p>Com base no dimensionamento de 118 mAh (missão unitária) e na demanda estendida de 266,3 mAh (3 labirintos), homologa-se formalmente o seguinte pack comercial:</p>
 <ul>
 <li><strong>Fabricante / Modelo:</strong> <strong>Tattu 650mAh 2S1P 75C 7.4V Lipo Battery Pack with XT30 Plug</strong></li>
 <li><strong>Topologia:</strong> Polímero de Lítio (LiPo) 2S1P / 2 Células</li>
@@ -1866,35 +1869,36 @@
 </ul>
 <h3 id="justificativa-tecnica-da-homologacao">Justificativa Técnica da Homologação:<a class="headerlink" href="#justificativa-tecnica-da-homologacao" title="Permanent link">&para;</a></h3>
 <ol>
-<li><strong>Margem de Autonomia Real:</strong> Com 650 mAh e respeitando a profundidade máxima de descarga recomendada de 80% (DoD), a bateria disponibiliza <strong>520 mAh úteis</strong>. Sob a corrente média de consumo de 476 mA, a autonomia contínua calculada é de <strong>~65,5 minutos</strong> (<span class="arithmatex">\(\frac{520\text{ mAh}}{476\text{ mA}} \times 60 \approx 65{,}5\text{ min}\)</span>), cobrindo com folga de <strong>+118% de margem</strong> o teto regulamentar de 30 minutos dos 3 labirintos consecutivos (<strong>RNF-04</strong>).</li>
-<li><strong>Robustez Contra Queda de Tensão (<em>Voltage Sag</em>) e Picos de Stall:</strong> A taxa contínua de 75C permite entrega ininterrupta de até 48,75 A. Mesmo no pior cenário com ambos os motores em travamento de bancada/rampa (<em>stall</em> de até ~3,0 A no barramento de 6 V), a demanda refletida na bateria fica em torno de 3,5 A a 4,0 A (menos de 9% da taxa 75C), eliminando qualquer risco de <em>brownout reset</em> no microcontrolador ESP32-C3.</li>
+<li><strong>Margem de Autonomia Real:</strong> Com 650 mAh e respeitando a profundidade máxima de descarga recomendada de 80% (DoD), a bateria disponibiliza <strong>520 mAh úteis</strong>. Sob a corrente média de consumo de 426 mA, a autonomia contínua calculada é de <strong>~73,2 minutos</strong> (<span class="arithmatex">\(\frac{520\text{ mAh}}{426\text{ mA}} \times 60 \approx 73{,}2\text{ min}\)</span>), cobrindo com folga de <strong>+144% de margem</strong> o teto regulamentar de 30 minutos dos 3 labirintos consecutivos (<strong>RNF-04</strong>).</li>
+<li><strong>Robustez Contra Queda de Tensão (<em>Voltage Sag</em>) e Picos de Stall:</strong> A taxa contínua de 75C permite entrega ininterrupta de até 48,75 A. Mesmo no pior cenário com ambos os motores em travamento de bancada/rampa (<em>stall</em> de até ~3,0 A no barramento de 6 V), a demanda refletida na bateria fica em torno de 3,5 A a 4,0 A (menos de 9% da taxa 75C), eliminando qualquer risco de <em>brownout reset</em> no microcontrolador ESP32-C3 Super Mini.</li>
 <li><strong>Alívio Mecânico:</strong> A massa contida de 43 g reduz a inércia rotacional do conjunto móvel e alivia as cargas radiais sobre os mancais e pinhões metálicos da redução dos motores N20.</li>
 </ol>
 <hr />
 <h2 id="6-arquitetura-de-distribuicao-de-potencia">6. Arquitetura de Distribuição de Potência<a class="headerlink" href="#6-arquitetura-de-distribuicao-de-potencia" title="Permanent link">&para;</a></h2>
-<p>A distribuição elétrica segrega a malha de acionamento de potência dos circuitos lógicos e de sensoriamento óptico através de topologia em estrela:</p>
+<p>A distribuição elétrica segrega a malha de acionamento de potência dos circuitos de processamento e de sensoriamento óptico/inercial através de topologia em estrela com três conversores chaveados <strong>MP1584EN</strong> independentes:</p>
 <pre class="mermaid"><code>flowchart TD
-    BAT["Bateria LiPo 2S (7,4 V nom / 8,4 V máx)"] --&gt; FUSE["Fusível Rearmável PPTC (MF-R185)"]
-    FUSE --&gt; PMOS["P-MOSFET High-Side (AO3407A)"]
+    BAT["Bateria LiPo 2S BT1 (7,4 V nom / 8,4 V máx)"] --&gt; FUSE["Fusível Rearmável PPTC F1 (MF-R185)"]
+    FUSE --&gt; PMOS["P-MOSFET High-Side Q1 (AO3407A - Subesquemático)"]
     PMOS --&gt; SW1["Chave Geral Liga/Desliga (SW1)"]
 
-    SW1 --&gt; DIV["Divisor Resistivo 100k/33k + Filtro 100nF"]
-    DIV --&gt; ADC["Pino GPIO 2 (ADC1_CH2) ESP32-C3"]
+    SW1 --&gt; DIV["Divisor Resistivo R1=100k / R2=33k + Filtro C5=100nF"]
+    DIV --&gt; ADC["Nó BAT_ADC_TEST (Canal ADC1 ESP32-C3)"]
 
-    SW1 --&gt; BUCK_6V["Buck LM2596 (Regulado em 6,0 V / 3 A)"]
-    SW1 --&gt; BUCK_5V["Buck LM2596 (Regulado em 5,0 V / 1 A)"]
-    SW1 --&gt; BUCK_3V3["Buck MP1584EN (Regulado em 3,3 V / 1 A)"]
+    SW1 --&gt; BUCK_6V["Buck MP1584EN U4 (Regulado em 6,0 V / C3=10µF, C4=100µF)"]
+    SW1 --&gt; BUCK_5V["Buck MP1584EN U2 (Regulado em 5,0 V / C6=10µF, C2=100µF)"]
+    SW1 --&gt; BUCK_3V3["Buck MP1584EN U5 (Regulado em 3,3 V / C8=10µF, C7=100nF)"]
 
-    BUCK_6V --&gt;|"Linha +6V0 (até 3 A stall)"| DRV_VM["Pinos VM (Driver DRV8833)"]
-    DRV_VM --&gt; MOTORES["Par de Motores N20 (M1 e M2)"]
+    BUCK_6V --&gt;|"Linha +6V0 (0,30 A nom / até 3 A pico)"| DRV_VM["Pino VCC + Pull-up R4=47k (Driver DRV8833 U6)"]
+    DRV_VM --&gt; MOTORES["Par de Motores DC GA12-N20 (J1 Esq / J2 Dir)"]
 
-    BUCK_5V --&gt;|"Linha +5V0 (150 mA)"| LIDAR["Sensor LiDAR ToF 360°"]
+    BUCK_5V --&gt;|"Linha +5V0 (130 mA)"| MCU["Pino 5V — ESP32-C3 Super Mini (U3)"]
 
-    BUCK_3V3 --&gt;|"Linha +3V3 (123 mA)"| MCU["ESP32-C3-MINI-1"]
-    BUCK_3V3 --&gt; ENCODERS["Encoders de Efeito Hall (x2)"]
-    BUCK_3V3 --&gt; DRV_LOGIC["VCC Lógico DRV8833"]
+    BUCK_3V3 --&gt;|"Linha +3V3 (60 mA)"| TOF["3× Sensores Laser ToF VL53L0X (J3, J4, J5)"]
+    BUCK_3V3 --&gt;|"Linha +3V3 (5 mA)"| IMU["IMU 6 Eixos MPU6050 (J6)"]
 
-    MCU --&gt;|"Sinais PWM (0% a 100%)"| DRV_LOGIC</code></pre>
+    MCU --&gt;|"I²C (GPIO9/8) + XSHUT (GPIO0/1/2)"| TOF
+    MCU --&gt;|"Barramento I²C (GPIO9 SDA / GPIO8 SCL)"| IMU
+    MCU --&gt;|"Sinais PWM 3,3 V (GPIO10, 3, 20, 21)"| DRV_VM</code></pre>
 <hr />
 <h2 id="7-modulos-e-subdocumentos-especializados">7. Módulos e Subdocumentos Especializados<a class="headerlink" href="#7-modulos-e-subdocumentos-especializados" title="Permanent link">&para;</a></h2>
 <p>Para garantir modularidade e rastreabilidade com os ensaios de bancada futuros, o detalhamento do subsistema de energia foi dividido nos seguintes documentos especializados:</p>
@@ -1910,25 +1914,25 @@
 <tbody>
 <tr>
 <td style="text-align: left;"><strong><a href="protecoes-entrada/">4.2.1 Proteções de Entrada</a></strong></td>
-<td style="text-align: left;">Fusível rearmável PPTC (MF-R185) e P-MOSFET High-Side ativo contra polaridade reversa (AO3407A)</td>
+<td style="text-align: left;">Fusível rearmável PPTC (<code>F1</code> MF-R185) e subesquemático P-MOSFET High-Side contra polaridade reversa (<code>Q1</code> AO3407A)</td>
 <td style="text-align: center;">#200</td>
 <td style="text-align: center;">Teórico consolidado / Bancada pendente</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong><a href="reguladores-buck/">4.2.2 Reguladores Step-Down (Buck)</a></strong></td>
-<td style="text-align: left;">Dimensionamento analítico dos três conversores (+6V0 LM2596 3A, +5V0 LM2596 1A, +3V3 MP1584EN), térmico e dropout</td>
+<td style="text-align: left;">Dimensionamento analítico dos três conversores <code>MP1584EN</code> (<code>+6V0 U4</code>, <code>+5V0 U2</code>, <code>+3V3 U5</code>), térmico e margem de <em>dropout</em></td>
 <td style="text-align: center;">#199</td>
 <td style="text-align: center;">Teórico consolidado / Bancada pendente</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong><a href="curva-descarga-lipo/">4.2.3 Curva de Descarga e SoC da LiPo</a></strong></td>
-<td style="text-align: left;">Modelo de Shepherd modificado, curva teórica em Python, tabela SoC vs. Tensão e integração com o firmware</td>
+<td style="text-align: left;">Modelo de Shepherd modificado, curva teórica em Python (426 mA), tabela SoC vs. Tensão e integração com o firmware</td>
 <td style="text-align: center;">#139</td>
 <td style="text-align: center;">Teórico consolidado / Bancada pendente</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong><a href="monitoramento-tensao/">4.2.4 Monitoramento de Tensão (ADC)</a></strong></td>
-<td style="text-align: left;">Divisor resistivo 100k/33k, filtro anti-aliasing RC (fc ≈ 64 Hz, -50 dB em 20 kHz), calibração do ADC e UVLO</td>
+<td style="text-align: left;">Divisor resistivo 100k/33k, filtro anti-aliasing RC (<code>C5 = 100 nF</code>, <span class="arithmatex">\(f_c \approx 64\text{ Hz}\)</span>), nó <code>BAT_ADC_TEST</code> e UVLO</td>
 <td style="text-align: center;">#203</td>
 <td style="text-align: center;">Teórico consolidado / Bancada pendente</td>
 </tr>
@@ -1937,9 +1941,10 @@
 <hr />
 <h2 id="8-referencias-bibliograficas">8. Referências Bibliográficas<a class="headerlink" href="#8-referencias-bibliograficas" title="Permanent link">&para;</a></h2>
 <ol>
-<li><strong>TEXAS INSTRUMENTS.</strong> <em>LM2596 SIMPLE SWITCHER® Power Converter 150-kHz 3-A Step-Down Voltage Regulator</em>. Datasheet SNVS124D, Rev. Maio 2020. Disponível em: <a href="https://www.ti.com/lit/ds/symlink/lm2596.pdf">https://www.ti.com/lit/ds/symlink/lm2596.pdf</a>.</li>
 <li><strong>MONOLITHIC POWER SYSTEMS (MPS).</strong> <em>MP1584: 3A, 1.5MHz, 28V Step-Down Converter</em>. Datasheet Rev. 1.0, 2011. Disponível em: <a href="https://www.monolithicpower.com">https://www.monolithicpower.com</a>.</li>
-<li><strong>ESPRESSIF SYSTEMS.</strong> <em>ESP32-C3-MINI-1 Datasheet</em>. Versão 1.4, 2024. Disponível em: <a href="https://www.espressif.com">https://www.espressif.com</a>.</li>
+<li><strong>ESPRESSIF SYSTEMS.</strong> <em>ESP32-C3 Series Datasheet (ESP32-C3 Super Mini Platform)</em>. Versão 1.7, 2024. Disponível em: <a href="https://www.espressif.com">https://www.espressif.com</a>.</li>
+<li><strong>STMICROELECTRONICS.</strong> <em>VL53L0X: World-Smallest Time-of-Flight (ToF) Laser-Ranging Sensor</em>. Datasheet DocID029104 Rev 6, 2024. Disponível em: <a href="https://www.st.com/resource/en/datasheet/vl53l0x.pdf">https://www.st.com/resource/en/datasheet/vl53l0x.pdf</a>.</li>
+<li><strong>INVENSENSE / TDK.</strong> <em>MPU-6000 and MPU-6050 Product Specification</em>. Revision 3.4, 2013. Disponível em: <a href="https://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Datasheet1.pdf">https://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Datasheet1.pdf</a>.</li>
 <li><strong>TEXAS INSTRUMENTS.</strong> <em>DRV8833 Dual H-Bridge Motor Driver</em>. Datasheet SLVSAR1E, Rev. Julho 2015. Disponível em: <a href="https://www.ti.com/lit/ds/symlink/drv8833.pdf">https://www.ti.com/lit/ds/symlink/drv8833.pdf</a>.</li>
 <li><strong>BOURNS.</strong> <em>MF-R Series - PTC Resettable Fuses</em>. Datasheet Rev. 11/2022. Disponível em: <a href="https://www.bourns.com">https://www.bourns.com</a>.</li>
 <li><strong>ALPHA &amp; OMEGA SEMICONDUCTOR.</strong> <em>AO3407A: 30V P-Channel MOSFET</em>. Datasheet Rev. 4.0, 2020. Disponível em: <a href="http://www.aosmd.com">http://www.aosmd.com</a>.</li>
@@ -2009,6 +2014,13 @@
 <td style="text-align: left;">Reestruturação e seccionamento modular do documento em subdocumentos especializados no diretório <code>energia/</code></td>
 <td style="text-align: left;">Elias Oliveira</td>
 <td style="text-align: left;">Equipe de Energia</td>
+</tr>
+<tr>
+<td style="text-align: center;">2.1</td>
+<td style="text-align: center;">23/10/2026</td>
+<td style="text-align: left;">Alinhamento com a Revisão 2.0 de Hardware: substituição do LiDAR 360° e LM2596 por 3× VL53L0X + IMU MPU6050, padronização nos 3 conversores MP1584EN (<code>U2</code>, <code>U4</code>, <code>U5</code>), placa ESP32-C3 Super Mini (<code>U3</code> em 5 V), nó <code>BAT_ADC_TEST</code> (<code>C5 = 100 nF</code>) e recálculo do balanço energético</td>
+<td style="text-align: left;">Paulo Melo</td>
+<td style="text-align: left;">Equipe de Energia e Hardware</td>
 </tr>
 </tbody>
 </table>
@@ -2112,7 +2124,7 @@
     
       <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
-        <script src="../../javascripts/mathjax.js"></script>
+        <script src="../../scripts/mathjax.js"></script>
       
         <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       

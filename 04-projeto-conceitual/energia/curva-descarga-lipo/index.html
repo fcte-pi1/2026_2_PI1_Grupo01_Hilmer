@@ -1786,7 +1786,7 @@
 <tr>
 <td style="text-align: left;"><strong>Corrente Média em Corrida</strong></td>
 <td style="text-align: center;"><span class="arithmatex">\(I\)</span></td>
-<td style="text-align: center;"><strong><span class="arithmatex">\(0{,}476\)</span></strong></td>
+<td style="text-align: center;"><strong><span class="arithmatex">\(0{,}426\)</span></strong></td>
 <td style="text-align: center;"><span class="arithmatex">\(\text{A}\)</span></td>
 <td style="text-align: left;">Demanda líquida contínua do robô a 7,4 V nominal</td>
 </tr>
@@ -1829,14 +1829,14 @@
 </table>
 <hr />
 <h2 id="3-simulacao-teorica-computacional">3. Simulação Teórica Computacional<a class="headerlink" href="#3-simulacao-teorica-computacional" title="Permanent link">&para;</a></h2>
-<p>O script de engenharia em Python <a href="file:///home/efaria/UnB/PI1/scripts/curva_descarga_lipo.py"><code>scripts/curva_descarga_lipo.py</code></a> simula o comportamento da bateria sob dois regimes operacionais:
-1. <strong>Regime Nominal de Corrida (<span class="arithmatex">\(476\text{ mA}\)</span>):</strong> Robô em exploração contínua com motores N20 acionados, LiDAR ToF girando a 5 V e rádio/MCU a 3,3 V.
+<p>O script de engenharia em Python <a href="../../../scripts/curva_descarga_lipo.py"><code>scripts/curva_descarga_lipo.py</code></a> simula o comportamento da bateria sob dois regimes operacionais:
+1. <strong>Regime Nominal de Corrida (<span class="arithmatex">\(426\text{ mA}\)</span>):</strong> Robô em exploração contínua com motores N20 acionados (<span class="arithmatex">\(6{,}0\text{ V}\)</span> via <code>U4</code>), placa <code>ESP32-C3 Super Mini</code> com rádio ativo (<span class="arithmatex">\(5{,}0\text{ V}\)</span> via <code>U2</code>) e barramento I²C de sensores com 3× ToF <code>VL53L0X</code> e IMU <code>MPU6050</code> (<span class="arithmatex">\(3{,}3\text{ V}\)</span> via <code>U5</code>).
 2. <strong>Regime de Baixo Consumo / Standby (<span class="arithmatex">\(150\text{ mA}\)</span>):</strong> Robô estático aguardando partida ou processando telemetria.</p>
 <p>O gráfico vetorial resultante demonstra a correlação entre tempo decorrido, tensão de terminal e o corte regulamentar de 30 minutos (<strong>RNF-04</strong>):</p>
 <p><img alt="Curva Teórica de Descarga LiPo 2S" src="../../../figs/curva-descarga-lipo-2s.svg" /></p>
 <hr />
 <h2 id="4-tabela-de-correlacao-estado-de-carga-soc-vs-tensao-de-terminal">4. Tabela de Correlação: Estado de Carga (SoC) vs. Tensão de Terminal<a class="headerlink" href="#4-tabela-de-correlacao-estado-de-carga-soc-vs-tensao-de-terminal" title="Permanent link">&para;</a></h2>
-<p>A correspondência exata entre o Estado de Carga (<em>State of Charge</em> — SoC), a tensão nos terminais do pack 2S sob carga nominal de <span class="arithmatex">\(476\text{ mA}\)</span> e a capacidade remanescente é apresentada na tabela a seguir:</p>
+<p>A correspondência exata entre o Estado de Carga (<em>State of Charge</em> — SoC), a tensão nos terminais do pack 2S sob carga nominal de <span class="arithmatex">\(426\text{ mA}\)</span> e a capacidade remanescente é apresentada na tabela a seguir:</p>
 <table>
 <thead>
 <tr>
@@ -1874,14 +1874,14 @@
 <td style="text-align: center;">7,48 V</td>
 <td style="text-align: center;">3,74 V</td>
 <td style="text-align: center;">455 mAh</td>
-<td style="text-align: left;">Platô nominal de regime permanente</td>
+<td style="text-align: left;">Platô nominal (~67% SoC aos 30 min de prova — <strong>RNF-04</strong>)</td>
 </tr>
 <tr>
 <td style="text-align: center;"><strong>60%</strong></td>
-<td style="text-align: center;">7,43 V</td>
+<td style="text-align: center;">7,44 V</td>
 <td style="text-align: center;">3,72 V</td>
 <td style="text-align: center;">390 mAh</td>
-<td style="text-align: left;"><strong>Ponto operacional aos 30 min de prova (RNF-04)</strong></td>
+<td style="text-align: left;">Operação contínua em platô nominal</td>
 </tr>
 <tr>
 <td style="text-align: center;"><strong>50%</strong></td>
@@ -1892,7 +1892,7 @@
 </tr>
 <tr>
 <td style="text-align: center;"><strong>40%</strong></td>
-<td style="text-align: center;">7,31 V</td>
+<td style="text-align: center;">7,32 V</td>
 <td style="text-align: center;">3,66 V</td>
 <td style="text-align: center;">260 mAh</td>
 <td style="text-align: left;">Operação em corrida contínua segura</td>
@@ -1900,7 +1900,7 @@
 <tr>
 <td style="text-align: center;"><strong>30%</strong></td>
 <td style="text-align: center;">7,19 V</td>
-<td style="text-align: center;">3,59 V</td>
+<td style="text-align: center;">3,60 V</td>
 <td style="text-align: center;">195 mAh</td>
 <td style="text-align: left;">Alerta amarelo no Dashboard de telemetria</td>
 </tr>
@@ -1914,7 +1914,7 @@
 <tr>
 <td style="text-align: center;"><strong>10%</strong></td>
 <td style="text-align: center;">6,09 V</td>
-<td style="text-align: center;">3,04 V</td>
+<td style="text-align: center;">3,05 V</td>
 <td style="text-align: center;">65 mAh</td>
 <td style="text-align: left;">Zona de esgotamento acentuado</td>
 </tr>
@@ -1929,7 +1929,7 @@
 </table>
 <hr />
 <h2 id="5-integracao-com-a-camada-de-firmware">5. Integração com a Camada de Firmware<a class="headerlink" href="#5-integracao-com-a-camada-de-firmware" title="Permanent link">&para;</a></h2>
-<p>A curva matemática e a tabela de calibração foram exportadas para a biblioteca C++ do microcontrolador em <a href="file:///home/efaria/UnB/PI1/src/firmware/lib/simulacao/TabelaDescargaLiPo.h"><code>src/firmware/lib/simulacao/TabelaDescargaLiPo.h</code></a>. Essa interface provê:</p>
+<p>A curva matemática e a tabela de calibração foram exportadas para a biblioteca C++ do microcontrolador em <code>src/firmware/lib/simulacao/TabelaDescargaLiPo.h</code>. Essa interface provê:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">// Consulta de tensão teórica por tempo de corrida</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kt">float</span><span class="w"> </span><span class="nf">obterTensaoBateriaTeorica</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">segundosDecorridos</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">correnteMediaA</span><span class="p">);</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
@@ -1938,16 +1938,16 @@
 </code></pre></div>
 <h3 id="regras-de-protecao-implementadas">Regras de Proteção Implementadas:<a class="headerlink" href="#regras-de-protecao-implementadas" title="Permanent link">&para;</a></h3>
 <ol>
-<li><strong>Supervisão Contínua de Tensão:</strong> Leituras periódicas do ADC com filtro de média móvel para rejeitar ruídos de chaveamento da ponte H.</li>
-<li><strong>Desarme Automático (<em>UVLO Lockout</em>):</strong> Caso a tensão atestada seja <span class="arithmatex">\(\le 6{,}60\text{ V}\)</span> por mais de 3 amostragens consecutivas, o firmware zera os sinais de modulação PWM para o driver DRV8833, congelando a movimentação e emitindo alerta crítico no telemetria.</li>
-<li><strong>Preservação do Regulador LM2596 (LiDAR):</strong> O corte em 6,60 V assegura que o conversor Step-Down de 5 V opere estritamente acima do seu patamar de <em>dropout</em> (<span class="arithmatex">\(V_{\text{in}} \ge 5{,}0\text{ V} + 1{,}5\text{ V} = 6{,}50\text{ V}\)</span>), impedindo reinicializações do sensor óptico.</li>
+<li><strong>Supervisão Contínua de Tensão:</strong> Leituras periódicas do ADC (<code>BAT_ADC_TEST</code> / <code>ADC1</code>) com filtro passivo (<code>C5 = 100 nF</code>) e média móvel para rejeitar ruídos de chaveamento da ponte H.</li>
+<li><strong>Desarme Automático (<em>UVLO Lockout</em>):</strong> Caso a tensão atestada seja <span class="arithmatex">\(\le 6{,}60\text{ V}\)</span> por mais de 3 amostragens consecutivas, o firmware zera os sinais de modulação PWM para o driver DRV8833 (<code>U6</code>), congelando a movimentação e emitindo alerta crítico na telemetria.</li>
+<li><strong>Preservação da Regulação dos Conversores Buck MP1584EN (<code>U4</code> +6V0, <code>U2</code> +5V0 e <code>U5</code> +3V3):</strong> O corte em 6,60 V assegura que os três conversores Step-Down <code>MP1584EN</code> operem com margem de tensão adequada em suas entradas, mantendo estáveis os barramentos dos motores (<code>+6,0 V</code>), do microcontrolador <code>ESP32-C3 Super Mini</code> (<code>+5,0 V</code>) e dos sensores laser <code>VL53L0X</code> e IMU <code>MPU6050</code> (<code>+3,3 V</code>).</li>
 </ol>
 <hr />
 <h2 id="6-protocolo-de-ensaio-de-bancada-e-validacao-experimental-planejado">6. Protocolo de Ensaio de Bancada e Validação Experimental (Planejado)<a class="headerlink" href="#6-protocolo-de-ensaio-de-bancada-e-validacao-experimental-planejado" title="Permanent link">&para;</a></h2>
 <p>Para consolidar a homologação experimental assim que o pack físico e a carga de teste estiverem disponíveis, estabelece-se o seguinte protocolo de ensaio em bancada:</p>
 <h3 id="61-instrumentacao-de-teste-necessaria">6.1 Instrumentação de Teste Necessária<a class="headerlink" href="#61-instrumentacao-de-teste-necessaria" title="Permanent link">&para;</a></h3>
 <ol>
-<li><strong>Carga Eletrônica Ativa DC Programável</strong> (ou banco resistivo cerâmico comutável com <span class="arithmatex">\(R_{\text{carga}} \approx 15{,}5\ \Omega\)</span> para drenar <span class="arithmatex">\(476\text{ mA}\)</span> em <span class="arithmatex">\(7{,}4\text{ V}\)</span>).</li>
+<li><strong>Carga Eletrônica Ativa DC Programável</strong> (ou banco resistivo cerâmico comutável com <span class="arithmatex">\(R_{\text{carga}} \approx 17{,}4\ \Omega\)</span> para drenar <span class="arithmatex">\(426\text{ mA}\)</span> em <span class="arithmatex">\(7{,}4\text{ V}\)</span>).</li>
 <li><strong>Multímetro Digital de Precisão (DMM)</strong> com interface de aquisição de dados (leitura mínima de 4½ dígitos para registrar <span class="arithmatex">\(V_{\text{pack}}\)</span> a cada 5 segundos).</li>
 <li><strong>Shunt de Corrente / Amperímetro</strong> em série para monitorar estabilidade da drenagem.</li>
 <li><strong>Sensor de Temperatura Termopar tipo K</strong> fixado na superfície externa do pack para monitorar elevação térmica (<span class="arithmatex">\(T_{\text{pack}} \le 45\text{ °C}\)</span>).</li>
@@ -1956,7 +1956,7 @@
 <ol>
 <li>Carregar o pack LiPo 2S até <span class="arithmatex">\(8{,}40\text{ V} \pm 0{,}02\text{ V}\)</span> em carregador balanceador inteligente (corrente de 0,6 A em modo <em>LiPo Balance</em>).</li>
 <li>Deixar a célula em repouso térmico por 30 minutos após a carga.</li>
-<li>Conectar à carga ativa ajustada em modo Corrente Constante (<span class="arithmatex">\(CC = 476\text{ mA}\)</span>).</li>
+<li>Conectar à carga ativa ajustada em modo Corrente Constante (<span class="arithmatex">\(CC = 426\text{ mA}\)</span>).</li>
 <li>Iniciar o registrador de dados (<em>data logger</em>) sincronizado com o disparo da carga.</li>
 <li>Encerrar a descarga imediatamente ao atingir o limiar de corte de <strong><span class="arithmatex">\(6{,}60\text{ V}\)</span></strong>.</li>
 <li>Exportar os dados de tempo e tensão para formato CSV em <code>data/ensaios/descarga_lipo_experimental.csv</code>.</li>
@@ -1992,6 +1992,13 @@
 <td style="text-align: left;">Modularização no diretório <code>energia/</code> e adição do protocolo de ensaios de bancada planejado</td>
 <td style="text-align: left;">Elias Oliveira</td>
 <td style="text-align: left;">Equipe de Energia</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.2</td>
+<td style="text-align: center;">23/10/2026</td>
+<td style="text-align: left;">Alinhamento com a Revisão 2.0 de Hardware: atualização da corrente média de missão para 426 mA, substituição das referências ao LM2596/LiDAR pelos conversores MP1584EN (<code>U2</code>, <code>U4</code>, <code>U5</code>), sensores <code>3× VL53L0X + MPU6050</code> e nó <code>BAT_ADC_TEST</code> (<code>C5 = 100 nF</code>)</td>
+<td style="text-align: left;">Paulo Melo</td>
+<td style="text-align: left;">Equipe de Energia e Hardware</td>
 </tr>
 </tbody>
 </table>
@@ -2095,7 +2102,7 @@
     
       <script src="../../../assets/javascripts/bundle.c21346df.min.js"></script>
       
-        <script src="../../../javascripts/mathjax.js"></script>
+        <script src="../../../scripts/mathjax.js"></script>
       
         <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       

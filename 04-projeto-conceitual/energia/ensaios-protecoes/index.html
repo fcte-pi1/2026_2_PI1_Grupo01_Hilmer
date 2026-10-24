@@ -1713,8 +1713,8 @@
 <p>A validação das proteções contra descarga profunda (subtensão) e sobrecorrente no Micromouse abrange duas camadas complementares de segurança:</p>
 <ol>
 <li><strong>Proteção contra Subtensão em Duplo Estágio (<span class="arithmatex">\(6{,}60\text{ V}\)</span> Operacional e <span class="arithmatex">\(6{,}40\text{ V}\)</span> Limite Físico):</strong></li>
-<li><strong>Estágio Primário Operacional (<span class="arithmatex">\(6{,}60\text{ V}\)</span> — UVLO via Firmware no ESP32-C3):</strong> Como o pack homologado <strong>Tattu LiPo 2S 650 mAh 75C</strong> opera acoplado ao conversor Step-Down <strong>LM2596 (+5V0)</strong> — cuja tensão mínima de <em>dropout</em> é de <span class="arithmatex">\(6{,}50\text{ V}\)</span> (<span class="arithmatex">\(5{,}0\text{ V} + 1{,}5\text{ V}\)</span>) —, o monitoramento analógico via divisor resistivo (<span class="arithmatex">\(R_1 = 100\text{ k}\Omega\)</span>, <span class="arithmatex">\(R_2 = 33\text{ k}\Omega\)</span>) no pino <strong><code>GPIO 2 (ADC1_CH2)</code></strong> atua preventivamente ao atingir <strong><span class="arithmatex">\(6{,}60\text{ V}\)</span> (<span class="arithmatex">\(3{,}30\text{ V/célula}\)</span>)</strong>, cortando os sinais PWM do driver DRV8833 antes que ocorra perda de regulação no sensor LiDAR ToF.</li>
-<li><strong>Estágio Limite de Bancada / BMS 2S (<span class="arithmatex">\(6{,}40\text{ V}\)</span> — Seccionamento de Emergência):</strong> Na rampa decrescente contínua em fonte ajustável de bancada, o limiar estrito de <strong><span class="arithmatex">\(6{,}40\text{ V}\)</span> (<span class="arithmatex">\(3{,}20\text{ V/célula}\)</span>)</strong> corresponde ao ponto clássico de corte de subtensão (<em>Over-Discharge Detection Voltage</em> <span class="arithmatex">\(V_{\text{OD}}\)</span>) de supervisores BMS 2S dedicados (baseados em CIs da família HY2112 / S-8252), no qual o MOSFET de descarga secciona fisicamente o barramento de saída (<code>P+ = 0,00 V</code>) para impedir danos químicos irreversíveis às células de lítio.</li>
+<li><strong>Estágio Primário Operacional (<span class="arithmatex">\(6{,}60\text{ V}\)</span> — UVLO via Firmware no ESP32-C3 Super Mini <code>U3</code>):</strong> Como o pack homologado <strong>Tattu LiPo 2S 650 mAh 75C</strong> alimenta os três conversores Step-Down <strong>MP1584EN</strong> (<code>U4</code> +6V0 para o driver DRV8833, <code>U2</code> +5V0 para o ESP32-C3 Super Mini e <code>U5</code> +3V3 para os 3 sensores ToF VL53L0X e a IMU MPU6050), o monitoramento analógico via divisor resistivo (<span class="arithmatex">\(R_1 = 100\text{ k}\Omega\)</span>, <span class="arithmatex">\(R_2 = 33\text{ k}\Omega\)</span> e filtro <span class="arithmatex">\(C_5 = 100\text{ nF}\)</span>, nó <strong><code>BAT_ADC_TEST</code></strong> acoplado ao <code>ADC1</code>) atua preventivamente ao atingir <strong><span class="arithmatex">\(6{,}60\text{ V}\)</span> (<span class="arithmatex">\(3{,}30\text{ V/célula}\)</span>)</strong>, cortando os sinais PWM do driver DRV8833 (<code>U6</code>) antes que ocorra perda de regulação no barramento de <span class="arithmatex">\(+6{,}0\text{ V}\)</span> dos motores.</li>
+<li><strong>Estágio Limite de Bancada / BMS 2S Externo de Referência (<span class="arithmatex">\(6{,}40\text{ V}\)</span> — Seccionamento de Emergência):</strong> Como packs LiPo RC de alta descarga (75C) não possuem BMS integrado de fábrica, na rampa decrescente contínua em fonte ajustável de bancada avalia-se também o limiar estrito de <strong><span class="arithmatex">\(6{,}40\text{ V}\)</span> (<span class="arithmatex">\(3{,}20\text{ V/célula}\)</span>)</strong> correspondente ao ponto clássico de corte de subtensão (<em>Over-Discharge Detection Voltage</em> <span class="arithmatex">\(V_{\text{OD}}\)</span>) de módulos supervisores BMS 2S dedicados de proteção secundária (baseados em CIs da família HY2112 / S-8252), no qual o MOSFET de descarga secciona fisicamente o barramento de saída (<code>P+ = 0,00 V</code>) para impedir danos químicos irreversíveis às células de lítio.</li>
 <li><strong>Proteção contra Sobrecorrente via Fusível Rearmável PPTC (<span class="arithmatex">\(&gt; 3{,}5\text{ A}\)</span>):</strong></li>
 <li>Avalia-se o comportamento eletrotérmico dinâmico do termistor polimérico <strong>Bourns MF-R185 / MF-MSMF185</strong> (<span class="arithmatex">\(I_{\text{hold}} = 1{,}85\text{ A}\)</span>, <span class="arithmatex">\(I_{\text{trip}} = 3{,}55\text{ A a }3{,}70\text{ A}\)</span>, <span class="arithmatex">\(V_{\text{max}} = 30\text{ V}\)</span>), comprovando tanto a estabilidade contínua sob corrente nominal e picos de partida (<span class="arithmatex">\(\le 1{,}85\text{ A}\)</span>) quanto a velocidade de transição para o estado de alta impedância (<em>tripped state</em>) sob correntes de falta superiores a <strong><span class="arithmatex">\(3{,}5\text{ A}\)</span></strong>.</li>
 </ol>
@@ -1762,20 +1762,20 @@
 <h3 id="31-modelagem-matematica-da-rampa-e-aquisicao">3.1 Modelagem Matemática da Rampa e Aquisição<a class="headerlink" href="#31-modelagem-matematica-da-rampa-e-aquisicao" title="Permanent link">&para;</a></h3>
 <p>Aplicou-se na entrada do sistema uma rampa decrescente de tensão iniciando em plena carga (<span class="arithmatex">\(V_{\text{in}}(0) = 8{,}40\text{ V}\)</span>) até a exaustão profunda (<span class="arithmatex">\(6{,}00\text{ V}\)</span>) sob taxa constante <span class="arithmatex">\(\alpha = -0{,}05\text{ V/s}\)</span> durante <span class="arithmatex">\(48\text{ s}\)</span>:</p>
 <div class="arithmatex">\[V_{\text{BAT}}(t) = 8{,}40 - 0{,}05 \cdot t \quad [\text{V}]\]</div>
-<p>Considerando a queda ôhmica nominal na malha de entrada (<span class="arithmatex">\(\Delta V_{\text{prot}} \approx 0{,}032\text{ V}\)</span> a <span class="arithmatex">\(0{,}432\text{ A}\)</span>), a tensão entregue ao divisor resistivo no pino <strong><code>GPIO 2 (ADC1_CH2)</code></strong> é dada por:</p>
+<p>Considerando a queda ôhmica nominal na malha de entrada (<span class="arithmatex">\(\Delta V_{\text{prot}} \approx 0{,}032\text{ V}\)</span> a <span class="arithmatex">\(0{,}426\text{ A}\text{–}0{,}432\text{ A}\)</span>), a tensão entregue ao divisor resistivo no nó <strong><code>BAT_ADC_TEST</code> (<code>C5 = 100 nF</code> / Canal <code>ADC1</code> do <code>ESP32-C3 Super Mini</code>)</strong> é dada por:</p>
 <div class="arithmatex">\[V_{\text{ADC}}(t) = V_{\text{BAT}}(t) \cdot \left(\frac{R_2}{R_1 + R_2}\right) = V_{\text{BAT}}(t) \cdot \left(\frac{33\text{ k}\Omega}{100\text{ k}\Omega + 33\text{ k}\Omega}\right) = 0{,}24812 \cdot V_{\text{BAT}}(t)\]</div>
 <h3 id="32-registro-de-medicoes-eletricas-na-rampa-de-subtensao">3.2 Registro de Medições Elétricas na Rampa de Subtensão<a class="headerlink" href="#32-registro-de-medicoes-eletricas-na-rampa-de-subtensao" title="Permanent link">&para;</a></h3>
-<p>A tabela abaixo apresenta os pontos de medição coletados ao longo da varredura decrescente da fonte ajustável, registrando o comportamento simultâneo do <strong>UVLO de Firmware (<span class="arithmatex">\(6{,}60\text{ V}\)</span>)</strong>, dos reguladores Buck e do <strong>Corte Físico do BMS 2S (<span class="arithmatex">\(6{,}40\text{ V}\)</span>)</strong>:</p>
+<p>A tabela abaixo apresenta os pontos de medição coletados ao longo da varredura decrescente da fonte ajustável, registrando o comportamento simultâneo do <strong>UVLO de Firmware (<span class="arithmatex">\(6{,}60\text{ V}\)</span>)</strong>, dos reguladores Buck <strong>MP1584EN</strong> e do <strong>Corte Físico do BMS 2S (<span class="arithmatex">\(6{,}40\text{ V}\)</span>)</strong>:</p>
 <table>
 <thead>
 <tr>
 <th style="text-align: center;">Instante (<span class="arithmatex">\(t\)</span>)</th>
 <th style="text-align: center;">Tensão na Fonte (<span class="arithmatex">\(V_{\text{BAT}}\)</span>)</th>
 <th style="text-align: center;">Tensão por Célula (<span class="arithmatex">\(V_{\text{cell}}\)</span>)</th>
-<th style="text-align: center;">Tensão no Pino ADC (<span class="arithmatex">\(V_{\text{ADC}}\)</span>)</th>
+<th style="text-align: center;">Tensão no Nó ADC (<span class="arithmatex">\(V_{\text{ADC}}\)</span>)</th>
 <th style="text-align: center;">Leitura Digital ADC (12 bits)</th>
-<th style="text-align: center;">Saída Buck +5V0 (LM2596)</th>
-<th style="text-align: center;">Saída Buck +3V3 (MP1584)</th>
+<th style="text-align: center;">Saída Buck +5V0 (MP1584 <code>U2</code>)</th>
+<th style="text-align: center;">Saída Buck +3V3 (MP1584 <code>U5</code>)</th>
 <th style="text-align: center;">Estado PWM Motores (UVLO)</th>
 <th style="text-align: center;">Saída <code>P+</code> do BMS 2S</th>
 <th style="text-align: left;">Eventos e Diagnóstico de Bancada</th>
@@ -1840,7 +1840,7 @@
 <td style="text-align: center;"><strong><span class="arithmatex">\(3{,}30\text{ V}\)</span></strong></td>
 <td style="text-align: center;"><strong>CORTE UVLO (0%)</strong></td>
 <td style="text-align: center;"><strong><span class="arithmatex">\(6{,}58\text{ V}\)</span> (ON)</strong></td>
-<td style="text-align: left;"><strong>Atuação do UVLO embarcado:</strong> tração desligada acima do <em>dropout</em> do LM2596 (<span class="arithmatex">\(6{,}50\text{ V}\)</span>).</td>
+<td style="text-align: left;"><strong>Atuação do UVLO embarcado:</strong> tração desligada preservando a regulação dos Bucks MP1584EN (<code>U4</code> +6V0 e <code>U2</code> +5V0).</td>
 </tr>
 <tr>
 <td style="text-align: center;"><strong><span class="arithmatex">\(38{,}0\text{ s}\)</span></strong></td>
@@ -1848,11 +1848,11 @@
 <td style="text-align: center;"><span class="arithmatex">\(3{,}25\text{ V}\)</span></td>
 <td style="text-align: center;"><span class="arithmatex">\(1{,}613\text{ V}\)</span></td>
 <td style="text-align: center;"><code>2001</code></td>
-<td style="text-align: center;"><span class="arithmatex">\(4{,}98\text{ V}\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(5{,}00\text{ V}\)</span></td>
 <td style="text-align: center;"><span class="arithmatex">\(3{,}30\text{ V}\)</span></td>
 <td style="text-align: center;"><strong>Bloqueado (0%)</strong></td>
 <td style="text-align: center;"><strong><span class="arithmatex">\(6{,}49\text{ V}\)</span> (ON)</strong></td>
-<td style="text-align: left;">Limiar de <em>dropout</em> do conversor de 5 V; motores já inativos.</td>
+<td style="text-align: left;">Motores inativos; reguladores de 5 V (<code>U2</code>) e 3,3 V (<code>U5</code>) mantêm folga plena.</td>
 </tr>
 <tr>
 <td style="text-align: center;"><strong><span class="arithmatex">\(40{,}0\text{ s}\)</span></strong></td>
@@ -1980,10 +1980,10 @@
 <h2 id="5-graficos-de-resposta-transitoria-dos-ensaios">5. Gráficos de Resposta Transitória dos Ensaios<a class="headerlink" href="#5-graficos-de-resposta-transitoria-dos-ensaios" title="Permanent link">&para;</a></h2>
 <p>A Figura 1 consolida as curvas temporais obtidas nos dois ensaios: à esquerda, a excursão da rampa de tensão da fonte ajustável destacando os gatilhos de <span class="arithmatex">\(6{,}60\text{ V}\)</span> (UVLO) e <span class="arithmatex">\(6{,}40\text{ V}\)</span> (corte físico BMS 2S); à direita, os perfis transitórios de corrente no fusível PPTC demonstrando o colapso rápido da corrente de falta para o patamar residual seguro de <span class="arithmatex">\(\approx 118\text{ mA}\)</span> para todas as correntes acima de <span class="arithmatex">\(3{,}5\text{ A}\)</span>.</p>
 <figure>
-<p><img alt="Gráficos dos Ensaios Simulados de Corte por Subtensão e Desarme do Fusível PPTC" src="../figs/ensaio-simulado-subtensao-pptc.svg" width="920" /></p>
+<p><img alt="Gráficos dos Ensaios Simulados de Corte por Subtensão e Desarme do Fusível PPTC" src="../../../figs/ensaio-simulado-subtensao-pptc.svg" width="920" /></p>
 <figcaption>
 
-**Figura 1.** Resultados gráficos dos ensaios simulados da Issue #207: (Esquerda) Rampa decrescente de tensão de $8{,}4\text{ V}$ a $6{,}0\text{ V}$ comprovando atuação em $6{,}60\text{ V}$ (UVLO embarcado) e $6{,}40\text{ V}$ (corte BMS 2S); (Direita) Curvas de desarme (*Time-to-Trip*) do fusível PPTC Bourns MF-R185 sob sobrecorrente acima de $3{,}5\text{ A}$.
+**Figura 1.** Resultados gráficos dos ensaios simulados da Issue #207: (Esquerda) Rampa decrescente de tensão de $8{,}4\text{ V}$ a $6{,}0\text{ V}$ comprovando atuação em $6{,}60\text{ V}$ (UVLO embarcado via `BAT_ADC_TEST` / `C5`) e $6{,}40\text{ V}$ (corte BMS 2S); (Direita) Curvas de desarme (*Time-to-Trip*) do fusível PPTC Bourns MF-R185 sob sobrecorrente acima de $3{,}5\text{ A}$.
 
 </figcaption>
 </figure>
@@ -2013,6 +2013,13 @@
 <td style="text-align: left;">Elaboração do relatório de ensaio simulado de corte por subtensão (6,6 V / 6,4 V) e desarme do fusível PPTC (&gt; 3,5 A)</td>
 <td style="text-align: left;">Paulo Melo</td>
 <td style="text-align: left;">Equipe de Energia</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.1</td>
+<td style="text-align: center;">23/10/2026</td>
+<td style="text-align: left;">Alinhamento com a Revisão 2.0 de Hardware: substituição das referências ao LM2596/LiDAR pelos conversores MP1584EN (<code>U2</code>, <code>U4</code>, <code>U5</code>), placa <code>ESP32-C3 Super Mini</code> (<code>U3</code>) e nó <code>BAT_ADC_TEST</code> (<code>C5 = 100 nF</code>)</td>
+<td style="text-align: left;">Paulo Melo</td>
+<td style="text-align: left;">Equipe de Energia e Hardware</td>
 </tr>
 </tbody>
 </table>
@@ -2116,7 +2123,7 @@
     
       <script src="../../../assets/javascripts/bundle.c21346df.min.js"></script>
       
-        <script src="../../../javascripts/mathjax.js"></script>
+        <script src="../../../scripts/mathjax.js"></script>
       
         <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       
