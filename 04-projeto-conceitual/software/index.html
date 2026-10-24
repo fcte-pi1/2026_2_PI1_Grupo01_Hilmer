@@ -2752,7 +2752,7 @@ para consulta posterior no histórico (RF10), o que marca o nó final do fluxo.<
 <td>Micromouse</td>
 </tr>
 <tr>
-<td>Leituras do LiDAR e dos <em>encoders</em></td>
+<td>Leituras dos sensores de distância (3 VL53L0X), da IMU e dos <em>encoders</em></td>
 <td>Hardware</td>
 <td>Mapa do labirinto e localização atualizados</td>
 <td>Micromouse</td>
@@ -3168,7 +3168,7 @@ para consulta posterior no histórico (RF10), o que marca o nó final do fluxo.<
 <li><strong>Quero</strong> que o micromouse identifique a presença de paredes à frente, à esquerda e à direita de cada célula,</li>
 <li><strong>Para que</strong> o algoritmo de navegação saiba quais passagens estão livres e o mapa seja construído corretamente.</li>
 <li><strong>Critérios de Aceitação:</strong></li>
-<li>Ao chegar ao centro de cada célula (18 × 18 cm), o robô deve classificar os lados frontal, esquerdo e direito como <code>parede</code> ou <code>livre</code> a partir das leituras do LiDAR ToF 360°.</li>
+<li>Ao chegar ao centro de cada célula (18 × 18 cm), o robô deve classificar os lados frontal, esquerdo e direito como <code>parede</code> ou <code>livre</code> a partir das leituras dos 3 sensores de distância VL53L0X (Rev 2.0 do hardware; antes, LiDAR ToF 360°).</li>
 <li>A classificação deve ser feita com base em um limiar de distância definido em calibração, filtrando leituras espúrias (ex.: média de múltiplas amostras).</li>
 <li>Em teste de bancada com as configurações de parede conhecidas, a taxa de acerto da classificação deve ser de 100% nas células avaliadas.</li>
 <li><strong>Protótipo da HU:</strong> Não possui tela própria (<em>firmware</em>). As paredes identificadas são refletidas no <code>Maze Grid</code> do <a href="https://www.figma.com/design/90hJ4r7jT0yDMtCwJ0yzy9/Prot%C3%B3tipo-Telemetria-Web?node-id=13-211">Frame 02_Running</a>.</li>
@@ -3340,7 +3340,7 @@ para consulta posterior no histórico (RF10), o que marca o nó final do fluxo.<
 <li><strong>Quero</strong> que o micromouse execute automaticamente uma rotina de calibração dos sensores de distância e inerciais ao ser ligado,</li>
 <li><strong>Para que</strong> as leituras sejam confiáveis desde a primeira célula, sem ajustes manuais antes de cada tentativa.</li>
 <li><strong>Critérios de Aceitação:</strong></li>
-<li>Ao ser ligado na célula de partida, o robô deve calibrar o sensor de distância (LiDAR ToF), a IMU (<em>offset</em> do giroscópio com o robô parado) e zerar a contagem dos <em>encoders</em>.</li>
+<li>Ao ser ligado na célula de partida, o robô deve calibrar os sensores de distância (3 VL53L0X), a IMU (<em>offset</em> do giroscópio com o robô parado) e zerar a contagem dos <em>encoders</em>.</li>
 <li>Cada execução da autocalibração deve ser concluída em até 1 s (RNF-08) e, quando a primeira execução for bem-sucedida, o sistema deve estar pronto para largada em até 2 s após ligado (RNF-09).</li>
 <li>Caso algum sensor não responda ou retorne valores fora da faixa esperada, a calibração deve ser considerada malsucedida e a rotina deve ser executada novamente; o robô não deve iniciar o deslocamento enquanto a calibração não for bem-sucedida, e cada falha deve ser reportada na telemetria.</li>
 <li>Concluída a calibração com sucesso, o estado do robô deve ser informado ao <em>dashboard</em> como <code>Aguardando Largada</code>.</li>
@@ -3566,8 +3566,10 @@ receber, persistir e apresentar a telemetria em tempo real e o histórico de cor
 <ul>
 <li>Firmware: <code>WiFi.h</code> e <code>HTTPClient.h</code> para o envio de telemetria via HTTP, <code>ArduinoJson</code>
   para serialização dos pacotes, leitura dos <em>encoders</em> por interrupção de GPIO
-  (quadratura A/B), PWM nativo do ESP32-C3 para o DRV8833 (<code>GPIO4</code> a <code>GPIO7</code>), e leitura
-  do LiDAR TOF 360° por UART, no <em>baud rate</em> informado no manual do módulo comprado.</li>
+  (quadratura A/B, <code>GPIO4</code> a <code>GPIO7</code>), PWM nativo do ESP32-C3 para o DRV8833 (<code>GPIO10</code>, <code>GPIO3</code>,
+  <code>GPIO20</code> e <code>GPIO21</code>) e leitura dos 3 VL53L0X e do MPU6050 por I²C (<code>GPIO9</code>/<code>GPIO8</code>, com XSHUT
+  dos VL53L0X em <code>GPIO0</code>, <code>GPIO1</code> e <code>GPIO2</code>), conforme a Rev 2.0 do hardware (21/10/2026). A
+  versão anterior previa um LiDAR ToF 360° por UART, que deixou de ser usado.</li>
 <li>Sistema Web: SDK oficial <strong><code>supabase-js</code></strong> no frontend, usado tanto para consultas
   (histórico de corridas) quanto para assinar mudanças em tempo real via Realtime
   (substitui um servidor Socket.IO próprio); Supabase Edge Functions em TypeScript para
@@ -3842,7 +3844,7 @@ navegador. O <code>DEVICE_TOKEN</code> não deve ir para o frontend, porque qual
 lê-lo no navegador.</p>
 <h4 id="visoes-41">Visões 4+1<a class="headerlink" href="#visoes-41" title="Permanent link">&para;</a></h4>
 <ol>
-<li><strong>Lógica:</strong> módulos do firmware (Navegação, Percepção via LiDAR e <em>encoders</em>,
+<li><strong>Lógica:</strong> módulos do firmware (Navegação, Percepção pelos sensores de distância, IMU e <em>encoders</em>,
    Comunicação) e do sistema web (Ingestão de Telemetria, Encerramento de Corrida,
    Dashboard, Histórico).</li>
 <li><strong>Processos:</strong> no ESP32-C3, navegação e envio de telemetria rodam concorrentemente
@@ -4403,6 +4405,13 @@ o ciclo de vida da requisição e expõe os estados <code>{ corridas, carregando
 <td>Documenta a consulta do histórico de corridas no Supabase: hook useCorridas, ordenação e estado vazio (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/235">#235</a>)</td>
 <td>Rafael Lima</td>
 <td>Ana Carolina Fialho</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.3</td>
+<td style="text-align: center;">23/10/2026</td>
+<td>Atualiza o contexto, os critérios da HU-02 e da HU-13 e a arquitetura para a Rev 2.0 do hardware: 3 VL53L0X e MPU6050 por I²C no lugar do LiDAR, e pinagem nova (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/382">#382</a>)</td>
+<td>Ana Carolina Fialho</td>
+<td>—</td>
 </tr>
 </tbody>
 </table>

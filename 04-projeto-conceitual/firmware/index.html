@@ -1028,6 +1028,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#hardware-rev-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hardware Rev 2.0
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#dois-ambientes-placa-e-computador" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1094,10 +1105,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#acesso-ao-lidar-ilidar-e-lidarsimulado" class="md-nav__link">
+  <a href="#sensores-de-distancia-interface-ilidar-e-lidarsimulado" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Acesso ao LiDAR: ILidar e LidarSimulado
+        Sensores de distância: interface ILidar e LidarSimulado
       
     </span>
   </a>
@@ -1604,6 +1615,17 @@
     <span class="md-ellipsis">
       
         Próximos passos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historico-de-versoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Histórico de versões
       
     </span>
   </a>
@@ -2021,6 +2043,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#hardware-rev-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hardware Rev 2.0
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#dois-ambientes-placa-e-computador" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2087,10 +2120,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#acesso-ao-lidar-ilidar-e-lidarsimulado" class="md-nav__link">
+  <a href="#sensores-de-distancia-interface-ilidar-e-lidarsimulado" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Acesso ao LiDAR: ILidar e LidarSimulado
+        Sensores de distância: interface ILidar e LidarSimulado
       
     </span>
   </a>
@@ -2603,6 +2636,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#historico-de-versoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Histórico de versões
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2630,7 +2674,7 @@
 
 <h1 id="firmware-implementacao">Firmware: implementação<a class="headerlink" href="#firmware-implementacao" title="Permanent link">&para;</a></h1>
 <p>Esta página documenta o código do firmware do micromouse em <code>src/firmware</code>. Ela complementa a <a href="../software/">arquitetura de software</a>, que define as decisões de alto nível, e o <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/tree/main/src/firmware">README do firmware</a>, que traz os comandos do dia a dia.</p>
-<p>O estado atual corresponde ao <strong>projeto base</strong> (tarefa <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/172">#172</a>, Sprint 2, HU-02): estrutura de camadas, tipos compartilhados, interface do LiDAR, um LiDAR simulado para testes e as tarefas do FreeRTOS ainda vazias.</p>
+<p>O firmware começou no <strong>projeto base</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/172">#172</a>, Sprint 2) e hoje tem percepção, mapa, navegação, odometria, controle de movimento e telemetria, todos testados no computador. Desde 21/10/2026 ele segue a <strong>Rev 2.0 do hardware</strong>, descrita na seção <a href="#hardware-rev-20">Hardware Rev 2.0</a> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/382">#382</a>).</p>
 <h2 id="visao-geral">Visão geral<a class="headerlink" href="#visao-geral" title="Permanent link">&para;</a></h2>
 <p>O firmware roda no <strong>ESP32-C3</strong> com o <strong>Arduino Core</strong> (C++17) e é compilado com o <strong>PlatformIO</strong>. O código segue o ciclo <em>sense-think-act</em> (perceber, decidir, agir) e é dividido em camadas, uma biblioteca por camada em <code>lib/</code>.</p>
 <pre class="mermaid"><code>flowchart TB
@@ -2642,7 +2686,7 @@
         comunicacao["comunicacao"]
     end
     atuacao["atuacao"]
-    hal["hal&lt;br/&gt;interfaces (ILidar…)"]
+    hal["hal&lt;br/&gt;interfaces (sensores de distância, IMU, encoders, motores)"]
     nucleo["nucleo&lt;br/&gt;tipos, constantes, pinagem"]
     simulacao["simulacao&lt;br/&gt;falsos para teste"]
     drivers["drivers_esp32&lt;br/&gt;drivers reais (Arduino)"]
@@ -2658,6 +2702,52 @@
     drivers -. implementa .-&gt; hal</code></pre>
 <p><strong>Figura 1.</strong> Camadas do firmware e dependências entre elas: a lógica depende só das interfaces de <code>hal</code>, implementadas pelos drivers reais (<code>drivers_esp32</code>) e pelos falsos de teste (<code>simulacao</code>).</p>
 <p>A lógica conhece só as <strong>interfaces</strong> de <code>hal</code>. Na placa, <code>main.cpp</code> liga cada interface ao driver real de <code>drivers_esp32</code>; nos testes, ela é ligada aos falsos de <code>simulacao</code>. É isso que permite testar percepção e mapeamento no computador, antes de o hardware estar montado.</p>
+<h2 id="hardware-rev-20">Hardware Rev 2.0<a class="headerlink" href="#hardware-rev-20" title="Permanent link">&para;</a></h2>
+<p>Em 21/10/2026, a eletrônica enviou o esquemático e a lista de componentes da <strong>Rev 2.0</strong>, que é a referência do firmware até nova versão (<a href="../hardware/">4.3 Hardware</a>).</p>
+<table>
+<thead>
+<tr>
+<th>Parte</th>
+<th>Antes</th>
+<th>Rev 2.0</th>
+<th>Efeito no firmware</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Placa</td>
+<td>ESP32-C3 DevKit</td>
+<td><strong>ESP32-C3 Super Mini</strong></td>
+<td>O log sai pela USB nativa (GPIO18/19), porque a UART0 (GPIO20/21) passou a acionar os motores (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/377">#377</a>)</td>
+</tr>
+<tr>
+<td>Sensores de distância</td>
+<td>LiDAR 360° por UART</td>
+<td><strong>3 VL53L0X</strong> (esquerdo, frontal e direito) por I²C</td>
+<td>A interface <code>ILidar</code> continua; muda o driver por trás dela (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/391">#391</a>, em revisão)</td>
+</tr>
+<tr>
+<td>Orientação</td>
+<td>Só encoders</td>
+<td><strong>IMU MPU6050</strong> no mesmo I²C</td>
+<td>Ângulo de giro pelo giroscópio (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378">#378</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/403">#403</a>, em revisão)</td>
+</tr>
+<tr>
+<td>Motores</td>
+<td>Motor TT</td>
+<td><strong>N20</strong> pelo DRV8833</td>
+<td>Pinos novos; detecção de motor travado (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/341">#341</a>)</td>
+</tr>
+<tr>
+<td>Encoders</td>
+<td>Encoder óptico</td>
+<td>Encoders dos N20, em GPIO4 a 7</td>
+<td>A odometria (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/187">#187</a>) continua; os parâmetros precisam ser recalibrados para o N20</td>
+</tr>
+</tbody>
+</table>
+<p>Enquanto os encoders não eram integrados à Rev 2.0, o plano previa estimar o deslocamento pelo comando dos motores, corrigido pelos sensores de distância (modo sem encoder, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380">#380</a>). Com os encoders disponíveis, esse modo passa a ser o plano B.</p>
+<p><strong>O LiDAR não é mais usado.</strong> O código dele (<code>lib/lidar</code>, decodificador LD06 e <code>FonteBytesSerial</code>) ainda está na <code>main</code> e deve sair num PR de código. Os registros de teste anteriores a 21/10 em <a href="../../07-testes/software/">Testes de software</a> foram feitos com o LiDAR simulado e continuam como histórico.</p>
 <h2 id="dois-ambientes-placa-e-computador">Dois ambientes: placa e computador<a class="headerlink" href="#dois-ambientes-placa-e-computador" title="Permanent link">&para;</a></h2>
 <p>O <code>platformio.ini</code> define dois ambientes de compilação para o mesmo código:</p>
 <pre class="mermaid"><code>flowchart TB
@@ -2669,7 +2759,7 @@
     p1 --&gt; p2["firmware.bin&lt;br/&gt;gravado no ESP32-C3"]
     c1 --&gt; c2["programa de teste&lt;br/&gt;executado no computador"]</code></pre>
 <p><strong>Figura 2.</strong> Os dois ambientes de compilação definidos no <code>platformio.ini</code>: <code>esp32c3</code> gera o firmware gravado na placa e <code>native</code> compila e executa os testes no computador.</p>
-<p>A lógica do robô (direções, mapa, classificação de paredes) não usa nada do Arduino, por isso compila nos dois ambientes. Assim, ela pode ser testada no computador, sem a placa e sem o sensor. Quando a lógica precisa do LiDAR, os testes usam o <code>LidarSimulado</code>, um sensor simulado que devolve as leituras escolhidas pelo próprio teste.</p>
+<p>A lógica do robô (direções, mapa, classificação de paredes) não usa nada do Arduino, por isso compila nos dois ambientes. Assim, ela pode ser testada no computador, sem a placa e sem o sensor. Quando a lógica precisa dos sensores de distância, os testes usam o <code>LidarSimulado</code>, um sensor simulado que devolve as leituras escolhidas pelo próprio teste.</p>
 <table>
 <thead>
 <tr>
@@ -2724,7 +2814,7 @@
 </tr>
 <tr>
 <td><code>lib/hal</code></td>
-<td>Interfaces de hardware (<code>ILidar</code> e <code>IEncoder</code>; motores no Épico 02)</td>
+<td>Interfaces de hardware: <code>ILidar</code> (sensores de distância), <code>IEncoder</code>, <code>IMotores</code> e <code>IImu</code> (PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/403">#403</a>, em revisão)</td>
 </tr>
 <tr>
 <td><code>lib/encoders</code></td>
@@ -2744,7 +2834,19 @@
 </tr>
 <tr>
 <td><code>lib/atuacao</code></td>
-<td>Controle dos motores e correção de trajetória (Épico 02)</td>
+<td>Controle de movimento: centralização no corredor e parada frontal (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/191">#191</a>)</td>
+</tr>
+<tr>
+<td><code>lib/imu</code></td>
+<td>Calibração do viés e ângulo de giro do giroscópio (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378">#378</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/403">#403</a>, em revisão)</td>
+</tr>
+<tr>
+<td><code>lib/tof</code></td>
+<td>Combinação das leituras dos 3 VL53L0X (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/391">#391</a>, em revisão)</td>
+</tr>
+<tr>
+<td><code>lib/lidar</code></td>
+<td>Código do LiDAR da versão anterior do hardware; <strong>não é usado</strong> e deve ser removido</td>
 </tr>
 <tr>
 <td><code>lib/comunicacao</code></td>
@@ -2752,11 +2854,11 @@
 </tr>
 <tr>
 <td><code>lib/simulacao</code></td>
-<td><code>LidarSimulado</code> e <code>LabirintoSimulado</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/224">#224</a>)</td>
+<td>Falsos para os testes: <code>LidarSimulado</code>, <code>LabirintoSimulado</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/224">#224</a>), <code>EncoderSimulado</code>, <code>MotoresSimulados</code> e <code>ImuSimulado</code> (PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/403">#403</a>, em revisão)</td>
 </tr>
 <tr>
 <td><code>lib/drivers_esp32</code></td>
-<td>Drivers que dependem do Arduino: LiDAR por UART, encoders, DRV8833, Wi-Fi</td>
+<td>Drivers que dependem do Arduino: encoders, motores pelo DRV8833 e, em revisão, os VL53L0X (PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/391">#391</a>); o driver do MPU6050 está em desenvolvimento (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378">#378</a>)</td>
 </tr>
 <tr>
 <td><code>test/</code></td>
@@ -2791,7 +2893,7 @@
 <tr>
 <td><code>Lado</code></td>
 <td><code>Frente</code>, <code>Esquerda</code>, <code>Direita</code></td>
-<td>Lado relativo ao robô (leituras do LiDAR)</td>
+<td>Lado relativo ao robô (leituras dos sensores de distância)</td>
 </tr>
 <tr>
 <td><code>EstadoParede</code></td>
@@ -2811,7 +2913,7 @@
 <tr>
 <td><code>DistanciasLaterais</code></td>
 <td><code>frenteMm</code>, <code>esquerdaMm</code>, <code>direitaMm</code></td>
-<td>Leitura do LiDAR, em milímetros</td>
+<td>Leitura dos sensores de distância (os 3 VL53L0X na Rev 2.0), em milímetros</td>
 </tr>
 </tbody>
 </table>
@@ -2847,7 +2949,7 @@
 </tr>
 </tbody>
 </table>
-<p>A <code>direcaoAbsoluta</code> é a ponte entre a percepção e o mapa: o LiDAR mede à frente, à esquerda e à direita do robô, e o mapa guarda as paredes por Norte, Sul, Leste e Oeste.</p>
+<p>A <code>direcaoAbsoluta</code> é a ponte entre a percepção e o mapa: os sensores de distância medem à frente, à esquerda e à direita do robô, e o mapa guarda as paredes por Norte, Sul, Leste e Oeste.</p>
 <h2 id="constantes">Constantes<a class="headerlink" href="#constantes" title="Permanent link">&para;</a></h2>
 <p>Definidas em <code>lib/nucleo/src/Configuracao.h</code>.</p>
 <table>
@@ -2887,7 +2989,7 @@
 </tbody>
 </table>
 <h2 id="pinagem">Pinagem<a class="headerlink" href="#pinagem" title="Permanent link">&para;</a></h2>
-<p>Definida em <code>lib/nucleo/src/Pinos.h</code>, conforme os <a href="../hardware-diagramas/">diagramas de hardware</a>.</p>
+<p>Definida em <code>lib/nucleo/src/Pinos.h</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/377">#377</a>), conforme o <a href="../hardware/#42-pinagem-do-esp32-c3">esquemático Rev 2.0</a>.</p>
 <table>
 <thead>
 <tr>
@@ -2898,40 +3000,57 @@
 </thead>
 <tbody>
 <tr>
-<td>DRV8833, motor M1</td>
-<td>AIN1 / AIN2</td>
-<td>4 / 5</td>
+<td>I²C dos 3 VL53L0X e do MPU6050</td>
+<td>SDA / SCL</td>
+<td>9 / 8</td>
 </tr>
 <tr>
-<td>DRV8833, motor M2</td>
-<td>BIN1 / BIN2</td>
-<td>6 / 7</td>
+<td>VL53L0X esquerdo, frontal e direito</td>
+<td>XSHUT</td>
+<td>0 / 1 / 2</td>
+</tr>
+<tr>
+<td>DRV8833, motor esquerdo</td>
+<td>IN1 / IN2</td>
+<td>10 / 3</td>
+</tr>
+<tr>
+<td>DRV8833, motor direito</td>
+<td>IN3 / IN4</td>
+<td>20 / 21</td>
 </tr>
 <tr>
 <td>Encoder esquerdo</td>
 <td>A / B</td>
-<td>0 / 1</td>
+<td>4 / 5</td>
 </tr>
 <tr>
 <td>Encoder direito</td>
 <td>A / B</td>
-<td>3 / 10</td>
+<td>6 / 7</td>
 </tr>
 <tr>
-<td>LiDAR (UART)</td>
-<td>RX do ESP32 / TX do ESP32</td>
-<td>20 / 21</td>
+<td>USB nativa (log e gravação)</td>
+<td>D− / D+</td>
+<td>18 / 19</td>
 </tr>
 </tbody>
 </table>
+<p><strong>Conferência com o esquemático (23/10/2026):</strong> os 15 pinos do <code>Pinos.h</code> da <code>main</code> são iguais aos da tabela de pinagem da <a href="../hardware/">4.3 Hardware</a>, publicada no commit <code>ca175d9</code>. A versão anterior do esquemático, com o I²C em GPIO6/7, foi substituída pela Rev 2.0 nesse mesmo PR da eletrônica. O teste <code>test_pinos</code> confere que nenhum GPIO é usado duas vezes.</p>
 <div class="admonition warning">
-<p class="admonition-title">Conflito a validar com a frente de hardware</p>
-<p>GPIO20 e GPIO21 são os pinos padrão da <strong>UART0</strong> do ESP32-C3, a mesma usada pelo <code>Serial</code> (log e gravação). Esse ponto precisa ser resolvido antes dos testes de bancada com o LiDAR.</p>
+<p class="admonition-title">Pontos a validar com a eletrônica</p>
+<ul>
+<li><strong>GPIO20/21 (UART0) acionam o motor direito.</strong> O ESP32-C3 manda o log de boot por eles antes de o firmware assumir, o que pode dar um tranco no motor ao ligar. O próprio esquemático pede validação.</li>
+<li><strong>GPIO2, GPIO8 e GPIO9 são pinos de <em>strapping</em></strong> (definem o modo de boot). Eles estão com o XSHUT direito e o I²C; a placa precisa iniciar normalmente com esses circuitos ligados.</li>
+<li><strong>Leitura da bateria:</strong> o divisor termina em <code>BAT_ADC_TEST</code>, sem GPIO, porque o GPIO2, que tem ADC, ficou com o XSHUT. Ainda não há pino definido para medir a bateria.</li>
+<li>O esquemático ainda descreve os encoders como "reservados; encoder não instalado". Com os encoders disponíveis, a eletrônica precisa atualizar essa nota.</li>
+</ul>
 </div>
-<h2 id="acesso-ao-lidar-ilidar-e-lidarsimulado">Acesso ao LiDAR: <code>ILidar</code> e <code>LidarSimulado</code><a class="headerlink" href="#acesso-ao-lidar-ilidar-e-lidarsimulado" title="Permanent link">&para;</a></h2>
+<h2 id="sensores-de-distancia-interface-ilidar-e-lidarsimulado">Sensores de distância: interface <code>ILidar</code> e <code>LidarSimulado</code><a class="headerlink" href="#sensores-de-distancia-interface-ilidar-e-lidarsimulado" title="Permanent link">&para;</a></h2>
+<p>Na Rev 2.0, o robô mede as paredes com <strong>3 sensores VL53L0X</strong> (esquerdo, frontal e direito), que medem a distância por tempo de voo da luz (<em>Time of Flight</em>, ToF). A lógica do firmware recebe essas distâncias pela interface <code>ILidar</code>. O nome é herdado da primeira versão do hardware: a interface continuou a mesma, e por isso a percepção, o mapa e o controle de movimento não precisaram mudar. O driver dos VL53L0X está em revisão (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/391">#391</a>).</p>
 <pre class="mermaid"><code>classDiagram
     class ILidar {
-        &lt;&lt;interface&gt;&gt;
+        &lt;&lt;interface: sensores de distância&gt;&gt;
         +lerDistanciasLaterais(saida) bool
     }
     class LidarSimulado {
@@ -2943,13 +3062,13 @@
         +simularFalha(falha)
         +lerDistanciasLaterais(saida) bool
     }
-    class DriverLidarUart {
-        &lt;&lt;a criar em drivers_esp32&gt;&gt;
+    class TofVl53l0x {
+        &lt;&lt;drivers_esp32, em revisão no PR 391&gt;&gt;
         +lerDistanciasLaterais(saida) bool
     }
     ILidar &lt;|.. LidarSimulado
-    ILidar &lt;|.. DriverLidarUart</code></pre>
-<p><strong>Figura 3.</strong> Interface <code>ILidar</code> e suas implementações: o <code>LidarSimulado</code>, usado nos testes, e o driver real por UART.</p>
+    ILidar &lt;|.. TofVl53l0x</code></pre>
+<p><strong>Figura 3.</strong> Interface dos sensores de distância e suas implementações: o <code>LidarSimulado</code>, usado nos testes, e o driver dos 3 VL53L0X.</p>
 <p><strong>Contrato de <code>ILidar::lerDistanciasLaterais</code>:</strong> retorna <code>true</code> e preenche <code>saida</code> (em mm) quando há leitura válida das três direções; retorna <code>false</code> quando o sensor não responde ou a leitura é inválida. Nesse caso, o conteúdo de <code>saida</code> não deve ser usado.</p>
 <p><strong><code>LidarSimulado</code></strong> devolve o que o teste configurar. A cada leitura, segue esta ordem:</p>
 <ol>
@@ -2966,7 +3085,7 @@
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">ILidar</span><span class="o">&amp;</span><span class="w"> </span><span class="n">sensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lidar</span><span class="p">;</span><span class="w">                     </span><span class="c1">// a lógica recebe só a interface</span>
 </code></pre></div>
 <h2 id="labirinto-simulado-labirintosimulado">Labirinto simulado: <code>LabirintoSimulado</code><a class="headerlink" href="#labirinto-simulado-labirintosimulado" title="Permanent link">&para;</a></h2>
-<p>O <code>LabirintoSimulado</code> (<code>lib/simulacao</code>) é um labirinto com todas as paredes conhecidas, usado como verdade de referência nos testes. Com ele, o <code>LidarSimulado</code> deixa de depender de leituras digitadas à mão: basta posicionar o robô numa célula, e o sensor simulado devolve o que o LiDAR real veria ali. Isso permite testar a classificação de paredes (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/174">#174</a>) e a atualização do mapa (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/177">#177</a>) num labirinto inteiro, sem hardware.</p>
+<p>O <code>LabirintoSimulado</code> (<code>lib/simulacao</code>) é um labirinto com todas as paredes conhecidas, usado como verdade de referência nos testes. Com ele, o <code>LidarSimulado</code> deixa de depender de leituras digitadas à mão: basta posicionar o robô numa célula, e o sensor simulado devolve o que os sensores de distância reais veriam ali. Isso permite testar a classificação de paredes (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/174">#174</a>) e a atualização do mapa (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/177">#177</a>) num labirinto inteiro, sem hardware.</p>
 <p><strong>Formato do labirinto.</strong> O labirinto é escrito em texto, no formato clássico de micromouse. Cada célula ocupa 4 colunas e 2 linhas de texto; <code>+</code> marca os cantos, <code>---</code> uma parede horizontal e <code>|</code> uma parede vertical. A primeira linha é a borda Norte, e a partida (0, 0) é a célula do canto inferior esquerdo, com as mesmas convenções do <code>Mapa</code> e de <code>Direcao.h</code>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>+---+---+---+---+
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>|       |       |
@@ -3185,7 +3304,7 @@
 <li><code>ResultadoClassificacao classificar(const DistanciasLaterais&amp; leitura) const</code>: sobrecarga conveniente para amostra única.</li>
 </ul>
 <h2 id="mapeamento-atualizacao-do-mapa">Mapeamento: atualização do mapa<a class="headerlink" href="#mapeamento-atualizacao-do-mapa" title="Permanent link">&para;</a></h2>
-<p>O módulo de mapeamento (<code>lib/mapeamento</code>) implementa a classe <code>AtualizadorMapa</code>, responsável por integrar a percepção à representação espacial: converte as observações relativas do LiDAR (frente, esquerda e direita) na pose atual do robô em direções cardeais absolutas (Norte, Leste, Sul e Oeste) e registra as paredes no <code>Mapa</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/177">#177</a>).</p>
+<p>O módulo de mapeamento (<code>lib/mapeamento</code>) implementa a classe <code>AtualizadorMapa</code>, responsável por integrar a percepção à representação espacial: converte as observações relativas dos sensores de distância (frente, esquerda e direita) na pose atual do robô em direções cardeais absolutas (Norte, Leste, Sul e Oeste) e registra as paredes no <code>Mapa</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/177">#177</a>).</p>
 <h3 id="regras-de-negocio-e-algoritmo_1">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Conversão de Eixos:</strong> A partir de <code>pose.direcao</code>, calcula a direção absoluta para cada lado via <code>direcaoAbsoluta</code>:</li>
@@ -3235,7 +3354,7 @@
 <p>A cada decisão, a <code>Navegacao</code> executa três etapas:</p>
 <ol>
 <li><strong>Calcula a distância de cada célula até o objetivo (<em>flood fill</em>).</strong> Uma busca em largura (BFS) parte do objetivo, com distância 0, e se espalha pelas células vizinhas; cada célula recebe o número mínimo de células até o objetivo. A fila é um vetor estático de 48 posições (o maior labirinto, 12×4), sem alocação dinâmica.</li>
-<li><strong>Considera o mapa de forma otimista.</strong> Só uma parede confirmada (<code>EstadoParede::Parede</code>) bloqueia a passagem, conferida nas duas células que ela separa. Paredes <code>Livre</code> e <code>Desconhecido</code> são tratadas como passagem. Por isso o algoritmo funciona com o mapa parcial: ele planeja como se o desconhecido estivesse aberto e, quando o LiDAR revela uma parede nova, o próximo cálculo já desvia dela. O <em>flood fill</em> é refeito em toda decisão, porque o mapa muda a cada célula visitada.</li>
+<li><strong>Considera o mapa de forma otimista.</strong> Só uma parede confirmada (<code>EstadoParede::Parede</code>) bloqueia a passagem, conferida nas duas células que ela separa. Paredes <code>Livre</code> e <code>Desconhecido</code> são tratadas como passagem. Por isso o algoritmo funciona com o mapa parcial: ele planeja como se o desconhecido estivesse aberto e, quando os sensores de distância revelam uma parede nova, o próximo cálculo já desvia dela. O <em>flood fill</em> é refeito em toda decisão, porque o mapa muda a cada célula visitada.</li>
 <li><strong>Escolhe a vizinha mais próxima do objetivo.</strong> Entre as quatro vizinhas que estão dentro do mapa e não têm parede conhecida no caminho, escolhe a de <strong>menor distância</strong>. No empate, a preferência é, nesta ordem: <strong>frente</strong> (mantém a direção atual, sem giro), <strong>direita</strong>, <strong>esquerda</strong> e <strong>trás</strong>. Seguir em frente evita manobras, que gastam tempo e acumulam erro de odometria.</li>
 </ol>
 <p>A decisão devolve <code>false</code>, sem direção, quando o robô já está no objetivo ou quando o objetivo é inalcançável pelas paredes conhecidas (a distância da célula atual é <code>DISTANCIA_INFINITA</code>, 255).</p>
@@ -3269,7 +3388,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Figura 6.</strong> Distâncias calculadas pelo <em>flood fill</em> num mapa 4×4 sem paredes internas conhecidas, com o objetivo (3, 3) no canto superior direito (0) e a partida (0, 0) no canto inferior esquerdo (6). Na partida, virado para o Norte, as vizinhas Norte (1, 0) e Leste (0, 1) empatam com distância 5; o desempate escolhe a frente, o Norte. Se o LiDAR revelar uma parede ao Norte, o próximo cálculo descarta essa vizinha e o robô segue para Leste.</p>
+<p><strong>Figura 6.</strong> Distâncias calculadas pelo <em>flood fill</em> num mapa 4×4 sem paredes internas conhecidas, com o objetivo (3, 3) no canto superior direito (0) e a partida (0, 0) no canto inferior esquerdo (6). Na partida, virado para o Norte, as vizinhas Norte (1, 0) e Leste (0, 1) empatam com distância 5; o desempate escolhe a frente, o Norte. Se os sensores revelarem uma parede ao Norte, o próximo cálculo descarta essa vizinha e o robô segue para Leste.</p>
 <h3 id="ciclo-de-um-passo-decisao-movimento-e-confirmacao-pelos-sensores">Ciclo de um passo: decisão, movimento e confirmação pelos sensores<a class="headerlink" href="#ciclo-de-um-passo-decisao-movimento-e-confirmacao-pelos-sensores" title="Permanent link">&para;</a></h3>
 <p>A <code>Navegacao</code> não considera que o robô andou só porque decidiu andar. Um passo tem três etapas, e cada uma tem um responsável:</p>
 <table>
@@ -3340,8 +3459,8 @@
 <p>A pose medida é sempre a referência: a navegação nunca “teletransporta” o robô para a célula que ela mesma escolheu. Se uma roda patinar ou uma parede impedir o movimento, os sensores informam onde o robô de fato está, e a decisão seguinte parte dali.</p>
 <h3 id="regras-de-negocio-e-algoritmo_3">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_3" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Leitura antes da decisão:</strong> a decisão usa as paredes da célula atual que já estão no mapa. Por isso o ciclo da navegação deve ler o LiDAR e atualizar o mapa (<code>AtualizadorMapa</code>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/177">#177</a>) antes de cada <code>darPasso()</code>; se a leitura falhar, o robô não decide e lê de novo, em vez de avançar com a parede da frente desconhecida. Os testes nos labirintos simulados seguem essa ordem; na <code>tarefaNavegacao</code> ela entra com a integração ao movimento.</li>
-<li><strong>Parede de trás:</strong> o LiDAR vê frente, esquerda e direita. A parede de trás é a passagem por onde o robô veio ou, na partida, a borda do labirinto, que o <code>Mapa</code> já conhece.</li>
+<li><strong>Leitura antes da decisão:</strong> a decisão usa as paredes da célula atual que já estão no mapa. Por isso o ciclo da navegação deve ler os sensores de distância e atualizar o mapa (<code>AtualizadorMapa</code>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/177">#177</a>) antes de cada <code>darPasso()</code>; se a leitura falhar, o robô não decide e lê de novo, em vez de avançar com a parede da frente desconhecida. Os testes nos labirintos simulados seguem essa ordem; na <code>tarefaNavegacao</code> ela entra com a integração ao movimento.</li>
+<li><strong>Parede de trás:</strong> os sensores de distância medem frente, esquerda e direita. A parede de trás é a passagem por onde o robô veio ou, na partida, a borda do labirinto, que o <code>Mapa</code> já conhece.</li>
 <li><strong>Becos sem saída:</strong> ao entrar num beco, as paredes reveladas aumentam a distância da célula, e o <em>flood fill</em> passa a apontar para trás; o robô volta sem precisar de regra especial.</li>
 <li><strong>Sem custo de giro:</strong> a distância conta células, não giros. O desempate pela frente reduz manobras, mas o caminho escolhido não é necessariamente o de menos curvas.</li>
 <li><strong>Erros de sensor:</strong> uma parede classificada como <code>Livre</code> por engano é tratada como passagem. A correção do erro acumulado pelas paredes é a <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/188">#188</a>.</li>
@@ -3714,13 +3833,13 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <h2 id="atuacao-centralizacao-no-corredor-e-parada-frontal">Atuação: centralização no corredor e parada frontal<a class="headerlink" href="#atuacao-centralizacao-no-corredor-e-parada-frontal" title="Permanent link">&para;</a></h2>
 <p>O módulo de atuação (<code>lib/atuacao</code>) leva o robô em linha reta mantendo-o no centro do corredor e o faz desacelerar e parar antes de uma parede frontal (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/191">#191</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/359">#359</a>). Atende aos critérios 1 e 2 da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/182">HU-12</a> (RF-12). Como não depende do Arduino, é testado no ambiente <code>native</code>; só o driver do DRV8833 fica em <code>drivers_esp32</code>.</p>
 <pre class="mermaid"><code>flowchart LR
-    lidar["ILidar&lt;br/&gt;frente, esquerda, direita"] --&gt; controle["ControleMovimento"]
+    lidar["Sensores de distância (ILidar)&lt;br/&gt;frente, esquerda, direita"] --&gt; controle["ControleMovimento"]
     controle --&gt; lateral["ControladorCentralizacao&lt;br/&gt;correção lateral (PD)"]
     controle --&gt; frontal["PerfilParadaFrontal&lt;br/&gt;potência base"]
     controle --&gt; motores["IMotores&lt;br/&gt;potência de cada roda"]
     motores -. implementa .-&gt; drv["MotoresDrv8833&lt;br/&gt;PWM nos GPIO 4 a 7"]
     motores -. implementa .-&gt; sim["MotoresSimulados&lt;br/&gt;testes"]</code></pre>
-<p><strong>Figura 9.</strong> Fluxo do controle de movimento: a cada leitura do LiDAR, a distância frontal define a potência base, as distâncias laterais definem a correção, e o resultado vai para os motores pela interface <code>IMotores</code>.</p>
+<p><strong>Figura 9.</strong> Fluxo do controle de movimento: a cada leitura dos sensores de distância, a distância frontal define a potência base, as distâncias laterais definem a correção, e o resultado vai para os motores pela interface <code>IMotores</code>.</p>
 <h3 id="geometria-considerada">Geometria considerada<a class="headerlink" href="#geometria-considerada" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -3763,26 +3882,26 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 </tr>
 </tbody>
 </table>
-<p>O cálculo considera o LiDAR no centro do robô, com o feixe abaixo do topo das paredes (5 cm). A folga lateral é pequena: ao virar de volta para o centro, a traseira do chassi gira para o lado da parede. Por isso o controle corrige com ângulos pequenos e ganhos baixos.</p>
+<p>O cálculo foi feito para um único sensor no centro do robô, com o feixe abaixo do topo das paredes (5 cm). Na Rev 2.0, cada VL53L0X fica numa posição diferente do chassi, que a estrutura ainda vai informar; os limiares serão recalculados para os 3 sensores na <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/379">#379</a>. A folga lateral é pequena: ao virar de volta para o centro, a traseira do chassi gira para o lado da parede. Por isso o controle corrige com ângulos pequenos e ganhos baixos.</p>
 <h3 id="regras-de-negocio-e-algoritmo_8">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_8" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Erro lateral:</strong> deslocamento do robô para a direita do centro, em mm. Com parede dos dois lados, é <code>(esquerda − direita) / 2</code>; só com a da esquerda, <code>esquerda − 84</code>; só com a da direita, <code>84 − direita</code>. Leituras acima de 180 mm contam como lado sem parede; sem parede nenhuma, não há correção e o robô segue reto.</li>
-<li><strong>Correção PD:</strong> <code>(20 × erro + 15 × derivada) / 10</code>, em unidades de potência, limitada a 250. A derivada é a variação do erro entre leituras, em mm/s, com filtro passa-baixa de 40% contra o ruído do LiDAR. Ela recomeça do zero quando a referência muda (por exemplo, quando uma parede lateral acaba), para não reagir ao salto da leitura.</li>
+<li><strong>Correção PD:</strong> <code>(20 × erro + 15 × derivada) / 10</code>, em unidades de potência, limitada a 250. A derivada é a variação do erro entre leituras, em mm/s, com filtro passa-baixa de 40% contra o ruído dos sensores de distância. Ela recomeça do zero quando a referência muda (por exemplo, quando uma parede lateral acaba), para não reagir ao salto da leitura.</li>
 <li><strong>Aplicação nas rodas:</strong> a correção é subtraída da roda esquerda e somada à direita (positiva vira para a esquerda) e nunca passa de 60% da potência base, para nenhuma roda girar para trás perto da parada.</li>
 <li><strong>Parada frontal:</strong> potência de cruzeiro (400 de 1000) até 264 mm da parede, rampa linear até a mínima (150) e parada a 84 mm, o centro da célula. Parado, o robô freia e fica travado até a navegação chamar <code>reiniciar()</code>.</li>
-<li><strong>Fail-safe do LiDAR:</strong> sem leitura válida, o robô segue reto na potência mínima e sem correção; depois de 500 ms sem leitura, freia.</li>
+<li><strong>Fail-safe dos sensores de distância:</strong> sem leitura válida, o robô segue reto na potência mínima e sem correção; depois de 500 ms sem leitura, freia.</li>
 <li><strong>Motores:</strong> potência de −1000 a 1000 por roda, positiva para a frente (a mesma convenção do <code>IEncoder</code>). O <code>MotoresDrv8833</code> usa PWM de 20 kHz e 10 bits, no modo <em>fast decay</em> do DRV8833, e freia ligando IN1 e IN2. O motor direito é invertido no <code>main.cpp</code>, pela montagem espelhada.</li>
 </ul>
 <p>Os ganhos, as potências e as distâncias de desaceleração estão em <code>ConfiguracaoControle.h</code> e são <strong>provisórios</strong>: foram ajustados numa simulação do corredor (<a href="../../07-testes/software/">Testes de Software</a>) e precisam ser confirmados na bancada.</p>
 <h3 id="interface-da-classe_7">Interface da Classe<a class="headerlink" href="#interface-da-classe_7" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong><code>ControleMovimento::atualizar(ILidar&amp;, IMotores&amp;, dtMs)</code>:</strong> lê o LiDAR, calcula e aplica nos motores; chame uma vez por leitura nova do LiDAR (cerca de 100 ms). Devolve o <code>EstadoMovimento</code>: <code>Cruzeiro</code>, <code>Desacelerando</code>, <code>ParadoNaParede</code>, <code>SemLeitura</code> ou <code>ParadoSemLeitura</code>.</li>
+<li><strong><code>ControleMovimento::atualizar(ILidar&amp;, IMotores&amp;, dtMs)</code>:</strong> lê os sensores de distância, calcula e aplica nos motores; chame uma vez por leitura nova (cerca de 100 ms). Devolve o <code>EstadoMovimento</code>: <code>Cruzeiro</code>, <code>Desacelerando</code>, <code>ParadoNaParede</code>, <code>SemLeitura</code> ou <code>ParadoSemLeitura</code>.</li>
 <li><strong><code>ControleMovimento::calcular(const DistanciasLaterais*, dtMs)</code>:</strong> a mesma conta sem acessar o hardware; <code>nullptr</code> representa a falta de leitura. Devolve <code>PotenciaRodas</code> (<code>esquerda</code>, <code>direita</code>).</li>
 <li><strong><code>ControleMovimento::reiniciar()</code>:</strong> destrava a parada e esquece o histórico da centralização, para um novo trecho reto.</li>
 <li><strong><code>ControladorCentralizacao::calcular(leitura, dtMs)</code></strong> e <strong><code>PerfilParadaFrontal::potenciaBase(frenteMm)</code>:</strong> as duas partes, testadas separadamente.</li>
 </ul>
 <p><strong>Rastreabilidade:</strong> <code>lib/atuacao</code> (<code>ControleMovimento</code>, <code>ControladorCentralizacao</code>, <code>PerfilParadaFrontal</code>, <code>SinaisDrv8833</code>), <code>lib/hal/IMotores</code>, <code>lib/simulacao/MotoresSimulados</code> e <code>lib/drivers_esp32/MotoresDrv8833</code> atendem à tarefa <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/191">#191</a>, da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/182">HU-12</a> (RF-12).</p>
-<p><strong>Pendências:</strong> o critério 3 da HU-12 (teste de bancada no labirinto sem contato com as paredes) depende do chassi montado e da pista 4×4. O <code>ControleMovimento</code> ainda não está na tarefa de navegação: entra junto com o LiDAR e a navegação (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/183">#183</a>).</p>
+<p><strong>Pendências:</strong> o critério 3 da HU-12 (teste de bancada no labirinto sem contato com as paredes) depende do chassi montado e da pista 4×4. O <code>ControleMovimento</code> ainda não está na tarefa de navegação: entra junto com os sensores de distância e a navegação (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/183">#183</a>).</p>
 <h2 id="testes">Testes<a class="headerlink" href="#testes" title="Permanent link">&para;</a></h2>
 <p>Os testes rodam no computador, no ambiente <code>native</code>, com o framework <strong>Unity</strong>. Cada módulo tem sua pasta <code>test/test_&lt;modulo&gt;/</code>.</p>
 <table>
@@ -4142,7 +4261,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <tr>
 <td></td>
 <td><code>test_resolucao_com_falhas_de_leitura</code></td>
-<td>Com o LiDAR falhando uma a cada 3 leituras, o robô não decide sem leitura e ainda chega ao objetivo do 4×4</td>
+<td>Com o sensor de distância falhando uma a cada 3 leituras, o robô não decide sem leitura e ainda chega ao objetivo do 4×4</td>
 </tr>
 <tr>
 <td><code>test_odometria/test_odometria.cpp</code></td>
@@ -4306,7 +4425,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 </tr>
 <tr>
 <td><code>ILidar</code>, <code>DistanciasLaterais</code></td>
-<td>Base para <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/173">#173</a> Driver do LiDAR e <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/174">#174</a> Classificação</td>
+<td>Base para <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a> Driver dos VL53L0X (antes, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/173">#173</a>, do LiDAR) e <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/174">#174</a> Classificação</td>
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/36">HU-02</a> (RF02)</td>
 </tr>
 <tr>
@@ -4318,6 +4437,11 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <td><code>MAX_LINHAS_LABIRINTO</code>, <code>MAX_COLUNAS_LABIRINTO</code></td>
 <td>Base para <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/179">#179</a> Mapa em memória</td>
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/38">HU-04</a> (RF04)</td>
+</tr>
+<tr>
+<td><code>Pinos.h</code> (pinagem Rev 2.0) e log pela USB nativa</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/377">#377</a> Pinagem Rev 2.0 e placa Super Mini</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/36">HU-02</a> (RF02)</td>
 </tr>
 <tr>
 <td><code>PERIODO_TELEMETRIA_MS</code>, <code>tarefaTelemetria</code></td>
@@ -4374,15 +4498,85 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <h2 id="proximos-passos">Próximos passos<a class="headerlink" href="#proximos-passos" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Simulador de labirinto</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/224">#224</a>), concluído: a atualização do mapa (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/177">#177</a>) já pode ser validada num labirinto simulado inteiro (veja <a href="#labirinto-simulado-labirintosimulado">Labirinto simulado</a>).</li>
-<li><strong>CI do firmware</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/223">#223</a>), concluído no PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/295">#295</a>: todo PR para a <code>main</code> roda os testes nativos com cobertura mínima de 80% e o build do ESP32-C3. Falta o administrador do repositório proteger a <code>main</code> exigindo os dois checks.</li>
-<li><strong>Tarefas da Sprint 2:</strong> driver do LiDAR, classificação <code>parede</code>/<code>livre</code>, estrutura do mapa e armazenamento em memória, cada uma na pasta da sua camada e com testes em <code>test/</code>.</li>
-<li><strong>Validar com o hardware:</strong> o conflito dos pinos da UART0 e o primeiro teste gravado na placa (o projeto base foi compilado, mas ainda não gravado).</li>
+<li><strong>CI do firmware</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/223">#223</a>), concluído no PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/295">#295</a>: todo PR para a <code>main</code> roda os testes nativos com cobertura mínima de 80% e o build do ESP32-C3. Os checks são obrigatórios na proteção da <code>main</code>.</li>
+<li><strong>Rev 2.0 do hardware:</strong> pinagem concluída (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/377">#377</a>); em revisão, o driver dos 3 VL53L0X (PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/391">#391</a>), a IMU (PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/403">#403</a>) e a detecção de motor travado (PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/396">#396</a>); abertos, os limiares para os VL53L0X (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/379">#379</a>) e o deslocamento sem encoder (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380">#380</a>). A remoção do código do LiDAR (<code>lib/lidar</code>) e a troca do nome <code>ILidar</code> para um nome de sensor de distância ficam para um PR de código.</li>
+<li><strong>Validar com o hardware:</strong> a bancada da Rev 2.0 (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/381">#381</a>): I²C com os 3 VL53L0X e o MPU6050, motores N20 e o tranco no boot pelos GPIO20/21 (veja <a href="#pinagem">Pinagem</a>).</li>
 <li><strong>Formato JSON do mapa</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/178">#178</a>): o formato foi validado com as outras equipes. O dashboard (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/239">#239</a>) aceitou o JSON e vai tratar <code>null</code> como área não explorada, e a tabela <code>mapa_celulas</code> passou a aceitar <code>null</code> nas colunas <code>parede_*</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/228">#228</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/328">#328</a>). Falta o envio de fato da lista de células ao banco, que entra com a telemetria (Épico 03).</li>
 <li><strong>Mapa final serializado</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/180">#180</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/330">#330</a>), concluído: o mapa é congelado e serializado ao alcançar o objetivo e testado no labirinto simulado. Falta a navegação chamar <code>congelarMapa()</code> quando detectar o objetivo (Épico 02) e o envio do JSON do mapa final ao servidor, vinculado à corrida criada pela Edge Function <code>corridas</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/233">#233</a>), no Épico 03.</li>
 <li><strong>Algoritmo de resolução sobre o mapa</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/183">#183</a>), concluído: a <code>Navegacao</code> decide o próximo passo por <em>flood fill</em> com o mapa parcial e foi testada nos labirintos simulados 4×4, 8×4 e 12×4 (veja <a href="#navegacao-algoritmo-de-resolucao-do-labirinto">Navegação: algoritmo de resolução do labirinto</a>). Falta ligar a navegação ao robô: o controle de movimento (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/184">#184</a>) executa a direção decidida, e a odometria (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/187">#187</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/343">#343</a>) informa a pose a <code>confirmarPose()</code>, dentro de <code>tarefaNavegacao</code>.</li>
 <li><strong>Detecção do objetivo</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/189">#189</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/351">#351</a>), concluídos: o robô detecta a chegada à célula objetivo (canto diametralmente oposto à partida), freia os motores imediatamente via DRV8833, congela o mapa explorado através de <code>congelarMapa()</code> e emite o evento <code>objetivo_alcancado</code> na telemetria JSON periódica. Falta o envio do JSON do mapa final ao servidor, vinculado à corrida criada pela Edge Function <code>corridas</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/233">#233</a>), no Épico 03.</li>
 <li><strong>Odometria</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/187">#187</a>): a lógica, os testes no computador e a ligação no <code>main.cpp</code> estão prontos. Falta a bancada: medir os pulsos de diferença entre as rodas num giro de 90° (hoje 625, provisório), testar giros de 90° e 180° e um percurso de 3 células, e registrar o erro.</li>
 </ul>
+<h2 id="historico-de-versoes">Histórico de versões<a class="headerlink" href="#historico-de-versoes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><strong>Versão</strong></th>
+<th style="text-align: center;"><strong>Data</strong></th>
+<th><strong>Descrição</strong></th>
+<th><strong>Autor(es)</strong></th>
+<th><strong>Revisor(es)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">04/10/2026</td>
+<td>Projeto base: camadas, ambientes, tipos, pinagem, <code>ILidar</code> e <code>LidarSimulado</code>, tarefas do FreeRTOS e testes (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/172">#172</a>)</td>
+<td>Ana Carolina Fialho</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">0.2</td>
+<td style="text-align: center;">05/10/2026</td>
+<td>Classificação parede/livre (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/174">#174</a>)</td>
+<td>Rafael Lima</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">0.3</td>
+<td style="text-align: center;">07/10/2026</td>
+<td>Início do labirinto simulado (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/224">#224</a>)</td>
+<td>Ana Carolina Fialho</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">0.4</td>
+<td style="text-align: center;">13/10/2026</td>
+<td>Labirinto simulado concluído; ajustes do classificador; atualização do mapa (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/224">#224</a>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/174">#174</a>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/177">#177</a>)</td>
+<td>Cláudio Henrique, Rafael Lima</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">0.5</td>
+<td style="text-align: center;">16/10/2026</td>
+<td>Formato JSON do mapa e sua validação; mapa final serializado (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/178">#178</a>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/180">#180</a>)</td>
+<td>Marllon Fausto, Cláudio Henrique, Eduardo Viana</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">0.6</td>
+<td style="text-align: center;">19/10/2026</td>
+<td>Odometria; centralização no corredor e parada frontal (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/187">#187</a>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/191">#191</a>)</td>
+<td>Cláudio Henrique, Eduardo Viana</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">0.7</td>
+<td style="text-align: center;">22/10/2026</td>
+<td>Algoritmo de resolução; detecção do objetivo e evento na telemetria (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/183">#183</a>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/189">#189</a>)</td>
+<td>Rafael Lima</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.0</td>
+<td style="text-align: center;">23/10/2026</td>
+<td>Atualização para a Rev 2.0 do hardware: seção nova, pinagem conferida com o esquemático, sensores de distância VL53L0X no lugar do LiDAR, pastas e próximos passos; criação deste histórico (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/382">#382</a>)</td>
+<td>Ana Carolina Fialho</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
 
 
 
