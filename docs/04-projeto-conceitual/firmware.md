@@ -464,7 +464,7 @@ flowchart LR
 
 ## Orientação: IMU e ângulo de giro
 
-> **Situação:** a lógica está pronta e testada no computador, com um giroscópio simulado ([#378](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378), PR [#403](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/403)). O driver do MPU6050 no ESP32-C3 e a proteção do barramento I²C ainda estão em desenvolvimento, então **ainda não houve leitura do sensor real**.
+> **Situação:** a lógica, o driver do MPU6050 no ESP32-C3, a proteção do barramento I²C e a tarefa da IMU estão prontos e testados no computador, com um giroscópio simulado ([#378](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378), PR [#403](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/403)). O firmware compila para o `esp32c3`, mas **ainda não houve leitura do sensor real**: ela faz parte da bancada integrada ([#381](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/381)).
 
 Na Rev 2.0 do hardware, o robô tem uma IMU **MPU6050** no mesmo barramento I²C dos três VL53L0X (SDA no GPIO9 e SCL no GPIO8, endereço 0x68). O firmware usa o **giroscópio do eixo Z**, que mede a taxa de giro em torno do eixo vertical, para saber quanto o robô girou (o ângulo de giro, ou *yaw*). É a base dos giros de 90° e 180° ([#190](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/190)) e da calibração ([#240](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/240)).
 
@@ -490,17 +490,52 @@ flowchart LR
 |---|---|---|
 | Endereço I²C | 0x68 | Pino AD0 no GND, esquemático Rev 2.0 |
 | Faixa do giroscópio | ±500 °/s (65,5 LSB por °/s) | Um giro de 90° em 0,3 s passa de 300 °/s; ±250 °/s saturaria |
-| Período de leitura | 10 ms | Ciclo da tarefa de navegação |
+| Período de leitura | 10 ms | Ciclo da tarefa da IMU, igual à taxa de amostragem configurada no sensor (100 por segundo) |
 | Amostras da calibração | 200 (2 s) | **Provisório** |
 | Variação máxima na calibração | 5 °/s | **Provisório** |
 | Zona morta | 0,3 °/s | **Provisório**; ajustar com o ruído medido na bancada |
+| Sensor de cabeça para baixo (`INVERTER_GIRO_Z`) | `false` | **Provisório**; conferir na bancada: girando o robô para a esquerda com a mão, a taxa tem que ser positiva |
+| Falhas seguidas que invalidam o ângulo (`FALHAS_SEGUIDAS_GIRO_INVALIDO`) | 5 (50 ms) | **Provisório** |
+| Frequência do I²C (`FREQUENCIA_I2C_HZ`, em `Configuracao.h`) | 100 kHz | Modo padrão, aceito pelo MPU6050 e pelos VL53L0X |
+| Espera máxima pelo barramento (`ESPERA_MAXIMA_I2C_MS`, em `Configuracao.h`) | 8 ms | Menor que o período de leitura, para a tarefa nunca perder o ritmo esperando o barramento |
+
+### Driver, barramento I²C e tarefa da IMU
+
+O driver (`ImuMpu6050`) e o barramento (`BarramentoI2c`) ficam em `lib/drivers_esp32`, que só compila no ambiente `esp32c3`: os registradores do MPU6050 aparecem só ali, e o `pio test -e native` não depende deles. As contas que dá para testar no computador (montar o valor dos dois bytes, o valor do registrador da faixa e a inversão do sinal) ficam em `ConversorGiro.h` e têm teste.
+
+```mermaid
+flowchart LR
+    nav["tarefaNavegacao<br/>(3 VL53L0X)"] -->|"BarramentoI2c::Uso"| bar["BarramentoI2c<br/>Wire + mutex"]
+    imuT["tarefaImu, a cada 10 ms<br/>ImuMpu6050 + AcompanhadorGiro"] -->|"BarramentoI2c::Uso"| bar
+    bar --> fios(["SDA GPIO9 · SCL GPIO8"])
+    imuT -->|"cópia em seção crítica"| leit["LeituraGiro<br/>taxa, ângulo, válida"]
+    leit -->|"lerGiro()"| outras["navegação, proteção dos motores,<br/>giros de 90° e 180°"]
+```
+
+**Figura 11.** O barramento I²C compartilhado: as duas tarefas só falam com os sensores dentro de um `BarramentoI2c::Uso`, e as outras partes do firmware leem o giro pela cópia `LeituraGiro`, sem tocar no I²C.
+
+* **Iniciar o sensor:** `ImuMpu6050::iniciar()` reinicia o MPU6050 (`PWR_MGMT_1` = 0x80 e espera de 100 ms), lê o `WHO_AM_I` (0x68 no MPU6050), tira o sensor do sono usando o relógio do giroscópio X, liga o filtro passa-baixa de 42 Hz (`CONFIG` = 0x03), divide a amostragem para 100 por segundo (`SMPLRT_DIV` = 9) e grava a faixa em `GYRO_CONFIG`. No fim, relê `GYRO_CONFIG` e só aceita o sensor se a faixa ficou gravada, porque uma faixa errada mudaria a escala de todas as leituras.
+* **Ler o giro:** cada leitura busca os dois bytes do eixo Z (`GYRO_ZOUT_H` e `GYRO_ZOUT_L`, 0x47 e 0x48) numa só transação, com início repetido (sem STOP entre a escrita do registrador e a leitura), como pede o datasheet. Se chegarem menos bytes que o pedido, o que sobrou no `Wire` é descartado, para a próxima leitura não pegar bytes velhos.
+* **Barramento compartilhado:** os 3 VL53L0X, lidos pela tarefa de navegação, e o MPU6050, lido pela tarefa da IMU, usam os mesmos fios. Uma transação no meio de outra misturaria os bytes dos sensores, então **toda transação I²C passa por um `BarramentoI2c::Uso`**, que segura um mutex do FreeRTOS e o libera ao sair do bloco. A proteção é um mutex, e não uma seção crítica (`portENTER_CRITICAL`): a seção crítica desliga as interrupções, de que o driver I²C do ESP32 depende. Com o mutex, quem espera dorme, e a herança de prioridade evita que a tarefa da IMU fique presa atrás de uma de prioridade menor. Se o barramento não vier em 8 ms, a leitura falha e é contada (`esperasEsgotadas`), em vez de atrasar a tarefa.
+* **Intervalo fixo:** a `tarefaImu` usa `vTaskDelayUntil`, que acorda a cada 10 ms contados do início do ciclo anterior. Assim, o tempo gasto na leitura não se soma ao período, e o `dt` da integração é sempre 10 ms.
+* **Acompanhamento do ângulo:** o `AcompanhadorGiro` faz um ciclo da tarefa: lê o sensor, alimenta a calibração ou o integrador e publica a `LeituraGiro`. Se a calibração for recusada porque o robô se mexeu, ela recomeça sozinha com as próximas amostras. Uma leitura que falhou não soma nada ao ângulo; com 5 falhas seguidas, a leitura passa a ser **inválida** até o sensor voltar a responder. Antes da calibração terminar, a leitura também é inválida: só use o ângulo para controle com `valida` verdadeiro.
+* **Leitura pelas outras tarefas:** a tarefa da IMU guarda a `LeituraGiro` numa cópia protegida por uma seção crítica curta (só a cópia da estrutura), e as outras tarefas a leem por `lerGiro()`.
+* **Log:** no `setup()`, o log mostra `imu_iniciada` com o `who_am_i`, ou `falha_imu` se o sensor não respondeu (o firmware segue sem ângulo válido). Quando a calibração termina, sai `giroscopio_calibrado`, com o número de calibrações recusadas.
+
+A `tarefaImu` (prioridade 3, pilha de 3072 bytes; veja [Tarefas do FreeRTOS](#tarefas-do-freertos)) tem a maior prioridade do firmware porque o ângulo só fica certo se as leituras vierem no intervalo certo. Ela é curta: cada ciclo é uma transação I²C de 2 bytes e algumas contas com inteiros.
 
 ### Interface das Classes
 
 * **`IImu`** (`lib/hal`): `bool lerTaxaGiroZ(int16_t& taxaDecimosDps)`; `false` se o sensor não respondeu.
 * **`ImuSimulado`** (`lib/simulacao`): giroscópio falso para os testes, com `definirTaxa`, `definirVies`, `definirRuidoAlternado` e `simularFalha`.
 * **`converterBrutoParaDecimosDps(bruto, faixa)`** (`ConversorGiro.h`): converte a leitura bruta do MPU6050, com arredondamento.
+* **`juntarBytesGiro(alto, baixo)`**, **`valorGyroConfig(faixa)`** e **`ajustarSinalGiro(taxa, inverter)`** (`ConversorGiro.h`): montam o valor de 16 bits a partir dos dois bytes, dão o valor do registrador `GYRO_CONFIG` de cada faixa e invertem o sinal sem estourar o `int16_t`.
 * **`IntegradorGiro`** (`lib/imu`): `iniciarCalibracao()`, `adicionarAmostraCalibracao(taxa)`, `atualizar(taxa, dtMs)`, `anguloMiligraus()`, `anguloNormalizadoMiligraus()` e `zerarAngulo()`.
+* **`AcompanhadorGiro`** (`lib/imu`): `iniciarCalibracao()`, `ciclo(dtMs)`, `ultima()` e `zerarAngulo()`. A `LeituraGiro` traz `taxaDecimosDps` (sem o viés), `anguloMiligraus`, `valida`, `calibracao`, `falhasLeitura` e `calibracoesRecusadas`.
+* **`ImuMpu6050`** (`lib/drivers_esp32`): `IImu` real; `iniciar()`, `identificacao()` (o `WHO_AM_I` lido) e `falhasLeitura()`.
+* **`BarramentoI2c`** (`lib/drivers_esp32`): `iniciar(sda, scl)`, que cria o mutex e inicia o `Wire`; a classe `Uso`, que segura o barramento enquanto existe (`conseguiu()` diz se deu tempo); `wire()`; e `esperasEsgotadas()`.
+
+O driver dos VL53L0X ([#344](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344), PR [#391](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/391)) também precisa fazer cada leitura dentro de um `BarramentoI2c::Uso`. Enquanto ele usar o `Wire` direto, a proteção só vale de um lado.
 
 ## Navegação: detecção do objetivo e evento na telemetria
 
@@ -608,6 +643,7 @@ Criadas em `src/main.cpp`. Navegação e telemetria rodam de forma concorrente, 
 |---|---|---|---|---|
 | `tarefaNavegacao` | 10 ms | 2 | 4096 bytes | Ciclo percepção → decisão → atuação |
 | `tarefaTelemetria` | 1000 ms (`PERIODO_TELEMETRIA_MS`) | 1 | 4096 bytes | Coleta e envio de telemetria |
+| `tarefaImu` | 10 ms (`PERIODO_LEITURA_IMU_MS`), em intervalo fixo (`vTaskDelayUntil`) | 3 | 3072 bytes | Ler o giroscópio, calibrar o viés, integrar o ângulo de giro e publicar a `LeituraGiro` ([#378](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378)) |
 
 A navegação tem prioridade maior para que o envio de dados nunca atrase o controle do robô. Por enquanto, as duas tarefas têm só o laço e a espera; a lógica entra nas tarefas das próximas sprints.
 
@@ -804,7 +840,7 @@ Ao investigar uma falha, compare o esperado com o obtido: ou o código tem um er
 | `lib/navegacao` (`Navegacao`) | [#183](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/183) Algoritmo de resolução sobre o mapa | [HU-01](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/42) (RF01) |
 | `lib/navegacao` (`Odometria`) | [#187](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/187) Orientação e posição na malha | [HU-05](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/41) (RF05) |
 | `lib/navegacao` (`DetectorObjetivo`), `lib/comunicacao` (`TelemetriaJson`) | [#189](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/189) Detecção da célula objetivo e evento na telemetria | [HU-07](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/43) (RF07) |
-| `lib/hal` (`IImu`), `lib/simulacao` (`ImuSimulado`), `lib/imu` (`IntegradorGiro`, `ConversorGiro`) | [#378](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378) Driver do MPU6050 e ângulo de giro | [HU-05](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/41) (RF05) |
+| `lib/hal` (`IImu`), `lib/simulacao` (`ImuSimulado`), `lib/imu` (`IntegradorGiro`, `ConversorGiro`, `AcompanhadorGiro`), `lib/drivers_esp32` (`ImuMpu6050`, `BarramentoI2c`), `tarefaImu` | [#378](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378) Driver do MPU6050 e ângulo de giro | [HU-05](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/41) (RF05) |
 
 ## Próximos passos
 

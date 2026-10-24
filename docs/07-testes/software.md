@@ -1679,7 +1679,7 @@ Os testes verificaram os critérios de aceitação definidos na issue #235 e na 
 ### Sprint 5 · IMU MPU6050 e ângulo de giro (testes com giroscópio simulado)
 
 !!! warning "Testes em simulação"
-    Todos os testes deste registro rodaram **no computador**, com o giroscópio simulado `ImuSimulado` no lugar do MPU6050. Os valores de taxa, viés e ruído foram **definidos pelos testes** para reproduzir as condições do sensor real. **Ainda não houve leitura do MPU6050 real:** o driver no ESP32-C3 e a proteção do barramento I²C estão em desenvolvimento ([#378](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378)), e a validação na placa faz parte da bancada integrada ([#381](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/381)).
+    Todos os testes deste registro rodaram **no computador**, com o giroscópio simulado `ImuSimulado` no lugar do MPU6050. Os valores de taxa, viés e ruído foram **definidos pelos testes** para reproduzir as condições do sensor real. **Ainda não houve leitura do MPU6050 real:** o driver no ESP32-C3 e a proteção do barramento I²C foram escritos e compilam para o `esp32c3` (veja [Driver, barramento I²C e tarefa da IMU](#driver-barramento-i2c-e-tarefa-da-imu)), mas a validação na placa faz parte da bancada integrada ([#381](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/381)).
 
 | Item | Valor |
 |---|---|
@@ -1699,9 +1699,10 @@ Os testes verificaram os critérios de aceitação definidos na issue #235 e na 
 |---|---|:-:|
 | `IImu` e `ImuSimulado`, com testes no computador | 5 testes da `ImuSimulado` (viés, ruído, falha, saturação, uso pela interface) | Aprovado |
 | Faixa de medição em arquivo de configuração e conversão da leitura | 5 testes da conversão (4 faixas, sinal, arredondamento, fundo de escala, faixa cobre giro rápido) | Aprovado |
-| Integração do yaw com viés removido (giro, deriva e viés simulados) | 16 testes unitários do `IntegradorGiro` e 3 de integração | Aprovado |
-| I²C compartilhado com os ToF, protegido contra uso simultâneo | Parte do driver | Pendente |
-| Biblioteca do sensor só no `esp32c3` | Parte do driver | Pendente |
+| Integração do yaw com viés removido (giro, deriva e viés simulados) | 16 testes unitários do `IntegradorGiro`, 3 de integração e 7 do `AcompanhadorGiro` | Aprovado |
+| Leitura do giroscópio Z em intervalo fixo | `tarefaImu` com `vTaskDelayUntil` a cada 10 ms; os 7 testes do `AcompanhadorGiro` simulam o ciclo dela | Aprovado no computador; intervalo real na bancada |
+| I²C compartilhado com os ToF, protegido contra uso simultâneo | `BarramentoI2c` com mutex do FreeRTOS, usado por toda transação do `ImuMpu6050`. Não há teste no computador (o mutex é do FreeRTOS) | Aprovado do lado da IMU; o driver dos ToF (PR [#391](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/391)) ainda precisa usar o `BarramentoI2c::Uso` |
+| Registradores do sensor só no `esp32c3`, e `pio test -e native` passando | Registradores só em `drivers_esp32/ImuMpu6050.cpp`; contas puras em `ConversorGiro.h`, com 3 testes; suíte nativa completa aprovada | Aprovado |
 
 #### Testes unitários e de integração
 
@@ -1779,7 +1780,56 @@ Para conferir se os testes detectam erros, e não só passam, 17 alterações pr
 | Correção | O teste `test_amostra_fora_de_calibracao_e_ignorada` passou a usar uma calibração de 1 amostra, em que a alteração calibraria sozinha |
 | Rodada final | **17 de 17 alterações detectadas** |
 
+#### Driver, barramento I²C e tarefa da IMU
+
+Segunda parte da [#378](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378): o driver do MPU6050, o barramento I²C protegido, o `AcompanhadorGiro` e a tarefa da IMU no `main.cpp` (documentação em [Driver, barramento I²C e tarefa da IMU](../04-projeto-conceitual/firmware.md#driver-barramento-i2c-e-tarefa-da-imu)).
+
+| Item | Valor |
+|---|---|
+| Código testado | `lib/imu/src/AcompanhadorGiro`, `ConversorGiro.h`, `lib/drivers_esp32/src/ImuMpu6050` e `BarramentoI2c`, `src/main.cpp` (branch `feat/378-driver-do-mpu6050-e-ângulo-de-giro-yaw`, commits `39fc912`, `54ba2f6` e `f8f0f07`, PR [#403](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/403)) |
+| Data da execução | 24/10/2026 |
+| Executado por | Eduardo Viana |
+| Tipo de teste | Unitário, no computador, com o `ImuSimulado`; compilação para o `esp32c3` |
+
+**Ambiente de execução:** Linux (Ubuntu 24.04), GCC 13.3, Unity 2.6.1 e ArduinoJson 7.4.2, com as mesmas bibliotecas do ambiente `native` (todas as de `lib/`, menos `drivers_esp32`). Cobertura medida com `gcov`, somando todas as suítes.
+
+```bash
+pio test -e native -f test_imu
+```
+
+| Grupo | Casos | Nível | O que verificam |
+|---|:-:|---|---|
+| Registradores e bytes do sensor | 3 | Unitário | Valor de `GYRO_CONFIG` para as 4 faixas (0x00, 0x08, 0x10, 0x18); os dois bytes do eixo Z viram o valor de 16 bits em complemento de dois; sensor de cabeça para baixo inverte o sinal sem estourar em −32 768 |
+| `AcompanhadorGiro` (ciclo da tarefa da IMU) | 7 | Unitário | Calibra na largada e só então fica válido; giro de 90° integrado sem o viés; calibração recusada por movimento recomeça sozinha; 5 falhas seguidas invalidam o ângulo e uma leitura boa o revalida; sem calibrar não é válido, mas integra; falha durante a calibração não conta amostra; taxa publicada sem o viés não estoura o `int16_t` |
+
+**Resultado:** `test_imu` com **39 de 39 aprovados** (os 29 da primeira parte e os 10 novos).
+
+```text
+test/test_imu/test_imu.cpp:535: test_valor_do_gyro_config_para_cada_faixa [PASSED]
+test/test_imu/test_imu.cpp:536: test_juntar_bytes_em_complemento_de_dois [PASSED]
+test/test_imu/test_imu.cpp:537: test_sensor_de_cabeca_para_baixo_inverte_o_sinal [PASSED]
+test/test_imu/test_imu.cpp:562: test_acompanhador_calibra_na_largada_e_so_entao_fica_valido [PASSED]
+test/test_imu/test_imu.cpp:563: test_acompanhador_integra_um_giro_de_90_graus_sem_o_vies [PASSED]
+test/test_imu/test_imu.cpp:564: test_acompanhador_recomeca_a_calibracao_se_o_robo_se_mexer [PASSED]
+test/test_imu/test_imu.cpp:565: test_acompanhador_falhas_seguidas_invalidam_o_angulo [PASSED]
+test/test_imu/test_imu.cpp:566: test_acompanhador_sem_calibrar_nao_e_valido_mas_integra [PASSED]
+test/test_imu/test_imu.cpp:567: test_acompanhador_falha_durante_a_calibracao_nao_conta_amostra [PASSED]
+test/test_imu/test_imu.cpp:568: test_acompanhador_taxa_publicada_nao_estoura_com_o_vies [PASSED]
+```
+
+| Arquivo | Linhas | Cobertura |
+|---|:-:|:-:|
+| `lib/imu/src/AcompanhadorGiro.cpp` | 39 | 100% |
+| `lib/imu/src/ConversorGiro.h` | 12 | 100% |
+| `lib/imu/src/IntegradorGiro.cpp` | 45 | 100% |
+| `lib/simulacao/src/ImuSimulado.h` | 22 | 100% |
+| **Total do firmware** (`lib/`, com a `main` de 23/10 já mesclada) | 1243 | **98,4%** |
+
+Suíte completa do firmware nesta branch: **314 de 314 aprovados**, em 20 suítes.
+
+**Compilação para a placa.** `main.cpp`, `ImuMpu6050.cpp` e `BarramentoI2c.cpp` passaram pela verificação de sintaxe com os cabeçalhos do Arduino-ESP32 2.x e 3.x. O driver e o barramento não têm teste no computador, porque dependem do `Wire` e do FreeRTOS; o build completo (`pio run -e esp32c3`) é conferido pelo CI do PR, e o comportamento real, na bancada.
+
 #### Pendências desta etapa
 
-- Driver do MPU6050 no ESP32-C3, leitura a cada 10 ms e proteção do barramento I²C compartilhado com os VL53L0X (parte de Eduardo Viana na #378).
-- Leitura do sensor real na bancada: viés e ruído do MPU6050 parado, para ajustar a zona morta e os limites da calibração (#381).
+- Driver dos VL53L0X (PR [#391](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/391)): fazer cada leitura dentro de um `BarramentoI2c::Uso`, para a proteção do barramento valer também do lado dos ToF.
+- Leitura do sensor real na bancada ([#381](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/381)): `imu_iniciada` com `who_am_i` 0x68 no log, sinal do giro (`INVERTER_GIRO_Z`), viés e ruído do MPU6050 parado, para ajustar a zona morta e os limites da calibração, e um giro de 90° feito à mão conferido no ângulo.
