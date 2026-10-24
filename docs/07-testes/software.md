@@ -1945,3 +1945,187 @@ A infraestrutura entregue nesta issue desbloqueia a escrita de testes unitários
 - [#234 Filtro de histórico](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/234): expandirá os testes de filtros e paginação da tela de histórico.
 - [#239 Exibição de mapa e percurso](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/239): utilizará os testes de parsing e células de `labirinto.ts` integrados à grade visual.
 - [#242 Estado "Aguardando Largada"](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/242): utilizará o hook `useReproducaoCorrida` e os estados do painel.
+
+### Sprint 5 · Envio da telemetria ao Supabase, buffer local e reenvio sem duplicação
+
+| Item | Valor |
+|---|---|
+| Tarefas | [#236 Envio de telemetria do ESP32 ao Supabase](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/236) e [#238 Buffer local e reenvio sem duplicação](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/238) |
+| Histórias de usuário | HU-08 · Captura e Transmissão ([#45](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/45)) e HU-16 · Estabilização de Conexão ([#46](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/46)); RF08, RF16 e RNF05 |
+| Código testado | `src/firmware/lib/comunicacao`, `lib/hal`, `lib/simulacao` e `lib/drivers_esp32` (branch `feat/238-buffer-reenvio` com a `feat/238-envio-http`: commits `2909415`, `b759b6a`, `d42378c`, `f3b0a28` e `c1ba268`, PR [#412](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/412)) |
+| Data da execução | 24/10/2026 |
+| Executado por | Eduardo Viana |
+| Tipo de teste | Unitário e de integração, no computador, com o servidor simulado `EnvioSimulado` |
+| Documentação do código | [Comunicação: envio da telemetria ao Supabase, *buffer* e reenvio](../04-projeto-conceitual/firmware.md#comunicacao-envio-da-telemetria-ao-supabase-buffer-e-reenvio) |
+
+**Ambiente de execução:** Linux (Ubuntu 24.04), GCC 13.3, Unity 2.6.1 e ArduinoJson 7.4.2, com as mesmas bibliotecas do ambiente `native` (todas as de `lib/`, menos `drivers_esp32`). Cobertura medida com `gcov`, somando todas as suítes.
+
+!!! warning "Testes no computador"
+    O servidor, a rede e o Wi-Fi foram simulados: o `EnvioSimulado` imita o backend (ignora `(corrida, sequência)` repetidos, fica fora do ar, perde respostas e, no `EnvioLentoSimulado`, demora a responder quando o teste pede), e a `RedeWifiSimulada` imita o Wi-Fi. O teste com o Wi-Fi real fica para a bancada (ED2), e o ponta a ponta com o Supabase, para a [#232](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/232).
+
+#### Critérios da issue e testes
+
+| Critério da #236 | Testes | Situação |
+|---|---|:-:|
+| Cliente Wi-Fi e HTTPS (`HTTPClient` com `WiFiClientSecure`), com validação de certificado; `setInsecure` só na bancada e documentado | `EnvioHttpSupabase` e `RedeWifiEsp32` (`drivers_esp32`); `test_so_https_e_com_certificado_ou_excecao_de_bancada`; seção "Credenciais" do README | Aprovado no código; HTTPS real na bancada |
+| Credenciais fora do repositório (arquivo ignorado e `.exemplo` versionado); sem credenciais, inicia e não envia | `include/credenciais.exemplo.h` e `.gitignore`; `test_sem_credenciais_o_envio_fica_desligado` | Aprovado |
+| `IEnvioTelemetria` em `hal`, implementação HTTP em `drivers_esp32` e `EnvioSimulado` para os testes | `IEnvioTelemetria.h`, `EnvioHttpSupabase` e `EnvioSimulado` | Aprovado |
+| Montagem do lote testada: nomes das colunas, `numero_sequencia` crescente, tamanho máximo do lote e do JSON, `evento` só quando existe | 7 testes do JSON do lote; `test_registrar_numera_na_coleta_e_nunca_chama_a_rede`; `test_lotes_de_no_maximo_100_amostras` | Aprovado |
+| Criação da corrida no início e encerramento no fim, com o `corrida_id` em todos os lotes | `test_le_o_id_da_corrida_criada`, `test_corpos_da_criacao_e_do_encerramento`, `test_nova_corrida_limpa_buffer_numeracao_e_contadores`; `tarefaRede` no `main.cpp` | Aprovado |
+| Amostragem de cerca de 1 s e envio sem bloquear a navegação: tarefa concorrente, tempo limite configurável e fila com descarte da mais antiga e contador de perdas | `test_periodo_da_coleta_e_tempos_da_rede`, `test_integracao_servidor_lento_nao_atrasa_a_coleta_nem_duplica`, `test_a_trava_nunca_e_segurada_durante_a_rede`, `test_buffer_cheio_sobrescreve_o_mais_antigo_e_conta_a_perda` | Aprovado |
+| Reconexão do Wi-Fi com espera crescente, sem travar a tarefa | 5 testes do Wi-Fi | Aprovado |
+| Contrato do lote num arquivo de exemplo único, validado pelos testes do firmware e do backend ([#229](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/229)) | `test_contrato_lote_igual_ao_exemplo_do_backend` | Aprovado com a fixture do PR [#398](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/398) (veja abaixo); roda sozinho quando os dois estiverem na `main` |
+| Parâmetros (período, lote, tempo limite da rede, tamanho da fila) em arquivo de configuração, provisórios e documentados | `Configuracao.h`, `ConfiguracaoReenvio.h`, `ConfiguracaoRede.h` e README | Aprovado |
+
+| Teste obrigatório da #236 | Testes | Situação |
+|---|---|:-:|
+| Unitários da montagem do lote, da fila, do período e do comportamento sem credenciais | JSON do lote (7), *buffer* (7), período e tempos da rede (1) e credenciais (3) | Aprovado |
+| Integração com `EnvioSimulado`: coleta, fila, lote e envio numa corrida simulada; servidor com sucesso, erro e demora; navegação nunca espera | `test_integracao_servidor_lento_nao_atrasa_a_coleta_nem_duplica` e `test_integracao_corrida_pelo_json_com_rede_caindo_no_meio` | Aprovado |
+| Contrato: o lote do firmware é igual ao exemplo único, que o backend aceita | `test_contrato_lote_igual_ao_exemplo_do_backend` | Aprovado com a fixture do PR [#398](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/398) |
+| `pio test -e native` no CI, com pelo menos 80% das linhas dos arquivos novos | Suíte completa aprovada; arquivos novos entre 96% e 100% | Aprovado localmente; o CI roda no PR |
+| Execução registrada em `docs/07-testes/software.md` | Este registro | Aprovado |
+
+| Critério da #238 | Testes | Situação |
+|---|---|:-:|
+| *Buffer* circular de tamanho fixo, com capacidade e RAM documentadas no README e no código | `test_amostra_ocupa_pouco_e_o_buffer_cabe_dez_minutos` (600 amostras de até 24 bytes); `ConfiguracaoReenvio.h` e README | Aprovado |
+| Sobrescrita da amostra mais antiga quando cheio, com contagem de perdas | `test_buffer_cheio_sobrescreve_o_mais_antigo_e_conta_a_perda`, `test_buffer_da_a_volta_no_vetor_varias_vezes`, `test_integracao_buffer_cheio_perde_so_as_mais_antigas` | Aprovado |
+| Remoção apenas das amostras confirmadas | `test_buffer_remove_so_o_prefixo_confirmado`, `test_buffer_confirmacao_de_item_ja_sobrescrito_nao_remove_nada`, `test_lote_confirmado_sai_do_buffer_na_ordem`, `test_resposta_que_nao_fecha_com_o_tamanho_do_lote_nao_remove_nada`, `test_integracao_confirmacao_nao_apaga_amostras_novas` | Aprovado |
+| Reenvio em ordem, lotes de até 100, espera crescente e volta a 1 s | `test_lotes_de_no_maximo_100_amostras`, `test_espera_dobra_ate_o_teto_e_volta_ao_minimo_no_sucesso`, `test_espera_crescente_entre_tentativas_e_volta_ao_minimo`, `test_o_relogio_que_da_a_volta_nao_trava_a_espera` | Aprovado |
+| Classificação das respostas: repetir, descartar e pausar | `test_classificacao_das_respostas`, `test_erro_do_servidor_e_limite_de_requisicoes_sao_tentados_de_novo`, `test_lote_recusado_e_descartado_e_a_fila_segue`, `test_nao_autorizado_pausa_o_envio_ate_retomar` | Aprovado |
+| `numero_sequencia` dado na coleta e nunca mudado no reenvio | `test_registrar_numera_na_coleta_e_nunca_chama_a_rede`, `test_integracao_resposta_perdida_nao_duplica` | Aprovado |
+| Encerramento só com o *buffer* vazio, ou tentado de novo quando a rede voltar | `test_integracao_encerramento_so_depois_do_ultimo_lote`, `test_encerramento_sem_rede_tenta_de_novo_depois_da_espera`, `test_encerramento_atrasado_continua_tentando_ate_conseguir` | Aprovado |
+| Contadores de ocupação, perdas, tentativas e reenvios, registrados no log | Contadores conferidos nos testes de integração; o `main.cpp` os escreve no log (`envio`) a cada 10 s | Aprovado; log a conferir na bancada |
+| Parâmetros em arquivo de configuração, provisórios e documentados | `test_espera_vem_da_configuracao`, `test_o_tamanho_do_lote_vem_da_configuracao`; `ConfiguracaoReenvio.h`, `ConfiguracaoRede.h` e README | Aprovado |
+
+| Teste obrigatório da #238 | Testes | Situação |
+|---|---|:-:|
+| Unitários do *buffer* e da política de reenvio | 7 do *buffer* e 3 da política | Aprovado |
+| Integração: 120 amostras com a rede fora do ar no meio, servidor com exatamente 120, sem duplicata e em ordem, navegação sem esperar | `test_integracao_rede_fora_no_meio_da_corrida_nao_perde_nem_duplica` e, passando pelo JSON de verdade, `test_integracao_corrida_pelo_json_com_rede_caindo_no_meio`; `test_a_trava_nunca_e_segurada_durante_a_rede` | Aprovado |
+| Integração, resposta perdida: o reenvio não duplica | `test_integracao_resposta_perdida_nao_duplica` (e a resposta perdida da integração pelo JSON) | Aprovado |
+| Integração, encerramento só depois do último lote confirmado | `test_integracao_encerramento_so_depois_do_ultimo_lote` | Aprovado |
+| `pio test -e native` no CI, com pelo menos 80% das linhas dos arquivos novos | Suíte completa aprovada; arquivos novos entre 96% e 100% (tabela abaixo) | Aprovado localmente; o CI roda no PR |
+| Execução registrada em `docs/07-testes/software.md` | Este registro | Aprovado |
+
+#### *Buffer*, política e `ControladorEnvio`
+
+```bash
+pio test -e native -f test_reenvio_telemetria
+```
+
+| Grupo | Casos | Nível | O que verificam |
+|---|:-:|---|---|
+| Amostra e *buffer* | 9 | Unitário | Nomes do estado e do evento iguais aos do banco; amostra pequena e 10 minutos no *buffer*; ordem de chegada; cópia limitada ao pedido; sobrescrita do mais antigo com a perda contada; várias voltas no vetor; remoção só do prefixo confirmado; confirmação de item já sobrescrito não remove nada; remover além do tamanho e limpar |
+| Política de reenvio | 3 | Unitário | Classificação de cada código HTTP; espera que dobra até o teto e volta ao mínimo; espera vinda da configuração |
+| `ControladorEnvio` | 8 | Unitário | Numeração na coleta sem chamar a rede; ciclo ocioso sem corrida ou sem amostras; lote confirmado sai em ordem; lotes de no máximo 100; tamanho do lote da configuração; espera crescente e volta ao mínimo; relógio que dá a volta não trava a espera; primeira tentativa com o relógio alto não espera |
+| Respostas do servidor | 4 | Unitário | Lote recusado é descartado e a fila segue; `5xx` e `429` tentados de novo; `401` pausa até `retomar()`; contagens que não fecham não removem nada |
+| Encerramento | 6 | Unitário | Sem amostras pendentes, sai na hora; sem rede, tenta de novo depois da espera; pedir de novo não reinicia o atraso; atrasado continua tentando; corrida inexistente (`404`) não insiste; credencial recusada pausa |
+| Concorrência e nova corrida | 2 | Unitário | A trava nunca é segurada durante a chamada de rede; nova corrida limpa o *buffer*, a numeração e os contadores |
+| Integração com o servidor simulado | 5 | Integração | Rede fora no meio da corrida sem perder nem duplicar; resposta perdida sem duplicar; *buffer* cheio perde só as mais antigas; confirmação não apaga amostras novas; encerramento só depois do último lote |
+
+**Resultado:** 37 de 37 aprovados (32 unitários e 5 de integração).
+
+#### Contrato com o backend, credenciais, tempos da rede e Wi-Fi
+
+```bash
+pio test -e native -f test_envio_supabase
+```
+
+| Grupo | Casos | Nível | O que verificam |
+|---|:-:|---|---|
+| JSON do lote | 7 | Unitário | Nomes das colunas e unidades do banco; `evento` só quando existe; várias amostras em ordem e JSON válido; números negativos e pequenos com três casas; lote vazio e orientação inválida não quebram o JSON; lote que não cabe devolve zero; a pior amostra e o pior lote cabem no espaço reservado |
+| Contrato igual ao exemplo do backend | 1 | Unitário | Compara o lote com `src/backend/tests/fixtures/lote-telemetria.json`. **Ignorado** nesta branch: o arquivo chega com a [#229](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/229) (PR [#398](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/398)) e o teste passa a rodar sozinho quando os dois estiverem juntos |
+| Respostas e corpos | 5 | Unitário | Contagens da resposta do lote; resposta sem as contagens recusada; `id` da corrida criada; corpos da criação e do encerramento; amostra montada a partir da pose |
+| Credenciais | 3 | Unitário | Sem credenciais, o envio fica desligado; só `https`, com certificado ou com a exceção de bancada; URL das funções |
+| Período da coleta e tempos da rede | 1 | Unitário | Coleta a 1 s, dentro dos 2 s do RNF05; vários ciclos de rede por período; um *buffer* cheio se esvazia em menos de um período (6 lotes de 100); uma chamada que esgota o tempo limite cabe no prazo do encerramento |
+| Wi-Fi | 5 | Unitário | Conecta na primeira tentativa; espera cada vez mais entre tentativas e volta a 1 s; queda com a rede conectada tenta de novo na hora e é contada; rede que volta sozinha durante a espera é aceita; relógio que dá a volta |
+| Corrida inteira pelo JSON | 1 | Integração | 120 amostras passando pelo `serializarLote` e pela leitura da resposta, com o servidor fora do ar da 40ª à 70ª e uma resposta perdida: o servidor termina com as 120, de 1 a 120, sem duplicata, e a corrida só é encerrada com tudo entregue |
+| Servidor lento | 1 | Integração | 60 amostras com o servidor respondendo em 200 ms, depois em 3 s (dentro do tempo limite), depois passando do tempo limite de 5 s (o robô desiste, mas o servidor grava), com `503` no meio. A coleta continua durante as chamadas lentas (25 amostras registradas com a rede em curso, nenhuma atrasada, nenhuma com a trava segura); o servidor termina com as 60, em ordem, e ignora 11 repetidas dos 2 tempos esgotados; a corrida só é encerrada com tudo entregue |
+
+**Resultado:** 23 de 23 aprovados e 1 ignorado (21 unitários e 2 de integração).
+
+```text
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:633: test_nomes_do_estado_e_do_evento_batem_com_o_banco [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:634: test_amostra_ocupa_pouco_e_o_buffer_cabe_dez_minutos [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:635: test_buffer_guarda_na_ordem_de_chegada [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:636: test_buffer_copia_no_maximo_o_pedido [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:637: test_buffer_cheio_sobrescreve_o_mais_antigo_e_conta_a_perda [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:638: test_buffer_da_a_volta_no_vetor_varias_vezes [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:639: test_buffer_remove_so_o_prefixo_confirmado [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:640: test_buffer_confirmacao_de_item_ja_sobrescrito_nao_remove_nada [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:641: test_buffer_remover_alem_do_tamanho_limita_e_limpar_zera [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:642: test_classificacao_das_respostas [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:643: test_espera_dobra_ate_o_teto_e_volta_ao_minimo_no_sucesso [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:644: test_espera_vem_da_configuracao [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:645: test_registrar_numera_na_coleta_e_nunca_chama_a_rede [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:646: test_sem_corrida_ou_sem_amostras_o_ciclo_fica_ocioso [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:647: test_lote_confirmado_sai_do_buffer_na_ordem [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:648: test_lotes_de_no_maximo_100_amostras [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:649: test_o_tamanho_do_lote_vem_da_configuracao [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:650: test_espera_crescente_entre_tentativas_e_volta_ao_minimo [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:651: test_o_relogio_que_da_a_volta_nao_trava_a_espera [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:652: test_primeira_tentativa_com_o_relogio_alto_nao_espera [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:653: test_integracao_rede_fora_no_meio_da_corrida_nao_perde_nem_duplica [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:654: test_integracao_resposta_perdida_nao_duplica [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:655: test_integracao_buffer_cheio_perde_so_as_mais_antigas [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:656: test_integracao_confirmacao_nao_apaga_amostras_novas [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:657: test_lote_recusado_e_descartado_e_a_fila_segue [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:658: test_erro_do_servidor_e_limite_de_requisicoes_sao_tentados_de_novo [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:659: test_nao_autorizado_pausa_o_envio_ate_retomar [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:660: test_resposta_que_nao_fecha_com_o_tamanho_do_lote_nao_remove_nada [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:661: test_integracao_encerramento_so_depois_do_ultimo_lote [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:662: test_encerramento_sem_amostras_pendentes_sai_na_hora [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:663: test_encerramento_sem_rede_tenta_de_novo_depois_da_espera [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:664: test_pedir_o_encerramento_de_novo_nao_reinicia_o_atraso [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:665: test_encerramento_atrasado_continua_tentando_ate_conseguir [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:666: test_encerramento_de_corrida_inexistente_nao_insiste [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:667: test_encerramento_com_credencial_recusada_pausa [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:668: test_a_trava_nunca_e_segurada_durante_a_rede [PASSED]
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:669: test_nova_corrida_limpa_buffer_numeracao_e_contadores [PASSED]
+test/test_envio_supabase/test_envio_supabase.cpp:764: test_lote_com_uma_amostra_tem_os_nomes_das_colunas_e_as_unidades_do_banco [PASSED]
+test/test_envio_supabase/test_envio_supabase.cpp:765: test_evento_so_aparece_quando_existe [PASSED]
+test/test_envio_supabase/test_envio_supabase.cpp:766: test_lote_com_varias_amostras_em_ordem_e_json_valido [PASSED]
+test/test_envio_supabase/test_envio_supabase.cpp:767: test_numeros_negativos_e_pequenos_com_tres_casas [PASSED]
+test/test_envio_supabase/test_envio_supabase.cpp:768: test_lote_vazio_e_orientacao_invalida_nao_quebram_o_json [PASSED]
+test/test_envio_supabase/test_envio_supabase.cpp:769: test_lote_que_nao_cabe_devolve_zero_e_texto_vazio [PASSED]
+test/test_envio_supabase/test_envio_supabase.cpp:770: test_pior_amostra_e_pior_lote_cabem_no_espaco_reservado [PASSED]
+test/test_envio_supabase/test_envio_supabase.cpp:364: test_contrato_lote_igual_ao_exemplo_do_backend [IGNORED]
+test/test_envio_supabase/test_envio_supabase.cpp:772: test_le_as_contagens_da_resposta_do_lote [PASSED]
+test/test_envio_supabase/test_envio_supabase.cpp:773: test_resposta_do_lote_sem_as_contagens_e_recusada [PASSED]
+test/test_envio_supabase/test_envio_supabase.cpp:774: test_le_o_id_da_corrida_criada [PASSED]
+test/test_envio_supabase/test_envio_supabase.cpp:775: test_corpos_da_criacao_e_do_encerramento [PASSED]
+test/test_envio_supabase/test_envio_supabase.cpp:776: test_amostra_montada_a_partir_da_pose [PASSED]
+test/test_envio_supabase/test_envio_supabase.cpp:777: test_sem_credenciais_o_envio_fica_desligado [PASSED]
+test/test_envio_supabase/test_envio_supabase.cpp:778: test_so_https_e_com_certificado_ou_excecao_de_bancada [PASSED]
+test/test_envio_supabase/test_envio_supabase.cpp:779: test_url_das_funcoes [PASSED]
+test/test_envio_supabase/test_envio_supabase.cpp:780: test_periodo_da_coleta_e_tempos_da_rede [PASSED]
+test/test_envio_supabase/test_envio_supabase.cpp:781: test_wifi_conecta_na_primeira_tentativa [PASSED]
+test/test_envio_supabase/test_envio_supabase.cpp:782: test_wifi_espera_cada_vez_mais_entre_tentativas_e_volta_a_1s [PASSED]
+test/test_envio_supabase/test_envio_supabase.cpp:783: test_wifi_que_cai_tenta_de_novo_na_hora_e_conta_a_queda [PASSED]
+test/test_envio_supabase/test_envio_supabase.cpp:784: test_wifi_que_volta_sozinho_durante_a_espera_e_aceito [PASSED]
+test/test_envio_supabase/test_envio_supabase.cpp:785: test_wifi_com_o_relogio_dando_a_volta [PASSED]
+test/test_envio_supabase/test_envio_supabase.cpp:786: test_integracao_corrida_pelo_json_com_rede_caindo_no_meio [PASSED]
+test/test_envio_supabase/test_envio_supabase.cpp:787: test_integracao_servidor_lento_nao_atrasa_a_coleta_nem_duplica [PASSED]
+```
+
+**Contrato com o backend.** Para conferir o teste ignorado, a fixture `src/backend/tests/fixtures/lote-telemetria.json` do PR [#398](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/398) (commit `3bb9319`) foi copiada para uma cópia desta branch: `test_contrato_lote_igual_ao_exemplo_do_backend` **passou**, com as 5 amostras do exemplo (inclusive `colisao` e `objetivo_alcancado`) iguais campo a campo. Quando o [#398](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/398) e este PR estiverem na `main`, o teste passa a rodar no CI sem mudança.
+
+#### Cobertura, suíte completa e compilação da placa
+
+| Arquivo | Linhas | Cobertura |
+|---|:-:|:-:|
+| `lib/comunicacao/src/ControladorEnvio.cpp` e `.h` | 116 | 100% |
+| `lib/comunicacao/src/BufferCircular.h` | 39 | 100% |
+| `lib/comunicacao/src/PoliticaReenvio.cpp` e `.h` | 24 | 100% |
+| `lib/comunicacao/src/ContratoTelemetria.cpp` | 107 | 99% |
+| `lib/comunicacao/src/ReconexaoWifi.cpp` e `.h` | 42 | 100% |
+| `lib/comunicacao/src/CredenciaisSupabase.cpp` | 21 | 100% |
+| `lib/simulacao/src/EnvioSimulado.h` | 75 | 96% |
+| `lib/simulacao/src/TravaNula.h` e `lib/nucleo/src/AmostraTelemetria.h` | 18 | 100% |
+| **Total do firmware** (`lib/`) | 1475 | **98,6%** |
+
+Suíte completa do firmware nesta branch: **327 de 328 aprovados e 1 ignorado** (o contrato acima), em 21 suítes. `main.cpp`, `EnvioHttpSupabase.cpp`, `RedeWifiEsp32.h` e `TravaSecaoCritica.h` passaram pela verificação de sintaxe com os cabeçalhos do Arduino-ESP32 2.x e 3.x, com e sem `include/credenciais.h`; o build completo (`pio run -e esp32c3`) é conferido pelo CI do PR. O cliente HTTPS e o Wi-Fi não têm teste no computador, porque dependem do `HTTPClient` e do `WiFi` do ESP32.
+
+#### Pendências desta etapa
+
+- Edge Function `telemetria` ([#229](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/229), PR [#398](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/398)): enquanto ela não estiver no ar, o servidor responde `404` e os lotes são descartados. Com ela na `main`, o teste do contrato deixa de ser ignorado.
+- Bancada com o Wi-Fi real (ED2): criar a corrida, desligar o roteador no meio, conferir no log os contadores e, no banco, as amostras sem buraco e sem duplicata; depois, o ponta a ponta da [#232](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/232).

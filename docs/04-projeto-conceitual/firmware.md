@@ -686,6 +686,76 @@ Na `tarefaNavegacao`, a atualização da pose e a chamada `detectorObjetivo.proc
 > [!NOTE]
 > A inicialização com `Labirinto4x4` no `main.cpp` é **provisória** para validação de bancada. Em labirintos 8x4 ou 12x4, o tamanho deve ser recebido por comando dinâmico antes de iniciar a corrida. A duplicidade entre a instância de `DetectorObjetivo` em `main.cpp` e o `detector_` interno de `Navegacao` será unificada quando a classe `Navegacao` assumir o controle do laço de controle.
 
+## Comunicação: envio da telemetria ao Supabase, *buffer* e reenvio
+
+A telemetria vai ao Supabase pelas Edge Functions, por HTTPS, a cada 1 s e sem atrasar a navegação ([#236](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/236)), **sem perder amostras quando o Wi-Fi cai e sem duplicá-las quando ele volta** ([#238](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/238)); o código está no PR [#412](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/412). O robô nunca escreve direto nas tabelas: ele chama as funções `corridas` ([#233](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/233)) e `telemetria` ([#229](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/229)), e a chave `anon` só lê. Atende à [HU-08](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/45) (RF08), à [HU-16](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/46) (RF16) e ao RNF05.
+
+```mermaid
+flowchart LR
+    tel["tarefaTelemetria (1 s)<br/>coletarAmostra"] -->|"registrar(): nunca usa a rede"| buf["ControladorEnvio<br/>buffer circular de 600 amostras"]
+    buf -->|"ciclo() a cada 100 ms"| rede["tarefaRede<br/>ReconexaoWifi + EnvioHttpSupabase"]
+    rede -->|"POST /functions/v1/telemetria<br/>lotes de até 100"| sb[("Supabase")]
+    sb -->|"gravadas + existentes"| rede
+```
+
+**Figura 13.** Caminho de uma amostra: a coleta só guarda no *buffer*; a tarefa de rede envia em lotes e só tira do *buffer* o que o servidor confirmou.
+
+### Regras de Negócio e Algoritmo
+
+* **Duas tarefas, nenhuma espera na coleta:** a `tarefaTelemetria` monta a amostra a cada 1 s e a entrega ao `ControladorEnvio::registrar()`, que nunca usa a rede. As chamadas HTTPS, que bloqueiam por até 5 s, ficam só na `tarefaRede`. As duas compartilham o *buffer* por uma seção crítica curta (`TravaSecaoCritica`), que só é segurada nas cópias, nunca durante uma chamada de rede.
+* **Buffer circular de tamanho fixo:** 600 amostras (10 minutos a 1 por segundo, o RNF03), de 24 bytes cada, cerca de 14 KB, sem alocação dinâmica. Cheio, ele sobrescreve a amostra mais antiga e conta a perda. Reiniciar o ESP32 perde o *buffer* (gravar na flash ficou fora do escopo).
+* **Numeração na coleta:** o `numero_sequencia` é dado em `registrar()` e nunca muda. Se a resposta de um lote se perde, ele é reenviado com os mesmos números, e o servidor ignora o que já tem (`ON CONFLICT (corrida_id, numero_sequencia) DO NOTHING`).
+* **Remoção só com confirmação:** um lote só sai do *buffer* com resposta `2xx` cujas contagens fecham (`gravadas + existentes` igual ao tamanho do lote). Sem isso, ele fica e é tentado de novo.
+* **Reenvio em ordem, com espera crescente:** do mais antigo para o mais novo, em lotes de até 100 amostras (o limite do servidor), um lote por ciclo da tarefa de rede. Depois de uma falha, a espera é de 1 s e dobra a cada falha seguida, até 30 s; um sucesso volta a 1 s.
+* **Classificação das respostas (`PoliticaReenvio`):** sem resposta, `408`, `429` e `5xx` são tentados de novo; `400`, `404`, `413` e `422` descartam o lote e contam como erro, para um lote inválido não travar a fila; `401`, `403` e códigos desconhecidos pausam o envio, porque a chave ou o token estão errados e insistir não resolve.
+* **Encerramento só com o buffer vazio:** a consolidação do servidor calcula tempo, velocidades e status pela telemetria gravada, então o `POST /corridas/{id}/encerrar` só sai depois de o *buffer* esvaziar, com `status` `concluida` (chegou ao objetivo) ou `nao_concluida` (acabaram os 10 minutos). Se não esvaziar em 10 s, o encerramento fica marcado como atrasado, o robô segue sem esperar e as tentativas continuam quando a rede voltar.
+* **Wi-Fi com espera crescente (`ReconexaoWifi`):** a tarefa de rede tenta conectar por até 10 s; se não der, espera 1 s, depois 2 s, 4 s, até 30 s, e volta a 1 s depois de conectar. Uma queda com a rede já conectada é tentada de novo na hora e contada. A reconexão automática do próprio Wi-Fi do ESP32 fica desligada, para só a `ReconexaoWifi` decidir.
+* **Fluxo de uma corrida:** com o Wi-Fi conectado, a tarefa de rede cria a corrida (`POST /corridas`, labirinto 4×4 por enquanto) e só então a coleta começa, com o tempo contado a partir dali. Se a criação falhar, ela é tentada de novo com a mesma espera crescente. Na chegada ao objetivo, ou aos 10 minutos, a coleta registra a última amostra (estado `parado`, com o evento `objetivo_alcancado` quando houver) e pede o encerramento.
+* **HTTPS e credenciais:** toda chamada leva os cabeçalhos `apikey` e `Authorization: Bearer` com a chave `anon` (exigidos pelo gateway do Supabase) e o `x-device-token` (conferido pelas funções). O servidor é validado pelo certificado raiz configurado; a opção de não validar o certificado existe só para a bancada e é avisada no log. As credenciais ficam em `include/credenciais.h`, fora do Git; sem esse arquivo o firmware compila, inicia e não envia nada.
+* **Contrato do lote:** os nomes dos campos são os das colunas da tabela `telemetria` e as unidades são as do banco (m/s, V, A e s, com três casas). A velocidade vai zerada até a estimativa sem encoder ([#380](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380)) entrar na telemetria, e a tensão e a corrente vão zeradas porque a Rev 2.0 não mede a bateria.
+
+```json
+{"corrida_id":7,"amostras":[{"numero_sequencia":3,"posicao_linha":1,"posicao_coluna":2,"orientacao":"L","velocidade":0.120,"tensao_bateria":7.400,"corrente_bateria":-0.250,"tempo_decorrido":1.500,"estado_corrida":"explorando"}]}
+```
+
+**Figura 14.** Lote com uma amostra, como sai do `serializarLote` (exemplo do teste do contrato). O campo `evento` só aparece quando existe.
+
+| Mensagem no log | Quando |
+|---|---|
+| `envio_desligado` | Sem `include/credenciais.h`: o envio não começa |
+| `corrida_criada` (com o `corrida_id`) | O servidor criou a corrida; a coleta começa |
+| `falha_criar_corrida` (com o `codigo`) | Não criou; tenta de novo com espera crescente |
+| `envio` (a cada 10 s) | Contadores: `ocupacao` do *buffer*, `perdidas` por *buffer* cheio, `confirmadas`, `existentes`, `descartadas`, `tentativas`, `falhas`, `reenvios`, `wifi_quedas` e `pausado` |
+| `envio_pausado` | O servidor respondeu `401` ou `403`: o envio para |
+| `corrida_encerrada` | O servidor confirmou o encerramento |
+
+| Parâmetro | Arquivo | Valor |
+|---|---|---|
+| Capacidade do *buffer* | `ConfiguracaoReenvio.h` | 600 amostras, cerca de 14 KB |
+| Maior lote | `ConfiguracaoReenvio.h` | 100 amostras |
+| Espera entre tentativas de envio | `ConfiguracaoReenvio.h` | 1 s, dobrando até 30 s |
+| Tempo limite do encerramento | `ConfiguracaoReenvio.h` | 10 s |
+| Tempo limite de uma chamada HTTPS | `ConfiguracaoRede.h` | 5 s |
+| Ciclo da tarefa de rede | `ConfiguracaoRede.h` | 100 ms |
+| Tempo para o Wi-Fi conectar e esperas entre tentativas | `ConfiguracaoRede.h` | 10 s; 1 s dobrando até 30 s |
+| Espaço do JSON do lote | `ConfiguracaoRede.h` | 280 bytes por amostra, cerca de 28 KB |
+
+Todos são **provisórios**: nada foi medido com o Wi-Fi real. O envio ocupa cerca de 45 KB de RAM fixa (*buffer*, cópia do lote e JSON), de 320 KB do ESP32-C3.
+
+### Interface das Classes
+
+* **`ControladorEnvio`** (`lib/comunicacao`): `iniciarCorrida(id)`, `registrar(amostra)` (devolve o número de sequência dado), `ciclo(agoraMs)` (devolve `Ocioso`, `Aguardando`, `Enviado`, `Falhou`, `Descartado`, `Pausado` ou `Encerrada`), `solicitarEncerramento(agoraMs)`, `encerrada()`, `encerramentoAtrasado(agoraMs)`, `pausado()`, `retomar()`, `ocupacao()`, `amostrasPerdidas()` e `contadores()`.
+* **`BufferCircular`** e **`PoliticaReenvio`** (`lib/comunicacao`): o *buffer* de tamanho fixo e a classificação das respostas com a espera crescente.
+* **`ContratoTelemetria.h`** (`lib/comunicacao`): `serializarLote`, `lerRespostaLote`, `lerIdCorrida`, `serializarCriacaoCorrida`, `serializarEncerramento` e `montarAmostra`.
+* **`ReconexaoWifi`** (`lib/comunicacao`) sobre **`IRedeWifi`** (`lib/hal`): `ciclo(agoraMs)` diz se a rede está conectada e cuida das tentativas; `tentativas()` e `quedas()` vão para o log.
+* **`CredenciaisSupabase.h`** (`lib/comunicacao`): `credenciaisValidas` (só `https`, com certificado ou com a exceção de bancada) e `montarUrlFuncao`.
+* **`IEnvioTelemetria`** e **`ITrava`** (`lib/hal`), com os falsos `EnvioSimulado` e `TravaNula` (`lib/simulacao`) para os testes.
+* **`EnvioHttpSupabase`**, **`RedeWifiEsp32`** e **`TravaSecaoCritica`** (`lib/drivers_esp32`): o cliente HTTPS real (`criarCorrida`, `enviarLote`, `encerrarCorrida`, `definirResultadoCorrida`), o Wi-Fi do ESP32 em modo estação e a `ITrava` pela seção crítica do FreeRTOS.
+
+**Rastreabilidade:** `lib/comunicacao` (`ControladorEnvio`, `BufferCircular`, `PoliticaReenvio`, `ContratoTelemetria`, `ReconexaoWifi`, `CredenciaisSupabase`), `lib/hal` (`IEnvioTelemetria`, `ITrava`, `IRedeWifi`) e `lib/drivers_esp32` (`EnvioHttpSupabase`, `RedeWifiEsp32`, `TravaSecaoCritica`) atendem às tarefas [#236](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/236), da [HU-08](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/45) (RF08), e [#238](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/238), da [HU-16](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/46) (RF16).
+
+**Pendências:** a Edge Function `telemetria` ([#229](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/229), PR [#398](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/398)) ainda não está no ar; até lá, o servidor responde `404` e os lotes são descartados (contados em `descartadas`). O teste com o Wi-Fi real fica para a bancada (ED2), e o teste ponta a ponta, para a [#232](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/232). O labirinto da corrida é fixo em 4×4 até o tamanho ser escolhido antes da largada.
+
 ## Tarefas do FreeRTOS
 
 Criadas em `src/main.cpp`. Navegação e telemetria rodam de forma concorrente, como no diagrama de atividades: o ESP32-C3 tem um único núcleo, e o FreeRTOS alterna entre as tarefas conforme a prioridade de cada uma.
@@ -693,7 +763,8 @@ Criadas em `src/main.cpp`. Navegação e telemetria rodam de forma concorrente, 
 | Tarefa | Período | Prioridade | Pilha | Responsabilidade |
 |---|---|---|---|---|
 | `tarefaNavegacao` | 10 ms | 2 | 4096 bytes | Ciclo percepção → decisão → atuação |
-| `tarefaTelemetria` | 1000 ms (`PERIODO_TELEMETRIA_MS`) | 1 | 4096 bytes | Coleta e envio de telemetria |
+| `tarefaTelemetria` | 1000 ms (`PERIODO_TELEMETRIA_MS`) | 1 | 4096 bytes | Coleta da telemetria: monta a amostra e a guarda no *buffer* de envio |
+| `tarefaRede` | 100 ms (`PERIODO_CICLO_REDE_MS`) | 1 | 10 240 bytes (o TLS precisa de pilha) | Wi-Fi, criação da corrida, um lote por ciclo e o encerramento ([#238](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/238)) |
 
 A navegação tem prioridade maior para que o envio de dados nunca atrase o controle do robô. Por enquanto, as duas tarefas têm só o laço e a espera; a lógica entra nas tarefas das próximas sprints.
 
@@ -892,6 +963,7 @@ Ao investigar uma falha, compare o esperado com o obtido: ou o código tem um er
 | `lib/navegacao` (`Odometria`) | [#187](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/187) Orientação e posição na malha | [HU-05](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/41) (RF05) |
 | `lib/navegacao` (`DetectorObjetivo`), `lib/comunicacao` (`TelemetriaJson`) | [#189](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/189) Detecção da célula objetivo e evento na telemetria | [HU-07](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/43) (RF07) |
 | `lib/navegacao` (`Navegacao`: validação da pose, `cancelarPasso`, `Bloqueado`) | [#357](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/357) Robustez da navegação | [HU-01](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/42) (RF01) |
+| `lib/comunicacao` (`ControladorEnvio`, `BufferCircular`, `PoliticaReenvio`, `ContratoTelemetria`, `ReconexaoWifi`, `CredenciaisSupabase`), `lib/drivers_esp32` (`EnvioHttpSupabase`, `RedeWifiEsp32`, `TravaSecaoCritica`), `tarefaRede` | [#236](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/236) Envio de telemetria do ESP32 ao Supabase e [#238](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/238) Buffer local e reenvio sem duplicação | [HU-08](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/45), [HU-16](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/46) (RF08, RF16, RNF05) |
 
 ## Próximos passos
 
@@ -917,3 +989,4 @@ Ao investigar uma falha, compare o esperado com o obtido: ou o código tem um er
 | 0.6 | 19/10/2026 | Odometria; centralização no corredor e parada frontal ([#187](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/187), [#191](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/191)) | Cláudio Henrique, Eduardo Viana | — |
 | 0.7 | 22/10/2026 | Algoritmo de resolução; detecção do objetivo e evento na telemetria ([#183](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/183), [#189](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/189)) | Rafael Lima | — |
 | 1.0 | 23/10/2026 | Atualização para a Rev 2.0 do hardware: seção nova, pinagem conferida com o esquemático, sensores de distância VL53L0X no lugar do LiDAR, pastas e próximos passos; criação deste histórico ([#382](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/382)) | Ana Carolina Fialho | — |
+| 1.1 | 24/10/2026 | Envio da telemetria ao Supabase: *buffer* circular, reenvio sem duplicação, cliente HTTPS, Wi-Fi com espera crescente e tarefa de rede ([#236](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/236), [#238](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/238)) | Cláudio Henrique, Eduardo Viana | — |
