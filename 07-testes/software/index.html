@@ -2339,6 +2339,56 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#sprint-5-percepcao-para-tof-limiares-filtro-e-geometria-dos-sensores" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sprint 5 · Percepção para ToF: limiares, filtro e geometria dos sensores
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sprint 5 · Percepção para ToF: limiares, filtro e geometria dos sensores">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#testes-unitarios-e-de-integracao-da-percepcao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testes unitários e de integração da percepção
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#suite-completa-com-cobertura-e-build-da-placa_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Suíte completa com cobertura e build da placa
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pendencias-desta-etapa_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pendências desta etapa
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3502,6 +3552,56 @@
         
           <li class="md-nav__item">
   <a href="#pendencias-desta-etapa_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pendências desta etapa
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sprint-5-percepcao-para-tof-limiares-filtro-e-geometria-dos-sensores" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sprint 5 · Percepção para ToF: limiares, filtro e geometria dos sensores
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sprint 5 · Percepção para ToF: limiares, filtro e geometria dos sensores">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#testes-unitarios-e-de-integracao-da-percepcao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testes unitários e de integração da percepção
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#suite-completa-com-cobertura-e-build-da-placa_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Suíte completa com cobertura e build da placa
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pendencias-desta-etapa_10" class="md-nav__link">
     <span class="md-ellipsis">
       
         Pendências desta etapa
@@ -7326,6 +7426,160 @@ Para reproduzir localmente antes da integração com a <code>main</code>, garant
 <h4 id="pendencias-desta-etapa_9">Pendências desta etapa<a class="headerlink" href="#pendencias-desta-etapa_9" title="Permanent link">&para;</a></h4>
 <ul>
 <li>Integração com a <code>Odometria</code> (a célula troca 90 mm antes do centro): o mapa e o <code>darPasso</code> devem ser chamados com o robô perto do centro da célula. Fica para a integração do Épico 02, como registrado na issue.</li>
+</ul>
+<h3 id="sprint-5-percepcao-para-tof-limiares-filtro-e-geometria-dos-sensores">Sprint 5 · Percepção para ToF: limiares, filtro e geometria dos sensores<a class="headerlink" href="#sprint-5-percepcao-para-tof-limiares-filtro-e-geometria-dos-sensores" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tarefa</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/379">#379 Percepção para ToF: limiares, filtro e geometria dos sensores</a></td>
+</tr>
+<tr>
+<td>História de usuário</td>
+<td>HU-02 · Percepção e classificação parede/livre (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/43">#43</a>)</td>
+</tr>
+<tr>
+<td>Código testado</td>
+<td><code>src/firmware/lib/percepcao</code> (branch <code>feat/379-percepcao-tof</code>)</td>
+</tr>
+<tr>
+<td>Data da execução</td>
+<td>23/10/2026</td>
+</tr>
+<tr>
+<td>Executado por</td>
+<td>Rafael Sant'Ana</td>
+</tr>
+<tr>
+<td>Documentação do código</td>
+<td><a href="../../04-projeto-conceitual/firmware/#percepcao-classificacao-de-paredes">Percepção: classificação de paredes</a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Ambiente de execução:</strong> Linux (Ubuntu 24.04 LTS, x86_64), PlatformIO Core 6.2.0, <code>native</code> 1.2.1, Unity 2.6.1, <code>gcovr</code> 8.6 e GCC 13.x.</p>
+<h4 id="testes-unitarios-e-de-integracao-da-percepcao">Testes unitários e de integração da percepção<a class="headerlink" href="#testes-unitarios-e-de-integracao-da-percepcao" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-65-1" name="__codelineno-65-1" href="#__codelineno-65-1"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native<span class="w"> </span>-f<span class="w"> </span>test_percepcao
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Caso de teste</th>
+<th>O que verifica</th>
+<th style="text-align: center;">Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test_classificador_parede_proxima</code></td>
+<td>Amostras próximas (&lt; 140/180 mm) são classificadas como <code>Parede</code> nas 3 direções</td>
+<td style="text-align: center;">Aprovado</td>
+</tr>
+<tr>
+<td><code>test_classificador_passagem_livre</code></td>
+<td>Amostras distantes (&gt; 140/180 mm) são classificadas como <code>Livre</code> nas 3 direções</td>
+<td style="text-align: center;">Aprovado</td>
+</tr>
+<tr>
+<td><code>test_classificador_valor_no_limiar</code></td>
+<td>Valida condição de borda estrita (<span class="arithmatex">\(\le \text{limiar}\)</span> é <code>Parede</code>, <span class="arithmatex">\(&gt; \text{limiar}\)</span> é <code>Livre</code>)</td>
+<td style="text-align: center;">Aprovado</td>
+</tr>
+<tr>
+<td><code>test_classificador_limiar_configuravel</code></td>
+<td>Alteração e consulta dinâmica do limiar de detecção em tempo de execução</td>
+<td style="text-align: center;">Aprovado</td>
+</tr>
+<tr>
+<td><code>test_classificador_leituras_com_ruido</code></td>
+<td>Atenuação e descarte de ruído pontual em lote de 5 amostras</td>
+<td style="text-align: center;">Aprovado</td>
+</tr>
+<tr>
+<td><code>test_classificador_vetor_vazio</code></td>
+<td>Fail-safe: vetor nulo ou vazio retorna <code>Desconhecido</code> nas 3 direções</td>
+<td style="text-align: center;">Aprovado</td>
+</tr>
+<tr>
+<td><code>test_classificador_limiares_independentes_por_lado</code></td>
+<td>Configuração e aplicação de limiares distintos para frente, esquerda e direita</td>
+<td style="text-align: center;">Aprovado</td>
+</tr>
+<tr>
+<td><code>test_classificador_tratamento_abaixo_do_minimo</code></td>
+<td>Detecção explícita e saturação defensiva de leituras &lt; 30 mm para o piso de 30 mm (<code>Parede</code>)</td>
+<td style="text-align: center;">Aprovado</td>
+</tr>
+<tr>
+<td><code>test_classificador_tratamento_fora_de_alcance</code></td>
+<td>Detecção explícita e saturação defensiva de leituras &gt; 1200 mm ou código 8190 mm para o teto de 1200 mm (<code>Livre</code>)</td>
+<td style="text-align: center;">Aprovado</td>
+</tr>
+<tr>
+<td><code>test_classificador_filtro_mediana_rejeita_outliers</code></td>
+<td>Rejeição estrita de spikes de 8190 mm diante de parede e quedas espúrias para 0 mm em corredor livre</td>
+<td style="text-align: center;">Aprovado</td>
+</tr>
+<tr>
+<td><code>test_classificador_filtro_media_aritmetica</code></td>
+<td>Funcionamento do filtro alternativo por média aritmética parametrizável</td>
+<td style="text-align: center;">Aprovado</td>
+</tr>
+<tr>
+<td><code>test_classificador_labirinto_simulado_4x4_com_ruido</code></td>
+<td>Varredura de 100% das células do labirinto 4×4 com injeção de ruído e leituras espúrias</td>
+<td style="text-align: center;">Aprovado</td>
+</tr>
+<tr>
+<td><code>test_classificador_labirinto_simulado_8x4_com_ruido</code></td>
+<td>Varredura de 100% das células do labirinto 8×4 com injeção de ruído e leituras espúrias</td>
+<td style="text-align: center;">Aprovado</td>
+</tr>
+<tr>
+<td><code>test_classificador_labirinto_simulado_12x4_com_ruido</code></td>
+<td>Varredura de 100% das células do labirinto 12×4 com injeção de ruído e leituras espúrias</td>
+<td style="text-align: center;">Aprovado</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-66-1" name="__codelineno-66-1" href="#__codelineno-66-1"></a>native         test_percepcao  PASSED    00:00:00.784
+<a id="__codelineno-66-2" name="__codelineno-66-2" href="#__codelineno-66-2"></a>================= 14 test cases: 14 succeeded in 00:00:00.784 =================
+</code></pre></div>
+<h4 id="suite-completa-com-cobertura-e-build-da-placa_1">Suíte completa com cobertura e build da placa<a class="headerlink" href="#suite-completa-com-cobertura-e-build-da-placa_1" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-67-1" name="__codelineno-67-1" href="#__codelineno-67-1"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native_cobertura
+<a id="__codelineno-67-2" name="__codelineno-67-2" href="#__codelineno-67-2"></a>gcovr<span class="w"> </span>--root<span class="w"> </span>.<span class="w"> </span>--filter<span class="w"> </span><span class="s1">'lib/'</span><span class="w"> </span>--object-directory<span class="w"> </span>.pio/build/native_cobertura<span class="w"> </span>--txt<span class="w"> </span>--fail-under-line<span class="w"> </span><span class="m">80</span>
+<a id="__codelineno-67-3" name="__codelineno-67-3" href="#__codelineno-67-3"></a>pio<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>esp32c3
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Verificação</th>
+<th>Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Todos os testes do firmware</td>
+<td><strong>270 de 270 aprovados</strong></td>
+</tr>
+<tr>
+<td>Cobertura das linhas de <code>lib/</code></td>
+<td><strong>96%</strong> (1087 de 1123); <code>ClassificadorParede.cpp</code> com <strong>97%</strong></td>
+</tr>
+<tr>
+<td>Compilação para o ESP32-C3</td>
+<td><strong>Sucesso</strong> (Flash: 20.1%, RAM: 4.5%)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="pendencias-desta-etapa_10">Pendências desta etapa<a class="headerlink" href="#pendencias-desta-etapa_10" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Validação física dos offsets reais dos sensores e limiares calibrados na bancada de ensaios com o chassi montado (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/175">#175</a>).</li>
 </ul>
 
 

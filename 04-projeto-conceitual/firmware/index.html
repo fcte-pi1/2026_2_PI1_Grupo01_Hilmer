@@ -1128,6 +1128,28 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#geometria-dos-sensores-e-deducao-dos-limiares" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Geometria dos sensores e dedução dos limiares
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#valores-provisorios-de-configuracao-configuracaopercepcaoh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Valores provisórios de configuração (ConfiguracaoPercepcao.h)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#regras-de-negocio-e-algoritmo" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2099,6 +2121,28 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#geometria-dos-sensores-e-deducao-dos-limiares" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Geometria dos sensores e dedução dos limiares
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#valores-provisorios-de-configuracao-configuracaopercepcaoh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Valores provisórios de configuração (ConfiguracaoPercepcao.h)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#regras-de-negocio-e-algoritmo" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3025,19 +3069,120 @@
 </table>
 <p>Os testes ficam em <code>test/test_labirinto_simulado/</code>, com um labirinto de exemplo de cada tamanho da competição (4×4, 8×4 e 12×4) em <code>LabirintosExemplo.h</code>. Os três têm o perímetro fechado e todas as células alcançáveis a partir da partida, e os testes conferem essas duas propriedades a cada execução. O uso do simulador também está no <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/main/src/firmware/README.md#labirinto-simulado">README do firmware</a>.</p>
 <h2 id="percepcao-classificacao-de-paredes">Percepção: classificação de paredes<a class="headerlink" href="#percepcao-classificacao-de-paredes" title="Permanent link">&para;</a></h2>
-<p>O módulo de percepção (<code>lib/percepcao</code>) implementa a classe <code>ClassificadorParede</code>, responsável por classificar se cada lado ao redor do robô está desimpedido (<code>Livre</code>) ou obstruído (<code>Parede</code>) com base nas leituras de distância do LiDAR.</p>
-<h3 id="regras-de-negocio-e-algoritmo">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo" title="Permanent link">&para;</a></h3>
+<p>O módulo de percepção (<code>lib/percepcao</code>) implementa a classe <code>ClassificadorParede</code>, responsável por processar as medições de distância e classificar se cada lado ao redor do robô (frente, esquerda e direita) está desimpedido (<code>Livre</code>) ou obstruído (<code>Parede</code>) para alimentar a atualização do mapa (HU-02, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/379">#379</a>).</p>
+<p>Com a revisão eletrônica Rev 2.0, o LiDAR 360° por UART foi substituído por <strong>3 sensores Time-of-Flight (ToF) VL53L0X</strong> via barramento I²C. Diferentemente do LiDAR centralizado único anterior, os sensores ToF possuem características ópticas distintas, limites físicos operacionais bem delimitados e são fixados em pontos específicos da estrutura mecânica do robô.</p>
+<h3 id="geometria-dos-sensores-e-deducao-dos-limiares">Geometria dos sensores e dedução dos limiares<a class="headerlink" href="#geometria-dos-sensores-e-deducao-dos-limiares" title="Permanent link">&para;</a></h3>
+<p>Os parâmetros físicos do labirinto e do micromouse determinam a faixa nominal de leituras de distância esperadas:</p>
 <ul>
-<li><strong>Filtragem por Média:</strong> O classificador recebe um vetor de amostras (<code>DistanciasLaterais</code>) e calcula a média aritmética para cada direção (<code>frenteMm</code>, <code>esquerdaMm</code>, <code>direitaMm</code>), atenuando ruídos e picos isolados.</li>
-<li><strong>Limiar Configurável:</strong> O limiar é definido no construtor (valor padrão: <strong>180 mm</strong>).</li>
-<li>Média <span class="arithmatex">\(\le\)</span> 180 mm <span class="arithmatex">\(\rightarrow\)</span> <code>EstadoParede::Parede</code> (obstáculo na célula atual).</li>
-<li>Média <span class="arithmatex">\(&gt;\)</span> 180 mm <span class="arithmatex">\(\rightarrow\)</span> <code>EstadoParede::Livre</code> (passagem aberta para a próxima célula).</li>
-<li><strong>Comportamento Fail-Safe:</strong> Se o vetor de amostras recebido estiver vazio, o classificador retorna <code>EstadoParede::Desconhecido</code> em todas as direções para evitar colisões.</li>
+<li><strong>Largura do corredor livre:</strong> A célula do labirinto mede 180 mm (<code>TAMANHO_CELULA_MM</code>, <code>Configuracao.h</code>) e a espessura das paredes de madeira é de 12 mm (<code>ESPESSURA_PAREDE_MM</code>, <code>ConfiguracaoControle.h</code>), resultando em um vão livre de <span class="arithmatex">\(180 - 12 = 168\text{ mm}\)</span>.</li>
+<li><strong>Centro do corredor:</strong> Com o robô perfeitamente centralizado, a distância do centro geométrico até a face de cada parede lateral é de <span class="arithmatex">\(d_{\text{centro\_parede}} = (180 - 12) / 2 = 84\text{ mm}\)</span> (<code>DISTANCIA_CENTRO_A_PAREDE_MM</code>).</li>
+<li><strong>Dimensões do chassi:</strong> O chassi possui meia-largura de 60 mm e meio-comprimento de 50 mm (<code>estruturas.md</code>). Se os sensores laterais fossem montados na borda externa do chassi, a distância medida até a parede seria de <span class="arithmatex">\(84 - 60 = 24\text{ mm}\)</span>. Como o datasheet do VL53L0X (ST DocID029104) especifica distância mínima confiável em torno de <strong>30 mm</strong>, a montagem física exige necessariamente sensores recuados em relação à borda externa.</li>
+<li><strong>Cálculo analítico do limiar de decisão:</strong>
+  Para um sensor montado com deslocamento <span class="arithmatex">\(d_{\text{offset}}\)</span> em relação ao centro do robô na direção de visada:
+  $<span class="arithmatex">\(\begin{aligned}
+  d_{\text{parede}} &amp;= d_{\text{centro\_parede}} - d_{\text{offset}} = 84\text{ mm} - d_{\text{offset}} \\
+  d_{\text{livre}} &amp;= d_{\text{parede}} + \text{TAMANHO\_CELULA\_MM} = d_{\text{parede}} + 180\text{ mm} \\
+  \text{Limiar ideal} &amp;= \frac{d_{\text{parede}} + d_{\text{livre}}}{2} = d_{\text{parede}} + 90\text{ mm}
+  \end{aligned}\)</span>$
+  Adotando provisoriamente um recuo de montagem de <span class="arithmatex">\(d_{\text{offset}} = 30\text{ mm}\)</span> (sensores a 30 mm do centro):</li>
+<li><span class="arithmatex">\(d_{\text{parede}} = 84 - 30 = 54\text{ mm}\)</span> (garantindo folga segura acima dos 30 mm mínimos).</li>
+<li><span class="arithmatex">\(d_{\text{livre}} = 54 + 180 = 234\text{ mm}\)</span> (ou saturação de fora de alcance em corredores contínuos).</li>
+<li>Ponto médio ótimo: <span class="arithmatex">\(54 + 90 = 144\text{ mm}\)</span>, parametrizado provisoriamente como <strong>140 mm</strong>.</li>
 </ul>
+<p>Esse limiar de 140 mm também assegura perfeita compatibilidade com o ambiente simulado (<code>LabirintoSimulado</code>), no qual a parede imediata lê nominalmente 90 mm (<span class="arithmatex">\(\le 140\text{ mm} \to \text{Parede}\)</span>) e o corredor aberto lê <span class="arithmatex">\(\ge 270\text{ mm}\)</span> (<span class="arithmatex">\(&gt; 140\text{ mm} \to \text{Livre}\)</span>).</p>
+<h3 id="valores-provisorios-de-configuracao-configuracaopercepcaoh">Valores provisórios de configuração (<code>ConfiguracaoPercepcao.h</code>)<a class="headerlink" href="#valores-provisorios-de-configuracao-configuracaopercepcaoh" title="Permanent link">&para;</a></h3>
+<p>Os parâmetros da camada de percepção estão isolados em <code>ConfiguracaoPercepcao.h</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Parâmetro</th>
+<th>Constante</th>
+<th>Valor provisório</th>
+<th>Origem / Justificativa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Limiar frontal</td>
+<td><code>limiarFrenteMm</code></td>
+<td><strong>140 mm</strong></td>
+<td>Ponto médio para offset frontal de 30 mm (54 mm vs 234 mm)</td>
+</tr>
+<tr>
+<td>Limiar esquerdo</td>
+<td><code>limiarEsquerdaMm</code></td>
+<td><strong>140 mm</strong></td>
+<td>Ponto médio para offset lateral de 30 mm (54 mm vs 234 mm)</td>
+</tr>
+<tr>
+<td>Limiar direito</td>
+<td><code>limiarDireitaMm</code></td>
+<td><strong>140 mm</strong></td>
+<td>Ponto médio para offset lateral de 30 mm (54 mm vs 234 mm)</td>
+</tr>
+<tr>
+<td>Distância mínima</td>
+<td><code>distanciaMinimaMm</code></td>
+<td><strong>30 mm</strong></td>
+<td>Limite operacional inferior do VL53L0X (datasheet ST DocID029104)</td>
+</tr>
+<tr>
+<td>Distância máxima</td>
+<td><code>distanciaMaximaMm</code></td>
+<td><strong>1200 mm</strong></td>
+<td>Limite superior operacional confiável para alvos difusos em ambiente interno</td>
+</tr>
+<tr>
+<td>Código fora de alcance</td>
+<td><code>DISTANCIA_OUT_OF_RANGE_TOF_MM</code></td>
+<td><strong>8190 mm</strong></td>
+<td>Código retornado pelo hardware/driver VL53L0X na ausência de retorno infravermelho</td>
+</tr>
+<tr>
+<td>Tipo de filtro</td>
+<td><code>tipoFiltro</code></td>
+<td><strong><code>Mediana</code></strong></td>
+<td>Filtro de mediana de até 16 amostras, imune a ruídos impulsivos pontuais</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>[!WARNING]
+<strong>Valores provisórios:</strong> os limiares e offsets foram calculados a partir da geometria teórica do labirinto e do esquemático Rev 2.0. A calibração final dos offsets e limiares reais depende da validação física na bancada de ensaios com os sensores montados no chassi (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/175">#175</a>).</p>
+</blockquote>
+<h3 id="regras-de-negocio-e-algoritmo">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Tratamento defensivo de limites operacionais:</strong></li>
+<li><strong>Fora de alcance (<span class="arithmatex">\(&gt; 1200\text{ mm}\)</span> ou <span class="arithmatex">\(\ge 8190\text{ mm}\)</span>):</strong> Indica ausência de eco refletor próximo (lado livre). O método <code>tratarDistancia()</code> satura a medida em <span class="arithmatex">\(1200\text{ mm}\)</span> (<span class="arithmatex">\(&gt; \text{limiar} \to \text{Livre}\)</span>).</li>
+<li><strong>Abaixo do mínimo (<span class="arithmatex">\(&lt; 30\text{ mm}\)</span>):</strong> Indica robô muito próximo ou colado à parede. O método satura a medida em <span class="arithmatex">\(30\text{ mm}\)</span> (<span class="arithmatex">\(\le \text{limiar} \to \text{Parede}\)</span>).</li>
+<li><strong>Filtragem digital contra ruídos espúrios:</strong></li>
+<li>Em vez de uma média aritmética simples — suscetível a desvios severos causados por leituras espúrias isoladas (por exemplo, uma perda momentânea de reflexão infravermelha retornando 8190 mm elevaria a média aritmética mesmo em frente a uma parede real) —, o classificador utiliza por padrão um <strong>filtro de mediana</strong> sobre uma janela estática de até 16 amostras.</li>
+<li>O algoritmo ordena os valores tratados em ordem crescente (via <em>insertion sort</em> local, sem alocação dinâmica no heap) e seleciona o elemento mediano, eliminando <em>outliers</em> espúrios com custo computacional mínimo. Também suporta o modo <code>TipoFiltroPercepcao::Media</code> quando configurado.</li>
+<li><strong>Decisão por direção independente:</strong></li>
+<li>Cada direção avalia a distância filtrada contra o seu respectivo limiar (<code>limiarFrenteMm</code>, <code>limiarEsquerdaMm</code>, <code>limiarDireitaMm</code>). Se a distância filtrada for <span class="arithmatex">\(\le \text{limiar}\)</span>, classifica como <code>EstadoParede::Parede</code>; caso contrário, <code>EstadoParede::Livre</code>.</li>
+<li><strong>Comportamento Fail-Safe:</strong> Se o vetor de amostras for nulo ou vazio (<code>quantidade == 0</code>), retorna <code>EstadoParede::Desconhecido</code> para todos os lados.</li>
+</ol>
 <h3 id="interface-da-classe">Interface da Classe<a class="headerlink" href="#interface-da-classe" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Entrada:</strong> <code>const DistanciasLaterais *amostras, size_t quantidade</code></li>
-<li><strong>Saída:</strong> <code>micromouse::ResultadoClassificacao</code> (<code>frente</code>, <code>esquerda</code> e <code>direita</code>)</li>
+<li><strong>Construtores:</strong></li>
+<li><code>ClassificadorParede()</code>: inicializa com a <code>ConfiguracaoPercepcao</code> padrão.</li>
+<li><code>explicit ClassificadorParede(uint16_t limiarMm)</code>: limiar uniforme para todos os lados (compatibilidade).</li>
+<li><code>ClassificadorParede(const ConfiguracaoPercepcao&amp; config)</code>: configuração customizada completa.</li>
+<li><code>ClassificadorParede(uint16_t frente, uint16_t esquerda, uint16_t direita)</code>: limiares específicos por direção.</li>
+<li><strong>Métodos de ajuste e consulta:</strong></li>
+<li><code>void definirLimiar(uint16_t limiarMm)</code> / <code>void definirLimiar(Lado lado, uint16_t limiarMm)</code>.</li>
+<li><code>void definirLimiares(uint16_t frente, uint16_t esquerda, uint16_t direita)</code>.</li>
+<li><code>uint16_t obterLimiar() const</code> / <code>uint16_t obterLimiar(Lado lado) const</code>.</li>
+<li><code>const ConfiguracaoPercepcao&amp; obterConfiguracao() const</code> / <code>void definirConfiguracao(...)</code>.</li>
+<li><strong>Métodos de tratamento e inspeção:</strong></li>
+<li><code>uint16_t tratarDistancia(uint16_t distanciaBrutaMm) const</code>: aplica saturação de limites.</li>
+<li><code>bool ehAbaixoDoMinimo(uint16_t distanciaMm) const</code>: valida se a medida viola o piso confiável.</li>
+<li><code>bool ehForaDeAlcance(uint16_t distanciaMm) const</code>: valida se a medida excede o teto confiável.</li>
+<li><code>EstadoParede classificarDistancia(Lado lado, uint16_t distanciaMm) const</code>: classifica uma leitura individual tratada.</li>
+<li><strong>Classificação de lotes e filtragem:</strong></li>
+<li><code>uint16_t filtrarAmostras(const uint16_t* valores, size_t quantidade) const</code>: filtra lote numérico via mediana/média.</li>
+<li><code>ResultadoClassificacao classificar(const DistanciasLaterais* amostras, size_t quantidade) const</code>.</li>
+<li><code>ResultadoClassificacao classificar(const DistanciasLaterais&amp; leitura) const</code>: sobrecarga conveniente para amostra única.</li>
 </ul>
 <h2 id="mapeamento-atualizacao-do-mapa">Mapeamento: atualização do mapa<a class="headerlink" href="#mapeamento-atualizacao-do-mapa" title="Permanent link">&para;</a></h2>
 <p>O módulo de mapeamento (<code>lib/mapeamento</code>) implementa a classe <code>AtualizadorMapa</code>, responsável por integrar a percepção à representação espacial: converte as observações relativas do LiDAR (frente, esquerda e direita) na pose atual do robô em direções cardeais absolutas (Norte, Leste, Sul e Oeste) e registra as paredes no <code>Mapa</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/177">#177</a>).</p>
