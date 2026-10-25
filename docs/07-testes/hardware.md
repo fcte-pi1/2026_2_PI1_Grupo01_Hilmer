@@ -28,7 +28,7 @@
 |:------:|---------------|--------------------|-----------------------|-----------------|--------------------------|------------------------|:---------------------------:|:--------------------------------:|-----------------|
 | 3.1 | Alimentação e Linhas de Tensão | | | | 3,3 V e VBAT estáveis | | | | Verificado em bancada |
 | 3.2 | Comunicação LiDAR (UART) | | | | Recepção dos pacotes LD06 | | | | |
-| 3.3 | Acionamento dos Motores (DRV8833) | 22/10/2026 | 22/10/2026 | Aline / Equipe | Resposta PWM nos canais A e B | Alimentação direta dos motores a 6 V realizada; integração do acionamento em protoboard com driver alimentado a 5 V não funcionou | | | Resposta PWM não comprovada; corrente com unidade pendente de confirmação. Ver procedimento 3.3. |
+| 3.3 | Acionamento dos Motores (DRV8833) | 22/10/2026 | 22/10/2026 | Aline / Equipe | Resposta PWM nos canais A e B | Alimentação direta dos motores a 6 V realizada, com corrente registrada de 22 mA; integração do acionamento em protoboard com driver alimentado a 5 V não funcionou | | | Resposta PWM não comprovada. Ver procedimento 3.3. |
 | 3.4 | IMU (I2C) | | | | Dados de aceleração e giro | | | | |
 | 3.5 | **Encoders de Quadratura (18 cm)** | 16/10/2026 | 17/10/2026 | Cláudio / Equipe | Leitura x4 por interrupção; erro $\le \pm 3\%$ em 180 mm | Roteiro e script serial automatizados; aguardando bancada final | S | | Issue #186, HU-05 |
 | 3.6 | | | | | | | | | |
@@ -60,7 +60,7 @@ Verificar a alimentação básica dos motores DC e testar a integração do circ
 | Ensaio | Condição | Resultado |
 |--------|----------|-----------|
 | Alimentação direta dos motores | Fonte ajustada para 6 V | Aplicação de alimentação e consumo elétrico registrados. A rotação e o desempenho sob carga não foram quantificados. |
-| Corrente dos motores | Leitura no visor da fonte | O relatório por componentes registra uma leitura pontual de 0,022 A (22 mA). Há também uma informação de 22 A, cuja unidade precisa ser confirmada antes de consolidar o resultado. |
+| Corrente dos motores | Leitura no visor da fonte com alimentação de 6 V | Corrente registrada de 22 mA (0,022 A). |
 | Integração do circuito de acionamento | Montagem em protoboard conforme o esquemático, com driver alimentado a 5 V | A integração não funcionou. A causa da falha não foi identificada. |
 
 ### 5. Avaliação
