@@ -28,10 +28,43 @@
 |:------:|---------------|--------------------|-----------------------|-----------------|--------------------------|------------------------|:---------------------------:|:--------------------------------:|-----------------|
 | 3.1 | Alimentação e Linhas de Tensão | | | | 3,3 V e VBAT estáveis | | | | Verificado em bancada |
 | 3.2 | Comunicação LiDAR (UART) | | | | Recepção dos pacotes LD06 | | | | |
-| 3.3 | Acionamento dos Motores (DRV8833) | | | | Resposta PWM nos canais A e B | | | | |
+| 3.3 | Acionamento dos Motores (DRV8833) | 22/10/2026 | 22/10/2026 | Aline / Equipe | Resposta PWM nos canais A e B | Alimentação direta dos motores a 6 V realizada; integração do acionamento em protoboard com driver alimentado a 5 V não funcionou | | | Resposta PWM não comprovada; corrente com unidade pendente de confirmação. Ver procedimento 3.3. |
 | 3.4 | IMU (I2C) | | | | Dados de aceleração e giro | | | | |
 | 3.5 | **Encoders de Quadratura (18 cm)** | 16/10/2026 | 17/10/2026 | Cláudio / Equipe | Leitura x4 por interrupção; erro $\le \pm 3\%$ em 180 mm | Roteiro e script serial automatizados; aguardando bancada final | S | | Issue #186, HU-05 |
 | 3.6 | | | | | | | | | |
+
+---
+
+## Procedimento de Teste 3.3: Motores e Circuito de Acionamento
+
+**Data dos testes:** 22/10/2026.
+
+### 1. Objetivo
+Verificar a alimentação básica dos motores DC e testar a integração do circuito de acionamento montado conforme o esquemático do projeto.
+
+### 2. Instrumentação
+
+* **Fonte de bancada:** alimentação dos motores em 6 V, com indicação de tensão e corrente no visor.
+* **Motores DC com redução:** componentes submetidos ao teste de alimentação direta e ao teste de integração.
+* **Driver de motores:** alimentado em 5 V no teste de integração.
+* **Protoboard e fios de conexão:** montagem do circuito de acionamento conforme o esquemático do projeto.
+
+### 3. Montagem e Procedimento Realizado
+1. Conectar os motores diretamente a uma fonte de bancada ajustada para **6 V**.
+2. Aplicar a alimentação aos terminais dos motores e observar as indicações de tensão e corrente da fonte.
+3. Montar o circuito de acionamento em protoboard conforme o esquemático.
+4. Alimentar o driver com **5 V** e realizar o teste de integração para acionamento dos motores.
+
+### 4. Resultados Obtidos
+
+| Ensaio | Condição | Resultado |
+|--------|----------|-----------|
+| Alimentação direta dos motores | Fonte ajustada para 6 V | Aplicação de alimentação e consumo elétrico registrados. A rotação e o desempenho sob carga não foram quantificados. |
+| Corrente dos motores | Leitura no visor da fonte | O relatório por componentes registra uma leitura pontual de 0,022 A (22 mA). Há também uma informação de 22 A, cuja unidade precisa ser confirmada antes de consolidar o resultado. |
+| Integração do circuito de acionamento | Montagem em protoboard conforme o esquemático, com driver alimentado a 5 V | A integração não funcionou. A causa da falha não foi identificada. |
+
+### 5. Avaliação
+O ensaio com alimentação direta a 6 V documenta uma verificação elétrica preliminar dos motores. O teste de integração apresentou resultado insatisfatório e não comprovou a resposta PWM nos canais A e B exigida no item 3.3. A falha de integração, isoladamente, não identifica qual componente ou ligação causou o problema.
 
 ---
 
