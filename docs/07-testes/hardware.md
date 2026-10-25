@@ -27,9 +27,9 @@
 | **ID** | **Descrição** | **Data de Início** | **Data de Conclusão** | **Responsável** | **Resultados Esperados** | **Resultados Obtidos** | **Aprovação Interna (S/N)** | **Aprovação do Orientador (S/N)** | **Observações** |
 |:------:|---------------|--------------------|-----------------------|-----------------|--------------------------|------------------------|:---------------------------:|:--------------------------------:|-----------------|
 | 3.1 | Alimentação e Linhas de Tensão | | | | 3,3 V e VBAT estáveis | | | | Verificado em bancada |
-| 3.2 | Comunicação LiDAR (UART) | | | | Recepção dos pacotes LD06 | | | | |
+| 3.2 | Sensores de Distância ToF VL53L0X (I2C) | | | | Reconhecimento dos três sensores no barramento I2C, com endereços distintos, e leitura de distância frontal, esquerda e direita | | | | Sensores J3, J4 e J5, alimentados em 3,3 V. |
 | 3.3 | Acionamento dos Motores (DRV8833) | 22/10/2026 | 22/10/2026 | Aline / Equipe | Resposta PWM nos canais A e B | Alimentação direta dos motores a 6 V realizada, com corrente registrada de 22 mA; integração do acionamento em protoboard com driver alimentado a 5 V não funcionou | | | Resposta PWM não comprovada. Ver procedimento 3.3. |
-| 3.4 | IMU (I2C) | | | | Dados de aceleração e giro | | | | |
+| 3.4 | IMU MPU6050 (I2C) | | | | Reconhecimento da IMU no barramento I2C e leitura de dados de aceleração e giro | | | | Sensor J6, alimentado em 3,3 V. |
 | 3.5 | **Encoders de Quadratura (18 cm)** | 16/10/2026 | 17/10/2026 | Cláudio / Equipe | Leitura x4 por interrupção; erro $\le \pm 3\%$ em 180 mm | Roteiro e script serial automatizados; aguardando bancada final | S | | Issue #186, HU-05 |
 | 3.6 | | | | | | | | | |
 
