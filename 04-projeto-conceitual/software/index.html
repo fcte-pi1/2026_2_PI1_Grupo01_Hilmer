@@ -1429,6 +1429,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#mapa-percurso-e-paredes-do-robo-no-dashboard-em-tempo-real-hu-06" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mapa, percurso e paredes do robô no dashboard em tempo real (HU-06)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#infraestrutura-de-testes-automatizados-e-cliente-supabase-simulado-394" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2486,6 +2497,17 @@
     <span class="md-ellipsis">
       
         Filtro do histórico por labirinto na consulta ao banco (HU-15)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mapa-percurso-e-paredes-do-robo-no-dashboard-em-tempo-real-hu-06" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mapa, percurso e paredes do robô no dashboard em tempo real (HU-06)
       
     </span>
   </a>
@@ -4129,6 +4151,53 @@ um <code>id</code> traz só as daquele labirinto. O retorno não mudou: <code>{ 
 <p><strong>Observação para o backend.</strong> A coluna <code>corridas.labirinto_id</code> não tem índice nas migrações.
 Com poucas corridas por labirinto não faz diferença; se o histórico crescer, vale
 <code>CREATE INDEX ON corridas (labirinto_id);</code>.</p>
+<h4 id="mapa-percurso-e-paredes-do-robo-no-dashboard-em-tempo-real-hu-06">Mapa, percurso e paredes do robô no dashboard em tempo real (HU-06)<a class="headerlink" href="#mapa-percurso-e-paredes-do-robo-no-dashboard-em-tempo-real-hu-06" title="Permanent link">&para;</a></h4>
+<p>A visualização do labirinto no dashboard web (<code>GradeLabirinto</code>, Frames <code>01_Idle</code>, <code>02_Running</code> e <code>03_Completed</code>) foi integrada ao fluxo de dados real provido pelo robô e pelo banco de dados Supabase (tarefa <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/239">#239</a>, HU-06). Na etapa inicial (#230), o componente operava apenas em modo simulado estático; com esta implementação, a malha vetorial responde dinamicamente às leituras de odometria (<code>telemetria</code>) e às células descobertas (<code>mapa_celulas</code>) via Supabase Realtime.</p>
+<pre class="mermaid"><code>sequenceDiagram
+    participant MM as Robô (ESP32-C3)
+    participant EF as Edge Functions
+    participant DB as Supabase · PostgreSQL
+    participant RT as Supabase Realtime (WebSocket)
+    participant HOOK as useTelemetriaAoVivo
+    participant GL as GradeLabirinto (SVG)
+
+    MM-&gt;&gt;EF: POST /telemetria (lote de odometria: linha, coluna, orientação)
+    EF-&gt;&gt;DB: INSERT INTO telemetria
+    DB--&gt;&gt;RT: postgres_changes (INSERT telemetria)
+    RT--&gt;&gt;HOOK: payload.new (Telemetria)
+    HOOK-&gt;&gt;GL: atualiza percurso (Robot Path) e robo (Robot marker)
+
+    MM-&gt;&gt;EF: POST /corridas/mapa (células e paredes mapeadas)
+    EF-&gt;&gt;DB: INSERT INTO mapa_celulas
+    DB--&gt;&gt;RT: postgres_changes (INSERT/UPDATE mapa_celulas)
+    RT--&gt;&gt;HOOK: payload.new (MapaCelula)
+    HOOK-&gt;&gt;GL: desenha paredes mapeadas (parede_norte, sul, leste, oeste)</code></pre>
+<p><strong>Figura.</strong> Fluxo de dados em tempo real: leituras periódicas de telemetria alimentam o traçado e o marcador do robô, enquanto as paredes descobertas são desenhadas na malha conforme chegam ao Realtime.</p>
+<p><strong>Regras e decisões técnicas:</strong></p>
+<ul>
+<li><strong>Sistema de coordenadas SVG e dimensões da malha:</strong></li>
+<li>O sistema do firmware adota a célula <span class="arithmatex">\((0, 0)\)</span> na largada (canto inferior esquerdo), com o eixo Norte aumentando a linha e o eixo Leste aumentando a coluna.</li>
+<li>Para conciliar com o sistema de coordenadas do SVG (cujo eixo <span class="arithmatex">\(y\)</span> cresce para baixo), a conversão é calculada por:
+    $<span class="arithmatex">\(x(\text{coluna}) = \text{MARGEM} + \text{coluna} \times \text{LADO}\)</span>$
+    $<span class="arithmatex">\(y(\text{linha}) = \text{MARGEM} + (\text{linhas} - 1 - \text{linha}) \times \text{LADO}\)</span>$
+    onde <span class="arithmatex">\(\text{LADO} = 48\)</span> unidades e <span class="arithmatex">\(\text{MARGEM} = 6\)</span> unidades de <em>viewBox</em>.</li>
+<li>A malha ajusta seu <em>viewBox</em> dinamicamente para as três dimensões oficiais da competição: <span class="arithmatex">\(204 \times 204\)</span> (<code>4x4</code>), <span class="arithmatex">\(396 \times 204\)</span> (<code>8x4</code>) e <span class="arithmatex">\(588 \times 204\)</span> (<code>12x4</code>).</li>
+<li><strong>Partida e Chegada:</strong></li>
+<li>Partida (<code>grade__largada</code>): retângulo em verde suave (<code>--largada: #bbf7d0</code>) posicionado na célula <span class="arithmatex">\((0, 0)\)</span>.</li>
+<li>Chegada / Objetivo (<code>grade__objetivo</code>): retângulo em vermelho suave (<code>--objetivo: #fecdd3</code>, com borda tracejada <code>--objetivo-borda: #f43f5e</code>) posicionado na célula oposta <span class="arithmatex">\((linhas - 1, colunas - 1)\)</span>.</li>
+<li><strong>Marcador <code>Robot</code>:</strong></li>
+<li>Indicador circular com vetor de proa estilizado em triângulo, centrado na célula atual ocupada pelo micromouse.</li>
+<li>Rotação angular em torno do centro da célula conforme a orientação cardinal informada pela telemetria: <span class="arithmatex">\(N = 0^\circ\)</span>, <span class="arithmatex">\(L = 90^\circ\)</span>, <span class="arithmatex">\(S = 180^\circ\)</span> e <span class="arithmatex">\(O = 270^\circ\)</span>.</li>
+<li><strong>Traçado <code>Robot Path</code>:</strong></li>
+<li>Vetor dinâmico em laranja vibrante (<code>--trajeto: #f97316</code>) desenhado como <code>&lt;polyline&gt;</code> SVG com junções e terminações arredondadas (<code>stroke-linejoin: round</code>, <code>stroke-linecap: round</code>).</li>
+<li>Conecta sequencialmente o ponto central de cada célula registrada no histórico de telemetria da corrida.</li>
+<li><strong>Paredes Mapeadas (<code>mapa_celulas</code>):</strong></li>
+<li>Cada célula recebida com valor booleano <code>true</code> em <code>parede_norte</code>, <code>parede_sul</code>, <code>parede_leste</code> ou <code>parede_oeste</code> projeta um segmento de reta de espessura 3 px sobre a grade.</li>
+<li>Paredes não exploradas (<code>null</code>) ou livres (<code>false</code>) não geram traços internos, mantendo apenas as linhas tênues da malha de fundo e o perímetro externo fechado.</li>
+<li>No modo ao vivo, o mapa não oculta paredes por ausência de visita física (<code>mapaConhecido</code> atua exclusivamente no modo exemplo/simulado), respeitando leituras de sensores de alcance (LiDAR/ToF) que identificam paredes de células adjacentes.</li>
+<li><strong>Persistência ao final da corrida:</strong></li>
+<li>Ao transitar para o estado <code>concluido</code> (detecção de objetivo alcançado) ou <code>nao_concluido</code> (tempo limite de 10:00 esgotado), o painel mantém intactas as listas de telemetria e o mapa de células, garantindo a exibição permanente do trajeto completo percorrido para análise de bancada.</li>
+</ul>
 <h4 id="infraestrutura-de-testes-automatizados-e-cliente-supabase-simulado-394">Infraestrutura de testes automatizados e cliente Supabase simulado (#394)<a class="headerlink" href="#infraestrutura-de-testes-automatizados-e-cliente-supabase-simulado-394" title="Permanent link">&para;</a></h4>
 <p>Para garantir a confiabilidade do dashboard e permitir que as próximas tarefas (#231, #234, #239 e #242) implementem testes de unidade e integração sem depender de conexão com o banco de dados nem expor chaves de serviço, foi desenvolvida a infraestrutura de testes automatizados em <code>src/frontend</code> (tarefa <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/394">#394</a>).</p>
 <p><strong>Tecnologias adotadas:</strong>
@@ -4556,6 +4625,13 @@ O workflow <code>.github/workflows/ci-frontend.yml</code> valida todo PR e <em>p
 <td>Documenta o filtro do histórico por labirinto na consulta ao banco (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/234">#234</a>)</td>
 <td>Ana Carolina Fialho</td>
 <td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.6</td>
+<td style="text-align: center;">24/10/2026</td>
+<td>Documenta a renderização vetorial da malha, percurso e paredes em tempo real no dashboard (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/239">#239</a>)</td>
+<td>Rafael Lima</td>
+<td>Ana Carolina Fialho</td>
 </tr>
 </tbody>
 </table>

@@ -2911,6 +2911,78 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#sprint-5-mapa-e-percurso-do-robo-no-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sprint 5 · Mapa e percurso do robô no dashboard
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sprint 5 · Mapa e percurso do robô no dashboard">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#criterios-da-issue-e-testes_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Critérios da issue e testes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testes-unitarios-e-de-integracao_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testes unitários e de integração
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cobertura-suite-completa-e-build_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cobertura, suíte completa e build
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prova-de-mutacao_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prova de mutação
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pendencias-desta-etapa_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pendências desta etapa
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -4616,6 +4688,78 @@
         
           <li class="md-nav__item">
   <a href="#pendencias-desta-etapa_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pendências desta etapa
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sprint-5-mapa-e-percurso-do-robo-no-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sprint 5 · Mapa e percurso do robô no dashboard
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sprint 5 · Mapa e percurso do robô no dashboard">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#criterios-da-issue-e-testes_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Critérios da issue e testes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testes-unitarios-e-de-integracao_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testes unitários e de integração
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cobertura-suite-completa-e-build_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cobertura, suíte completa e build
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prova-de-mutacao_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prova de mutação
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pendencias-desta-etapa_15" class="md-nav__link">
     <span class="md-ellipsis">
       
         Pendências desta etapa
@@ -10157,6 +10301,252 @@ Para reproduzir localmente antes da integração com a <code>main</code>, garant
 <ul>
 <li>Comparação visual com os Frames <code>04_History_View_M1</code> a <code>M3</code>: capturas da tela com cada filtro anexadas ao PR de código.</li>
 <li>Índice em <code>corridas.labirinto_id</code> no banco (sugestão para o backend; sem efeito com poucas corridas).</li>
+</ul>
+<h3 id="sprint-5-mapa-e-percurso-do-robo-no-dashboard">Sprint 5 · Mapa e percurso do robô no dashboard<a class="headerlink" href="#sprint-5-mapa-e-percurso-do-robo-no-dashboard" title="Permanent link">&para;</a></h3>
+<div class="admonition warning">
+<p class="admonition-title">Testes em simulação</p>
+<p>Os testes automatizados deste registro rodaram <strong>no computador</strong>, utilizando o Supabase simulado em memória (<code>src/test/supabaseSimulado.ts</code>, originado na tarefa <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/394">#394</a>) em substituição ao banco real. As linhas de <code>corridas</code>, <code>telemetria</code> e <code>mapa_celulas</code> foram <strong>geradas pelos testes com o esquema real das tabelas</strong>, simulando eventos de inserção e canais Realtime WebSocket.</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tarefa</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/239">#239 Mapa e percurso do robô no dashboard</a></td>
+</tr>
+<tr>
+<td>História de usuário</td>
+<td>HU-06 · Visualizar o percurso do robô sobre o mapa (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/9">#9</a>), RF06</td>
+</tr>
+<tr>
+<td>Código testado</td>
+<td><code>src/frontend</code> (branch <code>feat/239-mapa-percurso-dashboard</code>, commit <code>d5f2b39</code>)</td>
+</tr>
+<tr>
+<td>Data da execução</td>
+<td>24/10/2026</td>
+</tr>
+<tr>
+<td>Executado por</td>
+<td>Rafael Lima</td>
+</tr>
+<tr>
+<td>Tipo de teste</td>
+<td>Unitário e de integração, no computador, com dados simulados e canais Realtime</td>
+</tr>
+<tr>
+<td>Documentação do código</td>
+<td><a href="../../04-projeto-conceitual/software/#mapa-percurso-e-paredes-do-robo-no-dashboard-em-tempo-real-hu-06">Software: mapa, percurso e paredes do robô no dashboard em tempo real</a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Ambiente de execução:</strong> Linux (x86_64), Node.js 20+, Vitest 5.0.5, Testing Library (<code>@testing-library/react</code>), jsdom, Vite 6 e TypeScript 5.</p>
+<h4 id="criterios-da-issue-e-testes_2">Critérios da issue e testes<a class="headerlink" href="#criterios-da-issue-e-testes_2" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Critério da #239</th>
+<th>Testes associados</th>
+<th style="text-align: center;">Situação</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Malha com as dimensões do labirinto da corrida, partida em verde e chegada em vermelho</td>
+<td>Unitário em <code>GradeLabirinto.test.tsx</code> (viewBox proporcional para 4×4, 8×4 e 12×4; partida em verde suave em <code>(0, 0)</code>; chegada em vermelho suave no canto oposto). Integração em <code>TelaAoVivo.test.tsx</code> validando renderização conforme labirinto da corrida</td>
+<td style="text-align: center;">Aprovado</td>
+</tr>
+<tr>
+<td>Marcador <code>Robot</code> e traçado <code>Robot Path</code> atualizados em tempo real</td>
+<td>Unitário em <code>GradeLabirinto.test.tsx</code> (posicionamento do marcador e rotações cardeais N/L/S/O; polilinha <code>Robot Path</code> conectando as coordenadas). Integração em <code>TelaAoVivo.test.tsx</code> e <code>useTelemetriaAoVivo.test.ts</code> com recepção reativa de telemetria e paredes em <code>mapa_celulas</code></td>
+<td style="text-align: center;">Aprovado</td>
+</tr>
+<tr>
+<td>Traçado completo mantido ao final da corrida</td>
+<td>Unitário em <code>GradeLabirinto.test.tsx</code> (todos os pontos da trajetória mantidos no término). Integração em <code>TelaAoVivo.test.tsx</code> e <code>painelAoVivo.test.ts</code> conferindo que ao concluir (<code>objetivo_alcancado</code>) o traçado e paredes não são resetados</td>
+<td style="text-align: center;">Aprovado</td>
+</tr>
+</tbody>
+</table>
+<h4 id="testes-unitarios-e-de-integracao_2">Testes unitários e de integração<a class="headerlink" href="#testes-unitarios-e-de-integracao_2" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-90-1" name="__codelineno-90-1" href="#__codelineno-90-1"></a><span class="nb">cd</span><span class="w"> </span>src/frontend
+<a id="__codelineno-90-2" name="__codelineno-90-2" href="#__codelineno-90-2"></a>npx<span class="w"> </span>vitest<span class="w"> </span>run<span class="w"> </span>src/componentes/GradeLabirinto.test.tsx<span class="w"> </span>src/lib/painelAoVivo.test.ts<span class="w"> </span>src/hooks/useTelemetriaAoVivo.test.ts<span class="w"> </span>src/paginas/TelaAoVivo.test.tsx
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Arquivo</th>
+<th style="text-align: center;">Casos novos</th>
+<th>Nível</th>
+<th>O que verificam</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>componentes/GradeLabirinto.test.tsx</code></td>
+<td style="text-align: center;">10</td>
+<td>Unitário</td>
+<td>Proporções e viewBox para 4×4, 8×4 e 12×4; posicionamento de partida <code>(0,0)</code> e chegada <code>(linhas-1, colunas-1)</code>; marcador <code>Robot</code> com translação e rotação em 0°, 90°, 180° e 270°; geração do traçado <code>Robot Path</code>; projeção de paredes conhecidas (<code>true</code>) e descarte de <code>null</code>/<code>false</code>; retenção do traçado completo</td>
+</tr>
+<tr>
+<td><code>lib/painelAoVivo.test.ts</code></td>
+<td style="text-align: center;">5</td>
+<td>Unitário (regras puras)</td>
+<td>Adição de células descobertas ao estado do painel (<code>aplicarMapaCelula</code>); atualização idempotente de células pré-existentes sem duplicatas; descarte de células pertencentes a outra corrida; recepção de mapa final pós-término de corrida; aplicação de lote completo (<code>aplicarMapa</code>)</td>
+</tr>
+<tr>
+<td><code>hooks/useTelemetriaAoVivo.test.ts</code></td>
+<td style="text-align: center;">3</td>
+<td>Integração (hook)</td>
+<td>Assinatura simultânea de três canais Realtime isolados (<code>telemetria</code>, <code>corridas</code> e <code>mapa</code>); carga inicial assíncrona de células existentes em <code>mapa_celulas</code>; recepção de eventos de inserção/atualização de paredes em tempo real</td>
+</tr>
+<tr>
+<td><code>paginas/TelaAoVivo.test.tsx</code></td>
+<td style="text-align: center;">2</td>
+<td>Integração (página)</td>
+<td>Renderização integrada da malha com partida e chegada; atualização em tempo real do marcador e do traçado a cada leitura de telemetria; desenho de paredes mapeadas recebidas por Realtime; manutenção integral do percurso após encerramento da corrida</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Resultado:</strong> 20 novos casos de teste implementados e aprovados, elevando a suíte do frontend de 99 para 119 testes:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-91-1" name="__codelineno-91-1" href="#__codelineno-91-1"></a>✓ src/componentes/GradeLabirinto.test.tsx (10 tests)
+<a id="__codelineno-91-2" name="__codelineno-91-2" href="#__codelineno-91-2"></a>  ✓ Malha com as dimensões do labirinto da corrida &gt; renderiza o SVG com as dimensões e o viewBox correto para labirinto 4x4
+<a id="__codelineno-91-3" name="__codelineno-91-3" href="#__codelineno-91-3"></a>  ✓ Malha com as dimensões do labirinto da corrida &gt; renderiza o SVG com as dimensões e o viewBox correto para labirinto 8x4
+<a id="__codelineno-91-4" name="__codelineno-91-4" href="#__codelineno-91-4"></a>  ✓ Malha com as dimensões do labirinto da corrida &gt; renderiza o SVG com as dimensões e o viewBox correto para labirinto 12x4
+<a id="__codelineno-91-5" name="__codelineno-91-5" href="#__codelineno-91-5"></a>  ✓ Malha com as dimensões do labirinto da corrida &gt; posiciona a partida em (0, 0) no canto inferior esquerdo e a chegada em (linhas-1, colunas-1) no canto oposto
+<a id="__codelineno-91-6" name="__codelineno-91-6" href="#__codelineno-91-6"></a>  ✓ Marcador Robot &gt; renderiza o marcador do robô na posição e orientação iniciais (0, 0, N)
+<a id="__codelineno-91-7" name="__codelineno-91-7" href="#__codelineno-91-7"></a>  ✓ Marcador Robot &gt; atualiza a translação e a rotação conforme o robô se desloca e gira
+<a id="__codelineno-91-8" name="__codelineno-91-8" href="#__codelineno-91-8"></a>  ✓ Traçado Robot Path &gt; não desenha traçado quando o percurso tem apenas a largada (1 ponto)
+<a id="__codelineno-91-9" name="__codelineno-91-9" href="#__codelineno-91-9"></a>  ✓ Traçado Robot Path &gt; desenha e atualiza o traçado em tempo real conforme as posições avançam
+<a id="__codelineno-91-10" name="__codelineno-91-10" href="#__codelineno-91-10"></a>  ✓ Traçado Robot Path &gt; mantém o traçado completo ao final da corrida
+<a id="__codelineno-91-11" name="__codelineno-91-11" href="#__codelineno-91-11"></a>  ✓ Paredes mapeadas &gt; desenha linhas para paredes com valor true e ignora paredes false ou null
+<a id="__codelineno-91-12" name="__codelineno-91-12" href="#__codelineno-91-12"></a>✓ src/lib/painelAoVivo.test.ts (25 tests)
+<a id="__codelineno-91-13" name="__codelineno-91-13" href="#__codelineno-91-13"></a>  ✓ aplicarMapaCelula e aplicarMapa (#239) &gt; acrescenta células novas ao mapa do painel
+<a id="__codelineno-91-14" name="__codelineno-91-14" href="#__codelineno-91-14"></a>  ✓ aplicarMapaCelula e aplicarMapa (#239) &gt; atualiza célula já existente sem duplicar
+<a id="__codelineno-91-15" name="__codelineno-91-15" href="#__codelineno-91-15"></a>  ✓ aplicarMapaCelula e aplicarMapa (#239) &gt; ignora células de outra corrida
+<a id="__codelineno-91-16" name="__codelineno-91-16" href="#__codelineno-91-16"></a>  ✓ aplicarMapaCelula e aplicarMapa (#239) &gt; aceita células do mapa final após encerramento da corrida (HU-04)
+<a id="__codelineno-91-17" name="__codelineno-91-17" href="#__codelineno-91-17"></a>  ✓ aplicarMapaCelula e aplicarMapa (#239) &gt; aplicarMapa aplica um lote inteiro de células
+<a id="__codelineno-91-18" name="__codelineno-91-18" href="#__codelineno-91-18"></a>✓ src/hooks/useTelemetriaAoVivo.test.ts (18 tests)
+<a id="__codelineno-91-19" name="__codelineno-91-19" href="#__codelineno-91-19"></a>  ✓ assina telemetria, corridas e mapa em canais separados e aguarda quando não há corrida em andamento
+<a id="__codelineno-91-20" name="__codelineno-91-20" href="#__codelineno-91-20"></a>  ✓ ao abrir no meio da corrida, carrega também as células do mapa já mapeadas (#239)
+<a id="__codelineno-91-21" name="__codelineno-91-21" href="#__codelineno-91-21"></a>  ✓ recebe atualizações de células do mapa em tempo real via Realtime (#239)
+<a id="__codelineno-91-22" name="__codelineno-91-22" href="#__codelineno-91-22"></a>✓ src/paginas/TelaAoVivo.test.tsx (7 tests)
+<a id="__codelineno-91-23" name="__codelineno-91-23" href="#__codelineno-91-23"></a>  ✓ desenha a malha com largada verde e chegada vermelha, atualizando robô, percurso e paredes em tempo real (#239)
+<a id="__codelineno-91-24" name="__codelineno-91-24" href="#__codelineno-91-24"></a>  ✓ mantém o traçado completo e o mapa ao final da corrida (#239)
+</code></pre></div>
+<h4 id="cobertura-suite-completa-e-build_1">Cobertura, suíte completa e build<a class="headerlink" href="#cobertura-suite-completa-e-build_1" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-92-1" name="__codelineno-92-1" href="#__codelineno-92-1"></a>npm<span class="w"> </span>run<span class="w"> </span>test:cobertura
+<a id="__codelineno-92-2" name="__codelineno-92-2" href="#__codelineno-92-2"></a>npm<span class="w"> </span>run<span class="w"> </span>build
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Arquivo</th>
+<th style="text-align: center;">Linhas</th>
+<th style="text-align: center;">Desvios (<em>Branches</em>)</th>
+<th style="text-align: center;">Funções</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>componentes/GradeLabirinto.tsx</code></td>
+<td style="text-align: center;">100%</td>
+<td style="text-align: center;">100%</td>
+<td style="text-align: center;">100%</td>
+</tr>
+<tr>
+<td><code>paginas/TelaAoVivo.tsx</code></td>
+<td style="text-align: center;">100%</td>
+<td style="text-align: center;">100%</td>
+<td style="text-align: center;">100%</td>
+</tr>
+<tr>
+<td><code>lib/painelAoVivo.ts</code></td>
+<td style="text-align: center;">100%</td>
+<td style="text-align: center;">93,5%</td>
+<td style="text-align: center;">100%</td>
+</tr>
+<tr>
+<td><code>hooks/useTelemetriaAoVivo.ts</code></td>
+<td style="text-align: center;">97,1%</td>
+<td style="text-align: center;">78,3%</td>
+<td style="text-align: center;">100%</td>
+</tr>
+</tbody>
+</table>
+<p>Suíte completa do frontend: <strong>119 de 119 testes aprovados</strong> em 12 arquivos de teste (cobertura global de 94,1% de linhas e 88,0% de <em>branches</em>). Compilação estática (<code>tsc --noEmit</code>) e <em>bundle</em> do Vite (<code>npm run build</code>) concluídos com sucesso.</p>
+<h4 id="prova-de-mutacao_2">Prova de mutação<a class="headerlink" href="#prova-de-mutacao_2" title="Permanent link">&para;</a></h4>
+<p>Para atestar que a suíte é sensível a defeitos e não apenas confirmatória, foram introduzidas 10 mutações manuais deliberadas no código da malha e do painel, uma por vez:</p>
+<table>
+<thead>
+<tr>
+<th>Mutação introduzida</th>
+<th>Efeito esperado</th>
+<th style="text-align: center;">Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Inverter o cálculo do eixo <span class="arithmatex">\(y\)</span> no SVG (<code>MARGEM + linha * LADO</code>)</td>
+<td>Origem <span class="arithmatex">\((0, 0)\)</span> ficaria no canto superior esquerdo</td>
+<td style="text-align: center;"><strong>Detectada</strong> (<code>GradeLabirinto.test.tsx</code>)</td>
+</tr>
+<tr>
+<td>Não rotacionar o marcador do robô pelo ângulo da orientação</td>
+<td>Ângulo de rotação permaneceria fixo em 0°</td>
+<td style="text-align: center;"><strong>Detectada</strong> (<code>GradeLabirinto.test.tsx</code>)</td>
+</tr>
+<tr>
+<td>Remover a checagem <code>if (c.parede_*)</code> ao montar os segmentos</td>
+<td>Paredes <code>false</code> ou <code>null</code> desenhariam linhas pretas</td>
+<td style="text-align: center;"><strong>Detectada</strong> (<code>GradeLabirinto.test.tsx</code>)</td>
+</tr>
+<tr>
+<td>Resetar o traçado (<code>leituras: []</code>) na transição para <code>concluido</code></td>
+<td>O traçado desapareceria no encerramento da corrida</td>
+<td style="text-align: center;"><strong>Detectada</strong> (<code>TelaAoVivo.test.tsx</code>)</td>
+</tr>
+<tr>
+<td>Não passar <code>aoVivo.mapa</code> para o painel em <code>App.tsx</code></td>
+<td>O mapa ao vivo permaneceria vazio no dashboard</td>
+<td style="text-align: center;"><strong>Detectada</strong> (<code>TelaAoVivo.test.tsx</code>)</td>
+</tr>
+<tr>
+<td>Assinar <code>mapa_celulas</code> no mesmo canal Realtime de <code>telemetria</code></td>
+<td>Conflito de isolamento de canais</td>
+<td style="text-align: center;"><strong>Detectada</strong> (<code>useTelemetriaAoVivo.test.ts</code>)</td>
+</tr>
+<tr>
+<td>Descartar células recebidas após a corrida estar encerrada</td>
+<td>Mapa final (HU-04) seria ignorado</td>
+<td style="text-align: center;"><strong>Detectada</strong> (<code>painelAoVivo.test.ts</code>)</td>
+</tr>
+<tr>
+<td>Não atualizar paredes de células já conhecidas</td>
+<td>Atualizações de exploração seriam perdidas</td>
+<td style="text-align: center;"><strong>Detectada</strong> (<code>painelAoVivo.test.ts</code>)</td>
+</tr>
+<tr>
+<td>Não aplicar o <code>offset</code> de margem de 3 px na partida e chegada</td>
+<td>Posição dos retângulos ficaria colada na borda externa</td>
+<td style="text-align: center;"><strong>Detectada</strong> (<code>GradeLabirinto.test.tsx</code>)</td>
+</tr>
+<tr>
+<td>Renderizar <code>Robot Path</code> com apenas 1 ponto</td>
+<td>SVG desenharia polilinha com ponto singular</td>
+<td style="text-align: center;"><strong>Detectada</strong> (<code>GradeLabirinto.test.tsx</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Taxa de detecção da prova de mutação:</strong> 10 de 10 mutações detectadas (100%).</p>
+<h4 id="pendencias-desta-etapa_15">Pendências desta etapa<a class="headerlink" href="#pendencias-desta-etapa_15" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Validação em bancada integrada com o robô físico navegando no labirinto de testes (depende da conclusão da montagem mecânica e dos testes em pista).</li>
 </ul>
 
 
