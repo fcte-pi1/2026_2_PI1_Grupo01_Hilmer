@@ -54,6 +54,10 @@ class CorretorDeslocamentoTof {
   Correcao avaliar(const Odometria& odometria, const DistanciasLaterais& leitura,
                    const EstimadorDeslocamento& estimador);
 
+  /// O mesmo, com a potência comandada às rodas no lugar do estimador: serve para qualquer fonte de
+  /// deslocamento, inclusive os encoders reais (#188).
+  Correcao avaliar(const Odometria& odometria, const DistanciasLaterais& leitura, const PotenciaRodas& potencia);
+
   /// Esquece o estado parede/livre dos lados (depois de um giro ou de reposicionar o robô).
   void esquecerLaterais();
 

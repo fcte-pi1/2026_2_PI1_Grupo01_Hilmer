@@ -35,7 +35,10 @@ PotenciaRodas ControleMovimento::calcularInterno(const DistanciasLaterais* leitu
   }
   tempoSemLeituraMs_ = 0;
 
-  const int16_t base = perfil_.potenciaBase(leitura->frenteMm);
+  int16_t base = perfil_.potenciaBase(leitura->frenteMm);
+  if (base > tetoPotenciaBase_) {
+    base = tetoPotenciaBase_ < config_.potenciaMinima ? config_.potenciaMinima : tetoPotenciaBase_;
+  }
   if (base == 0) {
     estado_ = EstadoMovimento::ParadoNaParede;
     centralizacao_.reiniciar();

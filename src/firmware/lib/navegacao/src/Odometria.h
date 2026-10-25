@@ -3,8 +3,9 @@
 /// @file Odometria.h
 /// @brief Estimativa da pose (célula e direção) pela odometria diferencial dos encoders.
 ///
-/// A arquitetura não tem IMU: a rotação vem da diferença entre os deslocamentos das duas rodas, e
-/// o avanço, da média. Não depende do Arduino e só usa aritmética de inteiros.
+/// A rotação vem da diferença entre os deslocamentos das duas rodas, e o avanço, da média; a direção
+/// confirmada pelo giroscópio entra por `definirDirecao` e as correções pelas paredes, por
+/// `ajustarPosicao`. Não depende do Arduino e só usa aritmética de inteiros.
 
 #include <stdint.h>
 
@@ -32,7 +33,8 @@ namespace micromouse {
 /// a célula.
 /// Fora do que o `uint8_t` comporta, a célula é limitada a 0..255 e `posicaoValida()` é `false`.
 ///
-/// A odometria acumula erro (patinagem, arredondamento); a correção pelas paredes é a #188.
+/// A odometria acumula erro (patinagem, arredondamento): as paredes vistas pelos ToF o corrigem nos
+/// dois eixos (`ajustarPosicao`, #188).
 ///
 /// Exemplo:
 /// @code
@@ -62,6 +64,16 @@ class Odometria {
   /// Define a pose atual e usa as contagens dadas como referência (por exemplo, depois de um
   /// `zerar()` dos encoders, ou ao reposicionar o robô numa célula conhecida).
   void reiniciar(Pose pose, int32_t contagemEsquerda = 0, int32_t contagemDireita = 0);
+
+  /// Adota uma direção medida por outra fonte (o giroscópio, depois de um giro, #184), sem mudar a
+  /// posição. A diferença acumulada entre as rodas volta a zero: o próximo giro conta a partir daqui.
+  void definirDirecao(Direcao direcao);
+
+  /// Desloca a posição estimada no referencial do robô, sem girar: `deltaAvancoUm` ao longo da
+  /// direção atual (positivo = para a frente) e `deltaLateralUm` para o lado (positivo = para a
+  /// direita). É como as correções pelas paredes chegam à odometria com qualquer fonte de
+  /// deslocamento, encoder ou estimativa (#188). As contagens de referência não mudam.
+  void ajustarPosicao(int32_t deltaAvancoUm, int32_t deltaLateralUm);
 
   /// Célula e direção estimadas.
   Pose pose() const;

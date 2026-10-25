@@ -89,6 +89,26 @@ ResultadoRegistro Mapa::registrarParede(PosicaoCelula posicao, Direcao direcao, 
   return ResultadoRegistro::Registrada;
 }
 
+ResultadoRegistro Mapa::corrigirParede(PosicaoCelula posicao, Direcao direcao, EstadoParede estado) {
+  if (!posValida(posicao) || estado == EstadoParede::Desconhecido) {
+    return ResultadoRegistro::Invalida;
+  }
+  PosicaoCelula vizinhaPosicao = {0, 0};
+  const bool temVizinha = vizinha(posicao, direcao, vizinhaPosicao) && posValida(vizinhaPosicao);
+  if (!temVizinha && estado == EstadoParede::Livre) {
+    return ResultadoRegistro::Invalida;  // o perímetro é sempre parede
+  }
+  EstadoParede& parede = referenciaParede(celulas[posicao.linha][posicao.coluna], direcao);
+  if (parede == estado) {
+    return ResultadoRegistro::JaConhecida;
+  }
+  parede = estado;
+  if (temVizinha) {
+    referenciaParede(celulas[vizinhaPosicao.linha][vizinhaPosicao.coluna], oposta(direcao)) = estado;
+  }
+  return ResultadoRegistro::Registrada;
+}
+
 namespace {
 
 bool celulasIguais(const Mapa::Celula& a, const Mapa::Celula& b) {

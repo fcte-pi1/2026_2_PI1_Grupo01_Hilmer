@@ -75,6 +75,15 @@ class Mapa {
   /// @return O que aconteceu com o registro.
   ResultadoRegistro registrarParede(PosicaoCelula posicao, Direcao direcao, EstadoParede estado);
 
+  /// Grava o estado de uma parede mesmo que ela já tenha outro estado conhecido (nos dois lados).
+  ///
+  /// Para quando quem chama tem uma evidência mais forte que a observação anterior: por exemplo, o
+  /// robô parou numa parede que a percepção tinha classificado como livre (#184). Sem isso, o
+  /// Flood Fill planejaria pela mesma parede para sempre.
+  /// @return `Registrada` se o estado mudou, `JaConhecida` se já era esse, `Invalida` como em
+  ///         `registrarParede` ou para `Livre` no perímetro (que é sempre parede).
+  ResultadoRegistro corrigirParede(PosicaoCelula posicao, Direcao direcao, EstadoParede estado);
+
   /// Dois mapas são iguais quando têm o mesmo tamanho e o mesmo estado em todas as paredes.
   bool operator==(const Mapa& outro) const;
   bool operator!=(const Mapa& outro) const;

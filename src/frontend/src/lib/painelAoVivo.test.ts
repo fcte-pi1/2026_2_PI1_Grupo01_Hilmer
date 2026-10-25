@@ -2,12 +2,14 @@ import { describe, expect, it } from 'vitest';
 import {
   PAINEL_INICIAL,
   aplicarCorrida,
+  aplicarMapa,
+  aplicarMapaCelula,
   aplicarTelemetria,
   calcularMetricas,
   fracaoDoLimite,
   type PainelAoVivo,
 } from './painelAoVivo';
-import { corridaSimulada, leituraSimulada } from '../test/dadosAoVivo';
+import { celulaSimulada, corridaSimulada, leituraSimulada } from '../test/dadosAoVivo';
 
 // Testes unitários com linhas simuladas (não vêm do robô).
 
@@ -156,5 +158,64 @@ describe('fracaoDoLimite', () => {
     expect(fracaoDoLimite(600)).toBe(1);
     expect(fracaoDoLimite(900)).toBe(1);
     expect(fracaoDoLimite(-5)).toBe(0);
+  });
+});
+
+describe('aplicarMapaCelula e aplicarMapa (#239)', () => {
+  it('acrescenta células novas ao mapa do painel', () => {
+    let painel = emExecucao();
+    painel = aplicarMapaCelula(painel, celulaSimulada(0, 0, { parede_norte: false }));
+    painel = aplicarMapaCelula(painel, celulaSimulada(0, 1, { parede_norte: true }));
+
+    expect(painel.mapa).toHaveLength(2);
+    expect(painel.mapa[0]).toEqual({
+      linha: 0,
+      coluna: 0,
+      parede_norte: false,
+      parede_sul: true,
+      parede_leste: false,
+      parede_oeste: true,
+    });
+    expect(painel.mapa[1].linha).toBe(0);
+    expect(painel.mapa[1].coluna).toBe(1);
+    expect(painel.mapa[1].parede_norte).toBe(true);
+  });
+
+  it('atualiza célula já existente sem duplicar', () => {
+    let painel = emExecucao();
+    painel = aplicarMapaCelula(painel, celulaSimulada(1, 1, { parede_norte: null }));
+    expect(painel.mapa).toHaveLength(1);
+    expect(painel.mapa[0].parede_norte).toBeNull();
+
+    // Reenvio ou atualização com parede descoberta
+    painel = aplicarMapaCelula(painel, celulaSimulada(1, 1, { parede_norte: true }));
+    expect(painel.mapa).toHaveLength(1);
+    expect(painel.mapa[0].parede_norte).toBe(true);
+  });
+
+  it('ignora células de outra corrida', () => {
+    const painel = emExecucao();
+    const atualizado = aplicarMapaCelula(painel, celulaSimulada(0, 0, { corrida_id: 99 }));
+    expect(atualizado.mapa).toHaveLength(0);
+  });
+
+  it('aceita células do mapa final após encerramento da corrida (HU-04)', () => {
+    let painel = aplicarTelemetria(emExecucao(), leituraSimulada(10, { evento: 'objetivo_alcancado' }));
+    expect(painel.estado).toBe('concluido');
+
+    painel = aplicarMapaCelula(painel, celulaSimulada(3, 3, { corrida_id: 1, parede_norte: true }));
+    expect(painel.mapa).toHaveLength(1);
+    expect(painel.mapa[0].linha).toBe(3);
+  });
+
+  it('aplicarMapa aplica um lote inteiro de células', () => {
+    const painel = emExecucao();
+    const celulas = [
+      celulaSimulada(0, 0, { parede_norte: false }),
+      celulaSimulada(0, 1, { parede_norte: true }),
+      celulaSimulada(1, 0, { parede_leste: true }),
+    ];
+    const comMapa = aplicarMapa(painel, celulas);
+    expect(comMapa.mapa).toHaveLength(3);
   });
 });

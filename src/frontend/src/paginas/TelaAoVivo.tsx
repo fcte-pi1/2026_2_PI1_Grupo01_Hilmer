@@ -26,7 +26,7 @@ const GraficoVelocidade = lazy(() =>
 
 interface TelaAoVivoProps {
   labirinto: Labirinto;
-  /** Paredes conhecidas do labirinto (vazio enquanto o mapa da corrida real não chega, #239). */
+  /** Paredes conhecidas do labirinto (descobertas pelo robô em mapa_celulas ou simuladas, #239). */
   mapa: MapaCelula[];
   estado: EstadoPainel;
   /** Tempo da corrida, em segundos. */
@@ -84,7 +84,7 @@ export function TelaAoVivo({
         <GradeLabirinto
           linhas={labirinto.linhas}
           colunas={labirinto.colunas}
-          mapa={mapaConhecido(mapa, percurso)}
+          mapa={aoVivo ? mapa : mapaConhecido(mapa, percurso)}
           percurso={percurso}
           robo={robo}
         />

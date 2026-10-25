@@ -204,6 +204,40 @@ void test_correcao_limitada_pela_potencia_base() {
   TEST_ASSERT_LESS_OR_EQUAL_INT16(158 * 160 / 100, p.direita);  // base 158 + 60%
 }
 
+/// O teto da potência base (#184) desacelera com o caminho livre e nunca fica abaixo da mínima.
+void test_teto_da_potencia_base_desacelera_sem_parede_a_frente() {
+  ControleMovimento controle;
+  TEST_ASSERT_EQUAL_INT16(INT16_MAX, controle.tetoPotenciaBase());
+  const DistanciasLaterais l = leitura(LONGE, 84, 84);
+
+  controle.definirTetoPotenciaBase(250);
+  PotenciaRodas p = controle.calcular(&l, 100);
+  TEST_ASSERT_EQUAL(EstadoMovimento::Desacelerando, controle.estado());
+  TEST_ASSERT_EQUAL_INT16(250, p.esquerda);
+  TEST_ASSERT_EQUAL_INT16(250, p.direita);
+
+  controle.definirTetoPotenciaBase(20);
+  p = controle.calcular(&l, 100);
+  TEST_ASSERT_EQUAL_INT16(150, p.esquerda);  // potenciaMinima
+  TEST_ASSERT_EQUAL_INT16(150, p.direita);
+
+  controle.definirTetoPotenciaBase(INT16_MAX);
+  p = controle.calcular(&l, 100);
+  TEST_ASSERT_EQUAL(EstadoMovimento::Cruzeiro, controle.estado());
+  TEST_ASSERT_EQUAL_INT16(400, p.esquerda);
+}
+
+/// Com teto, a parede da frente ainda manda: a parada frontal não depende do teto.
+void test_teto_da_potencia_base_nao_impede_a_parada_frontal() {
+  ControleMovimento controle;
+  controle.definirTetoPotenciaBase(300);
+  const DistanciasLaterais perto = leitura(80, 84, 84);
+  const PotenciaRodas p = controle.calcular(&perto, 100);
+  TEST_ASSERT_EQUAL(EstadoMovimento::ParadoNaParede, controle.estado());
+  TEST_ASSERT_EQUAL_INT16(0, p.esquerda);
+  TEST_ASSERT_EQUAL_INT16(0, p.direita);
+}
+
 /// Critério 2: ao chegar à distância de parada, para e continua parado até `reiniciar()`.
 void test_parada_trava_ate_reiniciar() {
   ControleMovimento controle;
@@ -470,6 +504,8 @@ int main(int, char**) {
   RUN_TEST(test_configuracao_sem_rampa);
   RUN_TEST(test_movimento_combina_base_e_correcao);
   RUN_TEST(test_correcao_limitada_pela_potencia_base);
+  RUN_TEST(test_teto_da_potencia_base_desacelera_sem_parede_a_frente);
+  RUN_TEST(test_teto_da_potencia_base_nao_impede_a_parada_frontal);
   RUN_TEST(test_parada_trava_ate_reiniciar);
   RUN_TEST(test_sem_leitura_segue_reto_e_depois_para);
   RUN_TEST(test_leitura_valida_zera_o_tempo_sem_leitura);

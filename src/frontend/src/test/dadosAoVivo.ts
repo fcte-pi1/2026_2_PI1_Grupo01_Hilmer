@@ -1,7 +1,7 @@
-import type { Corrida, Telemetria } from '../tipos';
+import type { Corrida, MapaCelula, Telemetria } from '../tipos';
 
 /**
- * Linhas simuladas de `corridas` e `telemetria` para os testes da tela ao vivo (#231).
+ * Linhas simuladas de `corridas`, `telemetria` e `mapa_celulas` para os testes da tela ao vivo (#231, #239).
  * Não vêm do robô: os valores são inventados, só com o formato real das tabelas.
  */
 export function corridaSimulada(parcial: Partial<Corrida> = {}): Corrida {
@@ -35,6 +35,23 @@ export function leituraSimulada(numeroSequencia: number, parcial: Partial<Teleme
     tempo_decorrido: numeroSequencia,
     estado_corrida: 'explorando',
     evento: null,
+    ...parcial,
+  };
+}
+
+export function celulaSimulada(
+  linha: number,
+  coluna: number,
+  parcial: Partial<MapaCelula & { corrida_id: number }> = {},
+): MapaCelula & { corrida_id: number } {
+  return {
+    linha,
+    coluna,
+    parede_norte: false,
+    parede_sul: true,
+    parede_leste: false,
+    parede_oeste: true,
+    corrida_id: 1,
     ...parcial,
   };
 }

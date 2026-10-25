@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from './App';
 import { criarClienteSupabaseSimulado } from './test/supabaseSimulado';
@@ -52,9 +52,11 @@ describe('App no modo ao vivo (integração com Supabase simulado)', () => {
     expect(seletor()).toHaveValue('4x4');
     expect(seletor()).toBeDisabled();
 
-    await clienteSimulado
-      .from('telemetria')
-      .insert(leituraSimulada(1, { corrida_id: 40, tempo_decorrido: 92.5, evento: 'objetivo_alcancado' }));
+    await act(async () => {
+      await clienteSimulado
+        .from('telemetria')
+        .insert(leituraSimulada(1, { corrida_id: 40, tempo_decorrido: 92.5, evento: 'objetivo_alcancado' }));
+    });
     await waitFor(() => expect(screen.getByText('Concluído na Tentativa 3 · Nota 5')).toBeInTheDocument());
     expect(seletor()).toHaveValue('4x4');
     expect(seletor()).toBeDisabled();

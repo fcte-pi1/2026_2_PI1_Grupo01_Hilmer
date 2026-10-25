@@ -9,6 +9,10 @@
 /// Enquanto os encoders não são instalados (`ENCODERS_INSTALADOS` em `ConfiguracaoDeslocamento.h`),
 /// o deslocamento é estimado pela potência dos motores e corrigido pelos ToF (#380).
 /// Os motores só são liberados depois do autoteste do boot (#50) encontrar os 4 dispositivos do I²C.
+/// A navegação percebe as paredes no centro de cada célula, grava no mapa, decide pelo Flood Fill e
+/// executa um movimento por vez (avançar uma célula, girar 90° ou 180°, #184), depois da largada
+/// pelo gesto da mão na frente do ToF frontal (ou do comando serial `L`). As paredes corrigem o erro
+/// acumulado da odometria, e o robô se realinha ao centro do corredor antes de girar no lugar (#188).
 /// Uma terceira tarefa, a de rede, envia a telemetria ao Supabase sem nunca fazer a navegação
 /// esperar (#238).
 
@@ -26,20 +30,22 @@
 #include "AutotesteBoot.h"
 #include "BarramentoI2c.h"
 #include "BarramentoI2cEsp32.h"
+#include "CicloNavegacao.h"
 #include "Configuracao.h"
 #include "ConfiguracaoDeslocamento.h"
 #include "ConfiguracaoImu.h"
 #include "ConfiguracaoRede.h"
 #include "ContratoTelemetria.h"
 #include "ControladorEnvio.h"
-#include "ControleGiro.h"
-#include "ControleMovimento.h"
 #include "ConversorDeslocamento.h"
+#include "CorrecaoPelasParedes.h"
+#include "CorretorDeslocamentoTof.h"
 #include "CredenciaisSupabase.h"
 #include "DeslocamentoEstimado.h"
 #include "DetectorObjetivo.h"
 #include "EncoderEsp32.h"
 #include "EnvioHttpSupabase.h"
+#include "GatilhoLargada.h"
 #include "ImuMpu6050.h"
 #include "MedidorDeslocamento.h"
 #include "MotoresComTrava.h"
@@ -88,7 +94,7 @@ static micromouse::MotoresDrv8833 motores(micromouse::pinos::MOTOR_ESQ_IN1,
                                           true);
 
 /// Deslocamento sem encoder (#380): estima o avanço pela potência comandada e o corrige pelos ToF.
-/// Quem acionar as rodas (o `ControleMovimento`, na #184) deve usar `motoresTracao`, para o
+/// Quem acionar as rodas (o `CicloNavegacao`, #184) deve usar `motoresTracao`, para o
 /// estimador saber a potência; com os encoders instalados, a estimativa sai e a trava envolve o
 /// próprio driver.
 ///
@@ -190,11 +196,24 @@ static portMUX_TYPE travaGiro = portMUX_INITIALIZER_UNLOCKED;
   return copia;
 }
 
-/// Controle de giro no próprio eixo (90° e 180°) em malha fechada pelo giroscópio (#190).
-[[maybe_unused]] static micromouse::ControleGiro controleGiro;
+/// Ciclo percepção → mapa → decisão → atuação (#184): grava as paredes no mapa da corrida, decide
+/// pelo Flood Fill e executa os movimentos (o `ControleMovimento` e o `ControleGiro` da #190/#191
+/// ficam dentro dele). Só a tarefa de navegação o usa; só ela escreve no mapa.
+static micromouse::CicloNavegacao cicloNavegacao(armazenamentoMapa.mapa());
 
-/// Controle de movimento: avanço com centralização e controle de rumo pelo giroscópio (#190, #191).
-[[maybe_unused]] static micromouse::ControleMovimento controleMovimento;
+/// Correção do erro acumulado da odometria pelas paredes (#188): a posição lateral pelas paredes
+/// laterais e, com os encoders instalados, também ao longo do avanço (no modo estimado, quem corrige
+/// o avanço é o `DeslocamentoEstimado`). Protegida por `travaOdometria`, como a odometria.
+static micromouse::CorrecaoPelasParedes correcaoParedes;
+
+/// Gatilho da largada (#184): a mão na frente do ToF frontal, ou o comando serial `L`. Só a tarefa
+/// de navegação o usa.
+static micromouse::GatilhoLargada gatilhoLargada;
+
+/// Pedidos da telemetria (comandos seriais) para a tarefa de navegação, protegidos por
+/// `travaOdometria`: `Z` recoloca o robô na largada e `L` libera a largada sem o gesto.
+static bool pedidoReinicioNavegacao = false;
+static bool pedidoLargada = false;
 
 /// Tarefa da IMU: lê o giroscópio a cada `PERIODO_LEITURA_IMU_MS` (10 ms), em intervalo fixo.
 ///
@@ -384,6 +403,8 @@ static void tarefaRede(void*) {
 static void tarefaNavegacao(void*) {
   // Instante da amostra mais antiga da última leitura usada: se não mudou, a leitura é a mesma.
   uint32_t instanteUltimaLeituraUsada = 0;
+  // Comando `L` recebido antes de o robô estar pronto: vale quando ele ficar pronto.
+  bool largadaPendente = false;
   for (;;) {
     // Sensores de distância: a leitura não espera medida nova, só junta as últimas amostras. Fica
     // antes da detecção do objetivo para a telemetria continuar recebendo o ToF depois da chegada.
@@ -405,15 +426,36 @@ static void tarefaNavegacao(void*) {
       instanteUltimaLeituraUsada = instanteLeitura;
     }
 
+    // Nas manobras (giros e realinhamento), as leituras não servem de referência de posição (#188).
+    const micromouse::MovimentoRobo movimento = cicloNavegacao.movimentoRobo();
+    const bool referencia = leituraNova && movimento != micromouse::MovimentoRobo::Manobrando;
+
     bool alcancou = false;
     // Odometria e detecção de chegada executam na seção crítica travaOdometria para sincronizar com
     // tarefaTelemetria. O intervalo curto (10 ms) mantém cada atualização com giro ou avanço, não os dois.
     portENTER_CRITICAL(&travaOdometria);
+    const bool reiniciarNavegacao = pedidoReinicioNavegacao;
+    const bool largarAgora = pedidoLargada;
+    pedidoReinicioNavegacao = false;
+    pedidoLargada = false;
+    // Fora dos giros, a direção da odometria é a confirmada pelo giroscópio no fim de cada giro, e não
+    // a da diferença entre as rodas (#184). A cada ciclo, para a diferença também não se acumular nos
+    // giros pequenos do realinhamento (#188).
+    if (cicloNavegacao.direcaoDefinida()) {
+      odometria.definirDirecao(cicloNavegacao.direcao());
+    }
     if (micromouse::ENCODERS_INSTALADOS) {
       odometria.atualizar(rodaEsq, rodaDir);
     } else {
       // Estima o avanço dos 10 ms e corrige a posição pela leitura nova do ToF, se houver.
-      deslocamento.ciclo(10, odometria, leituraNova ? &leituraTof.distancias : nullptr);
+      if (movimento == micromouse::MovimentoRobo::Manobrando) {
+        deslocamento.esquecerLaterais();
+      }
+      deslocamento.ciclo(10, odometria, referencia ? &leituraTof.distancias : nullptr);
+    }
+    // Pelas paredes: a posição lateral sempre e, com os encoders, também ao longo do avanço (#188).
+    if (leituraNova) {
+      correcaoParedes.aplicar(odometria, leituraTof.distancias, movimento, micromouse::ENCODERS_INSTALADOS);
     }
     const micromouse::Pose pose = odometria.pose();
     // No modo estimado, uma pose sem correção recente não serve para declarar a chegada (#380).
@@ -426,14 +468,58 @@ static void tarefaNavegacao(void*) {
     } else {
       alcancou = detectorObjetivo.objetivoAlcancado();
     }
+    const int64_t posicaoAvancoUm = micromouse::posicaoAoLongoDoAvancoUm(odometria);
+    const bool posicaoNaMalha = odometria.posicaoValida();
     portEXIT_CRITICAL(&travaOdometria);
+
+    if (reiniciarNavegacao) {
+      largadaPendente = false;
+      portENTER_CRITICAL(&travaOdometria);
+      correcaoParedes.reiniciar();
+      portEXIT_CRITICAL(&travaOdometria);
+      gatilhoLargada.reiniciar();
+      cicloNavegacao.reiniciar(pose, motoresTracao);
+    }
 
     if (alcancou) {
       vTaskDelay(pdMS_TO_TICKS(10));
       continue;
     }
 
-    // Ciclo percepção, decisão e atuação: percepção, mapeamento, navegação e atuação entram aqui.
+    // Ciclo percepção → mapa → decisão → atuação (#184).
+    const micromouse::LeituraGiro giro = lerGiro();
+    const micromouse::DistanciasLaterais* tofNovo = leituraNova ? &leituraTof.distancias : nullptr;
+    // Permissão provisória para mover, até a `FaseCorrida` da #242: boot aprovado, giroscópio
+    // calibrado e gatilho da largada disparado. Antes de o robô estar pronto, o gesto não é observado.
+    const bool pronto = estadoBoot.ok && giro.calibracao == micromouse::EstadoCalibracao::Calibrado;
+    largadaPendente = largadaPendente || largarAgora;
+    if (pronto) {
+      const bool jaLiberado = gatilhoLargada.disparado();
+      if (largadaPendente) {
+        largadaPendente = false;
+        gatilhoLargada.dispararManual();
+      }
+      if (gatilhoLargada.atualizar(tofNovo, 10) && !jaLiberado) {
+        Serial.println("{\"status\":\"largada_liberada\"}");
+      }
+    }
+
+    micromouse::EntradaCiclo entrada;
+    entrada.liberado = pronto && gatilhoLargada.disparado();
+    entrada.pose = pose;
+    entrada.poseValida = posicaoNaMalha;
+    entrada.posicaoAvancoUm = posicaoAvancoUm;
+    entrada.leituraNova = tofNovo;
+    entrada.giro = giro;
+    entrada.dtMs = 10;
+    const micromouse::EstadoCiclo antes = cicloNavegacao.estado();
+    const micromouse::EstadoCiclo depois = cicloNavegacao.atualizar(entrada, motoresTracao);
+    if (depois != antes) {
+      Serial.printf("{\"status\":\"navegacao\",\"estado\":\"%s\",\"falha\":\"%s\",\"celulas\":%lu}\n",
+                    micromouse::nomeDoEstadoCiclo(depois),
+                    micromouse::nomeDaFalhaExecucao(cicloNavegacao.falhaExecucao()),
+                    static_cast<unsigned long>(cicloNavegacao.celulasAvancadas()));
+    }
     vTaskDelay(pdMS_TO_TICKS(10));
   }
 }
@@ -441,8 +527,9 @@ static void tarefaNavegacao(void*) {
 /// Tarefa de telemetria: coleta e envia os dados a cada `PERIODO_TELEMETRIA_MS`.
 ///
 /// Prioridade 1. Transmite as leituras dos encoders, pose da odometria e eventos pontuais em formato JSON
-/// estruturado e aceita os comandos 'Z', para zerar os encoders e voltar a odometria à pose atual, e
-/// 'B', para repetir o relatório do boot (a linha do boot se perde se o monitor abrir depois).
+/// estruturado e aceita os comandos 'Z', para zerar os encoders, voltar a odometria à pose atual e
+/// aguardar a largada de novo, 'B', para repetir o relatório do boot (a linha do boot se perde se o
+/// monitor abrir depois), e 'L', para liberar a largada sem o gesto (#184).
 ///
 /// No modo sem encoder, `pose_valida` também fica `false` depois de o robô andar mais que
 /// `DISTANCIA_MAXIMA_SEM_CORRECAO_MM` sem correção pelo ToF, e `deslocamento` diz qual fonte está
@@ -516,10 +603,16 @@ static void tarefaTelemetria(void*) {
           deslocamento.reiniciar(odometria, odometria.pose());
         }
         detectorObjetivo.resetar();
+        pedidoReinicioNavegacao = true;
         portEXIT_CRITICAL(&travaOdometria);
         Serial.println("{\"status\":\"encoders_zerados\"}");
       } else if (c == 'B' || c == 'b') {
         imprimirRelatorioBoot();
+      } else if (c == 'L' || c == 'l') {
+        portENTER_CRITICAL(&travaOdometria);
+        pedidoLargada = true;
+        portEXIT_CRITICAL(&travaOdometria);
+        Serial.println("{\"status\":\"largada_pedida\"}");
       }
     }
 
@@ -544,6 +637,8 @@ void setup() {
   // Configuração provisória para bancada (#189): fixa Labirinto4x4.
   // Em 8x4 e 12x4 a corrida deve receber a dimensão por comando antes de iniciar.
   armazenamentoMapa.iniciarCorrida(micromouse::DimensaoMapa::Labirinto4x4);
+  // A navegação refaz o objetivo pelo tamanho do mapa e aguarda a largada na partida.
+  cicloNavegacao.reiniciar(micromouse::Pose{{0, 0}, micromouse::Direcao::Norte}, motoresTracao);
   motoresTracao.parar();
   if (micromouse::ENCODERS_INSTALADOS) {
     encoderEsq.iniciar();

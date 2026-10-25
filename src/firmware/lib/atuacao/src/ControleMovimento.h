@@ -109,6 +109,14 @@ class ControleMovimento {
   /// Define o rumo alvo (em mili-graus) que o robô deve manter durante o avanço.
   void definirRumoAlvo(int32_t rumoAlvoMiligraus);
 
+  /// Limita a potência base, para desacelerar antes de um ponto que não é uma parede (por exemplo,
+  /// o centro da próxima célula, #184). A base fica entre `potenciaMinima` e o teto; a parada
+  /// frontal continua valendo. `INT16_MAX` (o padrão) desliga o limite.
+  void definirTetoPotenciaBase(int16_t teto) { tetoPotenciaBase_ = teto; }
+
+  /// Teto atual da potência base.
+  int16_t tetoPotenciaBase() const { return tetoPotenciaBase_; }
+
   /// Rumo alvo atualmente configurado, em mili-graus.
   int32_t rumoAlvoMiligraus() const { return rumoAlvoMiligraus_; }
 
@@ -133,6 +141,7 @@ class ControleMovimento {
   PerfilParadaFrontal perfil_;
   EstadoMovimento estado_ = EstadoMovimento::Cruzeiro;
   uint32_t tempoSemLeituraMs_ = 0;
+  int16_t tetoPotenciaBase_ = INT16_MAX;
 
   // Controle de rumo pelo giroscópio (#190)
   int32_t rumoAlvoMiligraus_ = 0;

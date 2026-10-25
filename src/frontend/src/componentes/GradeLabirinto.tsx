@@ -64,9 +64,20 @@ export function GradeLabirinto({ linhas, colunas, mapa, percurso, robo }: GradeL
           <line key={`h${l}`} className="grade__linha" x1={x(0)} y1={y(l - 1)} x2={x(colunas)} y2={y(l - 1)} />
         ))}
 
-        <rect className="grade__largada" x={x(0) + 3} y={y(0) + 3} width={LADO - 6} height={LADO - 6} rx="3" />
+        <rect
+          className="grade__largada"
+          data-testid="partida"
+          aria-label="Partida"
+          x={x(0) + 3}
+          y={y(0) + 3}
+          width={LADO - 6}
+          height={LADO - 6}
+          rx="3"
+        />
         <rect
           className="grade__objetivo"
+          data-testid="chegada"
+          aria-label="Chegada"
           x={x(colunas - 1) + 3}
           y={y(linhas - 1) + 3}
           width={LADO - 6}
@@ -74,9 +85,11 @@ export function GradeLabirinto({ linhas, colunas, mapa, percurso, robo }: GradeL
           rx="3"
         />
 
-        {paredes.map(([x1, y1, x2, y2], i) => (
-          <line key={i} className="grade__parede" x1={x1} y1={y1} x2={x2} y2={y2} />
-        ))}
+        <g data-testid="paredes">
+          {paredes.map(([x1, y1, x2, y2], i) => (
+            <line key={i} className="grade__parede" x1={x1} y1={y1} x2={x2} y2={y2} />
+          ))}
+        </g>
         <rect
           className="grade__parede grade__perimetro"
           x={x(0)}
@@ -86,11 +99,19 @@ export function GradeLabirinto({ linhas, colunas, mapa, percurso, robo }: GradeL
         />
 
         {percurso.length > 1 && (
-          <polyline className="grade__trajeto" points={percurso.map(centro).join(' ')} />
+          <polyline
+            className="grade__trajeto"
+            data-testid="robot-path"
+            aria-label="Robot Path"
+            points={percurso.map(centro).join(' ')}
+          />
         )}
 
         <g
           className="grade__robo"
+          data-testid="robot"
+          aria-label="Robot"
+          role="img"
           transform={`translate(${centro(robo)}) rotate(${ANGULO[robo.orientacao]})`}
         >
           <circle r={LADO * 0.22} />

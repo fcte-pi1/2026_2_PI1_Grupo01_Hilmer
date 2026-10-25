@@ -306,6 +306,83 @@ void test_contagens_que_voltam_a_zero_depois_de_zerar_exigem_reiniciar() {
   verificarPose(2, 0, Direcao::Norte, odometria.pose());
 }
 
+void test_definir_direcao_mantem_a_posicao() {
+  Simulacao sim;
+  sim.andarCelulas(1);
+  // As rodas mostram só 22,5° (patinaram), mas o giroscópio diz que foram 90° para a direita (#184).
+  for (int32_t feito = 0; feito < PULSOS_POR_90 / 8; feito += 10) {
+    sim.esquerda += 10;
+    sim.direita -= 10;
+    sim.odometria.atualizar(sim.esquerda, sim.direita);
+  }
+  verificarPose(1, 0, Direcao::Norte, sim.odometria.pose());
+  const int32_t norteAntes = sim.odometria.posicaoNorteMicrometros();
+
+  sim.odometria.definirDirecao(Direcao::Leste);
+  verificarPose(1, 0, Direcao::Leste, sim.odometria.pose());
+  TEST_ASSERT_EQUAL_INT32(norteAntes, sim.odometria.posicaoNorteMicrometros());
+
+  // O avanço seguinte já vai para o Leste.
+  sim.andarCelulas(1);
+  verificarPose(1, 1, Direcao::Leste, sim.odometria.pose());
+}
+
+void test_definir_direcao_zera_o_giro_acumulado() {
+  Simulacao sim;
+  // Diferença entre as rodas perto de virar a direção (40,5°), sem chegar lá.
+  for (int32_t feito = 0; feito < 90; feito += 10) {
+    sim.esquerda += 10;
+    sim.direita -= 10;
+    sim.odometria.atualizar(sim.esquerda, sim.direita);
+  }
+  verificarPose(0, 0, Direcao::Norte, sim.odometria.pose());
+  sim.odometria.definirDirecao(Direcao::Norte);
+  // Sem zerar, mais 18° levariam a Leste; zerado, a direção continua Norte.
+  for (int32_t feito = 0; feito < 40; feito += 10) {
+    sim.esquerda += 10;
+    sim.direita -= 10;
+    sim.odometria.atualizar(sim.esquerda, sim.direita);
+  }
+  verificarPose(0, 0, Direcao::Norte, sim.odometria.pose());
+  // Um giro de 90° depois dele conta a partir da direção definida.
+  sim.girar(1);
+  verificarPose(0, 0, Direcao::Leste, sim.odometria.pose());
+}
+
+void test_ajustar_posicao_no_referencial_do_robo_nas_quatro_direcoes() {
+  // Frente +10 mm e direita +4 mm, em cada direção.
+  struct Caso {
+    Direcao direcao;
+    int32_t norteUm;
+    int32_t lesteUm;
+  };
+  const Caso casos[] = {{Direcao::Norte, 10000, 4000},
+                        {Direcao::Leste, -4000, 10000},
+                        {Direcao::Sul, -10000, -4000},
+                        {Direcao::Oeste, 4000, -10000}};
+  for (const Caso& c : casos) {
+    Odometria odometria(configuracaoDeTeste(), Pose{{1, 1}, c.direcao});
+    odometria.ajustarPosicao(10000, 4000);
+    TEST_ASSERT_EQUAL_INT32(180000 + c.norteUm, odometria.posicaoNorteMicrometros());
+    TEST_ASSERT_EQUAL_INT32(180000 + c.lesteUm, odometria.posicaoLesteMicrometros());
+    verificarPose(1, 1, c.direcao, odometria.pose());
+  }
+}
+
+void test_ajustar_posicao_muda_a_celula_e_nao_mexe_nas_contagens() {
+  Simulacao sim;
+  sim.andarCelulas(1);
+  // Do centro de (1, 0), 100 mm à frente: passa a fronteira e vai para (2, 0).
+  sim.odometria.ajustarPosicao(100000, 0);
+  verificarPose(2, 0, Direcao::Norte, sim.odometria.pose());
+  // As contagens seguem de onde estavam: o próximo avanço soma a partir da posição corrigida.
+  sim.andarCelulas(1);
+  TEST_ASSERT_EQUAL_INT32(2 * 180000 + 100000, sim.odometria.posicaoNorteMicrometros());
+  // Fora da malha, a posição fica inválida, como no avanço.
+  sim.odometria.ajustarPosicao(0, -100000);
+  TEST_ASSERT_FALSE(sim.odometria.posicaoValida());
+}
+
 // ---- Fora do alcance da malha
 
 void test_posicao_negativa_e_invalida_e_a_celula_fica_em_zero() {
@@ -365,6 +442,10 @@ int main(int, char**) {
   RUN_TEST(test_reiniciar_define_a_pose_e_usa_as_contagens_como_referencia);
   RUN_TEST(test_atualizar_le_os_dois_encoders);
   RUN_TEST(test_contagens_que_voltam_a_zero_depois_de_zerar_exigem_reiniciar);
+  RUN_TEST(test_definir_direcao_mantem_a_posicao);
+  RUN_TEST(test_definir_direcao_zera_o_giro_acumulado);
+  RUN_TEST(test_ajustar_posicao_no_referencial_do_robo_nas_quatro_direcoes);
+  RUN_TEST(test_ajustar_posicao_muda_a_celula_e_nao_mexe_nas_contagens);
   RUN_TEST(test_posicao_negativa_e_invalida_e_a_celula_fica_em_zero);
   RUN_TEST(test_posicao_acima_de_255_celulas_e_invalida_e_satura);
   RUN_TEST(test_volta_para_dentro_da_malha_volta_a_ser_valida);

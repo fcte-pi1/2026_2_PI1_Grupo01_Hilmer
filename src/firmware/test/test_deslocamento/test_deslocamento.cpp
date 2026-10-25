@@ -25,6 +25,7 @@ void tearDown() {}
 namespace {
 
 constexpr int64_t CELULA_UM = static_cast<int64_t>(TAMANHO_CELULA_MM) * 1000;
+constexpr uint16_t LONGE_FRENTE = 1000;  ///< Frente sem parede ao alcance da correção.
 
 /// Tabela simples para os testes: zona morta abaixo de 100, 1 mm/s por unidade até 1000.
 constexpr PontoVelocidade TABELA_TESTE[] = {{100, 100}, {1000, 1000}};
@@ -315,6 +316,31 @@ void test_girando_nao_corrige_e_esquece_as_laterais() {
   TEST_ASSERT_EQUAL(ResultadoCorrecao::Girando, deslocamento.ciclo(10, odometria, &leitura));
 }
 
+/// O corretor também aceita a potência direto, para servir aos encoders reais (#188).
+void test_corretor_pela_potencia_vale_sem_o_estimador() {
+  CorretorDeslocamentoTof corretor(configTeste());
+  Odometria odometria(odometriaTeste());
+  const DistanciasLaterais leitura = {40, 30, 30};
+  TEST_ASSERT_EQUAL(ResultadoCorrecao::Girando, corretor.avaliar(odometria, leitura, PotenciaRodas{-200, 200}).resultado);
+  // Parado, a parede da frente ainda corrige: centro a 90 mm dela, no centro da célula 0.
+  const Correcao c = corretor.avaliar(odometria, {40, 30, 30}, PotenciaRodas{0, 0});
+  TEST_ASSERT_EQUAL(ResultadoCorrecao::PelaFrente, c.resultado);
+}
+
+/// `esquecerLaterais` evita a quina falsa depois de uma manobra sem leituras (#188).
+void test_esquecer_laterais_evita_quina_falsa_depois_da_manobra() {
+  MotoresSimulados motores;
+  DeslocamentoEstimado deslocamento(motores, configTeste());
+  Odometria odometria(odometriaTeste());
+  deslocamento.motores().definirPotencia({300, 300});
+  const DistanciasLaterais comParede = {LONGE_FRENTE, 50, 50};
+  const DistanciasLaterais semParede = {LONGE_FRENTE, 400, 50};
+  deslocamento.ciclo(10, odometria, &comParede);
+  deslocamento.esquecerLaterais();
+  // A esquerda passou a livre, mas o estado anterior foi esquecido: não é quina.
+  TEST_ASSERT_EQUAL(ResultadoCorrecao::SemReferencia, deslocamento.ciclo(10, odometria, &semParede));
+}
+
 // ---- Correção pelas quinas laterais --------------------------------------------------------------
 
 void test_quina_lateral_corrige_na_fronteira_da_celula() {
@@ -459,6 +485,8 @@ int main(int, char**) {
   RUN_TEST(test_parede_longe_nao_serve_de_referencia);
   RUN_TEST(test_correcao_grande_demais_e_descartada);
   RUN_TEST(test_girando_nao_corrige_e_esquece_as_laterais);
+  RUN_TEST(test_corretor_pela_potencia_vale_sem_o_estimador);
+  RUN_TEST(test_esquecer_laterais_evita_quina_falsa_depois_da_manobra);
   RUN_TEST(test_quina_lateral_corrige_na_fronteira_da_celula);
   RUN_TEST(test_histerese_impede_quina_inventada_pelo_ruido);
   RUN_TEST(test_sem_estado_anterior_nao_corrige_pela_lateral);

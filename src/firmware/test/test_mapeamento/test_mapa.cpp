@@ -130,6 +130,27 @@ void test_registrar_estado_diferente_retorna_conflito_e_mantem_o_original() {
   ASSERT_PAREDE(EstadoParede::Parede, mapa.obterParede({1, 1}, Direcao::Norte));
 }
 
+void test_corrigir_parede_sobrescreve_nos_dois_lados() {
+  Mapa mapa(DimensaoMapa::Labirinto4x4);
+  mapa.registrarParede({1, 1}, Direcao::Norte, EstadoParede::Livre);
+  ASSERT_RESULTADO(ResultadoRegistro::Registrada, mapa.corrigirParede({1, 1}, Direcao::Norte, EstadoParede::Parede));
+  ASSERT_PAREDE(EstadoParede::Parede, mapa.obterParede({1, 1}, Direcao::Norte));
+  ASSERT_PAREDE(EstadoParede::Parede, mapa.obterParede({2, 1}, Direcao::Sul));
+  ASSERT_RESULTADO(ResultadoRegistro::JaConhecida, mapa.corrigirParede({2, 1}, Direcao::Sul, EstadoParede::Parede));
+  // Também grava uma parede ainda desconhecida.
+  ASSERT_RESULTADO(ResultadoRegistro::Registrada, mapa.corrigirParede({0, 0}, Direcao::Leste, EstadoParede::Livre));
+  ASSERT_PAREDE(EstadoParede::Livre, mapa.obterParede({0, 1}, Direcao::Oeste));
+}
+
+void test_corrigir_parede_recusa_entradas_invalidas_e_o_perimetro_livre() {
+  Mapa mapa(DimensaoMapa::Labirinto4x4);
+  ASSERT_RESULTADO(ResultadoRegistro::Invalida, mapa.corrigirParede({1, 1}, Direcao::Norte, EstadoParede::Desconhecido));
+  ASSERT_RESULTADO(ResultadoRegistro::Invalida, mapa.corrigirParede({4, 0}, Direcao::Norte, EstadoParede::Parede));
+  ASSERT_RESULTADO(ResultadoRegistro::Invalida, mapa.corrigirParede({0, 0}, Direcao::Sul, EstadoParede::Livre));
+  ASSERT_PAREDE(EstadoParede::Parede, mapa.obterParede({0, 0}, Direcao::Sul));
+  ASSERT_RESULTADO(ResultadoRegistro::JaConhecida, mapa.corrigirParede({3, 3}, Direcao::Norte, EstadoParede::Parede));
+}
+
 void test_registrar_entradas_invalidas_retorna_invalida() {
   Mapa mapa(DimensaoMapa::Labirinto4x4);
   ASSERT_RESULTADO(ResultadoRegistro::Invalida,
@@ -292,5 +313,7 @@ int main(int, char**) {
   RUN_TEST(test_mapas_de_tamanhos_diferentes_sao_diferentes);
   RUN_TEST(test_consistencia_se_mantem_apos_registros_pseudoaleatorios);
   RUN_TEST(test_mapa_ocupa_pouca_memoria);
+  RUN_TEST(test_corrigir_parede_sobrescreve_nos_dois_lados);
+  RUN_TEST(test_corrigir_parede_recusa_entradas_invalidas_e_o_perimetro_livre);
   return UNITY_END();
 }

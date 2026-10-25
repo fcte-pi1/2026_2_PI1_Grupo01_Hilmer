@@ -104,8 +104,14 @@ bool CorretorDeslocamentoTof::corrigirPelaLateral(int64_t posicaoUm, EstadoLado 
 Correcao CorretorDeslocamentoTof::avaliar(const Odometria& odometria,
                                           const DistanciasLaterais& leitura,
                                           const EstimadorDeslocamento& estimador) {
+  return avaliar(odometria, leitura, estimador.potencia());
+}
+
+Correcao CorretorDeslocamentoTof::avaliar(const Odometria& odometria, const DistanciasLaterais& leitura,
+                                          const PotenciaRodas& potencia) {
   Correcao correcao;
-  if (estimador.girando()) {
+  const bool girando = (potencia.esquerda > 0 && potencia.direita < 0) || (potencia.esquerda < 0 && potencia.direita > 0);
+  if (girando) {
     esquecerLaterais();
     correcao.resultado = ResultadoCorrecao::Girando;
     return correcao;
@@ -120,7 +126,6 @@ Correcao CorretorDeslocamentoTof::avaliar(const Odometria& odometria,
   int64_t deltaUm = 0;
   ResultadoCorrecao encontrada = ResultadoCorrecao::SemReferencia;
   // A frente é a referência mais precisa; a lateral só vale com o robô avançando.
-  const PotenciaRodas potencia = estimador.potencia();
   const bool avancando = potencia.esquerda >= 0 && potencia.direita >= 0 &&
                          (potencia.esquerda > 0 || potencia.direita > 0);
   if (corrigirPelaFrente(posicaoUm, leitura.frenteMm, deltaUm)) {

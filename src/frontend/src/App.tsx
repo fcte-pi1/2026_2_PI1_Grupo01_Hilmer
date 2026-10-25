@@ -48,7 +48,7 @@ export function App() {
   const painel = aoVivo.disponivel
     ? {
         labirinto: labirintoAoVivo,
-        mapa: [],
+        mapa: aoVivo.mapa,
         estado: aoVivo.estado,
         tempo: aoVivo.tempo,
         leituras: aoVivo.leituras,

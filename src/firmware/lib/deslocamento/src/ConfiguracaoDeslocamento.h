@@ -84,6 +84,13 @@ constexpr uint16_t DISTANCIA_SENSOR_FRONTAL_AO_CENTRO_MM = 50;
 /// centro entre as rodas até o eixo do sensor lateral, medida para a frente.
 constexpr int16_t AVANCO_SENSORES_LATERAIS_MM = 0;
 
+/// Distância, para o lado, do centro do robô até a face de cada sensor LATERAL, em mm. A distância à
+/// parede lateral, medida do centro, é a leitura do sensor mais este valor. De onde veio: o recuo
+/// da percepção (`ConfiguracaoPercepcao.h`: 84 − 30 = 54 mm lidos com parede), usado no controle do
+/// avanço (#184) e na correção lateral pelas paredes (#188). Como medir: régua do centro entre as
+/// rodas até a face de cada sensor lateral.
+constexpr uint16_t DISTANCIA_SENSOR_LATERAL_AO_CENTRO_MM = 30;
+
 // ---------------------------------------------------------------------------------------------
 // 4. Correção pela parede da frente
 // ---------------------------------------------------------------------------------------------

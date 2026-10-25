@@ -53,6 +53,11 @@ class DeslocamentoEstimado {
   /// a `odometria` e esquece o estado das laterais. A pose volta a ser confiável.
   void reiniciar(Odometria& odometria, Pose pose);
 
+  /// Esquece o estado parede/livre das laterais. Chame durante uma manobra em que as leituras não são
+  /// passadas ao `ciclo()` (o realinhamento, #188): sem isso, a primeira leitura depois dela poderia
+  /// parecer uma quina.
+  void esquecerLaterais() { corretor_.esquecerLaterais(); }
+
   /// `false` depois de `distanciaMaximaSemCorrecaoMm` sem correção pelo ToF.
   bool poseConfiavel() const { return estimador_.poseConfiavel(); }
 

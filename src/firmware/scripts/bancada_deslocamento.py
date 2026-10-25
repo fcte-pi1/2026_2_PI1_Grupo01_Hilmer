@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
-"""Menu de bancada do deslocamento sem encoder (issue #380).
+"""Menu de bancada do deslocamento sem encoder (#380), da execução dos movimentos (#184) e da
+correção pelas paredes (#188).
 
 Grava o firmware de bancada (ambiente `bancada_deslocamento`), aciona o robô e mostra o log da
 estimativa ao vivo, para a equipe conferir na régua se o que o robô acha que andou bate com o que
 ele andou de verdade: tabela de velocidade, avanço de uma célula, correção pelo ToF num corredor,
-confiança da pose e giro de 90°. Cada movimento é salvo em CSV, e o roteiro gera um relatório em
-Markdown para registrar em `docs/07-testes/software.md`.
+confiança da pose e giro de 90°. As etapas 7 e 8 executam os comandos do robô ("avançar uma célula",
+"girar 90°" e "girar 180°", #184) e registram o erro de deslocamento medido na régua e no
+transferidor. As etapas 9 e 10 (#188) conferem o desvio lateral medido pelas paredes, o
+realinhamento ao centro do corredor e, depois de um percurso, se a célula estimada coincide com a
+real. Cada movimento é salvo em CSV, e o roteiro gera um relatório em Markdown para
+registrar em `docs/07-testes/software.md`.
 
 Uso (a partir de `src/firmware`):
     ./scripts/bancada_deslocamento.py              # escolhe a porta no menu
@@ -41,6 +46,18 @@ ERRO_TABELA_PERC = 10.0  # velocidade real x tabela
 ERRO_UMA_CELULA_MM = 18.0  # 10% de uma célula, sem correção
 ERRO_CORREDOR_MM = 15.0  # com correção pelo ToF
 GIRO_TOLERANCIA_GRAUS = 20.0
+# Execução dos movimentos (#184): o avanço termina no centro da célula e o giro, no rumo alvo.
+ERRO_EXECUCAO_MM = 10.0  # parada depois de n células, contra a régua
+# Erro lateral abaixo da folga do giro no lugar: chassi de 120 × 100 mm num corredor de 168 mm deixa
+# a quina a 78,1 mm do centro e a parede a 84 mm (5,9 mm de folga).
+ERRO_LATERAL_MM = 5.0
+GIRO_EXECUTADO_TOLERANCIA_GRAUS = 3.0
+# Correção pelas paredes (#188).
+ERRO_DESVIO_MEDIDO_MM = 2.0  # desvio lateral medido pelos ToF contra a régua
+ERRO_REALINHAMENTO_MM = 2.0  # desvio que sobra depois do realinhamento
+PERCURSO_PADRAO = "AAADAEA"
+GIROS_EXECUTADOS = (("GIRO90D", "90° para a direita", 90.0), ("GIRO90E", "90° para a esquerda", 90.0),
+                    ("GIRO180", "180° (pela esquerda)", 180.0))
 # Giro de 90° com bitola de 100 mm: cada roda anda π/2 × 50 mm (ConfiguracaoOdometria: 625 pulsos).
 ARCO_POR_RODA_90_GRAUS_MM = 78.5
 
@@ -170,11 +187,49 @@ class Bancada:
         self.salvar_csv(tipo, potencia, duracao_ms, correcao, linhas)
         return fim, estado, linhas
 
-    def salvar_csv(self, tipo, potencia, duracao_ms, correcao, linhas):
+    def executar(self, texto, tipo_fim, espera_s):
+        """Executa um comando do `ExecutorMovimentos` (CELULA, GIRO*) com o log ao vivo.
+
+        Devolve (linhas `fim_execucao`, resposta `tipo_fim` ou None, todas as linhas).
+        """
+        linhas = []
+        fins = []
+
+        def mostrar(dados):
+            linhas.append(dados)
+            if dados.get("tipo") == "log":
+                print(f"  {dados['t_ms']:5d} ms | norte {dados['norte_mm']:7.1f} mm | leste "
+                      f"{dados['leste_mm']:6.1f} | ({dados['linha']},{dados['coluna']}) "
+                      f"{dados['orientacao']} | pot {dados['pot_esq']}/{dados['pot_dir']} | ToF "
+                      f"{dados['tof_frente_mm']}/{dados['tof_esq_mm']}/{dados['tof_dir_mm']}")
+            elif dados.get("tipo") == "fim_execucao":
+                fins.append(dados)
+                cor = VERDE if dados["estado"] == "concluido" else VERMELHO
+                print(f"  {cor}>>> {dados['movimento']}: {dados['estado']} ({dados['falha']}) em "
+                      f"{dados['tempo_ms']} ms, faltou {dados['restante_mm']} mm, giro medido "
+                      f"{dados['giro_medido_graus']:+.1f}°, erro de rumo {dados['erro_rumo_graus']:+.1f}°{NORMAL}")
+
+        print(f"\n{AMARELO}Motores ligados ({texto}). Ctrl+C freia na hora.{NORMAL}")
+        fim = None
+        try:
+            fim = self.comando(texto, tipo_fim, espera_s=espera_s, ao_receber=mostrar)
+        except KeyboardInterrupt:
+            self.serial.write(b"\n")  # qualquer byte freia
+            print(f"\n{AMARELO}Interrompido: motores freados.{NORMAL}")
+            self.comando("LER", "estado")
+        if fim is not None:
+            linhas.append(fim)
+            if fim.get("tipo") == "fim_execucao" and fim not in fins:
+                fins.append(fim)
+        self.salvar_csv(None, 0, 0, True, linhas, nome="execucao_" + texto.lower().replace(" ", "_"))
+        return fins, fim, linhas
+
+    def salvar_csv(self, tipo, potencia, duracao_ms, correcao, linhas, nome=None):
         os.makedirs(self.pasta_logs, exist_ok=True)
         self.movimentos += 1
-        nome = (f"{self.movimentos:02d}_{tipo.lower()}_p{potencia}_{duracao_ms}ms_"
-                f"{'com' if correcao else 'sem'}_tof.csv")
+        nome = f"{self.movimentos:02d}_{nome}.csv" if nome else (
+            f"{self.movimentos:02d}_{tipo.lower()}_p{potencia}_{duracao_ms}ms_"
+            f"{'com' if correcao else 'sem'}_tof.csv")
         caminho = os.path.join(self.pasta_logs, nome)
         with open(caminho, "w", newline="", encoding="utf-8") as arquivo:
             escritor = csv.DictWriter(arquivo, fieldnames=CAMPOS_CSV, extrasaction="ignore")
@@ -412,6 +467,141 @@ def verificar_giro(bancada):
                        "para o mesmo lado, ajuste a tabela ou PULSOS_DIFERENCIAIS_POR_90_GRAUS_PROVISORIO")
 
 
+def avaliar_celulas(celulas, medido_mm):
+    """Erro de parada depois de `celulas` avanços, contra a régua: (erro em mm, aprovado)."""
+    erro = medido_mm - celulas * CELULA_MM
+    return erro, abs(erro) <= ERRO_EXECUCAO_MM
+
+
+def avaliar_giro(nominal_graus, real_graus):
+    """Erro de um giro executado, contra o transferidor: (erro em graus, aprovado)."""
+    erro = real_graus - nominal_graus
+    return erro, abs(erro) <= GIRO_EXECUTADO_TOLERANCIA_GRAUS
+
+
+def verificar_execucao_celulas(bancada):
+    titulo("7. Execução: avançar uma célula (#184)")
+    celulas = int(perguntar_numero("Quantas células seguidas (1 a 8)", 3))
+    celulas = max(1, min(8, celulas))
+    pausar(f"Ponha o robô no centro de uma célula de um corredor reto com pelo menos {celulas} "
+           "célula(s) livre(s) à frente, alinhado, e marque no chão a posição do centro dele. O "
+           "robô usa os ToF e o giroscópio como na corrida.")
+    bancada.comando("ZERAR", "estado")
+    fins, fim, _ = bancada.executar(f"CELULA {celulas}", "fim_celulas", espera_s=celulas * 8 + 5)
+    if fim is None:
+        return
+    if fim["feitas"] < celulas:
+        falha = fins[-1]["falha"] if fins else "?"
+        bancada.registrar("Execução, avanço de célula", "REPROVADO",
+                          f"{fim['feitas']} de {celulas} célula(s); o último terminou em {falha}")
+        return
+    medido = perguntar_numero("Distância da marca de partida ao centro do robô agora, em mm",
+                              celulas * CELULA_MM)
+    erro, ok = avaliar_celulas(celulas, medido)
+    paradas = ", ".join(f"{f['restante_mm']:+d}" for f in fins)
+    bancada.aprovar_se("Execução, parada depois de n células", ok,
+                       f"{celulas} célula(s): medido {medido:.0f} mm, esperado {celulas * CELULA_MM:.0f} mm, "
+                       f"erro {erro:+.0f} mm (limite ±{ERRO_EXECUCAO_MM:.0f}); restante estimado por "
+                       f"célula: {paradas} mm")
+    lateral = perguntar_numero("Desvio do centro do robô para o lado no fim, em mm (+ = direita)", 0)
+    bancada.aprovar_se("Execução, desvio lateral no fim", abs(lateral) <= ERRO_LATERAL_MM,
+                       f"{lateral:+.0f} mm (limite ±{ERRO_LATERAL_MM:.0f}, abaixo da folga de 5,9 mm "
+                       "do giro no lugar)")
+
+
+def verificar_execucao_giros(bancada):
+    titulo("8. Execução: girar 90° e 180° pelo giroscópio (#184)")
+    pausar("Robô parado no centro de uma célula: o giroscópio vai ser calibrado (2 s).")
+    calibracao = bancada.comando("CALIBRAR", "calibracao", espera_s=8)
+    if calibracao is None or calibracao.get("estado") != "calibrado":
+        bancada.registrar("Execução, giros", "REPROVADO", "o giroscópio não calibrou (MPU6050?)")
+        return
+    bancada.comando("ZERAR", "estado")
+    for comando, nome, nominal in GIROS_EXECUTADOS:
+        pausar(f"O robô vai girar {nome}. Marque a direção atual dele no chão (ou alinhe o "
+               "transferidor).")
+        fins, fim, _ = bancada.executar(comando, "fim_execucao", espera_s=8)
+        if fim is None or fim.get("estado") != "concluido":
+            falha = fim.get("falha") if fim else "sem resposta"
+            bancada.registrar(f"Execução, giro {nome}", "REPROVADO", f"terminou em {falha}")
+            continue
+        real = perguntar_numero("Quantos graus ele girou de verdade (transferidor)", nominal)
+        erro, ok = avaliar_giro(nominal, real)
+        bancada.aprovar_se(f"Execução, giro {nome}", ok,
+                           f"girou {real:.1f}°, erro {erro:+.1f}° (limite ±{GIRO_EXECUTADO_TOLERANCIA_GRAUS:.0f}°); "
+                           f"o giroscópio mediu {abs(fim['giro_medido_graus']):.1f}° em {fim['tempo_ms']} ms")
+
+
+def avaliar_desvio(medido_mm, real_mm):
+    """Desvio lateral medido pelos ToF contra a régua: (erro em mm, aprovado)."""
+    erro = medido_mm - real_mm
+    return erro, abs(erro) <= ERRO_DESVIO_MEDIDO_MM
+
+
+def avaliar_percurso(fim, linha_real, coluna_real):
+    """Célula estimada no fim do percurso contra a real: (texto, aprovado)."""
+    estimada = (fim["linha"], fim["coluna"])
+    real = (int(linha_real), int(coluna_real))
+    completo = fim["feitos"] == fim["movimentos"]
+    texto = (f"estimada ({estimada[0]},{estimada[1]}) {fim['orientacao']}, real ({real[0]},{real[1]}); "
+             f"{fim['feitos']} de {fim['movimentos']} movimentos, {fim['realinhamentos']} realinhamento(s)")
+    if not completo:
+        texto += f"; parou em {fim['falha']}"
+    return texto, completo and estimada == real
+
+
+def verificar_realinhamento(bancada):
+    titulo("9. Desvio lateral e realinhamento ao centro (#188)")
+    pausar("Robô parado no centro de uma célula: o giroscópio vai ser calibrado (2 s).")
+    calibracao = bancada.comando("CALIBRAR", "calibracao", espera_s=8)
+    if calibracao is None or calibracao.get("estado") != "calibrado":
+        bancada.registrar("Realinhamento", "REPROVADO", "o giroscópio não calibrou (MPU6050?)")
+        return
+    pausar("Ponha o robô num corredor com parede dos dois lados e a célula de trás livre, alinhado, "
+           "mas uns 8 mm fora do centro (para qualquer lado). Meça o desvio com a régua.")
+    real = perguntar_numero("Desvio real do centro do robô, em mm (+ = direita)", 8)
+    medido = bancada.comando("DESVIO", "desvio", espera_s=3)
+    if medido is None or medido.get("referencia") == "sem_parede":
+        bancada.registrar("Desvio lateral medido", "REPROVADO", "os ToF laterais não viram parede")
+        return
+    erro, ok = avaliar_desvio(medido["desvio_mm"], real)
+    bancada.aprovar_se("Desvio lateral medido", ok,
+                       f"medido {medido['desvio_mm']:+.1f} mm ({medido['referencia']}), régua {real:+.1f} mm, "
+                       f"erro {erro:+.1f} mm (limite ±{ERRO_DESVIO_MEDIDO_MM:.0f})")
+    pausar("O robô vai se realinhar: giro pequeno, ré, volta ao rumo e frente.")
+    fins, fim, _ = bancada.executar("REALINHAR", "fim_execucao", espera_s=15)
+    if fim is None or fim.get("estado") != "concluido":
+        falha = fim.get("falha") if fim else "sem resposta"
+        bancada.registrar("Realinhamento", "REPROVADO", f"terminou em {falha}")
+        return
+    final = perguntar_numero("Desvio do centro do robô depois do realinhamento, na régua, em mm", 0)
+    bancada.aprovar_se("Realinhamento ao centro", abs(final) <= ERRO_REALINHAMENTO_MM,
+                       f"de {real:+.1f} mm para {final:+.1f} mm (limite ±{ERRO_REALINHAMENTO_MM:.0f}) em "
+                       f"{fim['tempo_ms']} ms; erro de rumo {fim['erro_rumo_graus']:+.1f}°")
+    encostou = input("O chassi encostou em alguma parede? (s/N): ").strip().lower() == "s"
+    bancada.aprovar_se("Realinhamento sem encostar", not encostou, "conferido a olho")
+
+
+def verificar_percurso(bancada):
+    titulo("10. Percurso: a célula estimada coincide com a real (#188)")
+    print("  Sequência: A avança uma célula, D e E giram 90° (direita e esquerda), V gira 180°.")
+    sequencia = input(f"Sequência do percurso [{PERCURSO_PADRAO}]: ").strip().upper() or PERCURSO_PADRAO
+    pausar("Ponha o robô no centro da célula de partida (0, 0), virado para o Norte, num labirinto em "
+           "que a sequência não bata em parede. O giroscópio vai ser calibrado (2 s).")
+    calibracao = bancada.comando("CALIBRAR", "calibracao", espera_s=8)
+    if calibracao is None or calibracao.get("estado") != "calibrado":
+        bancada.registrar("Percurso", "REPROVADO", "o giroscópio não calibrou (MPU6050?)")
+        return
+    bancada.comando("ZERAR", "estado")
+    _, fim, _ = bancada.executar(f"PERCURSO {sequencia}", "fim_percurso", espera_s=len(sequencia) * 15 + 10)
+    if fim is None:
+        return
+    linha = perguntar_numero("Linha real da célula em que o robô parou (Norte aumenta)", fim["linha"])
+    coluna = perguntar_numero("Coluna real (Leste aumenta)", fim["coluna"])
+    texto, ok = avaliar_percurso(fim, linha, coluna)
+    bancada.aprovar_se("Percurso, célula estimada x real", ok, f"{sequencia}: {texto}")
+
+
 def movimento_livre(bancada):
     titulo("Movimento livre com log ao vivo")
     tipo = input("ANDAR ou GIRAR? [ANDAR]: ").strip().upper() or "ANDAR"
@@ -486,7 +676,8 @@ def salvar_relatorio(bancada):
 def roteiro_completo(bancada):
     anotar_condicoes(bancada)
     for etapa in (verificar_estado_inicial, calibrar_tabela, verificar_uma_celula,
-                  verificar_corredor, verificar_confianca, verificar_giro):
+                  verificar_corredor, verificar_confianca, verificar_giro, verificar_execucao_celulas,
+                  verificar_execucao_giros, verificar_realinhamento, verificar_percurso):
         if bancada.serial is None and not bancada.conectar():
             print(f"{VERMELHO}Sem conexão com a placa: roteiro interrompido.{NORMAL}")
             break
@@ -519,13 +710,17 @@ def escolher_porta():
 MENU = (
     ("Gravar o firmware de bancada na placa", gravar_firmware),
     ("Conectar (firmware de bancada já gravado)", lambda b: b.conectar()),
-    ("Roteiro completo (etapas 1 a 6 + relatório)", roteiro_completo),
+    ("Roteiro completo (etapas 1 a 10 + relatório)", roteiro_completo),
     ("1. Estado inicial (sem mover)", verificar_estado_inicial),
     ("2. Tabela de velocidade e zona morta", calibrar_tabela),
     ("3. Avanço de uma célula", verificar_uma_celula),
     ("4. Corredor com correção pelo ToF", verificar_corredor),
     ("5. Confiança da pose sem correção", verificar_confianca),
     ("6. Giro de 90°", verificar_giro),
+    ("7. Execução: avançar n células (#184)", verificar_execucao_celulas),
+    ("8. Execução: giros de 90° e 180° (#184)", verificar_execucao_giros),
+    ("9. Desvio lateral e realinhamento (#188)", verificar_realinhamento),
+    ("10. Percurso: célula estimada x real (#188)", verificar_percurso),
     ("Movimento livre com log ao vivo", movimento_livre),
     ("Ver o estado atual", ver_estado),
     ("Anotar condições do teste", anotar_condicoes),
@@ -539,7 +734,7 @@ def main():
     args = parser.parse_args()
 
     print("=" * 66)
-    print("  BANCADA DO DESLOCAMENTO SEM ENCODER (#380)")
+    print("  BANCADA DO DESLOCAMENTO (#380), DOS MOVIMENTOS (#184) E DAS PAREDES (#188)")
     print("  As etapas acionam os motores: robô no chão, espaço livre.")
     print("  Ctrl+C durante um movimento freia os motores na hora.")
     print("=" * 66)

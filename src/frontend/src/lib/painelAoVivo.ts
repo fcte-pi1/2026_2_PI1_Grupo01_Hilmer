@@ -1,9 +1,10 @@
 import { LIMITE_TEMPO_S } from './formatacao';
-import type { Corrida, EstadoPainel, Telemetria } from '../tipos';
+import type { Corrida, EstadoPainel, MapaCelula, Telemetria } from '../tipos';
 
 /**
- * Estado da tela ao vivo montado a partir das linhas que chegam do Supabase (HU-14, #231):
- * a corrida acompanhada (tabela `corridas`) e as leituras dela (tabela `telemetria`).
+ * Estado da tela ao vivo montado a partir das linhas que chegam do Supabase (HU-14, #231; HU-06, #239):
+ * a corrida acompanhada (tabela `corridas`), as leituras dela (tabela `telemetria`) e as células
+ * mapeadas do labirinto (tabela `mapa_celulas`).
  *
  * As funções deste arquivo são puras: recebem o painel atual e uma linha nova e devolvem o
  * painel seguinte, sem React e sem Supabase. O hook `useTelemetriaAoVivo` só repassa as linhas.
@@ -16,16 +17,24 @@ export interface PainelAoVivo {
   leituras: Telemetria[];
   /** Tempo da corrida, em segundos: o `tempo_decorrido` mais recente (congela ao terminar). */
   tempo: number;
+  /** Paredes conhecidas do labirinto descobertas pelo robô (`mapa_celulas`). */
+  mapa: MapaCelula[];
 }
 
-export const PAINEL_INICIAL: PainelAoVivo = { estado: 'aguardando', corrida: null, leituras: [], tempo: 0 };
+export const PAINEL_INICIAL: PainelAoVivo = {
+  estado: 'aguardando',
+  corrida: null,
+  leituras: [],
+  tempo: 0,
+  mapa: [],
+};
 
 const terminado = (estado: EstadoPainel) => estado === 'concluido' || estado === 'nao_concluido';
 
 /**
  * Aplica uma linha da tabela `corridas` (consulta inicial ou evento do Realtime).
  *
- * - Corrida `em_andamento` nova (outro `id`): começa a acompanhar, com leituras zeradas.
+ * - Corrida `em_andamento` nova (outro `id`): começa a acompanhar, com leituras e mapa zerados.
  * - `concluida` ou `nao_concluida` da corrida acompanhada: encerra o painel; o tempo passa a
  *   ser o `tempo_final` gravado no banco, quando houver.
  * - Linhas de outras corridas já encerradas são ignoradas.
@@ -35,7 +44,7 @@ export function aplicarCorrida(painel: PainelAoVivo, corrida: Corrida): PainelAo
 
   if (corrida.status === 'em_andamento') {
     if (mesma) return { ...painel, corrida };
-    return { estado: 'em_execucao', corrida, leituras: [], tempo: 0 };
+    return { estado: 'em_execucao', corrida, leituras: [], tempo: 0, mapa: [] };
   }
 
   if (!mesma) return painel;
@@ -45,6 +54,44 @@ export function aplicarCorrida(painel: PainelAoVivo, corrida: Corrida): PainelAo
     estado: corrida.status === 'concluida' ? 'concluido' : 'nao_concluido',
     tempo: corrida.tempo_final ?? painel.tempo,
   };
+}
+
+/**
+ * Aplica uma célula da tabela `mapa_celulas` (#239).
+ *
+ * - Atualiza as paredes da célula (linha, coluna) ou adiciona se ainda não existir.
+ * - Célula de outra corrida é ignorada. Aceita células durante ou após a corrida (mapa final, HU-04).
+ */
+export function aplicarMapaCelula(
+  painel: PainelAoVivo,
+  celula: MapaCelula & { corrida_id?: number },
+): PainelAoVivo {
+  if (celula.corrida_id !== undefined && painel.corrida && celula.corrida_id !== painel.corrida.id) {
+    return painel;
+  }
+  const celulaLimpa: MapaCelula = {
+    linha: celula.linha,
+    coluna: celula.coluna,
+    parede_norte: celula.parede_norte ?? null,
+    parede_sul: celula.parede_sul ?? null,
+    parede_leste: celula.parede_leste ?? null,
+    parede_oeste: celula.parede_oeste ?? null,
+  };
+  const index = painel.mapa.findIndex((c) => c.linha === celula.linha && c.coluna === celula.coluna);
+  if (index >= 0) {
+    const novoMapa = [...painel.mapa];
+    novoMapa[index] = celulaLimpa;
+    return { ...painel, mapa: novoMapa };
+  }
+  return { ...painel, mapa: [...painel.mapa, celulaLimpa] };
+}
+
+/** Aplica uma lista de células do mapa ao painel (#239). */
+export function aplicarMapa(
+  painel: PainelAoVivo,
+  celulas: (MapaCelula & { corrida_id?: number })[],
+): PainelAoVivo {
+  return celulas.reduce(aplicarMapaCelula, painel);
 }
 
 /**

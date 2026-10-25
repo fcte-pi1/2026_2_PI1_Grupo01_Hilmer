@@ -3,12 +3,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TelaAoVivo } from './TelaAoVivo';
 import { useTelemetriaAoVivo } from '../hooks/useTelemetriaAoVivo';
 import { criarClienteSupabaseSimulado } from '../test/supabaseSimulado';
-import { corridaSimulada, leituraSimulada } from '../test/dadosAoVivo';
-import type { Corrida, Labirinto, Telemetria } from '../tipos';
+import { celulaSimulada, corridaSimulada, leituraSimulada } from '../test/dadosAoVivo';
+import type { Corrida, Labirinto, MapaCelula, Telemetria } from '../tipos';
 
 /*
- * Integração da tela ao vivo com o hook e o Supabase simulado (#231). O teste faz o papel do
- * robô: grava linhas inventadas em `telemetria` e confere o que a tela mostra a cada uma.
+ * Integração da tela ao vivo com o hook e o Supabase simulado (#231, #239). O teste faz o papel do
+ * robô: grava linhas inventadas em `telemetria` e `mapa_celulas` e confere o que a tela mostra.
  */
 const clienteSimulado = criarClienteSupabaseSimulado();
 
@@ -30,7 +30,7 @@ function PainelReal() {
   return (
     <TelaAoVivo
       labirinto={labirinto}
-      mapa={[]}
+      mapa={aoVivo.mapa}
       estado={aoVivo.estado}
       tempo={aoVivo.tempo}
       leituras={aoVivo.leituras}
@@ -127,6 +127,62 @@ describe('TelaAoVivo (integração com Supabase simulado)', () => {
     expect(cartao('Tempo de conclusão').getByText(/Tempo esgotado/)).toBeInTheDocument();
     expect(limite()).toHaveAttribute('aria-valuenow', '600');
     expect(limite()).toHaveClass('limite--esgotado');
+  });
+
+  it('desenha a malha com largada verde e chegada vermelha, atualizando robô, percurso e paredes em tempo real (#239)', async () => {
+    clienteSimulado.definirTabela<Corrida>('corridas', [corridaSimulada({ id: 23 })]);
+    render(<PainelReal />);
+    await waitFor(() => screen.getByRole('button', { name: 'CORRIDA EM ANDAMENTO' }));
+
+    // Malha dimensional com largada e chegada
+    const partida = screen.getByTestId('partida');
+    const chegada = screen.getByTestId('chegada');
+    expect(partida).toHaveClass('grade__largada');
+    expect(chegada).toHaveClass('grade__objetivo');
+
+    // Primeira telemetria: robô na largada (0, 0)
+    await enviar(leituraSimulada(1, { corrida_id: 23, posicao_linha: 0, posicao_coluna: 0, orientacao: 'N' }));
+    expect(screen.getByTestId('robot')).toHaveAttribute('transform', 'translate(30,174) rotate(0)');
+    expect(screen.queryByTestId('robot-path')).not.toBeInTheDocument();
+
+    // Segunda telemetria: robô avança para (1, 0)
+    await enviar(leituraSimulada(2, { corrida_id: 23, posicao_linha: 1, posicao_coluna: 0, orientacao: 'N' }));
+    expect(screen.getByTestId('robot')).toHaveAttribute('transform', 'translate(30,126) rotate(0)');
+    expect(screen.getByTestId('robot-path')).toHaveAttribute('points', '30,174 30,126');
+
+    // Evento Realtime de parede mapeada
+    await act(async () => {
+      await clienteSimulado
+        .from<MapaCelula & { corrida_id: number }>('mapa_celulas')
+        .insert(celulaSimulada(0, 0, { corrida_id: 23, parede_leste: true }));
+    });
+    const grupoParedes = screen.getByTestId('paredes');
+    expect(grupoParedes.querySelectorAll('line').length).toBeGreaterThan(0);
+  });
+
+  it('mantém o traçado completo e o mapa ao final da corrida (#239)', async () => {
+    clienteSimulado.definirTabela<Corrida>('corridas', [corridaSimulada({ id: 24 })]);
+    render(<PainelReal />);
+    await waitFor(() => screen.getByRole('button', { name: 'CORRIDA EM ANDAMENTO' }));
+
+    await enviar(leituraSimulada(1, { corrida_id: 24, posicao_linha: 0, posicao_coluna: 0 }));
+    await enviar(leituraSimulada(2, { corrida_id: 24, posicao_linha: 1, posicao_coluna: 0 }));
+    await enviar(
+      leituraSimulada(3, {
+        corrida_id: 24,
+        posicao_linha: 3,
+        posicao_coluna: 3,
+        evento: 'objetivo_alcancado',
+      }),
+    );
+
+    // Corrida concluída
+    expect(screen.getByRole('button', { name: 'AGUARDANDO A PRÓXIMA TENTATIVA' })).toBeDisabled();
+    // Traçado completo preservado
+    const path = screen.getByTestId('robot-path');
+    expect(path).toBeInTheDocument();
+    expect(path.getAttribute('points')?.split(' ')).toHaveLength(3);
+    expect(screen.getByTestId('robot')).toHaveAttribute('transform', 'translate(174,30) rotate(0)');
   });
 });
 
