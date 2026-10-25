@@ -1,0 +1,2754 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentação do projeto de Projeto Integrador 1 (PI1) — Grupo 01, professor Hilmer.">
+      
+      
+        <meta name="author" content="Grupo 01 - Hilmer">
+      
+      
+        <link rel="canonical" href="https://fcte-pi1.github.io/2026_2_PI1_Grupo01_Hilmer/04-projeto-conceitual/labirinto-testes/">
+      
+      
+        <link rel="prev" href="../estruturas/">
+      
+      
+        <link rel="next" href="../energia/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>4.1.1 Labirinto de testes - PI1 · Grupo 01 (Hilmer) — 2026/2</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#documentacao-do-labirinto-micromouse-modular" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="PI1 · Grupo 01 (Hilmer) — 2026/2" class="md-header__button md-logo" aria-label="PI1 · Grupo 01 (Hilmer) — 2026/2" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PI1 · Grupo 01 (Hilmer) — 2026/2
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              4.1.1 Labirinto de testes
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para o modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para o modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para o modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para o modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fcte-pi1/2026_2_PI1_Grupo01_Hilmer
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PI1 · Grupo 01 (Hilmer) — 2026/2" class="md-nav__button md-logo" aria-label="PI1 · Grupo 01 (Hilmer) — 2026/2" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PI1 · Grupo 01 (Hilmer) — 2026/2
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fcte-pi1/2026_2_PI1_Grupo01_Hilmer
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../status-equipes/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Status das equipes
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Status das equipes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../status-equipes/software/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Software
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../status-equipes/eletronica/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Eletrônica
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../status-equipes/energia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Energia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../status-equipes/estrutura/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Estrutura
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-tap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1. TAP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../02-requisitos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2. Requisitos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-eap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3. EAP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4. Projeto conceitual
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    4. Projeto conceitual
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../estruturas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 Estruturas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1.1 Labirinto de testes
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1.1 Labirinto de testes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-objetivo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Objetivo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-especificacoes-gerais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Especificações gerais
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-base-do-labirinto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Base do labirinto
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Base do labirinto">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-dimensoes-externas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Dimensões externas
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-paredes-internas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Paredes internas
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Paredes internas">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-dimensoes-das-pecas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Dimensões das peças
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-quantidade-de-paredes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Quantidade de paredes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-material-previsto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Material previsto
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-paredes-externas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Paredes externas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-modelo-1-paredes-encaixadas-em-rasgos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Modelo 1 — paredes encaixadas em rasgos
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Modelo 1 — paredes encaixadas em rasgos">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-descricao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Descrição
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-dimensoes-preliminares-dos-rasgos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Dimensões preliminares dos rasgos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-altura-total-da-peca-de-parede" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 Altura total da peça de parede
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-fabricacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 Fabricação
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#65-observacoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.5 Observações
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-modelo-2-paredes-fixadas-por-cavilhas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Modelo 2 — paredes fixadas por cavilhas
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Modelo 2 — paredes fixadas por cavilhas">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-descricao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Descrição
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-dimensoes-preliminares" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 Dimensões preliminares
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-posicionamento-das-cavilhas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 Posicionamento das cavilhas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-quantidade-preliminar-de-cavilhas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 Quantidade preliminar de cavilhas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#75-fabricacao-e-montagem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.5 Fabricação e montagem
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-comparacao-dos-modelos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Comparação dos modelos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-tolerancias-e-prototipagem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Tolerâncias e prototipagem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-desenhos-tecnicos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Desenhos técnicos
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Desenhos técnicos">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-modelo-1-rasgos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 Modelo 1 — rasgos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-modelo-2-cavilhas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 Modelo 2 — cavilhas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103-arquivos-cad-e-pdf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.3 Arquivos CAD e PDF
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-lista-preliminar-de-materiais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Lista preliminar de materiais
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Lista preliminar de materiais">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#modelo-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo 1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#modelo-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo 2
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../energia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Energia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../energia/protecoes-entrada/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.1 Proteções de entrada
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../energia/reguladores-buck/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.2 Reguladores Step-Down (Buck)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../energia/curva-descarga-lipo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.3 Curva de Descarga e SoC LiPo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../energia/monitoramento-tensao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.4 Monitoramento de Tensão (ADC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../energia/ensaios-protecoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.5 Ensaios de subtensão e PPTC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../energia/pop-recarga-bateria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.6 POP de recarga balanceada
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hardware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 Hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hardware-diagramas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3.1 Diagramas de hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../justificativa-componentes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3.2 Justificativa dos componentes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../software/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Software
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../firmware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4.1 Firmware: implementação
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-cronograma/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5. Cronograma
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../06-orcamento/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6. Orçamento
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../07-testes/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7. Testes
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    7. Testes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-testes/estrutura/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.1 Estrutura
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-testes/energia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2 Energia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-testes/energia/teste-componentes/bateria/teste-bancada-bateria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2.1 Ensaio de Bancada de Baterias
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-testes/hardware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3 Hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-testes/software/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.4 Software
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-testes/integracao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5 Integração
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../08-avaliacao-de-desempenho/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8. Avaliação de desempenho
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../09-relatorio-de-encerramento/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9. Relatório de encerramento
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-objetivo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Objetivo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-especificacoes-gerais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Especificações gerais
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-base-do-labirinto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Base do labirinto
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Base do labirinto">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-dimensoes-externas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Dimensões externas
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-paredes-internas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Paredes internas
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Paredes internas">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-dimensoes-das-pecas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Dimensões das peças
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-quantidade-de-paredes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Quantidade de paredes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-material-previsto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Material previsto
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-paredes-externas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Paredes externas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-modelo-1-paredes-encaixadas-em-rasgos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Modelo 1 — paredes encaixadas em rasgos
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Modelo 1 — paredes encaixadas em rasgos">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-descricao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Descrição
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-dimensoes-preliminares-dos-rasgos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Dimensões preliminares dos rasgos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-altura-total-da-peca-de-parede" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 Altura total da peça de parede
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-fabricacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 Fabricação
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#65-observacoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.5 Observações
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-modelo-2-paredes-fixadas-por-cavilhas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Modelo 2 — paredes fixadas por cavilhas
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Modelo 2 — paredes fixadas por cavilhas">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-descricao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Descrição
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-dimensoes-preliminares" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 Dimensões preliminares
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-posicionamento-das-cavilhas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 Posicionamento das cavilhas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-quantidade-preliminar-de-cavilhas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 Quantidade preliminar de cavilhas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#75-fabricacao-e-montagem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.5 Fabricação e montagem
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-comparacao-dos-modelos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Comparação dos modelos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-tolerancias-e-prototipagem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Tolerâncias e prototipagem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-desenhos-tecnicos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Desenhos técnicos
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Desenhos técnicos">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-modelo-1-rasgos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 Modelo 1 — rasgos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-modelo-2-cavilhas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 Modelo 2 — cavilhas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103-arquivos-cad-e-pdf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.3 Arquivos CAD e PDF
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-lista-preliminar-de-materiais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Lista preliminar de materiais
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Lista preliminar de materiais">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#modelo-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo 1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#modelo-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo 2
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/edit/main/docs/04-projeto-conceitual/labirinto-testes.md" title="Editar esta página" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="documentacao-do-labirinto-micromouse-modular">Documentação do Labirinto Micromouse Modular<a class="headerlink" href="#documentacao-do-labirinto-micromouse-modular" title="Permanent link">&para;</a></h1>
+<h2 id="1-objetivo">1. Objetivo<a class="headerlink" href="#1-objetivo" title="Permanent link">&para;</a></h2>
+<p>Este documento descreve o projeto do labirinto modular para testes do Micromouse, com base quadrada, paredes removíveis e dois sistemas alternativos de montagem.</p>
+<p>A equipe apresenta dois modelos que usam a mesma geometria geral. A diferença está no método de fixação das paredes, e a escolha final de dará pelo preço de produção.</p>
+<ul>
+<li><strong>Modelo 1:</strong> paredes encaixadas em rasgos na base.</li>
+<li><strong>Modelo 2:</strong> paredes fixadas por cavilhas de madeira em furos na base.</li>
+</ul>
+<h2 id="2-especificacoes-gerais">2. Especificações gerais<a class="headerlink" href="#2-especificacoes-gerais" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Característica</th>
+<th style="text-align: right;">Especificação</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Formato da base</td>
+<td style="text-align: right;">Quadrado</td>
+</tr>
+<tr>
+<td>Comprimento da base</td>
+<td style="text-align: right;">720 mm</td>
+</tr>
+<tr>
+<td>Largura da base</td>
+<td style="text-align: right;">720 mm</td>
+</tr>
+<tr>
+<td>Área da base</td>
+<td style="text-align: right;">720 × 720 mm</td>
+</tr>
+<tr>
+<td>Número de células</td>
+<td style="text-align: right;">16</td>
+</tr>
+<tr>
+<td>Organização da grade</td>
+<td style="text-align: right;">4 × 4 células</td>
+</tr>
+<tr>
+<td>Passo nominal entre células</td>
+<td style="text-align: right;">180 mm</td>
+</tr>
+<tr>
+<td>Espessura nominal das paredes</td>
+<td style="text-align: right;">12 mm</td>
+</tr>
+<tr>
+<td>Altura das paredes acima da base</td>
+<td style="text-align: right;">50 mm</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Importante:</strong> o passo da grade, o comprimento das paredes e a posição das junções devem ser tratados conforme a geometria definida para este projeto. O comprimento especificado para as paredes internas é de <strong>168 mm</strong>, pois devido às espessuras das paredes, os encontros entre elas não pode exceder 180mm.</p>
+<h2 id="3-base-do-labirinto">3. Base do labirinto<a class="headerlink" href="#3-base-do-labirinto" title="Permanent link">&para;</a></h2>
+<h3 id="31-dimensoes-externas">3.1 Dimensões externas<a class="headerlink" href="#31-dimensoes-externas" title="Permanent link">&para;</a></h3>
+<p>A base deve ter formato quadrado, com dimensões de:</p>
+<ul>
+<li>Comprimento: 720 mm</li>
+<li>Largura: 720 mm</li>
+</ul>
+<p>A espessura da base varia de acordo com o modelo de montagem.</p>
+<table>
+<thead>
+<tr>
+<th>Modelo</th>
+<th style="text-align: right;">Espessura nominal da base</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Modelo 1 — rasgos</td>
+<td style="text-align: right;">12 mm</td>
+</tr>
+<tr>
+<td>Modelo 2 — cavilhas</td>
+<td style="text-align: right;">15 mm</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-paredes-internas">4. Paredes internas<a class="headerlink" href="#4-paredes-internas" title="Permanent link">&para;</a></h2>
+<h3 id="41-dimensoes-das-pecas">4.1 Dimensões das peças<a class="headerlink" href="#41-dimensoes-das-pecas" title="Permanent link">&para;</a></h3>
+<p>Cada parede interna deve ter as seguintes dimensões nominais:</p>
+<table>
+<thead>
+<tr>
+<th>Dimensão</th>
+<th style="text-align: right;">Medida</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Comprimento</td>
+<td style="text-align: right;">168 mm</td>
+</tr>
+<tr>
+<td>Espessura</td>
+<td style="text-align: right;">12 mm</td>
+</tr>
+<tr>
+<td>Altura acima da base</td>
+<td style="text-align: right;">50 mm</td>
+</tr>
+</tbody>
+</table>
+<p>Dimensão nominal da parede: <strong>168 × 12 × 50 mm</strong>.</p>
+<p>O comprimento de 168 mm corresponde à especificação definida para o projeto a partir do passo nominal de 180 mm e da espessura nominal de 12 mm.</p>
+<p>Essa dimensão deve ser mantida nos dois modelos de montagem.</p>
+<h3 id="42-quantidade-de-paredes">4.2 Quantidade de paredes<a class="headerlink" href="#42-quantidade-de-paredes" title="Permanent link">&para;</a></h3>
+<p>A quantidade prevista no planejamento atual é de 24 peças internas, para que possamos trabalhar com diferentes configurações de caminhos. </p>
+<h3 id="43-material-previsto">4.3 Material previsto<a class="headerlink" href="#43-material-previsto" title="Permanent link">&para;</a></h3>
+<p>Madeira (Compensado)</p>
+<h2 id="5-paredes-externas">5. Paredes externas<a class="headerlink" href="#5-paredes-externas" title="Permanent link">&para;</a></h2>
+<p>As paredes externas delimitam o perímetro do labirinto.</p>
+<p>Para uma base de 720 × 720 mm, uma disposição preliminar é:</p>
+<table>
+<thead>
+<tr>
+<th>Peça</th>
+<th style="text-align: right;">Quantidade</th>
+<th style="text-align: right;">Comprimento</th>
+<th style="text-align: right;">Altura</th>
+<th style="text-align: right;">Espessura</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Paredes externas longas</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">732 mm</td>
+<td style="text-align: right;">50 mm</td>
+<td style="text-align: right;">12 mm</td>
+</tr>
+<tr>
+<td>Paredes externas curtas</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">708 mm</td>
+<td style="text-align: right;">50 mm</td>
+<td style="text-align: right;">12 mm</td>
+</tr>
+</tbody>
+</table>
+<p>O comprimento de 732mm foi definido pensando que as paredes externas serão fixadas por fora da base, de forma que não reduza o tamanho fixo das células de 180mm. Já o comprimento de 708 mm para as paredes curtas considera que elas ficam posicionadas entre as duas paredes longas, descontando uma espessura de 12 mm em cada extremidade.</p>
+<p><strong>Conferência obrigatória:</strong> essa disposição é preliminar. O comprimento final das paredes externas deve ser confirmado pelo desenho das junções dos cantos, de modo que o conjunto montado respeite as dimensões externas de 720 × 720 mm.</p>
+<h2 id="6-modelo-1-paredes-encaixadas-em-rasgos">6. Modelo 1 — paredes encaixadas em rasgos<a class="headerlink" href="#6-modelo-1-paredes-encaixadas-em-rasgos" title="Permanent link">&para;</a></h2>
+<h3 id="61-descricao">6.1 Descrição<a class="headerlink" href="#61-descricao" title="Permanent link">&para;</a></h3>
+<p>Neste modelo, as paredes são posicionadas em rasgos usinados diretamente na base.</p>
+<p>O encaixe permite montar e desmontar o labirinto sem depender de cavilhas para manter cada parede em posição.</p>
+<h3 id="62-dimensoes-preliminares-dos-rasgos">6.2 Dimensões preliminares dos rasgos<a class="headerlink" href="#62-dimensoes-preliminares-dos-rasgos" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Característica</th>
+<th style="text-align: right;">Medida inicial</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Largura nominal do rasgo</td>
+<td style="text-align: right;">12,4 mm</td>
+</tr>
+<tr>
+<td>Profundidade do rasgo</td>
+<td style="text-align: right;">6 mm</td>
+</tr>
+<tr>
+<td>Espessura nominal da base</td>
+<td style="text-align: right;">12 mm</td>
+</tr>
+<tr>
+<td>Altura exposta da parede</td>
+<td style="text-align: right;">50 mm</td>
+</tr>
+<tr>
+<td>Inserção nominal da parede</td>
+<td style="text-align: right;">6 mm</td>
+</tr>
+</tbody>
+</table>
+<p>A largura de 12,4 mm é uma medida inicial de prototipagem para uma parede nominal de 12 mm. Ela deve ser ajustada conforme a espessura real do material e a folga necessária para o encaixe.</p>
+<h3 id="63-altura-total-da-peca-de-parede">6.3 Altura total da peça de parede<a class="headerlink" href="#63-altura-total-da-peca-de-parede" title="Permanent link">&para;</a></h3>
+<p>Considerando 50 mm de altura exposta e 6 mm de inserção na base, a altura total preliminar da peça será de:</p>
+<p><strong>56 mm.</strong></p>
+<p>Assim, a peça de parede destinada ao Modelo 1 terá, preliminarmente, dimensões totais de:</p>
+<p><strong>168 × 12 × 56 mm.</strong></p>
+<p>A parte que ficará acima da base terá 50 mm de altura depois da montagem.</p>
+<h3 id="64-fabricacao">6.4 Fabricação<a class="headerlink" href="#64-fabricacao" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Cortar a base com dimensões de 720 × 720 mm.</li>
+<li>Marcar as posições dos rasgos de acordo com o desenho da grade.</li>
+<li>Usinar os rasgos com largura e profundidade preliminares especificadas.</li>
+<li>Cortar as paredes internas no comprimento nominal de 168 mm.</li>
+<li>Preparar as paredes externas conforme o desenho do perímetro.</li>
+<li>Montar um protótipo e verificar o encaixe.</li>
+<li>Ajustar a largura dos rasgos caso as paredes fiquem excessivamente apertadas ou soltas.</li>
+<li>Conferir o alinhamento e a perpendicularidade das paredes.</li>
+</ol>
+<h3 id="65-observacoes">6.5 Observações<a class="headerlink" href="#65-observacoes" title="Permanent link">&para;</a></h3>
+<p>A posição dos rasgos deve ser definida a partir do desenho técnico completo. É necessário verificar as regiões de cruzamento, encontros e cantos para evitar sobreposição de peças.</p>
+<p>Não se deve determinar a posição dos rasgos apenas pela contagem de células: o desenho de fabricação precisa indicar os eixos e as coordenadas de cada rasgo.</p>
+<h2 id="7-modelo-2-paredes-fixadas-por-cavilhas">7. Modelo 2 — paredes fixadas por cavilhas<a class="headerlink" href="#7-modelo-2-paredes-fixadas-por-cavilhas" title="Permanent link">&para;</a></h2>
+<h3 id="71-descricao">7.1 Descrição<a class="headerlink" href="#71-descricao" title="Permanent link">&para;</a></h3>
+<p>Neste modelo, as paredes são posicionadas sobre uma base de 15 mm de espessura e fixadas por cavilhas de madeira encaixadas em furos.</p>
+<p>O sistema permite remover e reposicionar as paredes, desde que as cavilhas e os furos tenham ajuste adequado.</p>
+<h3 id="72-dimensoes-preliminares">7.2 Dimensões preliminares<a class="headerlink" href="#72-dimensoes-preliminares" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Componente</th>
+<th style="text-align: right;">Dimensão inicial</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Base</td>
+<td style="text-align: right;">720 × 720 × 15 mm</td>
+</tr>
+<tr>
+<td>Parede interna</td>
+<td style="text-align: right;">168 × 12 × 50 mm</td>
+</tr>
+<tr>
+<td>Diâmetro nominal da cavilha</td>
+<td style="text-align: right;">4 mm</td>
+</tr>
+<tr>
+<td>Comprimento nominal da cavilha</td>
+<td style="text-align: right;">14 mm</td>
+</tr>
+<tr>
+<td>Diâmetro inicial dos furos</td>
+<td style="text-align: right;">4,2 mm</td>
+</tr>
+<tr>
+<td>Profundidade inicial dos furos na base</td>
+<td style="text-align: right;">8 mm</td>
+</tr>
+<tr>
+<td>Cavilhas por parede</td>
+<td style="text-align: right;">2</td>
+</tr>
+</tbody>
+</table>
+<p>As medidas dos furos e das cavilhas são preliminares e devem ser verificadas com o material real antes da fabricação definitiva.</p>
+<h3 id="73-posicionamento-das-cavilhas">7.3 Posicionamento das cavilhas<a class="headerlink" href="#73-posicionamento-das-cavilhas" title="Permanent link">&para;</a></h3>
+<p>Cada parede interna deve utilizar duas cavilhas como fixação inicial prevista.</p>
+<p>Os furos correspondentes devem ser posicionados de forma simétrica em relação ao centro da parede, mantendo distância suficiente das extremidades para evitar rachaduras ou quebra do material.</p>
+<h3 id="74-quantidade-preliminar-de-cavilhas">7.4 Quantidade preliminar de cavilhas<a class="headerlink" href="#74-quantidade-preliminar-de-cavilhas" title="Permanent link">&para;</a></h3>
+<p>Considerando 24 paredes internas e quatro paredes externas:</p>
+<table>
+<thead>
+<tr>
+<th>Aplicação</th>
+<th style="text-align: right;">Paredes</th>
+<th style="text-align: right;">Cavilhas por parede</th>
+<th style="text-align: right;">Total</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Paredes internas</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">48</td>
+</tr>
+<tr>
+<td>Paredes externas</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr>
+<td><strong>Total preliminar</strong></td>
+<td style="text-align: right;"><strong>28</strong></td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;"><strong>56</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Recomenda-se adquirir cavilhas adicionais para testes e reposição.</p>
+<p>A quantidade final deve ser ajustada ao número definitivo de paredes e ao método de fixação das paredes externas.</p>
+<h3 id="75-fabricacao-e-montagem">7.5 Fabricação e montagem<a class="headerlink" href="#75-fabricacao-e-montagem" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Cortar a base com dimensões de 720 × 720 × 15 mm.</li>
+<li>Preparar o desenho de posicionamento de todas as paredes.</li>
+<li>Marcar os pontos dos furos na base.</li>
+<li>Perfurar os furos com as dimensões preliminares especificadas.</li>
+<li>Fazer os furos correspondentes nas paredes.</li>
+<li>Cortar e preparar as cavilhas.</li>
+<li>Montar uma parede de teste para verificar o ajuste.</li>
+<li>Conferir se a parede fica vertical e firme.</li>
+<li>Montar o restante do labirinto.</li>
+<li>Verificar se as paredes podem ser removidas sem danificar a base ou as peças.</li>
+</ol>
+<h2 id="8-comparacao-dos-modelos">8. Comparação dos modelos<a class="headerlink" href="#8-comparacao-dos-modelos" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Critério</th>
+<th>Modelo 1 — rasgos</th>
+<th>Modelo 2 — cavilhas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fixação</td>
+<td>Encaixe em rasgos</td>
+<td>Cavilhas em furos</td>
+</tr>
+<tr>
+<td>Base</td>
+<td>12 mm de espessura</td>
+<td>15 mm de espessura</td>
+</tr>
+<tr>
+<td>Usinagem principal</td>
+<td>Rasgos</td>
+<td>Furos</td>
+</tr>
+<tr>
+<td>Desmontagem</td>
+<td>Retirada das paredes dos rasgos</td>
+<td>Retirada das paredes e cavilhas conforme o ajuste</td>
+</tr>
+<tr>
+<td>Ajustes necessários</td>
+<td>Largura e profundidade dos rasgos</td>
+<td>Diâmetro, posição e profundidade dos furos</td>
+</tr>
+<tr>
+<td>Verificação inicial</td>
+<td>Encaixe e folga</td>
+<td>Alinhamento e firmeza das cavilhas</td>
+</tr>
+</tbody>
+</table>
+<h2 id="9-tolerancias-e-prototipagem">9. Tolerâncias e prototipagem<a class="headerlink" href="#9-tolerancias-e-prototipagem" title="Permanent link">&para;</a></h2>
+<p>As dimensões indicadas são nominais ou preliminares conforme identificado em cada seção. A fabricação deve considerar as variações reais do material e da ferramenta de corte.</p>
+<h2 id="10-desenhos-tecnicos">10. Desenhos técnicos<a class="headerlink" href="#10-desenhos-tecnicos" title="Permanent link">&para;</a></h2>
+<p>Para liberar o projeto para fabricação, os desenhos necessários são:</p>
+<ul>
+<li><strong>Desenho da base:</strong> contorno de 720 × 720 mm, espessura e sistema de fixação.</li>
+<li><strong>Desenho da grade:</strong> linhas de referência para as 16 células, com passo nominal de 180 mm.</li>
+<li><strong>Desenho das paredes internas:</strong> peça de 168 × 12 × 50 mm para a versão compatível com a base, com detalhamento da parte de fixação.</li>
+<li><strong>Desenho das paredes externas:</strong> dimensões e junções dos quatro lados.</li>
+<li><strong>Desenho do Modelo 1:</strong> posições, larguras e profundidades dos rasgos.</li>
+<li><strong>Desenho do Modelo 2:</strong> posições, diâmetros e profundidades dos furos, incluindo o detalhe das cavilhas.</li>
+</ul>
+<h3 id="101-modelo-1-rasgos">10.1 Modelo 1 — rasgos<a class="headerlink" href="#101-modelo-1-rasgos" title="Permanent link">&para;</a></h3>
+<p><img alt="Vista CAD do Modelo 1 — labirinto com rasgos" src="../../figs/labirinto-modelo1-rasgos.png" />
+<strong>Figura 1 – Modelo 1: vista CAD do labirinto montado (paredes encaixadas em rasgos)</strong></p>
+<p><img alt="Base com rasgos — vista geral" src="../../figs/labirinto-modelo1-rasgos-1.png" />
+<strong>Figura 2 – Modelo 1: base com rasgos (folha 1/3)</strong></p>
+<p><img alt="Modelo 1 — folha 2" src="../../figs/labirinto-modelo1-rasgos-2.png" />
+<strong>Figura 3 – Modelo 1: desenho técnico (folha 2/3)</strong></p>
+<p><img alt="Modelo 1 — folha 3" src="../../figs/labirinto-modelo1-rasgos-3.png" />
+<strong>Figura 4 – Modelo 1: desenho técnico (folha 3/3)</strong></p>
+<h3 id="102-modelo-2-cavilhas">10.2 Modelo 2 — cavilhas<a class="headerlink" href="#102-modelo-2-cavilhas" title="Permanent link">&para;</a></h3>
+<p><img alt="Vista CAD do Modelo 2 — labirinto com cavilhas" src="../../figs/labirinto-modelo2-cavilhas.png" />
+<strong>Figura 5 – Modelo 2: vista CAD do labirinto montado (paredes fixadas por cavilhas)</strong></p>
+<p><img alt="Base de fixação por cavilhas" src="../../figs/labirinto-modelo2-cavilhas-1.png" />
+<strong>Figura 6 – Modelo 2: base de fixação (folha 1/4)</strong></p>
+<p><img alt="Modelo 2 — folha 2" src="../../figs/labirinto-modelo2-cavilhas-2.png" />
+<strong>Figura 7 – Modelo 2: desenho técnico (folha 2/4)</strong></p>
+<p><img alt="Modelo 2 — folha 3" src="../../figs/labirinto-modelo2-cavilhas-3.png" />
+<strong>Figura 8 – Modelo 2: desenho técnico (folha 3/4)</strong></p>
+<p><img alt="Modelo 2 — folha 4" src="../../figs/labirinto-modelo2-cavilhas-4.png" />
+<strong>Figura 9 – Modelo 2: desenho técnico (folha 4/4)</strong></p>
+<h3 id="103-arquivos-cad-e-pdf">10.3 Arquivos CAD e PDF<a class="headerlink" href="#103-arquivos-cad-e-pdf" title="Permanent link">&para;</a></h3>
+<p>Os arquivos de projeto ficam em <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/tree/documentacao/mec"><code>mec/</code></a>:</p>
+<table>
+<thead>
+<tr>
+<th>Arquivo</th>
+<th>Descrição</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/mec/micromouse_modelo1_rasgos.step"><code>micromouse_modelo1_rasgos.step</code></a></td>
+<td>CAD — Modelo 1 (rasgos)</td>
+</tr>
+<tr>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/mec/micromouse_modelo1_rasgos-desenho-v1.pdf"><code>micromouse_modelo1_rasgos-desenho-v1.pdf</code></a></td>
+<td>Desenho técnico — Modelo 1</td>
+</tr>
+<tr>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/mec/micromouse_modelo2_cavilhas.step"><code>micromouse_modelo2_cavilhas.step</code></a></td>
+<td>CAD — Modelo 2 (cavilhas)</td>
+</tr>
+<tr>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/mec/micromouse_modelo2_cavilhas-desenho-v1.pdf"><code>micromouse_modelo2_cavilhas-desenho-v1.pdf</code></a></td>
+<td>Desenho técnico — Modelo 2</td>
+</tr>
+</tbody>
+</table>
+<h2 id="11-lista-preliminar-de-materiais">11. Lista preliminar de materiais<a class="headerlink" href="#11-lista-preliminar-de-materiais" title="Permanent link">&para;</a></h2>
+<h3 id="modelo-1">Modelo 1<a class="headerlink" href="#modelo-1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>1 tábua de compensado que possibilite a fabricação da base 720 × 720 × 12 mm;</li>
+<li>1 tábua de compensado para fabricação de todas as paredes;</li>
+<li>Material adequado para usinagem dos rasgos.</li>
+</ul>
+<h3 id="modelo-2">Modelo 2<a class="headerlink" href="#modelo-2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>1 tábua de compensado que possibilite a fabricação da base 720 × 720 × 15 mm;</li>
+<li>1 tábua de compensado para fabricação de todas as paredes;</li>
+<li>Cavilhas de madeira de 4 mm de diâmetro e 14 mm de comprimento, em quantidade preliminar de 56 unidades, mais reserva.</li>
+</ul>
+<p>Especificações antigas de uma base retangular, de outra quantidade de células ou de outro comprimento de parede não devem ser usadas para fabricar esta versão.</p>
+<p>As dimensões preliminares de rasgos, furos e cavilhas precisam ser validadas com um protótipo antes da fabricação definitiva.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../estruturas/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: 4.1 Estruturas">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                4.1 Estruturas
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../energia/" class="md-footer__link md-footer__link--next" aria-label="Próximo: 4.2 Energia">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                4.2 Energia
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.top", "navigation.footer", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.action.edit"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+        <script src="../../scripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
