@@ -1,0 +1,2308 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentação do projeto de Projeto Integrador 1 (PI1) — Grupo 01, professor Hilmer.">
+      
+      
+        <meta name="author" content="Grupo 01 - Hilmer">
+      
+      
+        <link rel="canonical" href="https://fcte-pi1.github.io/2026_2_PI1_Grupo01_Hilmer/04-projeto-conceitual/energia/pop-recarga-bateria/">
+      
+      
+        <link rel="prev" href="../ensaios-protecoes/">
+      
+      
+        <link rel="next" href="../../hardware/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>4.2.6 POP de recarga balanceada - PI1 · Grupo 01 (Hilmer) — 2026/2</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#procedimento-operacional-padrao-pop-recarga-balanceada-da-bateria-lipo-2s" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../../.." title="PI1 · Grupo 01 (Hilmer) — 2026/2" class="md-header__button md-logo" aria-label="PI1 · Grupo 01 (Hilmer) — 2026/2" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PI1 · Grupo 01 (Hilmer) — 2026/2
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              4.2.6 POP de recarga balanceada
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para o modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para o modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para o modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para o modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fcte-pi1/2026_2_PI1_Grupo01_Hilmer
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="PI1 · Grupo 01 (Hilmer) — 2026/2" class="md-nav__button md-logo" aria-label="PI1 · Grupo 01 (Hilmer) — 2026/2" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PI1 · Grupo 01 (Hilmer) — 2026/2
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fcte-pi1/2026_2_PI1_Grupo01_Hilmer
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../status-equipes/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Status das equipes
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Status das equipes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status-equipes/software/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Software
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status-equipes/eletronica/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Eletrônica
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status-equipes/energia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Energia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status-equipes/estrutura/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Estrutura
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../01-tap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1. TAP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../02-requisitos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2. Requisitos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../03-eap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3. EAP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4. Projeto conceitual
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    4. Projeto conceitual
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../estruturas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 Estruturas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Energia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../protecoes-entrada/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.1 Proteções de entrada
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reguladores-buck/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.2 Reguladores Step-Down (Buck)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../curva-descarga-lipo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.3 Curva de Descarga e SoC LiPo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../monitoramento-tensao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.4 Monitoramento de Tensão (ADC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ensaios-protecoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.5 Ensaios de subtensão e PPTC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.6 POP de recarga balanceada
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.6 POP de recarga balanceada
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-objetivo-e-escopo-de-aplicacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Objetivo e Escopo de Aplicação
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-especificacoes-tecnicas-do-conjunto-bateria-e-carregador" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Especificações Técnicas do Conjunto Bateria e Carregador
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-limites-termicos-e-eletricos-de-seguranca" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Limites Térmicos e Elétricos de Segurança
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-guia-passo-a-passo-conexao-monitoramento-e-desconexao-segura" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Guia Passo a Passo: Conexão, Monitoramento e Desconexão Segura
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Guia Passo a Passo: Conexão, Monitoramento e Desconexão Segura">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fluxo-resumido-do-procedimento" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fluxo Resumido do Procedimento
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#41-fase-a-inspecao-pre-recarga-antes-de-conectar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Fase A — Inspeção Pré-Recarga (Antes de Conectar)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-fase-b-sequencia-obrigatoria-de-conexao-prevencao-de-curto-circuito" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Fase B — Sequência Obrigatória de Conexão (Prevenção de Curto-Circuito)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-fase-c-parametrizacao-e-partida-no-carregador" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Fase C — Parametrização e Partida no Carregador
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-fase-d-monitoramento-ativo-durante-o-ciclo-cccv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 Fase D — Monitoramento Ativo durante o Ciclo CC/CV
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#45-fase-e-encerramento-e-sequencia-segura-de-desconexao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.5 Fase E — Encerramento e Sequência Segura de Desconexão
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#46-fase-f-procedimento-para-armazenamento-storage-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.6 Fase F — Procedimento para Armazenamento (Storage Mode)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-regras-de-contingencia-homologadas-pela-equipe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Regras de Contingência Homologadas pela Equipe
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Regras de Contingência Homologadas pela Equipe">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-contingencia-para-aquecimento-excessivo-t_textbat-ge-45text-c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Contingência para Aquecimento Excessivo (\(T_{\text{bat}} \ge 45\text{ °C}\))
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-contingencia-para-estufamento-de-celula-puffing-swelling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Contingência para Estufamento de Célula (Puffing / Swelling)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-contingencia-para-desbalanceamento-severo-delta-v-ge-010text-v-ou-subtensao-300text-vcel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 Contingência para Desbalanceamento Severo (\(\Delta V \ge 0{,}10\text{ V}\)) ou Subtensão (\(&lt; 3{,}00\text{ V/cél}\))
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-contingencia-para-fumaca-chiado-ou-principio-de-incendio-thermal-runaway" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 Contingência para Fumaça, Chiado ou Princípio de Incêndio (Thermal Runaway)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55-protocolo-de-neutralizacao-e-descarte-de-baterias-condenadas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5 Protocolo de Neutralização e Descarte de Baterias Condenadas
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-checklist-rapido-de-operacao-em-bancada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Checklist Rápido de Operação em Bancada
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-referencias-bibliograficas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Referências Bibliográficas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historico-de-versao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Histórico de Versão
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 Hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware-diagramas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3.1 Diagramas de hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../justificativa-componentes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3.2 Justificativa dos componentes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../software/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Software
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../firmware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4.1 Firmware: implementação
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../05-cronograma/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5. Cronograma
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../06-orcamento/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6. Orçamento
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../07-testes/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7. Testes
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    7. Testes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../07-testes/estrutura/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.1 Estrutura
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../07-testes/energia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2 Energia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../07-testes/energia/teste-componentes/bateria/teste-bancada-bateria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2.1 Ensaio de Bancada de Baterias
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../07-testes/hardware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3 Hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../07-testes/software/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.4 Software
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../07-testes/integracao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5 Integração
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../08-avaliacao-de-desempenho/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8. Avaliação de desempenho
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../09-relatorio-de-encerramento/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9. Relatório de encerramento
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-objetivo-e-escopo-de-aplicacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Objetivo e Escopo de Aplicação
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-especificacoes-tecnicas-do-conjunto-bateria-e-carregador" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Especificações Técnicas do Conjunto Bateria e Carregador
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-limites-termicos-e-eletricos-de-seguranca" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Limites Térmicos e Elétricos de Segurança
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-guia-passo-a-passo-conexao-monitoramento-e-desconexao-segura" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Guia Passo a Passo: Conexão, Monitoramento e Desconexão Segura
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Guia Passo a Passo: Conexão, Monitoramento e Desconexão Segura">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fluxo-resumido-do-procedimento" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fluxo Resumido do Procedimento
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#41-fase-a-inspecao-pre-recarga-antes-de-conectar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Fase A — Inspeção Pré-Recarga (Antes de Conectar)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-fase-b-sequencia-obrigatoria-de-conexao-prevencao-de-curto-circuito" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Fase B — Sequência Obrigatória de Conexão (Prevenção de Curto-Circuito)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-fase-c-parametrizacao-e-partida-no-carregador" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Fase C — Parametrização e Partida no Carregador
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-fase-d-monitoramento-ativo-durante-o-ciclo-cccv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 Fase D — Monitoramento Ativo durante o Ciclo CC/CV
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#45-fase-e-encerramento-e-sequencia-segura-de-desconexao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.5 Fase E — Encerramento e Sequência Segura de Desconexão
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#46-fase-f-procedimento-para-armazenamento-storage-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.6 Fase F — Procedimento para Armazenamento (Storage Mode)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-regras-de-contingencia-homologadas-pela-equipe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Regras de Contingência Homologadas pela Equipe
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Regras de Contingência Homologadas pela Equipe">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-contingencia-para-aquecimento-excessivo-t_textbat-ge-45text-c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Contingência para Aquecimento Excessivo (\(T_{\text{bat}} \ge 45\text{ °C}\))
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-contingencia-para-estufamento-de-celula-puffing-swelling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Contingência para Estufamento de Célula (Puffing / Swelling)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-contingencia-para-desbalanceamento-severo-delta-v-ge-010text-v-ou-subtensao-300text-vcel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 Contingência para Desbalanceamento Severo (\(\Delta V \ge 0{,}10\text{ V}\)) ou Subtensão (\(&lt; 3{,}00\text{ V/cél}\))
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-contingencia-para-fumaca-chiado-ou-principio-de-incendio-thermal-runaway" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 Contingência para Fumaça, Chiado ou Princípio de Incêndio (Thermal Runaway)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55-protocolo-de-neutralizacao-e-descarte-de-baterias-condenadas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5 Protocolo de Neutralização e Descarte de Baterias Condenadas
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-checklist-rapido-de-operacao-em-bancada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Checklist Rápido de Operação em Bancada
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-referencias-bibliograficas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Referências Bibliográficas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historico-de-versao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Histórico de Versão
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/edit/main/docs/04-projeto-conceitual/energia/pop-recarga-bateria.md" title="Editar esta página" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="procedimento-operacional-padrao-pop-recarga-balanceada-da-bateria-lipo-2s">Procedimento Operacional Padrão (POP) — Recarga Balanceada da Bateria LiPo 2S<a class="headerlink" href="#procedimento-operacional-padrao-pop-recarga-balanceada-da-bateria-lipo-2s" title="Permanent link">&para;</a></h1>
+<p>Este documento estabelece o <strong>Procedimento Operacional Padrão (POP)</strong> e o protocolo de segurança homologado pela equipe para a inspeção, conexão, recarga balanceada, monitoramento térmico, desconexão, armazenamento e contingência de emergências do conjunto de baterias <strong>LiPo 2S (7,4 V nominal / 8,4 V máximo)</strong> do Micromouse, atendendo integralmente aos critérios de aceitação da <strong>Issue #210</strong> (<em>Atividade: Procedimento de Recarga — #144</em>).</p>
+<hr />
+<h2 id="1-objetivo-e-escopo-de-aplicacao">1. Objetivo e Escopo de Aplicação<a class="headerlink" href="#1-objetivo-e-escopo-de-aplicacao" title="Permanent link">&para;</a></h2>
+<p>Baterias de Polímero de Lítio (<strong>LiPo</strong>) de alta taxa de descarga oferecem excelente densidade de potência e baixíssima resistência interna, porém possuem química sensível a <strong>sobretensão (<span class="arithmatex">\(&gt; 4{,}20\text{ V/célula}\)</span>)</strong>, <strong>descarga profunda (<span class="arithmatex">\(&lt; 3{,}00\text{ V/célula}\)</span>)</strong>, <strong>desbalanceamento entre células</strong> e <strong>estresse térmico</strong>. Como o pack adotado no projeto (<strong>Tattu 650 mAh 2S1P 75C</strong>) não possui placa de BMS interna no encapsulamento, toda a proteção contra sobretensão e equalização entre as células <span class="arithmatex">\(C_1\)</span> e <span class="arithmatex">\(C_2\)</span> é executada externamente pelo <strong>carregador balanceador inteligente</strong> durante o processo de recarga.</p>
+<blockquote>
+<p><strong>Regra de Ouro (Obrigatoriedade):</strong> Nenhuma bateria LiPo 2S do projeto poderá ser recarregada sem a conexão simultânea do cabo de balanceamento (<strong>JST-XHR-3P</strong>), fora de uma bolsa antichama (<strong>LiPo Safe Bag</strong>) ou sem a presença física de um integrante da equipe na bancada durante todo o ciclo de carga.</p>
+</blockquote>
+<hr />
+<h2 id="2-especificacoes-tecnicas-do-conjunto-bateria-e-carregador">2. Especificações Técnicas do Conjunto Bateria e Carregador<a class="headerlink" href="#2-especificacoes-tecnicas-do-conjunto-bateria-e-carregador" title="Permanent link">&para;</a></h2>
+<p>A tabela abaixo consolida os parâmetros nominais do pack homologado em <a href="energia.md">4.2 Energia</a> e a parametrização obrigatória no carregador de bancada:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parâmetro Técnico</th>
+<th style="text-align: left;">Especificação Homologada no Projeto</th>
+<th style="text-align: left;">Observação Operacional</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Modelo da Bateria</strong></td>
+<td style="text-align: left;"><strong>Tattu 650mAh 2S1P 75C 7.4V LiPo Battery Pack</strong></td>
+<td style="text-align: left;">Química LiPo (<em>Lithium Polymer</em>) de alta descarga</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Configuração de Células</strong></td>
+<td style="text-align: left;"><strong>2S1P</strong> (2 células em série: <span class="arithmatex">\(C_1\)</span> e <span class="arithmatex">\(C_2\)</span>)</td>
+<td style="text-align: left;">Sem circuito BMS interno</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Tensão Nominal / Plena Carga</strong></td>
+<td style="text-align: left;"><strong><span class="arithmatex">\(7{,}40\text{ V}\)</span></strong> (<span class="arithmatex">\(3{,}70\text{ V/cél}\)</span>) / <strong><span class="arithmatex">\(8{,}40\text{ V}\)</span></strong> (<span class="arithmatex">\(4{,}20\text{ V/cél}\)</span>)</td>
+<td style="text-align: left;">Teto absoluto de <span class="arithmatex">\(4{,}20\text{ V}\)</span> por célula</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Tensão de Corte Operacional (UVLO)</strong></td>
+<td style="text-align: left;"><strong><span class="arithmatex">\(6{,}60\text{ V}\)</span></strong> (<span class="arithmatex">\(3{,}30\text{ V/cél}\)</span>)</td>
+<td style="text-align: left;">Monitorado via ADC (<code>GPIO 2</code>) no robô</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Tensão de Armazenamento (<em>Storage</em>)</strong></td>
+<td style="text-align: left;"><strong><span class="arithmatex">\(7{,}60\text{ V a }7{,}70\text{ V}\)</span></strong> (<span class="arithmatex">\(3{,}80\text{ V a }3{,}85\text{ V/cél}\)</span>)</td>
+<td style="text-align: left;">Obrigatório quando inativa por <span class="arithmatex">\(&gt; 48\text{ h}\)</span></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Conector Principal de Potência</strong></td>
+<td style="text-align: left;"><strong>AMASS XT-30</strong> (Amarelo, polarizado)</td>
+<td style="text-align: left;">Fio vermelho (<code>+</code>) chanfrado / Fio preto (<code>-</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Conector de Balanceamento</strong></td>
+<td style="text-align: left;"><strong>JST-XHR-3P</strong> (Branco, 3 vias, passo <span class="arithmatex">\(2{,}54\text{ mm}\)</span>)</td>
+<td style="text-align: left;">Pino 1: <code>GND</code> / Pino 2: Nó central <span class="arithmatex">\(3{,}7\text{ V}\)</span> / Pino 3: <code>+7,4 V</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Carregador Homologado</strong></td>
+<td style="text-align: left;"><strong>B6 V3 Smart Charger (80W)</strong> (ou dedicado <span class="arithmatex">\(8{,}4\text{ V} / 1\text{ A}\)</span>)</td>
+<td style="text-align: left;">Modo obrigatório: <strong><code>LiPo BALANCE</code></strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Corrente de Recarga Padrão (1C)</strong></td>
+<td style="text-align: left;"><strong><span class="arithmatex">\(0{,}6\text{ A}\)</span></strong> (exato: <span class="arithmatex">\(0{,}65\text{ A}\)</span> para <span class="arithmatex">\(650\text{ mAh}\)</span>)</td>
+<td style="text-align: left;"><strong>Atenção:</strong> Embora a fonte/carregador suporte <span class="arithmatex">\(\ge 1{,}0\text{ A}\)</span>, para células de <span class="arithmatex">\(650\text{ mAh}\)</span> deve-se parametrizar <strong><span class="arithmatex">\(0{,}6\text{ A}\)</span></strong> (<span class="arithmatex">\(1\text{C}\)</span>), evitando aquecimento e degradação precoce</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Tempo Estimado de Recarga (20% → 100%)</strong></td>
+<td style="text-align: left;"><strong><span class="arithmatex">\(50\text{ a }65\text{ minutos}\)</span></strong> (Perfil CC/CV)</td>
+<td style="text-align: left;">Estágio CC até <span class="arithmatex">\(8{,}40\text{ V}\)</span> + estágio CV até <span class="arithmatex">\(I &lt; 0{,}06\text{ A}\)</span></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-limites-termicos-e-eletricos-de-seguranca">3. Limites Térmicos e Elétricos de Segurança<a class="headerlink" href="#3-limites-termicos-e-eletricos-de-seguranca" title="Permanent link">&para;</a></h2>
+<p>Durante qualquer operação de recarga ou manuseio, o operador deve monitorar os seguintes limites de controle:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Variável Monitorada</th>
+<th style="text-align: center;">Faixa Normal (Verde)</th>
+<th style="text-align: center;">Faixa de Alerta (Amarelo)</th>
+<th style="text-align: center;">Limite Crítico / Aborto Imediato (Vermelho)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Tensão Individual por Célula (<span class="arithmatex">\(V_{C1}, V_{C2}\)</span>)</strong></td>
+<td style="text-align: center;"><span class="arithmatex">\(3{,}30\text{ V a }4{,}20\text{ V}\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(3{,}00\text{ V a }3{,}29\text{ V}\)</span></td>
+<td style="text-align: center;"><strong><span class="arithmatex">\(&lt; 3{,}00\text{ V}\)</span></strong> (Subtensão severa) ou <strong><span class="arithmatex">\(&gt; 4{,}22\text{ V}\)</span></strong> (Sobrecarga)</td>
+</tr>
+<tr>
+<td style="text-align: left;">**Diferença entre Células ($\Delta V =</td>
+<td style="text-align: center;">V_{C1} - V_{C2}</td>
+<td style="text-align: center;">$)**</td>
+<td style="text-align: center;"><span class="arithmatex">\(\le 0{,}02\text{ V}\)</span> (<span class="arithmatex">\(20\text{ mV}\)</span>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Temperatura Superficial da Bateria (<span class="arithmatex">\(T_{\text{bat}}\)</span>)</strong></td>
+<td style="text-align: center;"><span class="arithmatex">\(20\text{ °C a }35\text{ °C}\)</span> (fria/morna)</td>
+<td style="text-align: center;"><span class="arithmatex">\(36\text{ °C a }44\text{ °C}\)</span></td>
+<td style="text-align: center;"><strong><span class="arithmatex">\(\ge 45\text{ °C}\)</span></strong> (Quente ao toque) — <strong>Interromper carga!</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Temperatura Ambiente de Bancada (<span class="arithmatex">\(T_{\text{amb}}\)</span>)</strong></td>
+<td style="text-align: center;"><span class="arithmatex">\(15\text{ °C a }30\text{ °C}\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(31\text{ °C a }35\text{ °C}\)</span></td>
+<td style="text-align: center;"><strong><span class="arithmatex">\(&lt; 10\text{ °C}\)</span> ou <span class="arithmatex">\(&gt; 40\text{ °C}\)</span></strong> — Proibido iniciar recarga</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Integridade Física do Encapsulamento (<em>Pouch</em>)</strong></td>
+<td style="text-align: center;">Firme, plano e sem odor</td>
+<td style="text-align: center;">Leve amassado externo sem furo</td>
+<td style="text-align: center;"><strong>Estufamento (<em>puffing</em>), odor adocicado ou vazamento</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-guia-passo-a-passo-conexao-monitoramento-e-desconexao-segura">4. Guia Passo a Passo: Conexão, Monitoramento e Desconexão Segura<a class="headerlink" href="#4-guia-passo-a-passo-conexao-monitoramento-e-desconexao-segura" title="Permanent link">&para;</a></h2>
+<p>A Figura 1 ilustra a topologia de conexão dupla obrigatória no carregador inteligente <strong>B6 V3</strong> e a ordem correta de acoplamento dos cabos.</p>
+<figure>
+<p><img alt="Diagrama Operacional de Conexão Dupla para Recarga Balanceada LiPo 2S" src="../figs/diagrama-pop-recarga-b6v3.svg" width="900" /></p>
+<figcaption>
+
+**Figura 1.** Esquema operacional de conexão dupla para recarga balanceada da bateria Tattu LiPo 2S 650 mAh no carregador B6 V3 Smart Charger, destacando a ordem de conexão e o uso da bolsa antichama (*LiPo Safe Bag*).
+
+</figcaption>
+</figure>
+<h3 id="fluxo-resumido-do-procedimento">Fluxo Resumido do Procedimento<a class="headerlink" href="#fluxo-resumido-do-procedimento" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>flowchart LR
+    A["1. Inspeção Visual e&lt;br/&gt;Medição Prévia (≥ 3,0V/cél)"] --&gt; B["2. Ligar Fonte DC e&lt;br/&gt;Bananas no Carregador"]
+    B --&gt; C["3. Acoplar XT-30 +&lt;br/&gt;JST-XHR-3P (Porta 2S)"]
+    C --&gt; D["4. Fechar LiPo Safe Bag e&lt;br/&gt;Iniciar LiPo BALANCE 0.6A"]
+    D --&gt; E["5. Monitorar Tensão/Temp&lt;br/&gt;a cada 15 min (CC/CV)"]
+    E --&gt; F["6. Alarme FULL (8,40V):&lt;br/&gt;Desconectar na Ordem Inversa"]</code></pre>
+<hr />
+<h3 id="41-fase-a-inspecao-pre-recarga-antes-de-conectar">4.1 Fase A — Inspeção Pré-Recarga (Antes de Conectar)<a class="headerlink" href="#41-fase-a-inspecao-pre-recarga-antes-de-conectar" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Resfriamento Pós-Corrida:</strong> Se a bateria acabou de ser utilizada no Micromouse, aguarde no mínimo <strong>15 a 20 minutos</strong> até que ela retorne à temperatura ambiente antes de iniciar a recarga.</li>
+<li><strong>Inspeção Visual e Tátil:</strong> Verifique se o invólucro termo-retrátil não apresenta cortes, perfurações, deformações nas bordas ou <strong>estufamento (<em>puffing</em>)</strong>. Verifique se os fios do conector <strong>XT-30</strong> e do cabo <strong>JST-XHR-3P</strong> estão íntegros.</li>
+<li><strong>Aferição Preliminar de Tensão:</strong> Com um multímetro digital ou <em>Cell Checker</em>, meça a tensão total e individual das células:</li>
+<li>Se <span class="arithmatex">\(V_{\text{total}} \ge 6{,}60\text{ V}\)</span> (<span class="arithmatex">\(V_{\text{cell}} \ge 3{,}30\text{ V}\)</span>): <strong>Apta para recarga normal.</strong></li>
+<li>Se <span class="arithmatex">\(6{,}00\text{ V} \le V_{\text{total}} &lt; 6{,}60\text{ V}\)</span> (<span class="arithmatex">\(3{,}00\text{ V} \le V_{\text{cell}} &lt; 3{,}30\text{ V}\)</span>): Recarregar inicialmente em corrente reduzida de <strong><span class="arithmatex">\(0{,}2\text{ A}\)</span></strong> sob supervisão contínua até atingir <span class="arithmatex">\(6{,}80\text{ V}\)</span>.</li>
+<li>Se qualquer célula apresentar <strong><span class="arithmatex">\(V_{\text{cell}} &lt; 3{,}00\text{ V}\)</span></strong>: <strong>PROIBIDO RECARREGAR.</strong> Acione imediatamente a Contingência 5.3.</li>
+</ol>
+<hr />
+<h3 id="42-fase-b-sequencia-obrigatoria-de-conexao-prevencao-de-curto-circuito">4.2 Fase B — Sequência Obrigatória de Conexão (Prevenção de Curto-Circuito)<a class="headerlink" href="#42-fase-b-sequencia-obrigatoria-de-conexao-prevencao-de-curto-circuito" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>PERIGO DE CURTO-CIRCUITO:</strong> <strong>NUNCA</strong> conecte o plugue XT-30 na bateria enquanto os pinos banana de <span class="arithmatex">\(4\text{ mm}\)</span> na outra ponta do cabo estiverem soltos! Se os pinos banana encostarem um no outro com a bateria plugada, ocorrerá um curto-circuito direto superior a <strong>48 A</strong>, derretendo os cabos instantaneamente.</p>
+</blockquote>
+<p>Siga estritamente esta ordem numerada:</p>
+<ol>
+<li><strong>Passo 1 — Energizar o Carregador:</strong> Conecte a fonte de alimentação DC (<span class="arithmatex">\(11\text{ V a }18\text{ V}\)</span>, mín. <span class="arithmatex">\(1\text{ A}\)</span>) à entrada <code>DC IN</code> do carregador B6 V3 e aguarde a inicialização do visor LCD.</li>
+<li><strong>Passo 2 — Conectar os Pinos Banana no Carregador (Sem a Bateria):</strong> Com o chicote de carga <strong>desconectado da bateria</strong>, insira o pino banana <strong>Vermelho (<code>+</code>)</strong> no borne <code>OUTPUT +</code> e o pino banana <strong>Preto (<code>-</code>)</strong> no borne <code>OUTPUT -</code> do carregador.</li>
+<li><strong>Passo 3 — Acoplar o Conector de Potência (<code>XT-30</code>):</strong> Conecte o plugue amarelo <strong>XT-30</strong> da bateria ao conector XT-30 do chicote de carga, observando o chanfro mecânico de polaridade.</li>
+<li><strong>Passo 4 — Acoplar o Conector de Balanceamento (<code>JST-XHR-3P</code>):</strong> Insira o conector branco de 3 vias <strong>JST-XHR-3P</strong> da bateria na porta lateral dedicada <strong><code>2S</code> (3 pinos)</strong> do carregador B6 V3, alinhando as guias plásticas sem forçar.</li>
+<li><strong>Passo 5 — Acondicionamento em Bolsa Antichama:</strong> Posicione a bateria no interior da <strong>LiPo Safe Bag</strong> sobre superfície incombustível (bancada limpa, longe de papel, solventes ou álcool isopropílico) e feche a aba de velcro da bolsa.</li>
+</ol>
+<hr />
+<h3 id="43-fase-c-parametrizacao-e-partida-no-carregador">4.3 Fase C — Parametrização e Partida no Carregador<a class="headerlink" href="#43-fase-c-parametrizacao-e-partida-no-carregador" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Pressione <code>BATT TYPE / STOP</code> até selecionar o programa <strong><code>PROGRAM SELECT: LiPo BATT</code></strong> e confirme em <code>START / ENTER</code>.</li>
+<li>Utilize as teclas <code>INC (+)</code> / <code>DEC (-)</code> até exibir a tela <strong><code>LiPo BALANCE</code></strong> <em>(nunca utilize o modo <code>LiPo CHARGE</code> sem balanceamento)</em>.</li>
+<li>Pressione <code>START / ENTER</code>: o valor da corrente começará a piscar. Ajuste com <code>DEC (-)</code> / <code>INC (+)</code> para <strong><code>0.6A</code></strong> (taxa segura de <span class="arithmatex">\(\approx 1\text{C}\)</span> para <span class="arithmatex">\(650\text{ mAh}\)</span>).</li>
+<li>Pressione <code>START / ENTER</code>: o valor da tensão começará a piscar. Ajuste para <strong><code>7.4V (2S)</code></strong>.</li>
+<li>Mantenha o botão <strong><code>START / ENTER</code> pressionado por 3 segundos</strong>:</li>
+<li>O carregador executará a checagem automática de polaridade e contagem de células, exibindo <strong><code>R: 2SER S: 2SER CONFIRM (ENTER)</code></strong>.</li>
+<li>Verifique se ambos os números indicam <code>2SER</code> e pressione <code>START / ENTER</code> uma última vez para iniciar a carga.</li>
+</ol>
+<hr />
+<h3 id="44-fase-d-monitoramento-ativo-durante-o-ciclo-cccv">4.4 Fase D — Monitoramento Ativo durante o Ciclo CC/CV<a class="headerlink" href="#44-fase-d-monitoramento-ativo-durante-o-ciclo-cccv" title="Permanent link">&para;</a></h3>
+<p>O processo de recarga balanceada divide-se automaticamente em dois estágios:
+* <strong>Estágio 1 — Corrente Constante (CC):</strong> O carregador injeta <strong><span class="arithmatex">\(0{,}60\text{ A}\)</span> constantes</strong> enquanto a tensão sobe gradualmente de <span class="arithmatex">\(\approx 7{,}4\text{ V}\)</span> até atingir <strong><span class="arithmatex">\(8{,}40\text{ V}\)</span></strong>.
+* <strong>Estágio 2 — Tensão Constante e Equalização (CV):</strong> Ao atingir <span class="arithmatex">\(8{,}40\text{ V}\)</span>, o carregador trava a tensão máxima em <span class="arithmatex">\(4{,}20\text{ V/célula}\)</span> e reduz progressivamente a corrente (<span class="arithmatex">\(0{,}5\text{ A} \to 0{,}2\text{ A} \to 0{,}06\text{ A}\)</span>) enquanto drena pequenos pulsos da célula mais alta pela porta <code>JST-XHR-3P</code> até que ambas estejam perfeitamente equalizadas em <strong><span class="arithmatex">\(4{,}20\text{ V} \pm 0{,}01\text{ V}\)</span></strong>.</p>
+<p><strong>Ações obrigatórias do operador a cada 15 minutos:</strong>
+1. Pressione a tecla <strong><code>INC (+)</code></strong> durante a carga para abrir a tela de telemetria individual de células e verifique se <span class="arithmatex">\(V_{C1}\)</span> e <span class="arithmatex">\(V_{C2}\)</span> estão convergindo (<span class="arithmatex">\(\Delta V \le 0{,}03\text{ V}\)</span>).
+2. Abra brevemente a <em>LiPo Safe Bag</em> e toque na superfície da bateria com o dorso dos dedos: ela deve estar em <strong>temperatura ambiente ou levemente morna (<span class="arithmatex">\(&lt; 35\text{ °C}\)</span>)</strong>.</p>
+<hr />
+<h3 id="45-fase-e-encerramento-e-sequencia-segura-de-desconexao">4.5 Fase E — Encerramento e Sequência Segura de Desconexão<a class="headerlink" href="#45-fase-e-encerramento-e-sequencia-segura-de-desconexao" title="Permanent link">&para;</a></h3>
+<p>Quando o carregador emitir o aviso sonoro e exibir <strong><code>FULL</code></strong> no visor LCD (<span class="arithmatex">\(V = 8{,}40\text{ V}\)</span>, corrente zerada):</p>
+<ol>
+<li><strong>1º Pressione <code>BATT TYPE / STOP</code></strong> para silenciar o alarme e garantir que a saída de potência esteja desativada.</li>
+<li><strong>2º Desconecte o cabo de balanceamento (<code>JST-XHR-3P</code>)</strong> da porta lateral <code>2S</code> do carregador, puxando pelo corpo plástico do conector (nunca pelos fios).</li>
+<li><strong>3º Desconecte o plugue de potência (<code>XT-30</code>)</strong> separando a bateria do chicote do carregador.</li>
+<li><strong>4º Somente após a bateria estar totalmente solta</strong>, retire os pinos banana do carregador (se for guardá-lo) e desligue a fonte DC da tomada.</li>
+</ol>
+<hr />
+<h3 id="46-fase-f-procedimento-para-armazenamento-storage-mode">4.6 Fase F — Procedimento para Armazenamento (<em>Storage Mode</em>)<a class="headerlink" href="#46-fase-f-procedimento-para-armazenamento-storage-mode" title="Permanent link">&para;</a></h3>
+<p>Baterias LiPo <strong>não devem ser guardadas totalmente carregadas (<span class="arithmatex">\(8{,}40\text{ V}\)</span>)</strong> nem descarregadas (<span class="arithmatex">\(6{,}60\text{ V}\)</span>) por períodos superiores a <strong>48 horas</strong>, pois a manutenção em <span class="arithmatex">\(4{,}20\text{ V/célula}\)</span> acelera a oxidação interna do eletrólito e provoca inchamento químico.</p>
+<ul>
+<li>Ao encerrar os testes da semana ou da Sprint, conecte a bateria conforme a Fase B, selecione no menu do carregador o modo <strong><code>LiPo STORAGE</code> — <code>0.6A</code> — <code>7.4V (2S)</code></strong> e inicie o ciclo.</li>
+<li>O carregador irá carregar ou descarregar automaticamente a bateria até estabilizar ambas as células em exatos <strong><span class="arithmatex">\(3{,}80\text{ V a }3{,}85\text{ V/célula}\)</span> (<span class="arithmatex">\(7{,}60\text{ V a }7{,}70\text{ V}\)</span> total)</strong>.</li>
+</ul>
+<hr />
+<h2 id="5-regras-de-contingencia-homologadas-pela-equipe">5. Regras de Contingência Homologadas pela Equipe<a class="headerlink" href="#5-regras-de-contingencia-homologadas-pela-equipe" title="Permanent link">&para;</a></h2>
+<p>Caso qualquer anomalia seja detectada antes, durante ou após a recarga, a equipe deve executar imediatamente os protocolos abaixo:</p>
+<h3 id="51-contingencia-para-aquecimento-excessivo-t_textbat-ge-45text-c">5.1 Contingência para Aquecimento Excessivo (<span class="arithmatex">\(T_{\text{bat}} \ge 45\text{ °C}\)</span>)<a class="headerlink" href="#51-contingencia-para-aquecimento-excessivo-t_textbat-ge-45text-c" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Ação Imediata:</strong> Pressione <strong><code>STOP</code></strong> no carregador e desligue a fonte DC da tomada imediatamente.</li>
+<li><strong>Isolamento:</strong> Não manipule a bateria sem proteção se estiver muito quente. Mantenha-a dentro da <em>LiPo Safe Bag</em> fechada em local ventilado e longe de materiais inflamáveis por no mínimo <strong>60 minutos</strong>.</li>
+<li><strong>Diagnóstico Pós-Resfriamento:</strong> Após esfriar totalmente, meça a tensão individual das células (<span class="arithmatex">\(C_1\)</span> e <span class="arithmatex">\(C_2\)</span>) e a resistência interna (IR). Se houver desbalanceamento <span class="arithmatex">\(&gt; 0{,}05\text{ V}\)</span> ou deformação, <strong>condene a bateria para uso no robô</strong>.</li>
+</ol>
+<h3 id="52-contingencia-para-estufamento-de-celula-puffing-swelling">5.2 Contingência para Estufamento de Célula (<em>Puffing / Swelling</em>)<a class="headerlink" href="#52-contingencia-para-estufamento-de-celula-puffing-swelling" title="Permanent link">&para;</a></h3>
+<p>O estufamento ocorre pela geração de gases internos (<span class="arithmatex">\(\text{CO}, \text{CO}_2, \text{H}_2\)</span>) resultante de decomposição eletrolítica por sobrecarga, descarga profunda ou curto térmico:
+1. <strong>Ação Imediata:</strong> Interrompa imediatamente qualquer carga ou uso no Micromouse.
+2. <strong>Proibição Absoluta:</strong> <strong>JAMAIS fure, aperte ou tente comprimir uma célula LiPo estufada</strong> (o contato do lítio metálico interno com o oxigênio e a umidade do ar causa ignição espontânea imediata).
+3. <strong>Quarentena:</strong> Isole a bateria em recipiente metálico ou <em>LiPo Safe Bag</em> preenchida com areia seca e encaminhe para o protocolo de neutralização e descarte (Seção 5.5).</p>
+<h3 id="53-contingencia-para-desbalanceamento-severo-delta-v-ge-010text-v-ou-subtensao-300text-vcel">5.3 Contingência para Desbalanceamento Severo (<span class="arithmatex">\(\Delta V \ge 0{,}10\text{ V}\)</span>) ou Subtensão (<span class="arithmatex">\(&lt; 3{,}00\text{ V/cél}\)</span>)<a class="headerlink" href="#53-contingencia-para-desbalanceamento-severo-delta-v-ge-010text-v-ou-subtensao-300text-vcel" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Caso o carregador exiba erro <strong><code>BATTERY VOL ERR CELL CONNECT</code></strong> ou <strong><code>LOW VOLTAGE</code></strong>, desconecte a bateria e meça os 3 pinos do conector <code>JST-XHR-3P</code> com multímetro.</li>
+<li>Se uma célula estiver abaixo de <strong><span class="arithmatex">\(3{,}00\text{ V}\)</span></strong> (ou se a diferença entre <span class="arithmatex">\(C_1\)</span> e <span class="arithmatex">\(C_2\)</span> superar <strong><span class="arithmatex">\(0{,}10\text{ V}\)</span></strong>), houve precipitação de dendritos de cobre na célula afetada. <strong>Não force a recarga no modo Li-ion/NiMH</strong> — segregue a unidade para descarte.</li>
+</ol>
+<h3 id="54-contingencia-para-fumaca-chiado-ou-principio-de-incendio-thermal-runaway">5.4 Contingência para Fumaça, Chiado ou Princípio de Incêndio (<em>Thermal Runaway</em>)<a class="headerlink" href="#54-contingencia-para-fumaca-chiado-ou-principio-de-incendio-thermal-runaway" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Cortar Energia:</strong> Desligue o disjuntor da bancada ou retire o cabo de força da fonte DC da tomada imediatamente.</li>
+<li><strong>Contenção Térmica:</strong> Utilize <strong>areia seca</strong>, manta corta-fogo ou <strong>extintor pó químico ABC / <span class="arithmatex">\(\text{CO}_2\)</span></strong> para abafar as chamas e impedir a propagação para a bancada. <em>(Atenção: não jogue pequenos volumes de água diretamente sobre célula aberta, e não inale os vapores brancos liberados, pois contêm traços irritantes de <span class="arithmatex">\(\text{HF}\)</span> / <span class="arithmatex">\(\text{PF}_5\)</span> — ventile o laboratório e afaste a equipe).</em></li>
+<li><strong>Rescaldo:</strong> Após a extinção, mantenha o pack submerso em balde com areia em área externa aberta por 24 horas antes da remoção.</li>
+</ol>
+<h3 id="55-protocolo-de-neutralizacao-e-descarte-de-baterias-condenadas">5.5 Protocolo de Neutralização e Descarte de Baterias Condenadas<a class="headerlink" href="#55-protocolo-de-neutralizacao-e-descarte-de-baterias-condenadas" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Descarregue lentamente a bateria através de uma carga resistiva (ex.: lâmpada halógena automotiva de <span class="arithmatex">\(12\text{ V} / 21\text{ W}\)</span> ou resistor de potência de <span class="arithmatex">\(47\ \Omega / 10\text{ W}\)</span>) ou submerja os terminais em recipiente plástico com <strong>água salgada (<span class="arithmatex">\(30\text{ g}\)</span> de sal por litro)</strong> em área externa ventilada por 48 horas até que a tensão nos terminais seja <strong><span class="arithmatex">\(0{,}00\text{ V}\)</span></strong>.</li>
+<li>Isole os conectores com fita isolante e entregue em ponto oficial de coleta de resíduos eletroeletrônicos / baterias da UnB.</li>
+</ol>
+<hr />
+<h2 id="6-checklist-rapido-de-operacao-em-bancada">6. Checklist Rápido de Operação em Bancada<a class="headerlink" href="#6-checklist-rapido-de-operacao-em-bancada" title="Permanent link">&para;</a></h2>
+<p>Antes de apertar <code>START</code> no carregador, confira todos os itens:</p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> A bateria descansou por <span class="arithmatex">\(\ge 15\text{ min}\)</span> após o último uso e está fria ao toque (<span class="arithmatex">\(&lt; 30\text{ °C}\)</span>)?</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> O encapsulamento está plano, firme, sem rasgos e <strong>sem estufamento</strong>?</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> A tensão inicial medida é <span class="arithmatex">\(\ge 6{,}60\text{ V}\)</span> (<span class="arithmatex">\(\ge 3{,}30\text{ V}\)</span> em cada célula)?</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Os pinos banana foram conectados no carregador <strong>antes</strong> de plugar o conector XT-30 na bateria?</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Ambos</strong> os conectores (<strong>XT-30</strong> de potência e <strong>JST-XHR-3P</strong> de balanceamento na porta 2S) estão firmemente acoplados?</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> O carregador está configurado exatamente em <strong><code>LiPo BALANCE</code> | <code>0.6A</code> | <code>7.4V (2S)</code></strong>?</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> A bateria está posicionada dentro da <strong>LiPo Safe Bag</strong> fechada sobre bancada limpa?</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Há um membro da equipe presente na sala para monitorar o ciclo a cada 15 minutos?</li>
+</ul>
+<hr />
+<h2 id="7-referencias-bibliograficas">7. Referências Bibliográficas<a class="headerlink" href="#7-referencias-bibliograficas" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>GENS ACE / TATTU.</strong> <em>LiPo Battery Safety Guide and Standard Charging Instructions</em>. Manual Técnico do Fabricante, 2024. Disponível em: <a href="https://www.gensace.de/lipo-battery-guide">https://www.gensace.de/lipo-battery-guide</a>.</li>
+<li><strong>SKYRC TECHNOLOGY.</strong> <em>iMAX B6 / B6 V3 AC/DC Professional Balance Charger/Discharger Instruction Manual</em>. Versão 3.1, 2022.</li>
+<li><strong>UL STANDARDS.</strong> <em>UL 1642: Standard for Safety for Lithium Batteries</em>. Underwriters Laboratories, 6. ed., 2020.</li>
+</ol>
+<hr />
+<h2 id="historico-de-versao">Histórico de Versão<a class="headerlink" href="#historico-de-versao" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Versão</th>
+<th style="text-align: center;">Data</th>
+<th style="text-align: left;">Descrição</th>
+<th style="text-align: left;">Autor(es)</th>
+<th style="text-align: left;">Revisor(es)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1.0</td>
+<td style="text-align: center;">18/10/2026</td>
+<td style="text-align: left;">Elaboração e homologação do Procedimento Operacional Padrão (POP) de recarga balanceada e contingência para a bateria LiPo 2S</td>
+<td style="text-align: left;">Paulo Melo</td>
+<td style="text-align: left;">Equipe de Energia</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../ensaios-protecoes/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: 4.2.5 Ensaios de subtensão e PPTC">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                4.2.5 Ensaios de subtensão e PPTC
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../hardware/" class="md-footer__link md-footer__link--next" aria-label="Próximo: 4.3 Hardware">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                4.3 Hardware
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "navigation.top", "navigation.footer", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.action.edit"], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+        <script src="../../../scripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
