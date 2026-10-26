@@ -1843,6 +1843,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#atuacao-motores-n20-e-protecao-sem-encoder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Atuação: motores N20 e proteção sem encoder
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Atuação: motores N20 e proteção sem encoder">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regras-de-negocio-e-algoritmo_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de Negócio e Algoritmo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-das-classes_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface das Classes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#atuacao-controle-de-rumo-pelo-giroscopio-e-giros-em-malha-fechada" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1888,7 +1927,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#interface-das-classes_4" class="md-nav__link">
+  <a href="#interface-das-classes_5" class="md-nav__link">
     <span class="md-ellipsis">
       
         Interface das Classes
@@ -1916,7 +1955,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#regras-de-negocio-e-algoritmo_12" class="md-nav__link">
+  <a href="#regras-de-negocio-e-algoritmo_13" class="md-nav__link">
     <span class="md-ellipsis">
       
         Regras de Negócio e Algoritmo
@@ -1938,7 +1977,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#interface-das-classes_5" class="md-nav__link">
+  <a href="#interface-das-classes_6" class="md-nav__link">
     <span class="md-ellipsis">
       
         Interface das Classes
@@ -3191,6 +3230,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#atuacao-motores-n20-e-protecao-sem-encoder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Atuação: motores N20 e proteção sem encoder
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Atuação: motores N20 e proteção sem encoder">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regras-de-negocio-e-algoritmo_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de Negócio e Algoritmo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-das-classes_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface das Classes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#atuacao-controle-de-rumo-pelo-giroscopio-e-giros-em-malha-fechada" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3236,7 +3314,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#interface-das-classes_4" class="md-nav__link">
+  <a href="#interface-das-classes_5" class="md-nav__link">
     <span class="md-ellipsis">
       
         Interface das Classes
@@ -3264,7 +3342,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#regras-de-negocio-e-algoritmo_12" class="md-nav__link">
+  <a href="#regras-de-negocio-e-algoritmo_13" class="md-nav__link">
     <span class="md-ellipsis">
       
         Regras de Negócio e Algoritmo
@@ -3286,7 +3364,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#interface-das-classes_5" class="md-nav__link">
+  <a href="#interface-das-classes_6" class="md-nav__link">
     <span class="md-ellipsis">
       
         Interface das Classes
@@ -3462,7 +3540,7 @@
 <td>Motores</td>
 <td>Motor TT</td>
 <td><strong>N20</strong> pelo DRV8833</td>
-<td>Pinos novos; detecção de motor travado (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/341">#341</a>)</td>
+<td>Pinos novos, freio no boot, duty máximo e detecção de motor travado sem encoder (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/341">#341</a>; veja <a href="#atuacao-motores-n20-e-protecao-sem-encoder">Atuação: motores N20 e proteção sem encoder</a>)</td>
 </tr>
 <tr>
 <td>Encoders</td>
@@ -5131,7 +5209,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
     controle --&gt; lateral["ControladorCentralizacao&lt;br/&gt;correção lateral (PD)"]
     controle --&gt; frontal["PerfilParadaFrontal&lt;br/&gt;potência base"]
     controle --&gt; motores["IMotores&lt;br/&gt;potência de cada roda"]
-    motores -. implementa .-&gt; drv["MotoresDrv8833&lt;br/&gt;PWM nos GPIO 4 a 7"]
+    motores -. implementa .-&gt; drv["MotoresDrv8833&lt;br/&gt;PWM nos GPIO 10, 3, 20 e 21"]
     motores -. implementa .-&gt; sim["MotoresSimulados&lt;br/&gt;testes"]</code></pre>
 <p><strong>Figura 17.</strong> Fluxo do controle de movimento: a cada leitura dos sensores de distância, a distância frontal define a potência base, as distâncias laterais definem a correção, e o resultado vai para os motores pela interface <code>IMotores</code>.</p>
 <h3 id="geometria-considerada">Geometria considerada<a class="headerlink" href="#geometria-considerada" title="Permanent link">&para;</a></h3>
@@ -5196,6 +5274,92 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 </ul>
 <p><strong>Rastreabilidade:</strong> <code>lib/atuacao</code> (<code>ControleMovimento</code>, <code>ControladorCentralizacao</code>, <code>PerfilParadaFrontal</code>, <code>SinaisDrv8833</code>), <code>lib/hal/IMotores</code>, <code>lib/simulacao/MotoresSimulados</code> e <code>lib/drivers_esp32/MotoresDrv8833</code> atendem à tarefa <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/191">#191</a>, da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/182">HU-12</a> (RF-12).</p>
 <p><strong>Pendências:</strong> o critério 3 da HU-12 (teste de bancada no labirinto sem contato com as paredes) depende do chassi montado e da pista 4×4. O <code>ControleMovimento</code> ainda não está na tarefa de navegação: entra junto com os sensores de distância e a navegação (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/183">#183</a>).</p>
+<h2 id="atuacao-motores-n20-e-protecao-sem-encoder">Atuação: motores N20 e proteção sem encoder<a class="headerlink" href="#atuacao-motores-n20-e-protecao-sem-encoder" title="Permanent link">&para;</a></h2>
+<p>Na Rev 2.0, os dois motores <strong>N20</strong> continuam no DRV8833, com pinos novos. O driver <code>MotoresDrv8833</code> foi ajustado para começar freado, limitar o duty em movimento e passar cada comando por uma proteção contra motor travado que não depende de encoder (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/341">#341</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/396">#396</a>). É a base dos giros (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/190">#190</a>) e do movimento da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/42">HU-01</a> (RF01).</p>
+<pre class="mermaid"><code>flowchart LR
+    quem["ControleMovimento&lt;br/&gt;DetectorObjetivo"] --&gt;|"definirPotencia / parar"| prot["MotoresComProtecao&lt;br/&gt;(ProtecaoMotorTravado)"]
+    nav["tarefaNavegacao, a cada 10 ms"] --&gt;|"atualizarProtecao(ToF frontal, giro)"| prot
+    prot --&gt;|"potência, ou freio se travado"| drv["MotoresDrv8833&lt;br/&gt;duty máximo de 70%"]
+    drv --&gt; pinos(["IN1/IN2: GPIO10/3&lt;br/&gt;IN3/IN4: GPIO20/21"])</code></pre>
+<p><strong>Figura 18.</strong> Caminho de um comando até as rodas: todo comando passa pela <code>MotoresComProtecao</code>, que a navegação alimenta com o ToF frontal e o giroscópio; o driver converte a potência em PWM, já limitado ao duty máximo.</p>
+<h3 id="regras-de-negocio-e-algoritmo_12">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_12" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Pinos:</strong> vêm de <code>Pinos.h</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/377">#377</a>): IN1/IN2 em GPIO10/GPIO3 (motor esquerdo) e IN3/IN4 em GPIO20/GPIO21 (motor direito, invertido no <code>main.cpp</code> pela montagem espelhada).</li>
+<li><strong>Freio antes do PWM:</strong> <code>motores.iniciar()</code> é a primeira linha do <code>setup()</code>. Ele põe os quatro pinos como saída em nível alto, que é o freio do DRV8833 (IN1 e IN2 altos), e só depois liga o PWM, já com duty total, que também é freio. A ordem importa: no Arduino-ESP32 3.x, um <code>digitalWrite</code> antes do <code>pinMode</code> é ignorado.</li>
+<li><strong>Tranco no boot:</strong> GPIO20 e GPIO21 são a UART0 do ESP32-C3. No reset, antes de o firmware rodar, a ROM escreve o log de boot no GPIO21, e o motor direito pode dar um tranco por cerca de 0,3 s. O firmware não alcança esse intervalo. As saídas, a decidir com a eletrônica: ligar o robô com as rodas fora do chão na bancada; resistores de <em>pull-down</em> em IN3/IN4; ou desligar o log da ROM pelo eFuse <code>UART_PRINT_CONTROL</code>, o que <strong>não tem volta</strong>.</li>
+<li><strong>Duty máximo:</strong> a potência máxima pedida pelo controle (1000) vira <code>DUTY_MAXIMO_MOTORES</code>, e não 100%; as potências menores ficam proporcionais (500 vira 358 de 1023, e não 511). O freio sempre usa o duty total. O limite (70%) é provisório: um N20 de 6 V numa bateria 2S carregada recebe 6 / 8,4 ≈ 71% da tensão. Uma verificação na compilação garante que frequência × 2^bits não passa dos 80 MHz do LEDC.</li>
+<li><strong>Motor travado sem encoder (<code>ProtecaoMotorTravado</code>):</strong> com <code>|potência|</code> de alguma roda a partir de 300, abre-se uma janela de 500 ms. Se, ao fim dela, o ToF frontal variou menos de 5 mm <strong>e</strong> o giroscópio nunca passou de 5 °/s, o robô está travado: andar em linha reta muda o ToF, girar no lugar muda o giroscópio, e só o robô preso não muda nenhum dos dois. Sem leitura frontal válida, nada é concluído e a contagem recomeça; potência baixa também zera a contagem. O estado <code>Travado</code> só sai com <code>reiniciar()</code>.</li>
+<li><strong>Freio e recusa (<code>MotoresComProtecao</code>):</strong> o decorador repassa os comandos ao driver e, a cada ciclo, roda a proteção com a última potência repassada. Travado, freia na hora e transforma todo <code>definirPotencia</code> seguinte em freio, até a navegação chamar <code>liberar()</code>; assim o controle não religa o motor preso no ciclo seguinte. <code>parar()</code> sempre passa. Ele conta os cortes e os comandos recusados.</li>
+<li><strong>No <code>main.cpp</code>:</strong> o resto do firmware comanda a camada de fora (<code>registradorPotencia</code> → <code>motoresComTrava</code> → <code>motoresProtegidos</code> → estimativa do deslocamento → driver), nunca o driver direto, e a navegação chama <code>atualizarProtecao(medidasDaProtecao(), 10)</code> a cada ciclo; um corte novo sai no log como <code>motor_travado</code>. <code>medidasDaProtecao()</code> usa o ToF frontal (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a>) e a taxa do giroscópio (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378">#378</a>), e uma leitura frontal no alcance máximo do sensor (1200 mm) não vale como medida: num corredor longo a distância não muda andando, e a proteção cortaria os motores por engano. <strong>O giroscópio é obrigatório</strong>: sem ele, um giro no lugar seria lido como motor travado. Ao tratar uma colisão (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/192">#192</a>), o <code>main.cpp</code> chama <code>motoresProtegidos.liberar()</code>, porque a proteção segura o freio e o recuo precisa de ré.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Parâmetro</th>
+<th>Arquivo</th>
+<th>Valor</th>
+<th>Como conferir na bancada</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Frequência do PWM</td>
+<td><code>ConfiguracaoMotores.h</code></td>
+<td>20 kHz</td>
+<td>O motor não chia nem esquenta parado em duty baixo</td>
+</tr>
+<tr>
+<td>Resolução do PWM</td>
+<td><code>ConfiguracaoMotores.h</code></td>
+<td>10 bits (0 a 1023)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Duty máximo em movimento (<code>LIMITE_DUTY_MOTORES_MILESIMOS</code>)</td>
+<td><code>ConfiguracaoMotores.h</code></td>
+<td>70% (716 de 1023)</td>
+<td>Com VM de 5 V, pode subir para 100%</td>
+</tr>
+<tr>
+<td>Potência que conta como duty alto</td>
+<td><code>ConfiguracaoProtecaoMotor.h</code></td>
+<td>300 de 1000</td>
+<td>Acima da zona morta do N20</td>
+</tr>
+<tr>
+<td>Tempo até considerar travado</td>
+<td><code>ConfiguracaoProtecaoMotor.h</code></td>
+<td>500 ms</td>
+<td>Prender uma roda com a mão em potência de cruzeiro: o corte vem antes de o driver esquentar</td>
+</tr>
+<tr>
+<td>Variação mínima do ToF frontal</td>
+<td><code>ConfiguracaoProtecaoMotor.h</code></td>
+<td>5 mm</td>
+<td>Acima do ruído do VL53L0X</td>
+</tr>
+<tr>
+<td>Taxa de giro mínima</td>
+<td><code>ConfiguracaoProtecaoMotor.h</code></td>
+<td>5 °/s</td>
+<td>Acima do ruído do giroscópio parado</td>
+</tr>
+</tbody>
+</table>
+<p>Todos são <strong>provisórios</strong>: a eletrônica ainda não informou a tensão do VM (bateria 2S ou 5 V) nem a tensão nominal, a redução e a corrente de travamento do N20.</p>
+<h3 id="interface-das-classes_4">Interface das Classes<a class="headerlink" href="#interface-das-classes_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>ConfiguracaoMotores.h</code></strong> (<code>lib/atuacao</code>): <code>FREQUENCIA_PWM_MOTORES_HZ</code>, <code>RESOLUCAO_PWM_MOTORES_BITS</code>, <code>LIMITE_DUTY_MOTORES_MILESIMOS</code>, <code>dutyTotalPwm(bits)</code>, <code>dutyMaximoMotores(bits, limite)</code> e as constantes <code>DUTY_TOTAL_MOTORES</code> e <code>DUTY_MAXIMO_MOTORES</code>.</li>
+<li><strong><code>MotoresDrv8833</code></strong> (<code>lib/drivers_esp32</code>): <code>iniciar()</code> (freio e depois PWM), <code>definirPotencia(potencia)</code> (limitada a <code>DUTY_MAXIMO_MOTORES</code>) e <code>parar()</code> (freio com duty total).</li>
+<li><strong><code>ProtecaoMotorTravado</code></strong> (<code>lib/atuacao</code>): <code>atualizar(comandada, medidas, dtMs)</code>, <code>estado()</code> (<code>Normal</code>, <code>Monitorando</code> ou <code>Travado</code>), <code>travado()</code>, <code>tempoMonitoradoMs()</code> e <code>reiniciar()</code>. As medidas vêm em <code>MedidasProtecao</code> (<code>frenteValida</code>, <code>frenteMm</code>, <code>taxaGiroDecimosDps</code>).</li>
+<li><strong><code>MotoresComProtecao</code></strong> (<code>lib/atuacao</code>): <code>IMotores</code> com <code>atualizarProtecao(medidas, dtMs)</code>, <code>liberar()</code>, <code>travado()</code>, <code>estado()</code>, <code>ultimaPotencia()</code>, <code>cortes()</code> e <code>comandosRecusados()</code>.</li>
+</ul>
+<p><strong>Rastreabilidade:</strong> <code>lib/atuacao</code> (<code>ConfiguracaoMotores</code>, <code>ProtecaoMotorTravado</code>, <code>ConfiguracaoProtecaoMotor</code>, <code>MotoresComProtecao</code>) e <code>lib/drivers_esp32/MotoresDrv8833</code> atendem à tarefa <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/341">#341</a>, da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/42">HU-01</a> (RF01).</p>
+<p><strong>Pendências:</strong></p>
+<ul>
+<li>A tabela de velocidade da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380">#380</a> precisa ser medida com o duty máximo de 70% já valendo.</li>
+<li>Bancada (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/381">#381</a>): o tranco no boot, o sentido das rodas com <code>definirPotencia({300, 300})</code>, o duty máximo com a tensão real do VM e o corte com uma roda presa.</li>
+</ul>
 <h2 id="atuacao-controle-de-rumo-pelo-giroscopio-e-giros-em-malha-fechada">Atuação: controle de rumo pelo giroscópio e giros em malha fechada<a class="headerlink" href="#atuacao-controle-de-rumo-pelo-giroscopio-e-giros-em-malha-fechada" title="Permanent link">&para;</a></h2>
 <p>Na Rev 2.0 do hardware, os encoders físicos de roda ainda não estão disponíveis. O ângulo de guinada (<em>yaw</em>) medido e integrado a partir da IMU MPU6050 passa a ser a principal fonte de orientação do micromouse (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/190">#190</a>). O sistema utiliza essa orientação em malha fechada para duas finalidades essenciais:
 1. <strong>Giros de 90° e 180° no próprio eixo</strong> (<code>ControleGiro</code>): manobras precisas no centro das células com rampa de potência e tolerância angular configurável.
@@ -5219,7 +5383,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 
     rampa --&gt; motores["IMotores (MotoresDrv8833 / MotoresSimulados)&lt;br/&gt;potência das rodas"]
     controleMov --&gt; motores</code></pre>
-<p><strong>Figura 18.</strong> Controle de orientação em malha fechada: o ângulo de guinada (<em>yaw</em>) integrado da IMU orienta tanto os giros no próprio eixo (<code>ControleGiro</code>) quanto a manutenção da trajetória retilínea durante o avanço (<code>ControleMovimento</code>), compensando o deslizamento de rodas e irregularidades do piso (HU-11).</p>
+<p><strong>Figura 19.</strong> Controle de orientação em malha fechada: o ângulo de guinada (<em>yaw</em>) integrado da IMU orienta tanto os giros no próprio eixo (<code>ControleGiro</code>) quanto a manutenção da trajetória retilínea durante o avanço (<code>ControleMovimento</code>), compensando o deslizamento de rodas e irregularidades do piso (HU-11).</p>
 <h3 id="giros-de-90-e-180-em-malha-fechada-controlegiro">Giros de 90° e 180° em malha fechada (<code>ControleGiro</code>)<a class="headerlink" href="#giros-de-90-e-180-em-malha-fechada-controlegiro" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Erro angular:</strong> <span class="arithmatex">\(e = \theta_{\text{alvo}} - \theta_{\text{atual}}\)</span>, calculado a cada ciclo de 10 ms em mili-graus (onde 1 000 m° = 1° e 90 000 m° = 90°).</li>
@@ -5304,7 +5468,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 </tr>
 </tbody>
 </table>
-<h3 id="interface-das-classes_4">Interface das Classes<a class="headerlink" href="#interface-das-classes_4" title="Permanent link">&para;</a></h3>
+<h3 id="interface-das-classes_5">Interface das Classes<a class="headerlink" href="#interface-das-classes_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong><code>ControleGiro::iniciar(anguloRelativoMiligraus, anguloAtualMiligraus)</code>:</strong> inicia o controle em malha fechada calculando o alvo absoluto.</li>
 <li><strong><code>ControleGiro::iniciarGiro90Esquerda(anguloAtual)</code> / <code>iniciarGiro90Direita(anguloAtual)</code>:</strong> atalhos para manobras de 90° (+90 000 m° e −90 000 m°).</li>
@@ -5329,8 +5493,8 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
     falha -- "3 reinícios sem voltar" --&gt; inop["inoperante&lt;br/&gt;motores parados,&lt;br/&gt;sem novo reinício"]
     falha -- "3 leituras boas seguidas" --&gt; ok
     inop -- "3 leituras boas seguidas" --&gt; ok</code></pre>
-<p><strong>Figura 19.</strong> Situações de cada dispositivo no <code>SupervisorI2c</code>, com os valores provisórios de <code>ConfiguracaoFalhasI2c.h</code>. Os motores só andam com os 4 dispositivos em <code>ok</code> ou <code>tentando</code>.</p>
-<h3 id="regras-de-negocio-e-algoritmo_12">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_12" title="Permanent link">&para;</a></h3>
+<p><strong>Figura 20.</strong> Situações de cada dispositivo no <code>SupervisorI2c</code>, com os valores provisórios de <code>ConfiguracaoFalhasI2c.h</code>. Os motores só andam com os 4 dispositivos em <code>ok</code> ou <code>tentando</code>.</p>
+<h3 id="regras-de-negocio-e-algoritmo_13">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_13" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Falha de um ToF (<code>VigiaTof</code>):</strong> a cada ciclo da navegação (10 ms), a última amostra de cada sensor no <code>CombinadorTof</code> vira uma leitura. Amostra nova em <code>Falha</code> (o sensor não respondeu ou o tempo do I²C esgotou) é falha. Amostra nova válida, fora de alcance ou abaixo do mínimo é leitura boa, porque o sensor respondeu. Sem amostra nova há mais de <code>IDADE_MAXIMA_LEITURA_TOF_MS</code> (100 ms), é falha (o sensor parou de medir), contada uma vez a cada 100 ms. Sem amostra nova dentro dos 100 ms, não há o que concluir: o sensor mede a cada 33 ms.</li>
 <li><strong>Falha da IMU:</strong> a leitura do giroscópio (o <code>AcompanhadorGiro</code> a conta) ou do acelerômetro (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/192">#192</a>) que falha é falha, porque os dois são o mesmo MPU6050, a menos que o barramento estivesse com a navegação naquele ciclo (as <code>esperasEsgotadas()</code> do <code>BarramentoI2c</code> aumentaram). Nesse caso, a navegação está reiniciando um ToF, e a leitura perdida não é culpa da IMU.</li>
@@ -5340,7 +5504,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <li><strong>Recuperação:</strong> em <code>em_falha</code> ou <code>inoperante</code>, 3 leituras boas seguidas devolvem o dispositivo a <code>ok</code> e zeram os reinícios. Uma falha no meio zera a contagem, para um mau contato que oscila não ficar ligando e desligando os motores.</li>
 <li><strong>Motores (<code>TravaFalhaI2c</code>):</strong> os motores param enquanto qualquer um dos 4 estiver <code>em_falha</code> ou <code>inoperante</code>, pela mesma <code>MotoresComTrava</code> do boot (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/50">#50</a>): travada, toda potência vira freio, e o estimador do deslocamento (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380">#380</a>) fica sabendo que o robô parou. A trava do I²C só solta a trava que ela mesma pôs, então um boot reprovado continua travado até o robô ser reiniciado.</li>
 <li><strong>Ciclo de navegação (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/184">#184</a>):</strong> enquanto a falha durar, a navegação tira a permissão do <code>CicloNavegacao</code> (<code>EntradaCiclo::liberado</code>). O ciclo cancela o movimento, freia e espera em <code>aguardando_largada</code>; quando a falha passa, percebe de novo a célula a partir de onde parou e segue a corrida. Sem isso, o movimento travado acabaria por tempo esgotado, como <code>Falha</code> do ciclo, e o robô não voltaria sozinho.</li>
-<li><strong>Estado informado:</strong> cada mudança de situação, cada reinício e cada mudança da trava viram uma linha no log (Figura 20), e a telemetria repete em todo pacote <code>i2c_falhas</code> (os dispositivos em falha agora, separados por vírgula, ou <code>""</code>) e <code>i2c_reinicios</code> (os reinícios pedidos desde o boot).</li>
+<li><strong>Estado informado:</strong> cada mudança de situação, cada reinício e cada mudança da trava viram uma linha no log (Figura 21), e a telemetria repete em todo pacote <code>i2c_falhas</code> (os dispositivos em falha agora, separados por vírgula, ou <code>""</code>) e <code>i2c_reinicios</code> (os reinícios pedidos desde o boot).</li>
 </ul>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"i2c"</span><span class="p">,</span><span class="nt">"dispositivo"</span><span class="p">:</span><span class="s2">"tof_frontal"</span><span class="p">,</span><span class="nt">"situacao"</span><span class="p">:</span><span class="s2">"tentando"</span><span class="p">}</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"i2c"</span><span class="p">,</span><span class="nt">"dispositivo"</span><span class="p">:</span><span class="s2">"tof_frontal"</span><span class="p">,</span><span class="nt">"situacao"</span><span class="p">:</span><span class="s2">"em_falha"</span><span class="p">}</span>
@@ -5351,7 +5515,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"motores_liberados_i2c"</span><span class="p">}</span>
 <a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"navegacao"</span><span class="p">,</span><span class="nt">"estado"</span><span class="p">:</span><span class="s2">"percebendo"</span><span class="p">,</span><span class="nt">"falha"</span><span class="p">:</span><span class="s2">"nenhuma"</span><span class="p">,</span><span class="nt">"celulas"</span><span class="p">:</span><span class="mi">2</span><span class="p">}</span>
 </code></pre></div>
-<p><strong>Figura 20.</strong> Log de uma falha do ToF frontal no meio de um avanço, que volta com o primeiro reinício: os motores param antes do reinício, o ciclo de navegação espera e, depois de 3 medidas boas, os motores voltam e o ciclo percebe a célula de novo.</p>
+<p><strong>Figura 21.</strong> Log de uma falha do ToF frontal no meio de um avanço, que volta com o primeiro reinício: os motores param antes do reinício, o ciclo de navegação espera e, depois de 3 medidas boas, os motores voltam e o ciclo percebe a célula de novo.</p>
 <table>
 <thead>
 <tr>
@@ -5391,7 +5555,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <li><strong>Concorrência:</strong> o supervisor é usado pelas três tarefas, então todo acesso a ele fica na seção crítica <code>travaFalhasI2c</code>, curta; os reinícios e a trava ficam fora dela, porque esperam. A trava fica na <code>travaOdometria</code>, porque freia pelo estimador do deslocamento, que a telemetria também lê, como no <code>detectorObjetivo.processarChegada</code>.</li>
 <li><strong>Telemetria:</strong> com <code>i2c_falhas</code> e <code>i2c_reinicios</code>, o pior caso do JSON de telemetria chegou a 658 bytes, dentro do buffer de 768 (<code>TAMANHO_MAX_JSON_TELEMETRIA</code>).</li>
 </ul>
-<h3 id="interface-das-classes_5">Interface das Classes<a class="headerlink" href="#interface-das-classes_5" title="Permanent link">&para;</a></h3>
+<h3 id="interface-das-classes_6">Interface das Classes<a class="headerlink" href="#interface-das-classes_6" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong><code>SupervisorI2c</code></strong> (<code>lib/falhas</code>): <code>registrarLeitura(dispositivo, leitura, agoraMs)</code> devolve a <code>DecisaoI2c</code> (a <code>acao</code>, <code>Nenhuma</code> ou <code>Reiniciar</code>, e a situação <code>antes</code> e <code>depois</code>, para o log anunciar só as mudanças); <code>registrarReinicio(dispositivo, sucesso)</code>; <code>situacao(dispositivo)</code>, <code>motoresDevemParar()</code>, <code>falhas</code>, <code>falhasSeguidas</code>, <code>reinicios</code>, <code>reiniciosSemSucesso</code>, <code>reiniciosTotais()</code> e <code>descreverFalhas(saida, capacidade)</code>, com até <code>TAMANHO_MAX_FALHAS_I2C</code> (48) bytes. Os dispositivos são os mesmos do <code>AutotesteBoot</code> (<code>Dispositivo</code>).</li>
 <li><strong><code>LeituraI2c</code></strong> (<code>Ok</code>, <code>Falha</code> ou <code>SemNovidade</code>) e <strong><code>leituraDaImu(falhou, barramentoOcupado)</code></strong>: o resultado de uma leitura para o supervisor.</li>
@@ -5407,7 +5571,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <li>Ao retomar depois de uma falha no meio de um avanço, o ciclo percebe de novo a partir da célula da navegação, com o robô parado onde a falha o pegou; é o mesmo caminho de quando a permissão sai no meio de um movimento (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/184">#184</a>).</li>
 </ul>
 <p><strong>Rastreabilidade:</strong> <code>lib/falhas</code> (<code>SupervisorI2c</code>, <code>VigiaTof</code>, <code>TravaFalhaI2c</code>, <code>ConfiguracaoFalhasI2c.h</code>), <code>TofVl53l0x::reiniciarSensor</code>, os campos <code>i2c_falhas</code> e <code>i2c_reinicios</code> do <code>TelemetriaJson</code> e a supervisão no <code>main.cpp</code> atendem à tarefa <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/241">#241</a>, da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/51">HU-13</a> (Calibração de Hardware).</p>
-<p><strong>Pendências:</strong> a bancada com o hardware: com as rodas no ar e o monitor serial aberto, soltar e recolocar o conector de um VL53L0X e depois o do MPU6050 com o robô ligado, conferir a sequência da Figura 20 e ajustar os valores provisórios. A forma de soltar o conector sem curto no barramento precisa ser combinada com a eletrônica.</p>
+<p><strong>Pendências:</strong> a bancada com o hardware: com as rodas no ar e o monitor serial aberto, soltar e recolocar o conector de um VL53L0X e depois o do MPU6050 com o robô ligado, conferir a sequência da Figura 21 e ajustar os valores provisórios. A forma de soltar o conector sem curto no barramento precisa ser combinada com a eletrônica.</p>
 <h2 id="testes">Testes<a class="headerlink" href="#testes" title="Permanent link">&para;</a></h2>
 <p>Os testes rodam no computador, no ambiente <code>native</code>, com o framework <strong>Unity</strong>. Cada módulo tem sua pasta <code>test/test_&lt;modulo&gt;/</code>.</p>
 <table>
@@ -6564,6 +6728,11 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/190">#190</a> Controle de rumo pelo giroscópio: giros de 90° e retidão do avanço</td>
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/181">HU-11</a> (RF11, RNF-02)</td>
 </tr>
+<tr>
+<td><code>lib/atuacao</code> (<code>ConfiguracaoMotores</code>, <code>ProtecaoMotorTravado</code>, <code>MotoresComProtecao</code>), <code>lib/drivers_esp32</code> (<code>MotoresDrv8833</code>)</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/341">#341</a> Motores N20 pelo DRV8833: novos pinos, tensão e proteção sem encoder</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/42">HU-01</a> (RF01)</td>
+</tr>
 </tbody>
 </table>
 <h2 id="proximos-passos">Próximos passos<a class="headerlink" href="#proximos-passos" title="Permanent link">&para;</a></h2>
@@ -6683,6 +6852,13 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <td style="text-align: center;">24/10/2026</td>
 <td>Calibração de hardware: autocalibração dos VL53L0X e do giroscópio em até 1 s (RNF-08); CalibradorTof, CalibradorGiro e RotinaCalibracao (#240)</td>
 <td>Rafael Lima</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.6</td>
+<td style="text-align: center;">24/10/2026</td>
+<td>Motores N20: freio no boot, duty máximo, detecção de motor travado sem encoder e <code>MotoresComProtecao</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/341">#341</a>)</td>
+<td>Eduardo Viana, Cláudio Henrique</td>
 <td>—</td>
 </tr>
 </tbody>
