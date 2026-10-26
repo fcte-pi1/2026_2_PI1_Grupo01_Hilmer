@@ -100,7 +100,7 @@ A função de transferência no domínio da frequência $s = j\omega$ que relaci
 
 $$H(s) = K_{\text{div}} \cdot \frac{1}{1 + s \cdot R_{\text{th}} \cdot C_1} = 0{,}24812 \cdot \frac{1}{1 + j \left(\frac{f}{64{,}14\text{ Hz}}\right)}$$
 
-A resposta em frequência simulada pelo script `docs/scripts/simulacao_divisor_antialiasing.py` é apresentada no Diagrama de Bode vetorial abaixo:
+A resposta em frequência analítica do circuito de condicionamento é apresentada no Diagrama de Bode vetorial abaixo:
 
 ![Diagrama de Bode do Filtro Anti-Aliasing](../../figs/bode-filtro-antialiasing.svg)
 
