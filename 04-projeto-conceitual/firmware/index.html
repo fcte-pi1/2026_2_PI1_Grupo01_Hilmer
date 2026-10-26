@@ -1688,10 +1688,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#leitura-na-placa-tarefa-da-imu-e-barramento-compartilhado" class="md-nav__link">
+  <a href="#driver-barramento-i2c-e-tarefa-da-imu" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Leitura na placa: tarefa da IMU e barramento compartilhado
+        Driver, barramento I²C e tarefa da IMU
       
     </span>
   </a>
@@ -3036,10 +3036,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#leitura-na-placa-tarefa-da-imu-e-barramento-compartilhado" class="md-nav__link">
+  <a href="#driver-barramento-i2c-e-tarefa-da-imu" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Leitura na placa: tarefa da IMU e barramento compartilhado
+        Driver, barramento I²C e tarefa da IMU
       
     </span>
   </a>
@@ -4869,13 +4869,6 @@
 <li><strong>Falhas de leitura:</strong> uma leitura que falha (sensor sem resposta ou barramento ocupado) não soma nada ao ângulo e é contada. Depois de 5 falhas seguidas (50 ms sem leitura), o ângulo fica <strong>inválido</strong> até a próxima leitura boa: um giro de 300 °/s já andaria 15° sem ser contado.</li>
 <li><strong>Calibração automática:</strong> se o robô se mexer durante a calibração e ela for recusada, a calibração recomeça sozinha com as próximas amostras. O ângulo só é válido depois da calibração concluída.</li>
 </ul>
-<h3 id="leitura-na-placa-tarefa-da-imu-e-barramento-compartilhado">Leitura na placa: tarefa da IMU e barramento compartilhado<a class="headerlink" href="#leitura-na-placa-tarefa-da-imu-e-barramento-compartilhado" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Driver (<code>ImuMpu6050</code>):</strong> reinicia o sensor, confere o registrador <code>WHO_AM_I</code>, liga o filtro passa-baixa de 42 Hz, configura a faixa de ±500 °/s e lê só o eixo Z. Os registradores do MPU6050 ficam só no ambiente <code>esp32c3</code>.</li>
-<li><strong>Tarefa da IMU:</strong> lê o giroscópio a cada 10 ms, em intervalo fixo (<code>vTaskDelayUntil</code>), com <strong>prioridade 3</strong>, a maior do firmware. A leitura é curta (menos de 1 ms), e o ângulo só fica certo se o intervalo entre leituras não variar. As outras tarefas leem a última <code>LeituraGiro</code> por <code>lerGiro()</code>, copiada numa seção crítica.</li>
-<li><strong>Barramento I²C compartilhado (<code>BarramentoI2c</code>):</strong> a tarefa da IMU (MPU6050) e a de navegação (3 VL53L0X) usam o mesmo I²C. Uma transação não pode ser interrompida por outra, senão os bytes de um sensor se misturam com os do outro. Por isso toda transação segura um <strong>mutex do FreeRTOS</strong>. É mutex, e não seção crítica, porque o driver I²C do ESP32 depende das interrupções. Se o barramento não vier em até 8 ms, a leitura falha e é contada, em vez de atrasar a tarefa além do seu ciclo de 10 ms.</li>
-<li><strong>Ordem no boot:</strong> o <code>setup()</code> inicia o barramento (mutex e <code>Wire</code>), os VL53L0X e o autoteste do I²C (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/50">#50</a>), e só depois a IMU e as tarefas. Sem a IMU, o firmware segue, sem ângulo de giro válido.</li>
-</ul>
 <table>
 <thead>
 <tr>
@@ -4898,7 +4891,7 @@
 <tr>
 <td>Período de leitura</td>
 <td>10 ms</td>
-<td>Ciclo da tarefa de navegação</td>
+<td>Ciclo da tarefa da IMU, igual à taxa de amostragem configurada no sensor (100 por segundo)</td>
 </tr>
 <tr>
 <td>Amostras da calibração</td>
@@ -4916,37 +4909,57 @@
 <td><strong>Provisório</strong>; ajustar com o ruído medido na bancada</td>
 </tr>
 <tr>
-<td>Falhas seguidas que invalidam o ângulo</td>
+<td>Falhas seguidas que invalidam o ângulo (<code>FALHAS_SEGUIDAS_GIRO_INVALIDO</code>)</td>
 <td>5 (50 ms)</td>
 <td>Um giro de 300 °/s andaria 15° sem leitura</td>
 </tr>
 <tr>
 <td>Sensor de cabeça para baixo (<code>INVERTER_GIRO_Z</code>)</td>
 <td><code>false</code></td>
-<td><strong>Provisório</strong>; confirmar na bancada girando o robô para a esquerda (taxa positiva)</td>
+<td><strong>Provisório</strong>; conferir na bancada: girando o robô para a esquerda com a mão, a taxa tem que ser positiva</td>
 </tr>
 <tr>
-<td>Frequência do I²C (<code>Configuracao.h</code>)</td>
+<td>Frequência do I²C (<code>FREQUENCIA_I2C_HZ</code>, em <code>Configuracao.h</code>)</td>
 <td>100 kHz</td>
-<td><strong>Provisório</strong>; os sensores aceitam 400 kHz, falta confirmar os resistores de <em>pull-up</em></td>
+<td><strong>Provisório</strong>; modo padrão, aceito pelo MPU6050 e pelos VL53L0X, que aceitam 400 kHz (falta confirmar os resistores de <em>pull-up</em>)</td>
 </tr>
 <tr>
-<td>Espera máxima pelo barramento (<code>Configuracao.h</code>)</td>
+<td>Espera máxima pelo barramento (<code>ESPERA_MAXIMA_I2C_MS</code>, em <code>Configuracao.h</code>)</td>
 <td>8 ms</td>
-<td><strong>Provisório</strong>; menor que o ciclo de 10 ms</td>
+<td><strong>Provisório</strong>; menor que o período de leitura, para a tarefa nunca perder o ritmo esperando o barramento</td>
 </tr>
 </tbody>
 </table>
+<h3 id="driver-barramento-i2c-e-tarefa-da-imu">Driver, barramento I²C e tarefa da IMU<a class="headerlink" href="#driver-barramento-i2c-e-tarefa-da-imu" title="Permanent link">&para;</a></h3>
+<p>O driver (<code>ImuMpu6050</code>) e o barramento (<code>BarramentoI2c</code>) ficam em <code>lib/drivers_esp32</code>, que só compila no ambiente <code>esp32c3</code>: os registradores do MPU6050 aparecem só ali, e o <code>pio test -e native</code> não depende deles. As contas que dá para testar no computador (montar o valor dos dois bytes, o valor do registrador da faixa e a inversão do sinal) ficam em <code>ConversorGiro.h</code> e têm teste.</p>
+<pre class="mermaid"><code>flowchart LR
+    nav["tarefaNavegacao&lt;br/&gt;(3 VL53L0X)"] --&gt;|"BarramentoI2c::Uso"| bar["BarramentoI2c&lt;br/&gt;Wire + mutex"]
+    imuT["tarefaImu, a cada 10 ms&lt;br/&gt;ImuMpu6050 + AcompanhadorGiro"] --&gt;|"BarramentoI2c::Uso"| bar
+    bar --&gt; fios(["SDA GPIO9 · SCL GPIO8"])
+    imuT --&gt;|"cópia em seção crítica"| leit["LeituraGiro&lt;br/&gt;taxa, ângulo, válida"]
+    leit --&gt;|"lerGiro()"| outras["navegação, proteção dos motores,&lt;br/&gt;giros de 90° e 180°"]</code></pre>
+<p><strong>Figura 15.</strong> O barramento I²C compartilhado: as duas tarefas só falam com os sensores dentro de um <code>BarramentoI2c::Uso</code>, e as outras partes do firmware leem o giro pela cópia <code>LeituraGiro</code>, sem tocar no I²C.</p>
+<ul>
+<li><strong>Iniciar o sensor:</strong> <code>ImuMpu6050::iniciar()</code> reinicia o MPU6050 (<code>PWR_MGMT_1</code> = 0x80 e espera de 100 ms), lê o <code>WHO_AM_I</code> (0x68 no MPU6050), tira o sensor do sono usando o relógio do giroscópio X, liga o filtro passa-baixa de 42 Hz (<code>CONFIG</code> = 0x03), divide a amostragem para 100 por segundo (<code>SMPLRT_DIV</code> = 9) e grava a faixa em <code>GYRO_CONFIG</code>. No fim, relê <code>GYRO_CONFIG</code> e só aceita o sensor se a faixa ficou gravada, porque uma faixa errada mudaria a escala de todas as leituras.</li>
+<li><strong>Ler o giro:</strong> cada leitura busca os dois bytes do eixo Z (<code>GYRO_ZOUT_H</code> e <code>GYRO_ZOUT_L</code>, 0x47 e 0x48) numa só transação, com início repetido (sem STOP entre a escrita do registrador e a leitura), como pede o datasheet. Se chegarem menos bytes que o pedido, o que sobrou no <code>Wire</code> é descartado, para a próxima leitura não pegar bytes velhos.</li>
+<li><strong>Barramento compartilhado:</strong> os 3 VL53L0X, lidos pela tarefa de navegação, e o MPU6050, lido pela tarefa da IMU, usam os mesmos fios. Uma transação no meio de outra misturaria os bytes dos sensores, então <strong>toda transação I²C passa por um <code>BarramentoI2c::Uso</code></strong>, que segura um mutex do FreeRTOS e o libera ao sair do bloco. A proteção é um mutex, e não uma seção crítica (<code>portENTER_CRITICAL</code>): a seção crítica desliga as interrupções, de que o driver I²C do ESP32 depende. Com o mutex, quem espera dorme, e a herança de prioridade evita que a tarefa da IMU fique presa atrás de uma de prioridade menor. Se o barramento não vier em 8 ms, a leitura falha e é contada (<code>esperasEsgotadas</code>), em vez de atrasar a tarefa.</li>
+<li><strong>Intervalo fixo:</strong> a <code>tarefaImu</code> usa <code>vTaskDelayUntil</code>, que acorda a cada 10 ms contados do início do ciclo anterior. Assim, o tempo gasto na leitura não se soma ao período, e o <code>dt</code> da integração é sempre 10 ms.</li>
+<li><strong>Acompanhamento do ângulo:</strong> o <code>AcompanhadorGiro</code> faz um ciclo da tarefa: lê o sensor, alimenta a calibração ou o integrador e publica a <code>LeituraGiro</code>. Se a calibração for recusada porque o robô se mexeu, ela recomeça sozinha com as próximas amostras. Uma leitura que falhou não soma nada ao ângulo; com 5 falhas seguidas, a leitura passa a ser <strong>inválida</strong> até o sensor voltar a responder. Antes da calibração terminar, a leitura também é inválida: só use o ângulo para controle com <code>valida</code> verdadeiro.</li>
+<li><strong>Leitura pelas outras tarefas:</strong> a tarefa da IMU guarda a <code>LeituraGiro</code> numa cópia protegida por uma seção crítica curta (só a cópia da estrutura), e as outras tarefas a leem por <code>lerGiro()</code>.</li>
+<li><strong>Ordem no boot:</strong> o <code>setup()</code> inicia o barramento (mutex e <code>Wire</code>), os VL53L0X e o autoteste do I²C (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/50">#50</a>), e só depois a IMU e as tarefas. Sem a IMU, o firmware segue, sem ângulo de giro válido.</li>
+<li><strong>Log:</strong> no <code>setup()</code>, o log mostra <code>imu_iniciada</code> com o <code>who_am_i</code>, ou <code>falha_imu</code> se o sensor não respondeu (o firmware segue sem ângulo válido). Quando a calibração termina, sai <code>giroscopio_calibrado</code>, com o número de calibrações recusadas.</li>
+</ul>
+<p>A <code>tarefaImu</code> (prioridade 3, pilha de 3072 bytes; veja <a href="#tarefas-do-freertos">Tarefas do FreeRTOS</a>) tem a maior prioridade do firmware porque o ângulo só fica certo se as leituras vierem no intervalo certo. Ela é curta: cada ciclo é uma transação I²C de 2 bytes e algumas contas com inteiros.</p>
 <h3 id="interface-das-classes_2">Interface das Classes<a class="headerlink" href="#interface-das-classes_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong><code>IImu</code></strong> (<code>lib/hal</code>): <code>bool lerTaxaGiroZ(int16_t&amp; taxaDecimosDps)</code>; <code>false</code> se o sensor não respondeu.</li>
 <li><strong><code>ImuSimulado</code></strong> (<code>lib/simulacao</code>): giroscópio falso para os testes, com <code>definirTaxa</code>, <code>definirVies</code>, <code>definirRuidoAlternado</code> e <code>simularFalha</code>.</li>
 <li><strong><code>converterBrutoParaDecimosDps(bruto, faixa)</code></strong> (<code>ConversorGiro.h</code>): converte a leitura bruta do MPU6050, com arredondamento.</li>
+<li><strong><code>juntarBytesGiro(alto, baixo)</code></strong>, <strong><code>valorGyroConfig(faixa)</code></strong> e <strong><code>ajustarSinalGiro(taxa, inverter)</code></strong> (<code>ConversorGiro.h</code>): montam o valor de 16 bits a partir dos dois bytes, dão o valor do registrador <code>GYRO_CONFIG</code> de cada faixa e invertem o sinal sem estourar o <code>int16_t</code>.</li>
 <li><strong><code>IntegradorGiro</code></strong> (<code>lib/imu</code>): <code>iniciarCalibracao()</code>, <code>adicionarAmostraCalibracao(taxa)</code>, <code>atualizar(taxa, dtMs)</code>, <code>anguloMiligraus()</code>, <code>anguloNormalizadoMiligraus()</code> e <code>zerarAngulo()</code>.</li>
-<li><strong><code>valorGyroConfig(faixa)</code>, <code>juntarBytesGiro(alto, baixo)</code> e <code>ajustarSinalGiro(taxa, inverter)</code></strong> (<code>ConversorGiro.h</code>): os bits da faixa no registrador <code>GYRO_CONFIG</code>, os dois bytes do sensor em complemento de dois e a inversão de sinal do sensor de cabeça para baixo. Ficam fora do driver para serem testadas no computador.</li>
-<li><strong><code>AcompanhadorGiro</code></strong> (<code>lib/imu</code>): <code>iniciarCalibracao()</code>, <code>ciclo(dtMs)</code>, <code>ultima()</code> e <code>zerarAngulo()</code>; devolve a <code>LeituraGiro</code> (taxa sem o viés, ângulo, <code>valida</code>, estado da calibração, falhas de leitura e calibrações recusadas).</li>
-<li><strong><code>ImuMpu6050</code></strong> (<code>lib/drivers_esp32</code>): <code>iniciar()</code>, <code>identificacao()</code> e <code>lerTaxaGiroZ(taxa)</code>, implementando <code>IImu</code>.</li>
-<li><strong><code>BarramentoI2c</code></strong> (<code>lib/drivers_esp32</code>): <code>iniciar(sda, scl)</code>, <code>wire()</code>, <code>esperasEsgotadas()</code> e a classe <code>Uso</code>, que segura o barramento enquanto existir e o libera ao sair do escopo.</li>
+<li><strong><code>AcompanhadorGiro</code></strong> (<code>lib/imu</code>): <code>iniciarCalibracao()</code>, <code>ciclo(dtMs)</code>, <code>ultima()</code> e <code>zerarAngulo()</code>. A <code>LeituraGiro</code> traz <code>taxaDecimosDps</code> (sem o viés), <code>anguloMiligraus</code>, <code>valida</code>, <code>calibracao</code>, <code>falhasLeitura</code> e <code>calibracoesRecusadas</code>.</li>
+<li><strong><code>ImuMpu6050</code></strong> (<code>lib/drivers_esp32</code>): <code>IImu</code> real; <code>iniciar()</code>, <code>identificacao()</code> (o <code>WHO_AM_I</code> lido) e <code>falhasLeitura()</code>.</li>
+<li><strong><code>BarramentoI2c</code></strong> (<code>lib/drivers_esp32</code>): <code>iniciar(sda, scl)</code>, que cria o mutex e inicia o <code>Wire</code>; a classe <code>Uso</code>, que segura o barramento enquanto existe (<code>conseguiu()</code> diz se deu tempo); <code>wire()</code>; e <code>esperasEsgotadas()</code>.</li>
 </ul>
 <h2 id="navegacao-deteccao-do-objetivo-e-evento-na-telemetria">Navegação: detecção do objetivo e evento na telemetria<a class="headerlink" href="#navegacao-deteccao-do-objetivo-e-evento-na-telemetria" title="Permanent link">&para;</a></h2>
 <p>O módulo de navegação (<code>lib/navegacao</code>) implementa a classe <code>DetectorObjetivo</code>, responsável por identificar o instante em que o robô alcança a célula de destino (canto diametralmente oposto à partida), acionar a parada imediata dos motores, disparar o congelamento do mapa final e sinalizar o evento pontual correspondente (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/189">#189</a>, HU-07 / RF-07).</p>
@@ -4980,7 +4993,7 @@
     T-&gt;&gt;J: serializar(PacoteTelemetria {..., evento: "objetivo_alcancado" ou null})
     J--&gt;&gt;T: JSON formatado
     T-&gt;&gt;S: Serial.println(buffer)</code></pre>
-<p><strong>Figura 15.</strong> Fluxo de detecção da célula objetivo: ao confirmar que a célula da pose coincide com o destino sob a seção crítica <code>travaOdometria</code>, o robô freia imediatamente, congela o mapa explorado e envia o evento pontual único pela telemetria serial.</p>
+<p><strong>Figura 16.</strong> Fluxo de detecção da célula objetivo: ao confirmar que a célula da pose coincide com o destino sob a seção crítica <code>travaOdometria</code>, o robô freia imediatamente, congela o mapa explorado e envia o evento pontual único pela telemetria serial.</p>
 <h3 id="regras-de-negocio-e-algoritmo_10">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_10" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Cálculo da célula objetivo:</strong>
@@ -5101,6 +5114,13 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <td>4096 bytes</td>
 <td>Coleta e envio de telemetria</td>
 </tr>
+<tr>
+<td><code>tarefaImu</code></td>
+<td>10 ms (<code>PERIODO_LEITURA_IMU_MS</code>), em intervalo fixo (<code>vTaskDelayUntil</code>)</td>
+<td>3</td>
+<td>3072 bytes</td>
+<td>Ler o giroscópio, calibrar o viés, integrar o ângulo de giro e publicar a <code>LeituraGiro</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378">#378</a>)</td>
+</tr>
 </tbody>
 </table>
 <p>A navegação tem prioridade maior para que o envio de dados nunca atrase o controle do robô. Por enquanto, as duas tarefas têm só o laço e a espera; a lógica entra nas tarefas das próximas sprints.</p>
@@ -5113,7 +5133,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
     controle --&gt; motores["IMotores&lt;br/&gt;potência de cada roda"]
     motores -. implementa .-&gt; drv["MotoresDrv8833&lt;br/&gt;PWM nos GPIO 4 a 7"]
     motores -. implementa .-&gt; sim["MotoresSimulados&lt;br/&gt;testes"]</code></pre>
-<p><strong>Figura 16.</strong> Fluxo do controle de movimento: a cada leitura dos sensores de distância, a distância frontal define a potência base, as distâncias laterais definem a correção, e o resultado vai para os motores pela interface <code>IMotores</code>.</p>
+<p><strong>Figura 17.</strong> Fluxo do controle de movimento: a cada leitura dos sensores de distância, a distância frontal define a potência base, as distâncias laterais definem a correção, e o resultado vai para os motores pela interface <code>IMotores</code>.</p>
 <h3 id="geometria-considerada">Geometria considerada<a class="headerlink" href="#geometria-considerada" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -5199,7 +5219,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 
     rampa --&gt; motores["IMotores (MotoresDrv8833 / MotoresSimulados)&lt;br/&gt;potência das rodas"]
     controleMov --&gt; motores</code></pre>
-<p><strong>Figura 17.</strong> Controle de orientação em malha fechada: o ângulo de guinada (<em>yaw</em>) integrado da IMU orienta tanto os giros no próprio eixo (<code>ControleGiro</code>) quanto a manutenção da trajetória retilínea durante o avanço (<code>ControleMovimento</code>), compensando o deslizamento de rodas e irregularidades do piso (HU-11).</p>
+<p><strong>Figura 18.</strong> Controle de orientação em malha fechada: o ângulo de guinada (<em>yaw</em>) integrado da IMU orienta tanto os giros no próprio eixo (<code>ControleGiro</code>) quanto a manutenção da trajetória retilínea durante o avanço (<code>ControleMovimento</code>), compensando o deslizamento de rodas e irregularidades do piso (HU-11).</p>
 <h3 id="giros-de-90-e-180-em-malha-fechada-controlegiro">Giros de 90° e 180° em malha fechada (<code>ControleGiro</code>)<a class="headerlink" href="#giros-de-90-e-180-em-malha-fechada-controlegiro" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Erro angular:</strong> <span class="arithmatex">\(e = \theta_{\text{alvo}} - \theta_{\text{atual}}\)</span>, calculado a cada ciclo de 10 ms em mili-graus (onde 1 000 m° = 1° e 90 000 m° = 90°).</li>
@@ -5309,7 +5329,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
     falha -- "3 reinícios sem voltar" --&gt; inop["inoperante&lt;br/&gt;motores parados,&lt;br/&gt;sem novo reinício"]
     falha -- "3 leituras boas seguidas" --&gt; ok
     inop -- "3 leituras boas seguidas" --&gt; ok</code></pre>
-<p><strong>Figura 18.</strong> Situações de cada dispositivo no <code>SupervisorI2c</code>, com os valores provisórios de <code>ConfiguracaoFalhasI2c.h</code>. Os motores só andam com os 4 dispositivos em <code>ok</code> ou <code>tentando</code>.</p>
+<p><strong>Figura 19.</strong> Situações de cada dispositivo no <code>SupervisorI2c</code>, com os valores provisórios de <code>ConfiguracaoFalhasI2c.h</code>. Os motores só andam com os 4 dispositivos em <code>ok</code> ou <code>tentando</code>.</p>
 <h3 id="regras-de-negocio-e-algoritmo_12">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_12" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Falha de um ToF (<code>VigiaTof</code>):</strong> a cada ciclo da navegação (10 ms), a última amostra de cada sensor no <code>CombinadorTof</code> vira uma leitura. Amostra nova em <code>Falha</code> (o sensor não respondeu ou o tempo do I²C esgotou) é falha. Amostra nova válida, fora de alcance ou abaixo do mínimo é leitura boa, porque o sensor respondeu. Sem amostra nova há mais de <code>IDADE_MAXIMA_LEITURA_TOF_MS</code> (100 ms), é falha (o sensor parou de medir), contada uma vez a cada 100 ms. Sem amostra nova dentro dos 100 ms, não há o que concluir: o sensor mede a cada 33 ms.</li>
@@ -5320,7 +5340,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <li><strong>Recuperação:</strong> em <code>em_falha</code> ou <code>inoperante</code>, 3 leituras boas seguidas devolvem o dispositivo a <code>ok</code> e zeram os reinícios. Uma falha no meio zera a contagem, para um mau contato que oscila não ficar ligando e desligando os motores.</li>
 <li><strong>Motores (<code>TravaFalhaI2c</code>):</strong> os motores param enquanto qualquer um dos 4 estiver <code>em_falha</code> ou <code>inoperante</code>, pela mesma <code>MotoresComTrava</code> do boot (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/50">#50</a>): travada, toda potência vira freio, e o estimador do deslocamento (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380">#380</a>) fica sabendo que o robô parou. A trava do I²C só solta a trava que ela mesma pôs, então um boot reprovado continua travado até o robô ser reiniciado.</li>
 <li><strong>Ciclo de navegação (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/184">#184</a>):</strong> enquanto a falha durar, a navegação tira a permissão do <code>CicloNavegacao</code> (<code>EntradaCiclo::liberado</code>). O ciclo cancela o movimento, freia e espera em <code>aguardando_largada</code>; quando a falha passa, percebe de novo a célula a partir de onde parou e segue a corrida. Sem isso, o movimento travado acabaria por tempo esgotado, como <code>Falha</code> do ciclo, e o robô não voltaria sozinho.</li>
-<li><strong>Estado informado:</strong> cada mudança de situação, cada reinício e cada mudança da trava viram uma linha no log (Figura 19), e a telemetria repete em todo pacote <code>i2c_falhas</code> (os dispositivos em falha agora, separados por vírgula, ou <code>""</code>) e <code>i2c_reinicios</code> (os reinícios pedidos desde o boot).</li>
+<li><strong>Estado informado:</strong> cada mudança de situação, cada reinício e cada mudança da trava viram uma linha no log (Figura 20), e a telemetria repete em todo pacote <code>i2c_falhas</code> (os dispositivos em falha agora, separados por vírgula, ou <code>""</code>) e <code>i2c_reinicios</code> (os reinícios pedidos desde o boot).</li>
 </ul>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"i2c"</span><span class="p">,</span><span class="nt">"dispositivo"</span><span class="p">:</span><span class="s2">"tof_frontal"</span><span class="p">,</span><span class="nt">"situacao"</span><span class="p">:</span><span class="s2">"tentando"</span><span class="p">}</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"i2c"</span><span class="p">,</span><span class="nt">"dispositivo"</span><span class="p">:</span><span class="s2">"tof_frontal"</span><span class="p">,</span><span class="nt">"situacao"</span><span class="p">:</span><span class="s2">"em_falha"</span><span class="p">}</span>
@@ -5331,7 +5351,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"motores_liberados_i2c"</span><span class="p">}</span>
 <a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"navegacao"</span><span class="p">,</span><span class="nt">"estado"</span><span class="p">:</span><span class="s2">"percebendo"</span><span class="p">,</span><span class="nt">"falha"</span><span class="p">:</span><span class="s2">"nenhuma"</span><span class="p">,</span><span class="nt">"celulas"</span><span class="p">:</span><span class="mi">2</span><span class="p">}</span>
 </code></pre></div>
-<p><strong>Figura 19.</strong> Log de uma falha do ToF frontal no meio de um avanço, que volta com o primeiro reinício: os motores param antes do reinício, o ciclo de navegação espera e, depois de 3 medidas boas, os motores voltam e o ciclo percebe a célula de novo.</p>
+<p><strong>Figura 20.</strong> Log de uma falha do ToF frontal no meio de um avanço, que volta com o primeiro reinício: os motores param antes do reinício, o ciclo de navegação espera e, depois de 3 medidas boas, os motores voltam e o ciclo percebe a célula de novo.</p>
 <table>
 <thead>
 <tr>
@@ -5387,7 +5407,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <li>Ao retomar depois de uma falha no meio de um avanço, o ciclo percebe de novo a partir da célula da navegação, com o robô parado onde a falha o pegou; é o mesmo caminho de quando a permissão sai no meio de um movimento (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/184">#184</a>).</li>
 </ul>
 <p><strong>Rastreabilidade:</strong> <code>lib/falhas</code> (<code>SupervisorI2c</code>, <code>VigiaTof</code>, <code>TravaFalhaI2c</code>, <code>ConfiguracaoFalhasI2c.h</code>), <code>TofVl53l0x::reiniciarSensor</code>, os campos <code>i2c_falhas</code> e <code>i2c_reinicios</code> do <code>TelemetriaJson</code> e a supervisão no <code>main.cpp</code> atendem à tarefa <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/241">#241</a>, da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/51">HU-13</a> (Calibração de Hardware).</p>
-<p><strong>Pendências:</strong> a bancada com o hardware: com as rodas no ar e o monitor serial aberto, soltar e recolocar o conector de um VL53L0X e depois o do MPU6050 com o robô ligado, conferir a sequência da Figura 19 e ajustar os valores provisórios. A forma de soltar o conector sem curto no barramento precisa ser combinada com a eletrônica.</p>
+<p><strong>Pendências:</strong> a bancada com o hardware: com as rodas no ar e o monitor serial aberto, soltar e recolocar o conector de um VL53L0X e depois o do MPU6050 com o robô ligado, conferir a sequência da Figura 20 e ajustar os valores provisórios. A forma de soltar o conector sem curto no barramento precisa ser combinada com a eletrônica.</p>
 <h2 id="testes">Testes<a class="headerlink" href="#testes" title="Permanent link">&para;</a></h2>
 <p>Os testes rodam no computador, no ambiente <code>native</code>, com o framework <strong>Unity</strong>. Cada módulo tem sua pasta <code>test/test_&lt;modulo&gt;/</code>.</p>
 <table>
