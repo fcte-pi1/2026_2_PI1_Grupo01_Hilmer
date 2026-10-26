@@ -1793,6 +1793,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#falha-do-i2c-durante-a-corrida-supervisori2c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Falha do I²C durante a corrida (SupervisorI2c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Falha do I²C durante a corrida (SupervisorI2c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regras-de-negocio-e-algoritmo_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de Negócio e Algoritmo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#na-placa-navegacao-tarefa-da-imu-e-telemetria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Na placa: navegação, tarefa da IMU e telemetria
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-das-classes_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface das Classes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limites-conhecidos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limites conhecidos
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#testes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2969,6 +3030,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#falha-do-i2c-durante-a-corrida-supervisori2c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Falha do I²C durante a corrida (SupervisorI2c)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Falha do I²C durante a corrida (SupervisorI2c)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regras-de-negocio-e-algoritmo_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de Negócio e Algoritmo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#na-placa-navegacao-tarefa-da-imu-e-telemetria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Na placa: navegação, tarefa da IMU e telemetria
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-das-classes_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface das Classes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limites-conhecidos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limites conhecidos
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#testes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3202,6 +3324,10 @@
 <tr>
 <td><code>lib/inicializacao</code></td>
 <td>Autoteste do boot: varredura do I²C, conferência dos 4 dispositivos e relatório (<code>AutotesteBoot</code>, <code>RelatorioBoot</code>), com os parâmetros em <code>ConfiguracaoBoot.h</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/50">#50</a>)</td>
+</tr>
+<tr>
+<td><code>lib/falhas</code></td>
+<td>Falha do I²C durante a corrida: tentativas, reinício e recuperação dos 4 dispositivos (<code>SupervisorI2c</code>), leitura de cada ToF pelas amostras (<code>VigiaTof</code>) e motores parados enquanto durar a falha (<code>TravaFalhaI2c</code>), com os parâmetros em <code>ConfiguracaoFalhasI2c.h</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/241">#241</a>)</td>
 </tr>
 <tr>
 <td><code>lib/tof</code></td>
@@ -3750,7 +3876,7 @@
 </table>
 <ul>
 <li><strong>Identidade do MPU6050:</strong> além de responder no 0x68, o registrador <code>WHO_AM_I</code> (0x75) precisa valer 0x68, para outro chip nesse endereço não passar pela IMU. Usa só o <code>Wire</code>, sem depender do driver da IMU (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378">#378</a>).</li>
-<li><strong>Falha:</strong> os motores ficam travados <strong>até o robô ser reiniciado</strong>. Repetir as tentativas durante a corrida e reiniciar um ToF pelo XSHUT é da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/241">#241</a>, que pode usar a mesma trava.</li>
+<li><strong>Falha:</strong> os motores ficam travados <strong>até o robô ser reiniciado</strong>. Durante a corrida, a falha de um dispositivo é tratada pela <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/241">#241</a>, com a mesma trava (veja <a href="#falha-do-i2c-durante-a-corrida-supervisori2c">Falha do I²C durante a corrida</a>).</li>
 <li><strong>Trava dos motores:</strong> a <code>MotoresComTrava</code> envolve o driver e começa travada. Travada, todo <code>definirPotencia</code> vira <code>parar()</code>; o <code>parar()</code> sempre passa. O <code>motores.iniciar()</code> é a primeira linha do <code>setup()</code>, para frear antes de tudo, porque o GPIO20/21 (IN3/IN4) recebe um tranco da ROM durante o reset.</li>
 <li><strong>Camadas dos motores:</strong> no <code>main.cpp</code>, cada camada tem o próprio nome: <code>motores</code> é o driver e <code>motoresComTrava</code>, a trava. Quem aciona as rodas (o detector do objetivo hoje e o controle de movimento depois) usa só <code>motoresTracao</code>, uma referência (<code>IMotores&amp;</code>) à camada de fora. Ordem combinada para quando as outras camadas entrarem: <code>MotoresComTrava</code> (#50) → <code>MotoresComProtecao</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/341">#341</a>) → <code>MotoresComEstimativa</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380">#380</a>) → <code>MotoresDrv8833</code>. Com a trava por fora, a proteção recebe freio enquanto o robô não foi liberado e não acusa um motor travado falso; quando as camadas se juntarem, só a referência <code>motoresTracao</code> muda.</li>
 <li><strong>I²C compartilhado com a IMU:</strong> o <code>BarramentoI2c</code> do PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/403">#403</a> (com mutex) vai tomar o lugar do <code>Wire.begin</code> do <code>setup()</code>, com <code>barramentoI2c.iniciar(SDA, SCL)</code> antes do <code>tof.iniciar()</code>. O <code>tof.iniciar()</code> e o autoteste não precisam do mutex, porque rodam antes dos <code>xTaskCreate</code> (inclusive o da IMU). Fica para essa integração unificar o <code>BarramentoI2cEsp32</code> com o <code>BarramentoI2c</code>, por exemplo com o <code>BarramentoI2cEsp32</code> usando o <code>BarramentoI2c::Uso</code> por dentro.</li>
@@ -4721,6 +4847,98 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 </ul>
 <p><strong>Rastreabilidade:</strong> <code>lib/atuacao</code> (<code>ControleMovimento</code>, <code>ControladorCentralizacao</code>, <code>PerfilParadaFrontal</code>, <code>SinaisDrv8833</code>), <code>lib/hal/IMotores</code>, <code>lib/simulacao/MotoresSimulados</code> e <code>lib/drivers_esp32/MotoresDrv8833</code> atendem à tarefa <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/191">#191</a>, da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/182">HU-12</a> (RF-12).</p>
 <p><strong>Pendências:</strong> o critério 3 da HU-12 (teste de bancada no labirinto sem contato com as paredes) depende do chassi montado e da pista 4×4. O <code>ControleMovimento</code> ainda não está na tarefa de navegação: entra junto com os sensores de distância e a navegação (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/183">#183</a>).</p>
+<h2 id="falha-do-i2c-durante-a-corrida-supervisori2c">Falha do I²C durante a corrida (<code>SupervisorI2c</code>)<a class="headerlink" href="#falha-do-i2c-durante-a-corrida-supervisori2c" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>Situação:</strong> implementado e testado no computador com falhas simuladas (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/241">#241</a>); falta a bancada com o hardware.</p>
+</blockquote>
+<p>Na Rev 2.0, a falha de um sensor passa a ser falha do barramento I²C: os 3 VL53L0X e o MPU6050 dividem o mesmo SDA/SCL. O boot confere os 4 dispositivos uma vez (<a href="#boot-do-sistema-autoteste-do-i2c-autotesteboot">Boot do sistema</a>); com o robô andando, um mau contato, um tranco ou uma queda de tensão ainda podem tirar um deles do barramento. O firmware detecta a falha em cada dispositivo, repete a leitura um número limitado de vezes, reinicia o dispositivo que continua falhando (o ToF pelo XSHUT) e mantém os motores parados enquanto a falha durar, informando o motivo no log e na telemetria. A lógica fica em <code>lib/falhas</code>, sem Arduino, e é testada no computador; o <code>main.cpp</code> só a liga às tarefas.</p>
+<pre class="mermaid"><code>flowchart LR
+    ok["ok&lt;br/&gt;motores seguem"] -- "leitura com falha" --&gt; tentando["tentando&lt;br/&gt;motores seguem,&lt;br/&gt;lê de novo no ciclo seguinte"]
+    tentando -- "leitura boa" --&gt; ok
+    tentando -- "5 falhas seguidas" --&gt; falha["em_falha&lt;br/&gt;motores parados,&lt;br/&gt;dispositivo reiniciado"]
+    falha -- "5 falhas depois do reinício&lt;br/&gt;(reinícios a 500 ms ou mais)" --&gt; falha
+    falha -- "3 reinícios sem voltar" --&gt; inop["inoperante&lt;br/&gt;motores parados,&lt;br/&gt;sem novo reinício"]
+    falha -- "3 leituras boas seguidas" --&gt; ok
+    inop -- "3 leituras boas seguidas" --&gt; ok</code></pre>
+<p><strong>Figura 16.</strong> Situações de cada dispositivo no <code>SupervisorI2c</code>, com os valores provisórios de <code>ConfiguracaoFalhasI2c.h</code>. Os motores só andam com os 4 dispositivos em <code>ok</code> ou <code>tentando</code>.</p>
+<h3 id="regras-de-negocio-e-algoritmo_12">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_12" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Falha de um ToF (<code>VigiaTof</code>):</strong> a cada ciclo da navegação (10 ms), a última amostra de cada sensor no <code>CombinadorTof</code> vira uma leitura. Amostra nova em <code>Falha</code> (o sensor não respondeu ou o tempo do I²C esgotou) é falha. Amostra nova válida, fora de alcance ou abaixo do mínimo é leitura boa, porque o sensor respondeu. Sem amostra nova há mais de <code>IDADE_MAXIMA_LEITURA_TOF_MS</code> (100 ms), é falha (o sensor parou de medir), contada uma vez a cada 100 ms. Sem amostra nova dentro dos 100 ms, não há o que concluir: o sensor mede a cada 33 ms.</li>
+<li><strong>Falha da IMU:</strong> a leitura do giroscópio (o <code>AcompanhadorGiro</code> a conta) ou do acelerômetro (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/192">#192</a>) que falha é falha, porque os dois são o mesmo MPU6050, a menos que o barramento estivesse com a navegação naquele ciclo (as <code>esperasEsgotadas()</code> do <code>BarramentoI2c</code> aumentaram). Nesse caso, a navegação está reiniciando um ToF, e a leitura perdida não é culpa da IMU.</li>
+<li><strong>Tentativas:</strong> com 1 a 4 falhas seguidas, o dispositivo fica <code>tentando</code>: a leitura é repetida no ciclo seguinte, e os motores seguem. Uma leitura boa volta a <code>ok</code>.</li>
+<li><strong>Falha declarada e reinício:</strong> com 5 falhas seguidas, o dispositivo fica <code>em_falha</code>, os motores param e ele é reiniciado: o ToF pelo XSHUT (<code>TofVl53l0x::reiniciarSensor</code>), a IMU por <code>ImuMpu6050::iniciar()</code>. Depois de cada reinício, o dispositivo tem de novo as 5 tentativas, e dois reinícios do mesmo dispositivo ficam a pelo menos 500 ms um do outro, para o barramento não ficar ocupado só com reinícios.</li>
+<li><strong>Inoperante:</strong> depois de 3 reinícios seguidos sem o dispositivo voltar, ele não é mais reiniciado, e os motores continuam parados. Se o último reinício não conseguiu configurá-lo, o driver o deixa em reset e não o lê mais: ele só volta com o robô reiniciado.</li>
+<li><strong>Recuperação:</strong> em <code>em_falha</code> ou <code>inoperante</code>, 3 leituras boas seguidas devolvem o dispositivo a <code>ok</code> e zeram os reinícios. Uma falha no meio zera a contagem, para um mau contato que oscila não ficar ligando e desligando os motores.</li>
+<li><strong>Motores (<code>TravaFalhaI2c</code>):</strong> os motores param enquanto qualquer um dos 4 estiver <code>em_falha</code> ou <code>inoperante</code>, pela mesma <code>MotoresComTrava</code> do boot (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/50">#50</a>): travada, toda potência vira freio, e o estimador do deslocamento (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380">#380</a>) fica sabendo que o robô parou. A trava do I²C só solta a trava que ela mesma pôs, então um boot reprovado continua travado até o robô ser reiniciado.</li>
+<li><strong>Ciclo de navegação (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/184">#184</a>):</strong> enquanto a falha durar, a navegação tira a permissão do <code>CicloNavegacao</code> (<code>EntradaCiclo::liberado</code>). O ciclo cancela o movimento, freia e espera em <code>aguardando_largada</code>; quando a falha passa, percebe de novo a célula a partir de onde parou e segue a corrida. Sem isso, o movimento travado acabaria por tempo esgotado, como <code>Falha</code> do ciclo, e o robô não voltaria sozinho.</li>
+<li><strong>Estado informado:</strong> cada mudança de situação, cada reinício e cada mudança da trava viram uma linha no log (Figura 17), e a telemetria repete em todo pacote <code>i2c_falhas</code> (os dispositivos em falha agora, separados por vírgula, ou <code>""</code>) e <code>i2c_reinicios</code> (os reinícios pedidos desde o boot).</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"i2c"</span><span class="p">,</span><span class="nt">"dispositivo"</span><span class="p">:</span><span class="s2">"tof_frontal"</span><span class="p">,</span><span class="nt">"situacao"</span><span class="p">:</span><span class="s2">"tentando"</span><span class="p">}</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"i2c"</span><span class="p">,</span><span class="nt">"dispositivo"</span><span class="p">:</span><span class="s2">"tof_frontal"</span><span class="p">,</span><span class="nt">"situacao"</span><span class="p">:</span><span class="s2">"em_falha"</span><span class="p">}</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"motores_travados_i2c"</span><span class="p">}</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"reinicio_i2c"</span><span class="p">,</span><span class="nt">"dispositivo"</span><span class="p">:</span><span class="s2">"tof_frontal"</span><span class="p">,</span><span class="nt">"sucesso"</span><span class="p">:</span><span class="kc">true</span><span class="p">}</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"navegacao"</span><span class="p">,</span><span class="nt">"estado"</span><span class="p">:</span><span class="s2">"aguardando_largada"</span><span class="p">,</span><span class="nt">"falha"</span><span class="p">:</span><span class="s2">"nenhuma"</span><span class="p">,</span><span class="nt">"celulas"</span><span class="p">:</span><span class="mi">2</span><span class="p">}</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"i2c"</span><span class="p">,</span><span class="nt">"dispositivo"</span><span class="p">:</span><span class="s2">"tof_frontal"</span><span class="p">,</span><span class="nt">"situacao"</span><span class="p">:</span><span class="s2">"ok"</span><span class="p">}</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"motores_liberados_i2c"</span><span class="p">}</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"navegacao"</span><span class="p">,</span><span class="nt">"estado"</span><span class="p">:</span><span class="s2">"percebendo"</span><span class="p">,</span><span class="nt">"falha"</span><span class="p">:</span><span class="s2">"nenhuma"</span><span class="p">,</span><span class="nt">"celulas"</span><span class="p">:</span><span class="mi">2</span><span class="p">}</span>
+</code></pre></div>
+<p><strong>Figura 17.</strong> Log de uma falha do ToF frontal no meio de um avanço, que volta com o primeiro reinício: os motores param antes do reinício, o ciclo de navegação espera e, depois de 3 medidas boas, os motores voltam e o ciclo percebe a célula de novo.</p>
+<table>
+<thead>
+<tr>
+<th>Parâmetro (<code>ConfiguracaoFalhasI2c.h</code>)</th>
+<th>Valor</th>
+<th>Observação</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TENTATIVAS_LEITURA_I2C</code></td>
+<td>5</td>
+<td><strong>Provisório.</strong> O mesmo número de falhas que invalida o ângulo de giro (<code>FALHAS_SEGUIDAS_GIRO_INVALIDO</code>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378">#378</a>). Um dispositivo sem resposta é declarado em falha em cerca de 50 ms; um ToF que responde mas parou de medir, em cerca de 0,55 s</td>
+</tr>
+<tr>
+<td><code>LEITURAS_PARA_RECUPERAR_I2C</code></td>
+<td>3</td>
+<td><strong>Provisório.</strong> Para um ToF, cerca de 70 ms de medidas boas</td>
+</tr>
+<tr>
+<td><code>REINICIOS_MAXIMOS_I2C</code></td>
+<td>3</td>
+<td><strong>Provisório</strong></td>
+</tr>
+<tr>
+<td><code>ESPERA_ENTRE_REINICIOS_I2C_MS</code></td>
+<td>500 ms</td>
+<td><strong>Provisório.</strong> O reinício de um VL53L0X segura o barramento por algumas dezenas de ms</td>
+</tr>
+</tbody>
+</table>
+<h3 id="na-placa-navegacao-tarefa-da-imu-e-telemetria">Na placa: navegação, tarefa da IMU e telemetria<a class="headerlink" href="#na-placa-navegacao-tarefa-da-imu-e-telemetria" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Navegação (<code>supervisionarI2c()</code> no <code>main.cpp</code>):</strong> logo depois da leitura dos ToF, registra os 3 sensores no supervisor, aplica a trava dos motores (que também vale para a falha da IMU) e só então reinicia o ToF que o supervisor pediu, segurando o barramento (<code>BarramentoI2c::Uso</code>). A trava vem antes porque o reinício segura a navegação por algumas dezenas de ms, e o robô não pode seguir andando nesse tempo. A função devolve se há falha, e a navegação usa isso para tirar a permissão do ciclo.</li>
+<li><strong>Reinício de um ToF (<code>TofVl53l0x::reiniciarSensor(lado)</code>):</strong> põe o XSHUT do sensor em nível baixo, espera a partida, solta, atribui de novo o endereço e liga o modo contínuo. Só o sensor que falhou é reiniciado; os outros dois seguem medindo, porque estão nos endereços novos e não respondem no de fábrica (0x29).</li>
+<li><strong>Tarefa da IMU:</strong> depois de cada ciclo (giroscópio e acelerômetro), registra o MPU6050 no supervisor. Se ele pedir o reinício, a tarefa chama <code>imu.iniciar()</code> (que espera 100 ms) e recomeça a contagem do período, para esses 100 ms não virarem uma rajada de leituras.</li>
+<li><strong>Concorrência:</strong> o supervisor é usado pelas três tarefas, então todo acesso a ele fica na seção crítica <code>travaFalhasI2c</code>, curta; os reinícios e a trava ficam fora dela, porque esperam. A trava fica na <code>travaOdometria</code>, porque freia pelo estimador do deslocamento, que a telemetria também lê, como no <code>detectorObjetivo.processarChegada</code>.</li>
+<li><strong>Telemetria:</strong> com <code>i2c_falhas</code> e <code>i2c_reinicios</code>, o pior caso do JSON de telemetria chegou a 658 bytes, dentro do buffer de 768 (<code>TAMANHO_MAX_JSON_TELEMETRIA</code>).</li>
+</ul>
+<h3 id="interface-das-classes_3">Interface das Classes<a class="headerlink" href="#interface-das-classes_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>SupervisorI2c</code></strong> (<code>lib/falhas</code>): <code>registrarLeitura(dispositivo, leitura, agoraMs)</code> devolve a <code>DecisaoI2c</code> (a <code>acao</code>, <code>Nenhuma</code> ou <code>Reiniciar</code>, e a situação <code>antes</code> e <code>depois</code>, para o log anunciar só as mudanças); <code>registrarReinicio(dispositivo, sucesso)</code>; <code>situacao(dispositivo)</code>, <code>motoresDevemParar()</code>, <code>falhas</code>, <code>falhasSeguidas</code>, <code>reinicios</code>, <code>reiniciosSemSucesso</code>, <code>reiniciosTotais()</code> e <code>descreverFalhas(saida, capacidade)</code>, com até <code>TAMANHO_MAX_FALHAS_I2C</code> (48) bytes. Os dispositivos são os mesmos do <code>AutotesteBoot</code> (<code>Dispositivo</code>).</li>
+<li><strong><code>LeituraI2c</code></strong> (<code>Ok</code>, <code>Falha</code> ou <code>SemNovidade</code>) e <strong><code>leituraDaImu(falhou, barramentoOcupado)</code></strong>: o resultado de uma leitura para o supervisor.</li>
+<li><strong><code>VigiaTof</code></strong> (<code>lib/falhas</code>): <code>avaliar(lado, amostra, agoraMs)</code> e <code>sensorReiniciado(lado, agoraMs)</code>; <code>dispositivoDoTof(lado)</code> dá o dispositivo de cada lado.</li>
+<li><strong><code>TravaFalhaI2c</code></strong> (<code>lib/falhas</code>): <code>aplicar(deveParar, MotoresComTrava&amp;)</code> devolve a <code>MudancaTrava</code> (<code>Nenhuma</code>, <code>Travou</code> ou <code>Soltou</code>); <code>travouPorFalha()</code>.</li>
+<li><strong><code>TofVl53l0x::reiniciarSensor(lado)</code></strong> (<code>lib/drivers_esp32</code>): reinicia um sensor só e devolve <code>true</code> se ele voltou.</li>
+</ul>
+<h3 id="limites-conhecidos">Limites conhecidos<a class="headerlink" href="#limites-conhecidos" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Durante o reinício de um VL53L0X (2 × 10 ms de partida mais a calibração do <code>init()</code> da biblioteca), a IMU perde leituras, que não contam como falha dela, e o ângulo de giro não soma. Os motores já estão parados.</li>
+<li>Os ToF são reiniciados um por vez. Se dois caírem juntos para o endereço de fábrica (0x29), por exemplo numa queda de tensão, um reinício pode não bastar: eles ficam <code>inoperante</code>, com os motores parados, e o robô precisa ser reiniciado.</li>
+<li>Nas tentativas da IMU (até 50 ms), o giro não soma ao ângulo, como já acontecia antes (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378">#378</a>). Se a falha pegar o robô girando, o rumo pode ficar alguns graus errado.</li>
+<li>Ao retomar depois de uma falha no meio de um avanço, o ciclo percebe de novo a partir da célula da navegação, com o robô parado onde a falha o pegou; é o mesmo caminho de quando a permissão sai no meio de um movimento (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/184">#184</a>).</li>
+</ul>
+<p><strong>Rastreabilidade:</strong> <code>lib/falhas</code> (<code>SupervisorI2c</code>, <code>VigiaTof</code>, <code>TravaFalhaI2c</code>, <code>ConfiguracaoFalhasI2c.h</code>), <code>TofVl53l0x::reiniciarSensor</code>, os campos <code>i2c_falhas</code> e <code>i2c_reinicios</code> do <code>TelemetriaJson</code> e a supervisão no <code>main.cpp</code> atendem à tarefa <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/241">#241</a>, da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/51">HU-13</a> (Calibração de Hardware).</p>
+<p><strong>Pendências:</strong> a bancada com o hardware: com as rodas no ar e o monitor serial aberto, soltar e recolocar o conector de um VL53L0X e depois o do MPU6050 com o robô ligado, conferir a sequência da Figura 17 e ajustar os valores provisórios. A forma de soltar o conector sem curto no barramento precisa ser combinada com a eletrônica.</p>
 <h2 id="testes">Testes<a class="headerlink" href="#testes" title="Permanent link">&para;</a></h2>
 <p>Os testes rodam no computador, no ambiente <code>native</code>, com o framework <strong>Unity</strong>. Cada módulo tem sua pasta <code>test/test_&lt;modulo&gt;/</code>.</p>
 <table>
@@ -5437,17 +5655,117 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <td><code>test_serializa_resultado_do_boot</code></td>
 <td>Campos <code>boot_ok</code>, <code>boot_falhas</code> e <code>boot_ms</code></td>
 </tr>
+<tr>
+<td></td>
+<td><code>test_serializa_falhas_do_i2c</code></td>
+<td>Campos <code>i2c_falhas</code> e <code>i2c_reinicios</code>, vazios por padrão</td>
+</tr>
+<tr>
+<td><code>test_falhas_i2c/test_falhas_i2c.cpp</code></td>
+<td><code>test_tentativas_esgotadas_param_os_motores_e_pedem_reinicio_em_cada_dispositivo</code></td>
+<td>Em cada um dos 4 dispositivos, 4 falhas seguidas não param os motores e a 5ª para e pede o reinício, sem mexer nos outros</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_falha_isolada_tenta_de_novo_sem_parar_os_motores</code> e <code>test_sem_falha_fica_ok_e_nao_para_os_motores</code></td>
+<td>Falhas abaixo do limite só repetem a leitura; sem falha, nada muda</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_tentativas_vem_da_configuracao</code> e <code>test_configuracao_zerada_vale_como_um</code></td>
+<td>O número de tentativas vem da <code>ConfiguracaoFalhasI2c</code>; zero vale como 1</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_depois_do_reinicio_o_dispositivo_tem_todas_as_tentativas_de_novo</code>, <code>test_reinicios_respeitam_a_espera</code> e <code>test_espera_entre_reinicios_com_o_relogio_dando_a_volta</code></td>
+<td>Cada reinício devolve as tentativas, e dois reinícios ficam a 500 ms, inclusive com o <code>millis()</code> dando a volta</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_reinicios_esgotados_deixam_o_dispositivo_inoperante</code> e <code>test_inoperante_nao_pede_mais_reinicio_mas_volta_com_leituras_boas</code></td>
+<td>Depois de 3 reinícios sem voltar, nenhum reinício a mais; 3 leituras boas o devolvem a <code>ok</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_recuperar_exige_leituras_boas_seguidas</code> e <code>test_motores_so_seguem_com_todos_os_dispositivos_ok</code></td>
+<td>Uma falha no meio zera a recuperação; os motores só voltam com os 4 bem</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_sem_novidade_nao_muda_nada</code>, <code>test_leitura_da_imu_com_barramento_ocupado_nao_e_falha</code></td>
+<td>Ciclo sem medida nova e IMU sem o barramento não contam como falha</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_descreve_os_dispositivos_em_falha</code>, <code>test_contadores_de_falhas_e_reinicios</code> e <code>test_nomes_das_situacoes</code></td>
+<td>Texto de <code>i2c_falhas</code> (no limite do buffer), contadores e nomes do log</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_vigia_*</code> (6 casos)</td>
+<td>Amostra nova boa ou em falha, mesma amostra, sensor parado (uma falha a cada 110 ms), sensor que nunca mediu, amostras de antes do reinício ignoradas e cada lado separado</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_trava_para_os_motores_e_solta_quando_a_falha_acaba</code> e <code>test_trava_nao_solta_a_trava_do_boot</code></td>
+<td>A trava freia na falha e solta no fim; a trava do boot reprovado continua</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_integracao_tof_frontal_sem_resposta_e_reiniciado_pelo_xshut</code></td>
+<td>Com o robô andando, o ToF frontal para de responder: os motores seguem nas tentativas, param antes do reinício, o sensor volta e os motores voltam em até 80 ms</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_integracao_tof_que_nao_volta_fica_inoperante_e_os_motores_seguem_parados</code></td>
+<td>ToF que não volta: 3 reinícios, inoperante, motores parados por 3 s, os outros intactos; quando ele volta, os motores voltam</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_integracao_tof_que_para_de_medir_e_reiniciado</code></td>
+<td>ToF que responde mas não mede mais é reiniciado em cerca de 0,55 s</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_integracao_imu_sem_resposta_e_reiniciada</code></td>
+<td>IMU sem resposta com o robô girando: o ângulo para de somar, os motores param, a IMU é reiniciada e o ângulo volta a somar</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_integracao_barramento_ocupado_nao_derruba_a_imu</code></td>
+<td>Leituras perdidas com o barramento ocupado não reiniciam a IMU nem param os motores</td>
+</tr>
+<tr>
+<td><code>test_integracao_falhas_i2c/test_integracao_falhas_i2c.cpp</code></td>
+<td><code>test_sem_falha_a_corrida_chega_ao_objetivo</code></td>
+<td>Na corrida simulada do 4×4, com o supervisor ligado como no <code>main.cpp</code>, nenhum reinício e nenhuma trava sem falha</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_tof_sem_resposta_no_meio_do_avanco_para_reinicia_e_retoma_a_corrida</code></td>
+<td>O ToF frontal cai por 300 ms no meio de um avanço: em até 60 ms os motores travam e o ciclo espera; o robô fica parado, o 1º reinício falha, o 2º o traz de volta, e a corrida chega ao objetivo sem encostar nas paredes e com o mapa certo</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_tof_que_nao_volta_deixa_o_robo_parado</code></td>
+<td>ToF que não volta: 3 reinícios, inoperante, e o robô parado, sem bater</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_imu_sem_resposta_no_meio_do_avanco_para_e_retoma_a_corrida</code></td>
+<td>A IMU cai por 200 ms no meio de um avanço: os motores travam, o ciclo espera, a IMU volta e a corrida chega ao objetivo</td>
+</tr>
 </tbody>
 </table>
 <p>Para rodar, dentro de <code>src/firmware</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native<span class="w">                  </span><span class="c1"># todos os testes</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native<span class="w"> </span>-f<span class="w"> </span>test_nucleo<span class="w">   </span><span class="c1"># só um módulo</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>pio<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>esp32c3<span class="w">                  </span><span class="c1"># compila para a placa</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native<span class="w">                  </span><span class="c1"># todos os testes</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native<span class="w"> </span>-f<span class="w"> </span>test_nucleo<span class="w">   </span><span class="c1"># só um módulo</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>pio<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>esp32c3<span class="w">                  </span><span class="c1"># compila para a placa</span>
 </code></pre></div>
 <p>Resultado do projeto base, executado em 04/10/2026: <strong>10 de 10 testes aprovados</strong> e build para o ESP32-C3 concluído com 4,2% de RAM e 18,9% de Flash. O registro completo da execução (ambiente, saídas e pendências) está em <a href="../../07-testes/software/#registro-de-execucao-dos-testes">Testes de Software</a>.</p>
 <h3 id="como-ler-uma-falha">Como ler uma falha<a class="headerlink" href="#como-ler-uma-falha" title="Permanent link">&para;</a></h3>
 <p>Exemplo real, com um valor esperado alterado de propósito (registrado em <a href="../../07-testes/software/#verificacao-de-deteccao-de-falhas-teste-negativo">Testes de Software</a>):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>test/test_nucleo/test_direcao.cpp:21: test_girar_direita_percorre_as_quatro_direcoes: Expected 2 Was 1  [FAILED]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>test/test_nucleo/test_direcao.cpp:21: test_girar_direita_percorre_as_quatro_direcoes: Expected 2 Was 1  [FAILED]
 </code></pre></div>
 <table>
 <thead>
@@ -5568,6 +5886,11 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/27">RNF-09</a></td>
 </tr>
 <tr>
+<td><code>lib/falhas</code> (<code>SupervisorI2c</code>, <code>VigiaTof</code>, <code>TravaFalhaI2c</code>), <code>TofVl53l0x::reiniciarSensor</code>, <code>i2c_falhas</code> e <code>i2c_reinicios</code> na telemetria</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/241">#241</a> Detecção de falha de I²C e nova tentativa</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/51">HU-13</a></td>
+</tr>
+<tr>
 <td><code>lib/hal</code> (<code>IImu</code>), <code>lib/simulacao</code> (<code>ImuSimulado</code>), <code>lib/imu</code> (<code>IntegradorGiro</code>, <code>ConversorGiro</code>, <code>AcompanhadorGiro</code>), <code>ImuMpu6050</code>, <code>BarramentoI2c</code>, tarefa da IMU no <code>main.cpp</code></td>
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378">#378</a> Driver do MPU6050 e ângulo de giro</td>
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/41">HU-05</a> (RF05)</td>
@@ -5587,6 +5910,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <li><strong>Odometria</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/187">#187</a>): a lógica, os testes no computador e a ligação no <code>main.cpp</code> estão prontos. Falta a bancada: medir os pulsos de diferença entre as rodas num giro de 90° (hoje 625, provisório), testar giros de 90° e 180° e um percurso de 3 células, e registrar o erro.</li>
 <li><strong>Sensores VL53L0X</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a>): o driver, a regra de validade (com fora da faixa limitado à faixa), o teste de integração com o mapa e a ligação no <code>main.cpp</code> estão prontos, e o build da placa compila. Falta rodar o roteiro da <a href="#bancada-dos-vl53l0x">bancada</a> com o hardware montado (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/175">#175</a>) e trocar os valores provisórios de <code>ConfiguracaoTof.h</code> pelos medidos. Dependem desta tarefa a percepção para ToF (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/379">#379</a>), a calibração (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/240">#240</a>), o boot (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/50">#50</a>) e a recuperação de falhas do I²C (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/241">#241</a>).</li>
 <li><strong>Boot do sistema</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/50">#50</a>): o autoteste do I²C, a trava dos motores e o relatório estão prontos e testados no computador com dispositivos simulados. Falta a bancada: medir o tempo desde o ligar (o <code>boot_ms</code> não conta a ROM nem o bootloader), conferir o <code>WHO_AM_I</code> do módulo montado e confirmar com a eletrônica que o pino AD0 do MPU6050 está em nível baixo (0x68).</li>
+<li><strong>Falha do I²C durante a corrida</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/241">#241</a>): a detecção nos 4 dispositivos, as tentativas, o reinício do ToF pelo XSHUT e da IMU, a trava dos motores, a pausa do ciclo de navegação e o estado no log e na telemetria estão prontos e testados no computador com falhas simuladas, inclusive numa corrida inteira. Falta a bancada (veja <a href="#falha-do-i2c-durante-a-corrida-supervisori2c">as pendências</a>).</li>
 </ul>
 <h2 id="historico-de-versoes">Histórico de versões<a class="headerlink" href="#historico-de-versoes" title="Permanent link">&para;</a></h2>
 <table>
@@ -5668,6 +5992,13 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <td style="text-align: center;">24/10/2026</td>
 <td>Boot do sistema: autoteste do I²C, trava dos motores e relatório do boot; camadas dos motores com nome próprio e ordem combinada com as #341 e #380; integração do I²C com o #403 (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/50">#50</a>)</td>
 <td>Marllon Fausto</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.3</td>
+<td style="text-align: center;">25/10/2026</td>
+<td>Falha do I²C durante a corrida: detecção nos 4 dispositivos, tentativas configuráveis, reinício do ToF pelo XSHUT e da IMU, motores parados e ciclo de navegação em pausa enquanto durar a falha, e estado no log e na telemetria (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/241">#241</a>)</td>
+<td>Eduardo Viana</td>
 <td>—</td>
 </tr>
 </tbody>
