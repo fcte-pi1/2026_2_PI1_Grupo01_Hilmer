@@ -31,7 +31,8 @@
 | 3.3 | Acionamento dos Motores (DRV8833) | | | | Resposta PWM nos canais A e B | | | | |
 | 3.4 | IMU (I2C) | | | | Dados de aceleração e giro | | | | |
 | 3.5 | **Encoders de Quadratura (18 cm)** | 16/10/2026 | 17/10/2026 | Cláudio / Equipe | Leitura x4 por interrupção; erro $\le \pm 3\%$ em 180 mm | Roteiro e script serial automatizados; aguardando bancada final | S | | Issue #186, HU-05 |
-| 3.6 | | | | | | | | | |
+| 3.6 | [Sensor de distância VL53L0X: calibração com régua](hardware/calibracao-vl53l0x.md) | 26/10/2026 | 26/10/2026 | Ana Carolina Fialho | Erro de até ±10 mm ou ±5% de 5 a 30 cm, com 95% ou mais de leituras válidas | Estável (desvio-padrão de 1 a 4 mm) e linear; lê de 57 a 86 mm a mais. Desconto de 68 mm reprovado de 10 a 20 cm; 78 mm atende de 5 a 20 cm nos dados medidos | N | | Validação independente do desconto de 78 mm e calibração dos outros 2 sensores pendentes. #175 |
+| 3.7 | | | | | | | | | |
 
 ---
 
