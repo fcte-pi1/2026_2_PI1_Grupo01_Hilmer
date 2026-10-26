@@ -1793,6 +1793,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#atuacao-controle-de-rumo-pelo-giroscopio-e-giros-em-malha-fechada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Atuação: controle de rumo pelo giroscópio e giros em malha fechada
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Atuação: controle de rumo pelo giroscópio e giros em malha fechada">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#giros-de-90-e-180-em-malha-fechada-controlegiro" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Giros de 90° e 180° em malha fechada (ControleGiro)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retidao-do-avanco-e-correcao-de-rumo-controlemovimento" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retidão do avanço e correção de rumo (ControleMovimento)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parametros-provisorios-de-configuracao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parâmetros provisórios de configuração
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-das-classes_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface das Classes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#falha-do-i2c-durante-a-corrida-supervisori2c" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1827,7 +1888,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#interface-das-classes_3" class="md-nav__link">
+  <a href="#interface-das-classes_4" class="md-nav__link">
     <span class="md-ellipsis">
       
         Interface das Classes
@@ -3030,6 +3091,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#atuacao-controle-de-rumo-pelo-giroscopio-e-giros-em-malha-fechada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Atuação: controle de rumo pelo giroscópio e giros em malha fechada
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Atuação: controle de rumo pelo giroscópio e giros em malha fechada">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#giros-de-90-e-180-em-malha-fechada-controlegiro" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Giros de 90° e 180° em malha fechada (ControleGiro)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retidao-do-avanco-e-correcao-de-rumo-controlemovimento" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retidão do avanço e correção de rumo (ControleMovimento)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parametros-provisorios-de-configuracao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parâmetros provisórios de configuração
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-das-classes_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface das Classes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#falha-do-i2c-durante-a-corrida-supervisori2c" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3064,7 +3186,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#interface-das-classes_3" class="md-nav__link">
+  <a href="#interface-das-classes_4" class="md-nav__link">
     <span class="md-ellipsis">
       
         Interface das Classes
@@ -4847,6 +4969,126 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 </ul>
 <p><strong>Rastreabilidade:</strong> <code>lib/atuacao</code> (<code>ControleMovimento</code>, <code>ControladorCentralizacao</code>, <code>PerfilParadaFrontal</code>, <code>SinaisDrv8833</code>), <code>lib/hal/IMotores</code>, <code>lib/simulacao/MotoresSimulados</code> e <code>lib/drivers_esp32/MotoresDrv8833</code> atendem à tarefa <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/191">#191</a>, da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/182">HU-12</a> (RF-12).</p>
 <p><strong>Pendências:</strong> o critério 3 da HU-12 (teste de bancada no labirinto sem contato com as paredes) depende do chassi montado e da pista 4×4. O <code>ControleMovimento</code> ainda não está na tarefa de navegação: entra junto com os sensores de distância e a navegação (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/183">#183</a>).</p>
+<h2 id="atuacao-controle-de-rumo-pelo-giroscopio-e-giros-em-malha-fechada">Atuação: controle de rumo pelo giroscópio e giros em malha fechada<a class="headerlink" href="#atuacao-controle-de-rumo-pelo-giroscopio-e-giros-em-malha-fechada" title="Permanent link">&para;</a></h2>
+<p>Na Rev 2.0 do hardware, os encoders físicos de roda ainda não estão disponíveis. O ângulo de guinada (<em>yaw</em>) medido e integrado a partir da IMU MPU6050 passa a ser a principal fonte de orientação do micromouse (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/190">#190</a>). O sistema utiliza essa orientação em malha fechada para duas finalidades essenciais:
+1. <strong>Giros de 90° e 180° no próprio eixo</strong> (<code>ControleGiro</code>): manobras precisas no centro das células com rampa de potência e tolerância angular configurável.
+2. <strong>Correção de desvio de rumo durante o avanço</strong> (<code>ControleMovimento</code>): manutenção de trajetórias retilíneas em trechos abertos e amortecimento de oscilações em corredores com paredes.</p>
+<p>Ambos os mecanismos compensam o escorregamento dos pneus, assimetrias mecânicas entre motores e irregularidades do piso, atendendo diretamente à <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/181">HU-11</a> (RF-11 / RNF-02).</p>
+<pre class="mermaid"><code>flowchart TD
+    imu["IMU MPU6050 (ou ImuSimulado)&lt;br/&gt;taxa de giro Z (°/s)"] --&gt; integrador["IntegradorGiro / AcompanhadorGiro&lt;br/&gt;calibração do viés e integração do yaw"]
+    integrador --&gt; leitura["LeituraGiro&lt;br/&gt;ângulo acumulado em mili-graus"]
+
+    subgraph ModoGiro["Manobras de rotação"]
+        leitura --&gt; controleGiro["ControleGiro&lt;br/&gt;giros de ±90° e ±180°"]
+        targetGiro["Alvo angular&lt;br/&gt;(±90 000 ou ±180 000 m°)"] --&gt; controleGiro
+        controleGiro --&gt; rampa["Rampa proporcional&lt;br/&gt;com zona morta (150 a 350)"]
+    end
+
+    subgraph ModoAvanco["Avanço em linha reta"]
+        leitura --&gt; controleMov["ControleMovimento&lt;br/&gt;correção de rumo (PD)"]
+        targetRumo["Rumo alvo (m°)&lt;br/&gt;definirRumoAlvo()"] --&gt; controleMov
+        sensoresDist["Sensores de distância&lt;br/&gt;lateral e frontal"] --&gt; controleMov
+    end
+
+    rampa --&gt; motores["IMotores (MotoresDrv8833 / MotoresSimulados)&lt;br/&gt;potência das rodas"]
+    controleMov --&gt; motores</code></pre>
+<p><strong>Figura 16.</strong> Controle de orientação em malha fechada: o ângulo de guinada (<em>yaw</em>) integrado da IMU orienta tanto os giros no próprio eixo (<code>ControleGiro</code>) quanto a manutenção da trajetória retilínea durante o avanço (<code>ControleMovimento</code>), compensando o deslizamento de rodas e irregularidades do piso (HU-11).</p>
+<h3 id="giros-de-90-e-180-em-malha-fechada-controlegiro">Giros de 90° e 180° em malha fechada (<code>ControleGiro</code>)<a class="headerlink" href="#giros-de-90-e-180-em-malha-fechada-controlegiro" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Erro angular:</strong> <span class="arithmatex">\(e = \theta_{\text{alvo}} - \theta_{\text{atual}}\)</span>, calculado a cada ciclo de 10 ms em mili-graus (onde 1 000 m° = 1° e 90 000 m° = 90°).</li>
+<li><strong>Rampa de potência proporcional:</strong> para erros grandes (<span class="arithmatex">\(|e| \ge 50^\circ\)</span>), o controlador aplica a potência máxima (<code>potenciaMaxima = 350</code>). Conforme o robô se aproxima do alvo, a potência reduz proporcionalmente até a potência mínima (<code>potenciaMinima = 150</code>), valor calibrado para superar a zona morta de atrito estático dos motores N20 sem gerar sobre-elevação excessiva.</li>
+<li><strong>Tolerância configurável e estabilização:</strong> quando o erro absoluto <span class="arithmatex">\(|e| \le \text{toleranciaMiligraus}\)</span> (padrão de <span class="arithmatex">\(\pm 2,0^\circ\)</span>), um contador de ciclos é incrementado. O giro só é considerado concluído (<code>EstadoGiro::Concluido</code>) se permanecer na faixa por <code>ciclosEstabilizacao</code> consecutivos (3 ciclos = 30 ms), evitando falsos positivos por cruzamento em alta velocidade. Ao concluir, os motores são imediatamente freados.</li>
+<li><strong>Tratamento de ultrapassagem (<em>overshoot</em>):</strong> se a inércia levar o robô além do alvo angular (<span class="arithmatex">\(e &lt; 0\)</span>), o sinal da potência diferencial é invertido automaticamente para trazê-lo de volta à faixa de tolerância.</li>
+<li><strong>Fail-safe de bloqueio (<em>timeout</em>):</strong> se o robô colidir ou ficar preso durante a rotação e não atingir a meta em <code>tempoMaximoGiroMs</code> (2 500 ms), o controlador transiciona para <code>EstadoGiro::Timeout</code> e freia os motores.</li>
+</ul>
+<h3 id="retidao-do-avanco-e-correcao-de-rumo-controlemovimento">Retidão do avanço e correção de rumo (<code>ControleMovimento</code>)<a class="headerlink" href="#retidao-do-avanco-e-correcao-de-rumo-controlemovimento" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Desvio de rumo:</strong> <span class="arithmatex">\(e_{\text{rumo}} = \text{rumoAlvo} - \theta_{\text{atual}}\)</span>. Padrão inicial: 0 m° (o rumo da largada). Pode ser redefinido com <code>definirRumoAlvo(alvo)</code> após cada curva.</li>
+<li><strong>Correção PD de rumo:</strong> termo proporcional baseado no desvio (<span class="arithmatex">\(K_p = 80\)</span>, ou 8,0 de potência por grau) somado a um termo derivativo filtrado (<span class="arithmatex">\(K_d = 20\)</span>) que amortece variações bruscas de velocidade angular.</li>
+<li><strong>Avanço sem paredes laterais (<code>SemReferencia</code>):</strong> em cruzamentos, salas abertas ou células sem paredes dos lados, a centralização lateral não tem referência (<span class="arithmatex">\(0\)</span>). Nesses trechos, a correção de rumo do giroscópio assume o controle exclusivo das rodas, mantendo o robô em linha reta sem deriva.</li>
+<li><strong>Avanço em corredores com paredes:</strong> a correção total é a soma da centralização lateral (alinhamento ao centro do corredor) com a correção de rumo (amortecimento de atitude angular).</li>
+<li><strong>Proteção contra reversão de roda:</strong> a correção total é rigorosamente limitada a 60% da potência base (<code>correcaoMaximaPercentualDaBase</code>), garantindo que nenhuma roda gire para trás durante o deslocamento para a frente.</li>
+</ul>
+<h3 id="parametros-provisorios-de-configuracao">Parâmetros provisórios de configuração<a class="headerlink" href="#parametros-provisorios-de-configuracao" title="Permanent link">&para;</a></h3>
+<p>Todos os parâmetros foram ajustados em simulação física de dinâmica diferencial (<code>test_controle_giroscopio</code>) e documentados com comentários Doxygen:</p>
+<table>
+<thead>
+<tr>
+<th>Parâmetro</th>
+<th>Constante / Campo</th>
+<th>Valor provisório</th>
+<th>Origem / Justificativa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tolerância do giro</td>
+<td><code>ConfiguracaoGiro::toleranciaMiligraus</code></td>
+<td><strong>2 000 m° (2,0°)</strong></td>
+<td>Erro angular admissível para o robô sair alinhado na célula seguinte</td>
+</tr>
+<tr>
+<td>Potência máxima de giro</td>
+<td><code>ConfiguracaoGiro::potenciaMaxima</code></td>
+<td><strong>350</strong></td>
+<td>Limita a aceleração angular para evitar derrapagem violenta</td>
+</tr>
+<tr>
+<td>Potência mínima de giro</td>
+<td><code>ConfiguracaoGiro::potenciaMinima</code></td>
+<td><strong>150</strong></td>
+<td>Vence a zona morta de atrito estático dos micromotores N20</td>
+</tr>
+<tr>
+<td>Ganho proporcional do giro</td>
+<td><code>ConfiguracaoGiro::ganhoProporcionalDecimos</code></td>
+<td><strong>40 (4,0 pot/°)</strong></td>
+<td>Desacelera a rotação conforme o robô se aproxima do alvo angular</td>
+</tr>
+<tr>
+<td>Timeout do giro</td>
+<td><code>ConfiguracaoGiro::tempoMaximoGiroMs</code></td>
+<td><strong>2 500 ms</strong></td>
+<td>Fail-safe caso o robô colida ou fique preso durante a rotação</td>
+</tr>
+<tr>
+<td>Ciclos de estabilização</td>
+<td><code>ConfiguracaoGiro::ciclosEstabilizacao</code></td>
+<td><strong>3 ciclos (30 ms)</strong></td>
+<td>Impede falsos positivos causados por simples cruzamento rápido da meta</td>
+</tr>
+<tr>
+<td>Ganho proporcional de rumo</td>
+<td><code>ConfiguracaoControle::ganhoRumoProporcionalDecimos</code></td>
+<td><strong>80 (8,0 pot/°)</strong></td>
+<td>Corrige desvios angulares durante o avanço retilíneo</td>
+</tr>
+<tr>
+<td>Ganho derivativo de rumo</td>
+<td><code>ConfiguracaoControle::ganhoRumoDerivativoDecimos</code></td>
+<td><strong>20 (2,0 pot/(°/s))</strong></td>
+<td>Amortece a taxa de rotação para evitar serpentear no corredor</td>
+</tr>
+<tr>
+<td>Correção máxima de rumo</td>
+<td><code>ConfiguracaoControle::correcaoRumoMaxima</code></td>
+<td><strong>200</strong></td>
+<td>Limita a autoridade de correção angular sobre os motores</td>
+</tr>
+</tbody>
+</table>
+<h3 id="interface-das-classes_3">Interface das Classes<a class="headerlink" href="#interface-das-classes_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>ControleGiro::iniciar(anguloRelativoMiligraus, anguloAtualMiligraus)</code>:</strong> inicia o controle em malha fechada calculando o alvo absoluto.</li>
+<li><strong><code>ControleGiro::iniciarGiro90Esquerda(anguloAtual)</code> / <code>iniciarGiro90Direita(anguloAtual)</code>:</strong> atalhos para manobras de 90° (+90 000 m° e −90 000 m°).</li>
+<li><strong><code>ControleGiro::iniciarGiro180(anguloAtual, paraEsquerda)</code>:</strong> manobra de meia volta (±180 000 m°).</li>
+<li><strong><code>ControleGiro::atualizar(anguloAtual, motores, dtMs)</code> / <code>atualizar(const LeituraGiro&amp;, motores, dtMs)</code>:</strong> calcula potências e comanda os atuadores; freia e retorna <code>EstadoGiro::Concluido</code> ao estabilizar dentro da tolerância.</li>
+<li><strong><code>ControleGiro::cancelar()</code>:</strong> interrompe imediatamente o giro e coloca o estado em <code>Inativo</code>.</li>
+<li><strong><code>ControleMovimento::definirRumoAlvo(alvoMiligraus)</code>:</strong> define a orientação alvo de avanço em linha reta.</li>
+<li><strong><code>ControleMovimento::reiniciar(novoRumoAlvoMiligraus)</code>:</strong> destrava a parada frontal e fixa a nova referência angular de rumo.</li>
+<li><strong><code>ControleMovimento::desvioRumoMiligraus()</code></strong> e <strong><code>correcaoRumo()</code>:</strong> telemetria e diagnóstico do controle angular.</li>
+</ul>
+<p><strong>Rastreabilidade:</strong> <code>lib/atuacao</code> (<code>ControleGiro</code>, <code>ControleMovimento</code>, <code>ConfiguracaoGiro</code>) atende à tarefa <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/190">#190</a>, associada à <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/181">HU-11</a> (RF-11 / RNF-02).</p>
 <h2 id="falha-do-i2c-durante-a-corrida-supervisori2c">Falha do I²C durante a corrida (<code>SupervisorI2c</code>)<a class="headerlink" href="#falha-do-i2c-durante-a-corrida-supervisori2c" title="Permanent link">&para;</a></h2>
 <blockquote>
 <p><strong>Situação:</strong> implementado e testado no computador com falhas simuladas (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/241">#241</a>); falta a bancada com o hardware.</p>
@@ -4922,7 +5164,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <li><strong>Concorrência:</strong> o supervisor é usado pelas três tarefas, então todo acesso a ele fica na seção crítica <code>travaFalhasI2c</code>, curta; os reinícios e a trava ficam fora dela, porque esperam. A trava fica na <code>travaOdometria</code>, porque freia pelo estimador do deslocamento, que a telemetria também lê, como no <code>detectorObjetivo.processarChegada</code>.</li>
 <li><strong>Telemetria:</strong> com <code>i2c_falhas</code> e <code>i2c_reinicios</code>, o pior caso do JSON de telemetria chegou a 658 bytes, dentro do buffer de 768 (<code>TAMANHO_MAX_JSON_TELEMETRIA</code>).</li>
 </ul>
-<h3 id="interface-das-classes_3">Interface das Classes<a class="headerlink" href="#interface-das-classes_3" title="Permanent link">&para;</a></h3>
+<h3 id="interface-das-classes_4">Interface das Classes<a class="headerlink" href="#interface-das-classes_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong><code>SupervisorI2c</code></strong> (<code>lib/falhas</code>): <code>registrarLeitura(dispositivo, leitura, agoraMs)</code> devolve a <code>DecisaoI2c</code> (a <code>acao</code>, <code>Nenhuma</code> ou <code>Reiniciar</code>, e a situação <code>antes</code> e <code>depois</code>, para o log anunciar só as mudanças); <code>registrarReinicio(dispositivo, sucesso)</code>; <code>situacao(dispositivo)</code>, <code>motoresDevemParar()</code>, <code>falhas</code>, <code>falhasSeguidas</code>, <code>reinicios</code>, <code>reiniciosSemSucesso</code>, <code>reiniciosTotais()</code> e <code>descreverFalhas(saida, capacidade)</code>, com até <code>TAMANHO_MAX_FALHAS_I2C</code> (48) bytes. Os dispositivos são os mesmos do <code>AutotesteBoot</code> (<code>Dispositivo</code>).</li>
 <li><strong><code>LeituraI2c</code></strong> (<code>Ok</code>, <code>Falha</code> ou <code>SemNovidade</code>) e <strong><code>leituraDaImu(falhou, barramentoOcupado)</code></strong>: o resultado de uma leitura para o supervisor.</li>
@@ -5656,6 +5898,76 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <td>Campos <code>boot_ok</code>, <code>boot_falhas</code> e <code>boot_ms</code></td>
 </tr>
 <tr>
+<td><code>test_controle_giroscopio/test_controle_giroscopio.cpp</code></td>
+<td><code>test_giro_90_esquerda_conclui_na_tolerancia</code></td>
+<td>Giro de 90° à esquerda atinge o alvo dentro da tolerância</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_giro_90_direita_conclui_na_tolerancia</code></td>
+<td>Giro de 90° à direita atinge o alvo dentro da tolerância</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_giro_180_esquerda_conclui_na_tolerancia</code></td>
+<td>Giro de 180° fecha dentro da tolerância</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_tolerancia_configuravel_afeta_precisao</code></td>
+<td>Tolerância estrita (0,5°) vs tolerância ampla (5,0°)</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_deslizamento_de_rodas_compensa_e_atinge_90_graus</code></td>
+<td>Malha fechada compensa 40% de tração e conclui em 90°</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_giro_com_giroscopio_simulado_vies_e_calibracao</code></td>
+<td>Integração com <code>ImuSimulado</code> e calibração de viés sem deriva</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_rampa_de_potencia_reduz_ao_aproximar_do_alvo</code></td>
+<td>Rampa proporcional até a potência mínima (150)</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_overshoot_inverte_potencia_para_corrigir</code></td>
+<td>Inversão dos motores em caso de ultrapassagem angular</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_timeout_em_caso_de_bloqueio</code></td>
+<td>Bloqueio mecânico dispara timeout de segurança (2 500 ms)</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_avanco_sem_desvio_de_rumo</code></td>
+<td>Avanço alinhado ao rumo alvo não aplica correção</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_avanco_desvio_direita_vira_para_esquerda</code></td>
+<td>Desvio angular à direita gera correção para a esquerda</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_avanco_sem_paredes_laterais_mantem_linha_reta_por_giroscopio</code></td>
+<td>Sem paredes laterais, giroscópio mantém a retidão do avanço</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_avanco_compensa_deslizamento_assimetrico</code></td>
+<td>Malha fechada compensa assimetria contínua de tração</td>
+</tr>
+<tr>
+<td></td>
+<td><code>test_avanco_derivada_amortece_rotacao_rapida</code></td>
+<td>Termo derivativo amortece variações bruscas de atitude</td>
+</tr>
+<tr>
 <td></td>
 <td><code>test_serializa_falhas_do_i2c</code></td>
 <td>Campos <code>i2c_falhas</code> e <code>i2c_reinicios</code>, vazios por padrão</td>
@@ -5895,6 +6207,11 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378">#378</a> Driver do MPU6050 e ângulo de giro</td>
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/41">HU-05</a> (RF05)</td>
 </tr>
+<tr>
+<td><code>lib/atuacao</code> (<code>ControleGiro</code>, <code>ControleMovimento</code>, <code>ConfiguracaoGiro</code>)</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/190">#190</a> Controle de rumo pelo giroscópio: giros de 90° e retidão do avanço</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/181">HU-11</a> (RF11, RNF-02)</td>
+</tr>
 </tbody>
 </table>
 <h2 id="proximos-passos">Próximos passos<a class="headerlink" href="#proximos-passos" title="Permanent link">&para;</a></h2>
@@ -5999,6 +6316,13 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <td style="text-align: center;">25/10/2026</td>
 <td>Falha do I²C durante a corrida: detecção nos 4 dispositivos, tentativas configuráveis, reinício do ToF pelo XSHUT e da IMU, motores parados e ciclo de navegação em pausa enquanto durar a falha, e estado no log e na telemetria (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/241">#241</a>)</td>
 <td>Eduardo Viana</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.4</td>
+<td style="text-align: center;">24/10/2026</td>
+<td>Controle de rumo pelo giroscópio e giros de 90° e 180° em malha fechada (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/190">#190</a>)</td>
+<td>Rafael Lima</td>
 <td>—</td>
 </tr>
 </tbody>
