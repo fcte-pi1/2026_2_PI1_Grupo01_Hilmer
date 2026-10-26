@@ -3839,6 +3839,89 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#sprint-5-deteccao-de-colisao-e-recuperacao-sem-perda-do-mapa-testes-com-batidas-simuladas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sprint 5 · Detecção de colisão e recuperação sem perda do mapa (testes com batidas simuladas)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sprint 5 · Detecção de colisão e recuperação sem perda do mapa (testes com batidas simuladas)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#criterios-da-issue-e-testes_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Critérios da issue e testes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-que-mudou-no-codigo_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que mudou no código
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testes-unitarios-e-de-integracao_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testes unitários e de integração
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cobertura-e-suite-completa_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cobertura e suíte completa
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prova-de-mutacao_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prova de mutação
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pendencias-desta-etapa_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pendências desta etapa
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -6412,6 +6495,89 @@
         
           <li class="md-nav__item">
   <a href="#pendencias-desta-etapa_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pendências desta etapa
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sprint-5-deteccao-de-colisao-e-recuperacao-sem-perda-do-mapa-testes-com-batidas-simuladas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sprint 5 · Detecção de colisão e recuperação sem perda do mapa (testes com batidas simuladas)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sprint 5 · Detecção de colisão e recuperação sem perda do mapa (testes com batidas simuladas)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#criterios-da-issue-e-testes_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Critérios da issue e testes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-que-mudou-no-codigo_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que mudou no código
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testes-unitarios-e-de-integracao_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testes unitários e de integração
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cobertura-e-suite-completa_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cobertura e suíte completa
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prova-de-mutacao_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prova de mutação
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pendencias-desta-etapa_23" class="md-nav__link">
     <span class="md-ellipsis">
       
         Pendências desta etapa
@@ -15663,6 +15829,328 @@ Para reproduzir localmente antes da integração com a <code>main</code>, garant
 <li><strong>Bancada:</strong> com as rodas no ar e o monitor serial aberto, soltar e recolocar o conector de um VL53L0X e depois o do MPU6050 com o robô ligado; conferir a sequência do log (<a href="../../04-projeto-conceitual/firmware/#falha-do-i2c-durante-a-corrida-supervisori2c">Figura 27</a>), o reinício pelo XSHUT e a volta dos motores. Combinar com a eletrônica como soltar o conector sem curto no barramento.</li>
 <li><strong>Valores provisórios:</strong> ajustar as tentativas, as leituras para recuperar, os reinícios e a espera com o que a bancada mostrar.</li>
 <li><strong>Compilação para a placa:</strong> anotar aqui a RAM e a Flash do <code>pio run -e esp32c3</code> do CI do PR.</li>
+</ul>
+<h3 id="sprint-5-deteccao-de-colisao-e-recuperacao-sem-perda-do-mapa-testes-com-batidas-simuladas">Sprint 5 · Detecção de colisão e recuperação sem perda do mapa (testes com batidas simuladas)<a class="headerlink" href="#sprint-5-deteccao-de-colisao-e-recuperacao-sem-perda-do-mapa-testes-com-batidas-simuladas" title="Permanent link">&para;</a></h3>
+<div class="admonition warning">
+<p class="admonition-title">Testes em simulação</p>
+<p>Todos os testes deste registro rodaram <strong>no computador</strong>, sem o robô montado. As acelerações, as leituras do ToF e as potências dos testes unitários foram <strong>definidas pelos testes</strong>. Nos testes de integração, o <code>RoboSimulado</code> anda nos labirintos de exemplo com <strong>paredes sólidas</strong>: o chassi que encostaria numa parede fica parado, as rodas patinam e o encontrão chega ao <code>ImuSimulado</code> como um pico de 2500 mg. Para o robô bater, o ToF frontal é cegado (<code>cegarTofFrontal</code>). O pico de uma batida real e o ruído do acelerômetro com os motores ligados ficam para a bancada.</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tarefa</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/192">#192 Detecção de colisão e recuperação sem perda do mapa</a></td>
+</tr>
+<tr>
+<td>História de usuário</td>
+<td>HU-17 · Recuperar-se de colisões sem perder o mapa (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/44">#44</a>), RF17</td>
+</tr>
+<tr>
+<td>Código testado</td>
+<td><code>src/firmware</code> na <code>main</code>, depois do merge do PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/451">#451</a> (commit <code>98389b8</code>); executado na <code>main</code> de 26/10/2026 (commit <code>9612a3b</code>, que também tem a <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/241">#241</a>)</td>
+</tr>
+<tr>
+<td>Data da execução</td>
+<td>26/10/2026</td>
+</tr>
+<tr>
+<td>Executado por</td>
+<td>Eduardo Viana</td>
+</tr>
+<tr>
+<td>Tipo de teste</td>
+<td>Unitário e de integração, no computador, com batidas simuladas</td>
+</tr>
+<tr>
+<td>Documentação do código</td>
+<td><a href="../../04-projeto-conceitual/firmware/#navegacao-deteccao-de-colisao-e-recuperacao-detectorcolisao">Firmware: detecção de colisão e recuperação</a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Ambiente de execução:</strong> Linux (Ubuntu 24.04.5 LTS), g++ 13.3.0 (C++17), Unity 2.6.1, ArduinoJson 7.4.2 e gcov 13.3.0. Os testes foram compilados direto com o g++, com as mesmas bibliotecas do ambiente <code>native</code> (todas as de <code>lib/</code>, menos <code>drivers_esp32</code>); cada bloco traz o comando equivalente do PlatformIO.</p>
+<h4 id="criterios-da-issue-e-testes_7">Critérios da issue e testes<a class="headerlink" href="#criterios-da-issue-e-testes_7" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Critério da #192</th>
+<th>Como foi atendido</th>
+<th>Testes</th>
+<th style="text-align: center;">Situação</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Colisão detectada pelo IMU (aceleração) e pelo ToF frontal (distância que para de variar com os motores acionados); a detecção por encoder fica para quando os encoders existirem</td>
+<td><code>DetectorColisao</code>: impacto pelo afastamento da aceleração no plano em relação à referência de repouso (1000 mg) e frente parada pela regra da <code>ProtecaoMotorTravado</code> (potência alta por 500 ms sem o ToF frontal nem o giroscópio mostrarem movimento), só com o robô em movimento</td>
+<td>Os 28 casos do <code>DetectorColisao</code> em <code>test_colisao</code>; <code>test_batida_e_detectada_pelo_acelerometro_e_o_robo_recua</code>; <code>test_corrida_sem_batidas_nao_detecta_colisao</code> (sem falso positivo nos 3 labirintos)</td>
+<td style="text-align: center;">Aprovado no computador; o limiar real fica para a bancada</td>
+</tr>
+<tr>
+<td>Robô recua, realinha-se ao centro da célula e retoma a navegação</td>
+<td>Estado <code>Recuperando</code> do <code>CicloNavegacao</code>: recuo de ré até o centro da célula pela odometria (10 a 40 mm), com o rumo pelo giroscópio e parada pela parede da frente da própria célula; depois, <code>Percebendo</code> na mesma célula e decisão de novo</td>
+<td>Os 8 casos do recuo e os de <code>Recuperando</code> em <code>test_recuperacao_colisao</code>; <code>test_corrida_com_tof_frontal_cego_recupera_de_cada_batida_e_chega_ao_objetivo</code> e <code>test_corrida_com_tof_frontal_cego_no_8x4</code></td>
+<td style="text-align: center;">Aprovado</td>
+</tr>
+<tr>
+<td>Mapa e posição preservados após a recuperação</td>
+<td>A célula e a direção da navegação não mudam; o mapa só ganha a parede da frente quando a batida se repete na mesma célula e direção, com o robô no lugar da batida e o ToF sem medir a frente livre</td>
+<td><code>test_depois_do_recuo_o_ciclo_percebe_de_novo_na_mesma_celula_sem_mexer_no_mapa</code>, os três casos sobre gravar a parede e as corridas cegas, que conferem que nenhuma parede gravada é falsa</td>
+<td style="text-align: center;">Aprovado</td>
+</tr>
+<tr>
+<td>Evento de colisão registrado na telemetria</td>
+<td>O evento <code>colisao</code> sai na telemetria serial, um por amostra, com a posição; a linha <code>{"status":"colisao",...}</code> sai no log</td>
+<td><code>test_serializa_telemetria_com_evento_colisao</code></td>
+<td style="text-align: center;">Aprovado na telemetria serial; <strong>o envio ao Supabase ainda não leva o evento</strong> (veja as pendências)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="o-que-mudou-no-codigo_10">O que mudou no código<a class="headerlink" href="#o-que-mudou-no-codigo_10" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Arquivo</th>
+<th style="text-align: left;">Mudança</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>lib/hal/src/IAcelerometro.h</code></td>
+<td style="text-align: left;">Interface nova: aceleração nos eixos X e Y, em mg</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>lib/imu/src/ConversorAceleracao.h</code>, <code>lib/imu/src/ConfiguracaoImu.h</code></td>
+<td style="text-align: left;">Conversão da leitura bruta do acelerômetro e faixa de ±4 g</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>lib/drivers_esp32/src/ImuMpu6050.h/.cpp</code></td>
+<td style="text-align: left;">Configura a faixa do acelerômetro no <code>iniciar()</code> e lê X e Y (<code>lerAceleracaoPlano</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>lib/simulacao/src/ImuSimulado.h</code></td>
+<td style="text-align: left;">Aceleração definida pelo teste</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>lib/atuacao/src/RegistradorPotencia.h</code></td>
+<td style="text-align: left;">Decorador que guarda a última potência comandada</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>lib/execucao/src/ConfiguracaoColisao.h</code>, <code>DetectorColisao.h/.cpp</code></td>
+<td style="text-align: left;">Parâmetros provisórios e a detecção pelo impacto e pela frente parada</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>lib/execucao/src/ExecutorMovimentos.h/.cpp</code>, <code>Movimento.h</code></td>
+<td style="text-align: left;">Movimento <code>Recuar</code> e a falha <code>ColisoesSeguidas</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>lib/execucao/src/CicloNavegacao.h/.cpp</code></td>
+<td style="text-align: left;">Estado <code>Recuperando</code>, gravação da parede por batida repetida e limite de colisões seguidas</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>lib/simulacao/src/RoboSimulado.h/.cpp</code></td>
+<td style="text-align: left;">Paredes sólidas, encontrão no acelerômetro, <code>encontroes()</code> e <code>preso()</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>src/main.cpp</code></td>
+<td style="text-align: left;">Acelerômetro na tarefa da IMU, detecção na navegação, linha <code>colisao</code> no log e evento na telemetria</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>test/test_colisao</code>, <code>test/test_recuperacao_colisao</code>, <code>test/test_integracao_colisao</code>, <code>test/test_integracao_execucao/SimulacaoCorrida.h</code>, <code>test/test_telemetria_json</code></td>
+<td style="text-align: left;">Suítes novas com 36, 26 e 5 casos, a detecção na simulação da corrida e 1 caso novo de telemetria</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>README.md</code> do firmware</td>
+<td style="text-align: left;">Seção "Detecção de colisão e recuperação (#192)"</td>
+</tr>
+</tbody>
+</table>
+<h4 id="testes-unitarios-e-de-integracao_5">Testes unitários e de integração<a class="headerlink" href="#testes-unitarios-e-de-integracao_5" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-124-1" name="__codelineno-124-1" href="#__codelineno-124-1"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native<span class="w"> </span>-f<span class="w"> </span>test_colisao<span class="w"> </span>-f<span class="w"> </span>test_recuperacao_colisao<span class="w"> </span>-f<span class="w"> </span>test_integracao_colisao<span class="w"> </span>-f<span class="w"> </span>test_telemetria_json
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Suíte</th>
+<th style="text-align: left;">Casos</th>
+<th style="text-align: left;">Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>test_colisao</code></td>
+<td style="text-align: left;">36</td>
+<td style="text-align: left;"><strong>36 aprovados</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>test_recuperacao_colisao</code></td>
+<td style="text-align: left;">26</td>
+<td style="text-align: left;"><strong>26 aprovados</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>test_integracao_colisao</code></td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;"><strong>5 aprovados</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>test_telemetria_json</code></td>
+<td style="text-align: left;">11</td>
+<td style="text-align: left;"><strong>11 aprovados</strong> (1 da #192)</td>
+</tr>
+</tbody>
+</table>
+<p>Os casos estão descritos na tabela de testes da <a href="../../04-projeto-conceitual/firmware/#testes">documentação do firmware</a>. Na corrida com o ToF frontal cego, o 4×4 teve 6 colisões, todas recuperadas, com 3 paredes gravadas por batida repetida, e o 8×4 teve 4 colisões e 2 paredes; os dois chegaram ao objetivo sem nenhuma parede falsa no mapa.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-125-1" name="__codelineno-125-1" href="#__codelineno-125-1"></a>test/test_colisao/test_colisao.cpp:407:test_converte_o_bruto_do_acelerometro_para_mg_em_cada_faixa:PASS
+<a id="__codelineno-125-2" name="__codelineno-125-2" href="#__codelineno-125-2"></a>test/test_colisao/test_colisao.cpp:408:test_a_conversao_do_acelerometro_arredonda_para_o_mais_proximo:PASS
+<a id="__codelineno-125-3" name="__codelineno-125-3" href="#__codelineno-125-3"></a>test/test_colisao/test_colisao.cpp:409:test_junta_os_bytes_do_acelerometro_em_complemento_de_dois:PASS
+<a id="__codelineno-125-4" name="__codelineno-125-4" href="#__codelineno-125-4"></a>test/test_colisao/test_colisao.cpp:410:test_registrador_de_faixa_do_acelerometro:PASS
+<a id="__codelineno-125-5" name="__codelineno-125-5" href="#__codelineno-125-5"></a>test/test_colisao/test_colisao.cpp:411:test_imu_simulada_devolve_a_aceleracao_definida:PASS
+<a id="__codelineno-125-6" name="__codelineno-125-6" href="#__codelineno-125-6"></a>test/test_colisao/test_colisao.cpp:412:test_imu_simulada_com_falha_nao_mexe_na_aceleracao:PASS
+<a id="__codelineno-125-7" name="__codelineno-125-7" href="#__codelineno-125-7"></a>test/test_colisao/test_colisao.cpp:413:test_registrador_repassa_e_guarda_a_ultima_potencia:PASS
+<a id="__codelineno-125-8" name="__codelineno-125-8" href="#__codelineno-125-8"></a>test/test_colisao/test_colisao.cpp:414:test_registrador_limita_a_potencia_como_o_motor:PASS
+<a id="__codelineno-125-9" name="__codelineno-125-9" href="#__codelineno-125-9"></a>test/test_colisao/test_colisao.cpp:415:test_leituras_calmas_andando_nao_sao_colisao:PASS
+<a id="__codelineno-125-10" name="__codelineno-125-10" href="#__codelineno-125-10"></a>test/test_colisao/test_colisao.cpp:416:test_pico_de_aceleracao_e_impacto:PASS
+<a id="__codelineno-125-11" name="__codelineno-125-11" href="#__codelineno-125-11"></a>test/test_colisao/test_colisao.cpp:417:test_o_modulo_do_plano_conta_os_dois_eixos:PASS
+<a id="__codelineno-125-12" name="__codelineno-125-12" href="#__codelineno-125-12"></a>test/test_colisao/test_colisao.cpp:418:test_o_desvio_e_o_modulo_exato:PASS
+<a id="__codelineno-125-13" name="__codelineno-125-13" href="#__codelineno-125-13"></a>test/test_colisao/test_colisao.cpp:419:test_abaixo_do_limiar_nao_e_impacto_e_no_limiar_e:PASS
+<a id="__codelineno-125-14" name="__codelineno-125-14" href="#__codelineno-125-14"></a>test/test_colisao/test_colisao.cpp:420:test_o_zero_e_a_inclinacao_do_sensor_nao_contam:PASS
+<a id="__codelineno-125-15" name="__codelineno-125-15" href="#__codelineno-125-15"></a>test/test_colisao/test_colisao.cpp:421:test_a_referencia_acompanha_a_inclinacao_devagar:PASS
+<a id="__codelineno-125-16" name="__codelineno-125-16" href="#__codelineno-125-16"></a>test/test_colisao/test_colisao.cpp:422:test_a_referencia_e_media_lenta_e_nao_a_ultima_leitura_calma:PASS
+<a id="__codelineno-125-17" name="__codelineno-125-17" href="#__codelineno-125-17"></a>test/test_colisao/test_colisao.cpp:423:test_um_impacto_nao_vira_o_novo_repouso:PASS
+<a id="__codelineno-125-18" name="__codelineno-125-18" href="#__codelineno-125-18"></a>test/test_colisao/test_colisao.cpp:424:test_confirmacao_exige_leituras_seguidas:PASS
+<a id="__codelineno-125-19" name="__codelineno-125-19" href="#__codelineno-125-19"></a>test/test_colisao/test_colisao.cpp:425:test_zero_amostras_de_confirmacao_vale_uma:PASS
+<a id="__codelineno-125-20" name="__codelineno-125-20" href="#__codelineno-125-20"></a>test/test_colisao/test_colisao.cpp:426:test_limiar_configuravel:PASS
+<a id="__codelineno-125-21" name="__codelineno-125-21" href="#__codelineno-125-21"></a>test/test_colisao/test_colisao.cpp:427:test_parado_ou_sem_permissao_um_pico_nao_e_colisao:PASS
+<a id="__codelineno-125-22" name="__codelineno-125-22" href="#__codelineno-125-22"></a>test/test_colisao/test_colisao.cpp:428:test_o_extremo_da_escala_nao_estoura:PASS
+<a id="__codelineno-125-23" name="__codelineno-125-23" href="#__codelineno-125-23"></a>test/test_colisao/test_colisao.cpp:429:test_cada_colisao_e_avisada_uma_vez_ate_o_robo_parar:PASS
+<a id="__codelineno-125-24" name="__codelineno-125-24" href="#__codelineno-125-24"></a>test/test_colisao/test_colisao.cpp:430:test_reiniciar_permite_avisar_de_novo:PASS
+<a id="__codelineno-125-25" name="__codelineno-125-25" href="#__codelineno-125-25"></a>test/test_colisao/test_colisao.cpp:431:test_sem_acelerometro_valido_nao_ha_impacto:PASS
+<a id="__codelineno-125-26" name="__codelineno-125-26" href="#__codelineno-125-26"></a>test/test_colisao/test_colisao.cpp:432:test_a_primeira_leitura_andando_vira_a_referencia:PASS
+<a id="__codelineno-125-27" name="__codelineno-125-27" href="#__codelineno-125-27"></a>test/test_colisao/test_colisao.cpp:433:test_potencia_alta_sem_nenhum_movimento_e_frente_parada:PASS
+<a id="__codelineno-125-28" name="__codelineno-125-28" href="#__codelineno-125-28"></a>test/test_colisao/test_colisao.cpp:434:test_so_depois_do_tempo_limite:PASS
+<a id="__codelineno-125-29" name="__codelineno-125-29" href="#__codelineno-125-29"></a>test/test_colisao/test_colisao.cpp:435:test_frente_que_varia_nao_e_parada:PASS
+<a id="__codelineno-125-30" name="__codelineno-125-30" href="#__codelineno-125-30"></a>test/test_colisao/test_colisao.cpp:436:test_girando_no_lugar_nao_e_parada:PASS
+<a id="__codelineno-125-31" name="__codelineno-125-31" href="#__codelineno-125-31"></a>test/test_colisao/test_colisao.cpp:437:test_potencia_baixa_nao_e_parada:PASS
+<a id="__codelineno-125-32" name="__codelineno-125-32" href="#__codelineno-125-32"></a>test/test_colisao/test_colisao.cpp:438:test_sem_leitura_frontal_valida_nao_conclui_nada:PASS
+<a id="__codelineno-125-33" name="__codelineno-125-33" href="#__codelineno-125-33"></a>test/test_colisao/test_colisao.cpp:439:test_frente_alem_do_alcance_nao_e_parada:PASS
+<a id="__codelineno-125-34" name="__codelineno-125-34" href="#__codelineno-125-34"></a>test/test_colisao/test_colisao.cpp:440:test_parar_de_andar_zera_a_janela_da_frente_parada:PASS
+<a id="__codelineno-125-35" name="__codelineno-125-35" href="#__codelineno-125-35"></a>test/test_colisao/test_colisao.cpp:441:test_o_impacto_vem_antes_da_frente_parada_no_mesmo_ciclo:PASS
+<a id="__codelineno-125-36" name="__codelineno-125-36" href="#__codelineno-125-36"></a>test/test_colisao/test_colisao.cpp:442:test_nomes_dos_tipos_de_colisao:PASS
+<a id="__codelineno-125-37" name="__codelineno-125-37" href="#__codelineno-125-37"></a>36 Tests 0 Failures 0 Ignored
+<a id="__codelineno-125-38" name="__codelineno-125-38" href="#__codelineno-125-38"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:558:test_o_recuo_nao_e_um_movimento_de_giro_nem_avanco:PASS
+<a id="__codelineno-125-39" name="__codelineno-125-39" href="#__codelineno-125-39"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:559:test_o_recuo_so_comeca_por_iniciar_recuo_e_com_distancia:PASS
+<a id="__codelineno-125-40" name="__codelineno-125-40" href="#__codelineno-125-40"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:560:test_o_recuo_anda_de_re_e_para_na_distancia:PASS
+<a id="__codelineno-125-41" name="__codelineno-125-41" href="#__codelineno-125-41"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:561:test_o_recuo_mantem_o_rumo_pelo_giroscopio:PASS
+<a id="__codelineno-125-42" name="__codelineno-125-42" href="#__codelineno-125-42"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:562:test_o_recuo_falha_por_tempo_se_o_robo_nao_anda:PASS
+<a id="__codelineno-125-43" name="__codelineno-125-43" href="#__codelineno-125-43"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:563:test_o_recuo_termina_no_centro_quando_a_parede_da_frente_esta_a_vista:PASS
+<a id="__codelineno-125-44" name="__codelineno-125-44" href="#__codelineno-125-44"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:564:test_o_recuo_ignora_parede_de_outra_celula_e_frente_sem_alvo:PASS
+<a id="__codelineno-125-45" name="__codelineno-125-45" href="#__codelineno-125-45"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:565:test_cancelar_o_recuo_freia:PASS
+<a id="__codelineno-125-46" name="__codelineno-125-46" href="#__codelineno-125-46"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:566:test_colisao_avancando_vai_para_recuperando_e_o_robo_recua:PASS
+<a id="__codelineno-125-47" name="__codelineno-125-47" href="#__codelineno-125-47"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:567:test_depois_do_recuo_o_ciclo_percebe_de_novo_na_mesma_celula_sem_mexer_no_mapa:PASS
+<a id="__codelineno-125-48" name="__codelineno-125-48" href="#__codelineno-125-48"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:568:test_o_recuo_vai_ate_o_centro_pela_odometria_com_minimo_e_maximo:PASS
+<a id="__codelineno-125-49" name="__codelineno-125-49" href="#__codelineno-125-49"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:569:test_sem_pose_valida_o_recuo_e_o_fixo:PASS
+<a id="__codelineno-125-50" name="__codelineno-125-50" href="#__codelineno-125-50"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:570:test_recuo_recusado_pelo_executor_para_o_ciclo_em_falha:PASS
+<a id="__codelineno-125-51" name="__codelineno-125-51" href="#__codelineno-125-51"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:571:test_colisao_fora_do_movimento_e_ignorada:PASS
+<a id="__codelineno-125-52" name="__codelineno-125-52" href="#__codelineno-125-52"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:572:test_colisao_durante_a_recuperacao_nao_conta_de_novo:PASS
+<a id="__codelineno-125-53" name="__codelineno-125-53" href="#__codelineno-125-53"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:573:test_so_a_segunda_batida_na_mesma_frente_grava_a_parede_se_o_tof_nao_a_viu:PASS
+<a id="__codelineno-125-54" name="__codelineno-125-54" href="#__codelineno-125-54"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:574:test_a_parede_nao_e_gravada_se_o_tof_mede_a_frente_livre:PASS
+<a id="__codelineno-125-55" name="__codelineno-125-55" href="#__codelineno-125-55"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:575:test_a_parede_nao_e_gravada_se_o_robo_nao_esta_onde_a_batida_na_parede_acontece:PASS
+<a id="__codelineno-125-56" name="__codelineno-125-56" href="#__codelineno-125-56"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:576:test_colisoes_demais_seguidas_param_o_ciclo_em_falha:PASS
+<a id="__codelineno-125-57" name="__codelineno-125-57" href="#__codelineno-125-57"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:577:test_concluir_uma_celula_zera_a_contagem_das_colisoes_seguidas:PASS
+<a id="__codelineno-125-58" name="__codelineno-125-58" href="#__codelineno-125-58"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:578:test_colisao_no_giro_volta_o_rumo_alvo_para_o_da_direcao_atual:PASS
+<a id="__codelineno-125-59" name="__codelineno-125-59" href="#__codelineno-125-59"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:579:test_colisao_no_giro_sem_giroscopio_desfaz_a_variacao_do_giro_no_rumo_alvo:PASS
+<a id="__codelineno-125-60" name="__codelineno-125-60" href="#__codelineno-125-60"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:580:test_tirar_a_permissao_na_recuperacao_volta_a_aguardar_a_largada:PASS
+<a id="__codelineno-125-61" name="__codelineno-125-61" href="#__codelineno-125-61"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:581:test_recuo_travado_pelo_tempo_para_em_falha:PASS
+<a id="__codelineno-125-62" name="__codelineno-125-62" href="#__codelineno-125-62"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:582:test_reiniciar_zera_os_contadores_da_colisao:PASS
+<a id="__codelineno-125-63" name="__codelineno-125-63" href="#__codelineno-125-63"></a>test/test_recuperacao_colisao/test_recuperacao_colisao.cpp:583:test_nome_do_estado_recuperando:PASS
+<a id="__codelineno-125-64" name="__codelineno-125-64" href="#__codelineno-125-64"></a>26 Tests 0 Failures 0 Ignored
+<a id="__codelineno-125-65" name="__codelineno-125-65" href="#__codelineno-125-65"></a>test/test_integracao_colisao/test_integracao_colisao.cpp:36:test_corrida_sem_batidas_nao_detecta_colisao:INFO: 4x4: estado objetivo_alcancado em 35.2 s, 12 celulas, 0 colisoes (0 recuperadas, 0 paredes por colisao), 0 encontroes; real (3,3)
+<a id="__codelineno-125-66" name="__codelineno-125-66" href="#__codelineno-125-66"></a>test/test_integracao_colisao/test_integracao_colisao.cpp:36:test_corrida_sem_batidas_nao_detecta_colisao:INFO: 8x4: estado objetivo_alcancado em 30.9 s, 12 celulas, 0 colisoes (0 recuperadas, 0 paredes por colisao), 0 encontroes; real (3,7)
+<a id="__codelineno-125-67" name="__codelineno-125-67" href="#__codelineno-125-67"></a>test/test_integracao_colisao/test_integracao_colisao.cpp:36:test_corrida_sem_batidas_nao_detecta_colisao:INFO: 12x4: estado objetivo_alcancado em 38.2 s, 16 celulas, 0 colisoes (0 recuperadas, 0 paredes por colisao), 0 encontroes; real (3,11)
+<a id="__codelineno-125-68" name="__codelineno-125-68" href="#__codelineno-125-68"></a>test/test_integracao_colisao/test_integracao_colisao.cpp:188:test_corrida_sem_batidas_nao_detecta_colisao:PASS
+<a id="__codelineno-125-69" name="__codelineno-125-69" href="#__codelineno-125-69"></a>test/test_integracao_colisao/test_integracao_colisao.cpp:36:test_batida_e_detectada_pelo_acelerometro_e_o_robo_recua:INFO: depois do recuo: real (3,1), erro ao longo 2.9 mm, lateral 0.8 mm
+<a id="__codelineno-125-70" name="__codelineno-125-70" href="#__codelineno-125-70"></a>test/test_integracao_colisao/test_integracao_colisao.cpp:189:test_batida_e_detectada_pelo_acelerometro_e_o_robo_recua:PASS
+<a id="__codelineno-125-71" name="__codelineno-125-71" href="#__codelineno-125-71"></a>test/test_integracao_colisao/test_integracao_colisao.cpp:36:test_corrida_com_tof_frontal_cego_recupera_de_cada_batida_e_chega_ao_objetivo:INFO: 4x4 com ToF frontal cego: estado objetivo_alcancado em 38.4 s, 12 celulas, 6 colisoes (6 recuperadas, 3 paredes por colisao), 7 encontroes; real (3,3)
+<a id="__codelineno-125-72" name="__codelineno-125-72" href="#__codelineno-125-72"></a>test/test_integracao_colisao/test_integracao_colisao.cpp:190:test_corrida_com_tof_frontal_cego_recupera_de_cada_batida_e_chega_ao_objetivo:PASS
+<a id="__codelineno-125-73" name="__codelineno-125-73" href="#__codelineno-125-73"></a>test/test_integracao_colisao/test_integracao_colisao.cpp:36:test_corrida_com_tof_frontal_cego_no_8x4:INFO: 8x4 com ToF frontal cego: estado objetivo_alcancado em 31.8 s, 12 celulas, 4 colisoes (4 recuperadas, 2 paredes por colisao), 4 encontroes; real (3,7)
+<a id="__codelineno-125-74" name="__codelineno-125-74" href="#__codelineno-125-74"></a>test/test_integracao_colisao/test_integracao_colisao.cpp:191:test_corrida_com_tof_frontal_cego_no_8x4:PASS
+<a id="__codelineno-125-75" name="__codelineno-125-75" href="#__codelineno-125-75"></a>test/test_integracao_colisao/test_integracao_colisao.cpp:192:test_sem_deteccao_o_robo_cego_acha_que_andou_mas_fica_preso_na_parede:PASS
+<a id="__codelineno-125-76" name="__codelineno-125-76" href="#__codelineno-125-76"></a>5 Tests 0 Failures 0 Ignored
+<a id="__codelineno-125-77" name="__codelineno-125-77" href="#__codelineno-125-77"></a>test/test_telemetria_json/test_telemetria_json.cpp:271:test_serializa_telemetria_com_evento_colisao:PASS
+</code></pre></div>
+<h4 id="cobertura-e-suite-completa_2">Cobertura e suíte completa<a class="headerlink" href="#cobertura-e-suite-completa_2" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-126-1" name="__codelineno-126-1" href="#__codelineno-126-1"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native_cobertura
+<a id="__codelineno-126-2" name="__codelineno-126-2" href="#__codelineno-126-2"></a>gcovr<span class="w"> </span>--root<span class="w"> </span>.<span class="w"> </span>--filter<span class="w"> </span><span class="s1">'lib/'</span><span class="w"> </span>--object-directory<span class="w"> </span>.pio/build/native_cobertura<span class="w"> </span>--fail-under-line<span class="w"> </span><span class="m">80</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Verificação</th>
+<th>Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Suíte completa (as 42 suítes do <code>native</code>)</td>
+<td><strong>797 aprovados, 0 falhas</strong></td>
+</tr>
+<tr>
+<td>Cobertura das linhas de <code>lib/</code>, somando todas as suítes</td>
+<td><strong>98,0%</strong> (3824 de 3901), acima da meta de 80%</td>
+</tr>
+<tr>
+<td><code>DetectorColisao.cpp</code>, <code>RegistradorPotencia.h</code> e <code>ConversorAceleracao.h</code></td>
+<td>100% (65, 10 e 10 linhas)</td>
+</tr>
+<tr>
+<td><code>CicloNavegacao.cpp</code> e <code>ExecutorMovimentos.cpp</code></td>
+<td>96% (296 de 309) e 99% (281 de 285)</td>
+</tr>
+</tbody>
+</table>
+<p>No <code>CicloNavegacao.cpp</code>, as duas linhas sem execução que são da #192 ficam no ajuste da posição ao centro de célula mais próximo, quando o robô está a mais de meia célula de um centro: as batidas dos testes acontecem a cerca de 34 mm do centro. As outras linhas sem execução são de antes da #192. O <code>ImuMpu6050</code> e o <code>main.cpp</code> não compilam no <code>native</code>; por isso a regra fica em <code>lib/execucao</code>, e os testes de integração repetem a ligação do <code>main.cpp</code> na <code>SimulacaoCorrida</code>.</p>
+<h4 id="prova-de-mutacao_4">Prova de mutação<a class="headerlink" href="#prova-de-mutacao_4" title="Permanent link">&para;</a></h4>
+<p>Para conferir se os testes pegam erros, e não só passam, foram feitas alterações propositais no código, uma de cada vez, rodando <code>test_colisao</code>, <code>test_recuperacao_colisao</code> e <code>test_integracao_colisao</code> a cada uma. Por exemplo: impacto só acima do limiar, a referência aprendendo leituras agitadas, a mesma colisão avisada várias vezes, a frente além do alcance valendo como parada, a parede gravada já na primeira batida (ou com a frente livre, ou com o robô fora do lugar da batida), desistir uma colisão antes, recuar para a frente, ignorar a parede da frente no recuo e o registrador sem zerar a potência no <code>parar()</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Execução</th>
+<th>Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DetectorColisao</code> (8 alterações)</td>
+<td><strong>8 detectadas</strong></td>
+</tr>
+<tr>
+<td>Recuperação no <code>CicloNavegacao</code> (10 alterações)</td>
+<td><strong>10 detectadas</strong></td>
+</tr>
+<tr>
+<td>Recuo no <code>ExecutorMovimentos</code> (3 alterações)</td>
+<td><strong>3 detectadas</strong></td>
+</tr>
+<tr>
+<td><code>RegistradorPotencia</code> (2 alterações)</td>
+<td><strong>2 detectadas</strong></td>
+</tr>
+<tr>
+<td>Total</td>
+<td><strong>23 de 23 alterações detectadas</strong></td>
+</tr>
+</tbody>
+</table>
+<h4 id="pendencias-desta-etapa_23">Pendências desta etapa<a class="headerlink" href="#pendencias-desta-etapa_23" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Bancada:</strong> com o robô montado, bater devagar contra a parede e ver o <code>desvio_mg</code> no log para ajustar <code>LIMIAR_IMPACTO_MG</code> (entre o maior desvio andando sem bater e o menor batendo); conferir se o pico satura a faixa de ±4 g, onde o robô para depois do recuo e a frente parada com o robô preso.</li>
+<li><strong>Evento no Supabase:</strong> o <code>coletarAmostra()</code> do <code>main.cpp</code> só manda <code>objetivo_alcancado</code>; a colisão precisa ir como <code>EventoTelemetria::Colisao</code>, que o contrato já tem, para aparecer no banco e no dashboard.</li>
+<li><strong>Encoders:</strong> a detecção por encoder parado com os motores acionados, quando os encoders forem instalados.</li>
 </ul>
 
 
