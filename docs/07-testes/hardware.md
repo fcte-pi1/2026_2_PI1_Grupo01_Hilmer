@@ -29,7 +29,7 @@
 | 3.1 | Alimentação e Linhas de Tensão | 21/10/2026 | 21/10/2026 | Equipe de Energia | 3,3 V e VBAT estáveis | Resultado esperado atingido: estabilidade de 3,3 V e de VBAT confirmada. Bateria LiPo 2S inspecionada, balanceada e carregada a 8,40 V, conforme teste 2.3 de Energia | S | S | Estabilidade das linhas confirmada pela equipe executora. Referência ao [teste 2.3 de inspeção e carga da bateria em Energia](energia.md). |
 | 3.2 | Sensores de Distância ToF VL53L0X (I2C) | | | | Reconhecimento dos três sensores no barramento I2C, com endereços distintos, e leitura de distância frontal, esquerda e direita | | | | Sensores J3, J4 e J5, alimentados em 3,3 V. |
 | 3.3 | Acionamento dos Motores (DRV8833) | 22/10/2026 | 22/10/2026 | Aline / Equipe | Resposta PWM nos canais A e B | Alimentação direta dos motores a 6 V realizada, com corrente registrada de 22 mA; integração do acionamento em protoboard com driver alimentado a 5 V não funcionou | | | Resposta PWM não comprovada. Ver procedimento 3.3. |
-| 3.4 | IMU MPU6050 (I2C) | | | | Reconhecimento da IMU no barramento I2C e leitura de dados de aceleração e giro | | | | Sensor J6, alimentado em 3,3 V. |
+| 3.4 | IMU MPU6050 (I2C) | | | | Reconhecimento da IMU no barramento I2C e leitura de dados de aceleração e giro | Resposta funcional observada: a orientação do modelo na tela acompanha as inclinações e rotações manuais da montagem | | | Sensor J6, alimentado em 3,3 V conforme o projeto. Ver procedimento 3.4. |
 | 3.5 | **Encoders de Quadratura (18 cm)** | 16/10/2026 | 17/10/2026 | Cláudio / Equipe | Leitura x4 por interrupção; erro $\le \pm 3\%$ em 180 mm | Roteiro e script serial automatizados; aguardando bancada final | S | | Issue #186, HU-05 |
 | 3.6 | | | | | | | | | |
 
@@ -65,6 +65,39 @@ Verificar a alimentação básica dos motores DC e testar a integração do circ
 
 ### 5. Avaliação
 O ensaio com alimentação direta a 6 V documenta uma verificação elétrica preliminar dos motores. O teste de integração apresentou resultado insatisfatório e não comprovou a resposta PWM nos canais A e B exigida no item 3.3. A falha de integração, isoladamente, não identifica qual componente ou ligação causou o problema.
+
+---
+
+## Procedimento de Teste 3.4: IMU MPU6050
+
+**Data dos testes:** 26/10/2026.
+
+### 1. Objetivo
+Verificar a resposta funcional da IMU MPU6050 às inclinações e rotações da montagem, acompanhando a atualização da orientação exibida no computador.
+
+### 2. Instrumentação
+
+* **IMU MPU6050:** sensor de aceleração e giro previsto no projeto, com comunicação I2C e alimentação de 3,3 V.
+* **Placa de controle, protoboard e fios de conexão:** montagem utilizada para aquisição dos dados do sensor.
+* **Notebook com interface de visualização:** exibição de um modelo tridimensional, indicadores numéricos e gráficos durante o ensaio.
+
+### 3. Montagem e Procedimento Realizado
+1. Com a montagem conectada ao notebook e a interface de visualização em execução, observar a orientação inicial do modelo na tela.
+2. Segurar a protoboard e realizar inclinações e rotações manuais em diferentes direções.
+3. Acompanhar a mudança de orientação do modelo durante os movimentos e nas posições intermediárias.
+4. Repetir a movimentação para observar a continuidade da resposta exibida.
+
+### 4. Resultados Obtidos
+
+| Ensaio | Condição | Resultado |
+|--------|----------|-----------|
+| Resposta às inclinações | Inclinação manual da montagem em diferentes direções | O modelo na tela muda de inclinação durante a movimentação da protoboard. |
+| Resposta às rotações | Rotação manual da montagem | A orientação do modelo é atualizada durante os giros, demonstrando resposta funcional ao movimento. |
+| Visualização dos dados | Interface em execução no notebook | Modelo tridimensional, indicadores numéricos e gráficos visíveis durante o ensaio. Os valores não foram transcritos por falta de legibilidade suficiente. |
+
+### 5. Avaliação
+
+Não foram quantificados erro angular, deriva, taxa de amostragem ou latência. A calibração e a precisão das leituras permanecem sem validação quantitativa neste registro.
 
 ---
 
