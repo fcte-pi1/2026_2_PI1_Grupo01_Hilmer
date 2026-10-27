@@ -77,7 +77,7 @@ A pinagem de referência passou a ser a do protótipo testado em 23/10/2026: **I
 
 | **ID** | **Descrição** | **Data de Início** | **Data de Conclusão** | **Responsável** | **Resultados Esperados** | **Resultados Obtidos** | **Aprovação Interna (S/N)** | **Aprovação do Orientador (S/N)** | **Observações** |
 |:------:|---------------|--------------------|-----------------------|-----------------|--------------------------|------------------------|:---------------------------:|:--------------------------------:|-----------------|
-| 3.6 | Protótipo em protoboard: 3 VL53L0X e MPU6050 no mesmo I²C (SDA GPIO6, SCL GPIO7) | 23/10/2026 | 23/10/2026 | Bruno Duarte | Os 4 dispositivos lidos ao mesmo tempo pelo ESP32-C3 | **Sucesso parcial.** Cerca de 100 amostras/s; ToF de 0 a 939 mm conforme o obstáculo, com ruído de 1 a 2 mm parado; IMU acompanha o giro feito à mão (*yaw* até −105,9°, *roll* até 79,8°). Após "Zerar orientação", os dados congelam (ver resultados abaixo) | S | | Motores desconectados; alimentação pela USB. [Dados](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/testes/registros/P-1) |
+| 3.6 | Protótipo em protoboard: 3 VL53L0X e MPU6050 no mesmo I²C (SDA GPIO6, SCL GPIO7), cobrindo em parte os itens 3.2 e 3.4 | 23/10/2026 | 23/10/2026 | Bruno Duarte | Os 4 dispositivos lidos ao mesmo tempo pelo ESP32-C3: distâncias frontal, esquerda e direita, aceleração e giro | **Sucesso parcial.** Cerca de 100 amostras/s; ToF de 0 a 939 mm conforme o obstáculo, com ruído de 1 a 2 mm parado; IMU acompanha o giro feito à mão (*yaw* até −105,9°, *roll* até 79,8°). Após "Zerar orientação", os dados congelam (ver resultados abaixo) | S | | Motores desconectados; alimentação pela USB. [Dados](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/testes/registros/P-1) |
 
 <figure markdown>
 
@@ -138,8 +138,9 @@ Procedimento: gravar o firmware de teste do protótipo (`pololu/VL53L0X@^1.3.1` 
 
 ### Atualização dos testes 3.3 e 3.5
 
-- **3.3, acionamento dos motores:** a falha da integração em protoboard foi no **conector mini do encoder do N20**, que também leva os fios de potência do motor. O DRV8833 não apresentou falha. Falta refazer o conector e repetir o acionamento pelo driver.
-- **3.5, encoders:** o procedimento acima usa os pinos da Rev 1 (GPIO0/1/3/10). Na pinagem adotada, o encoder esquerdo fica em GPIO3 (A) e GPIO4 (B); o direito, reservado em GPIO5 e GPIO20, ainda não está ligado.
+- **3.2 e 3.4, VL53L0X e MPU6050:** o teste 3.6 cobre em parte os dois itens. Os três VL53L0X e a MPU6050 foram lidos juntos e cada ToF respondeu ao seu anteparo, mas a varredura que mostra os endereços distintos ainda não foi feita.
+- **3.3, acionamento dos motores (22/10/2026):** com o motor ligado direto na fonte de bancada a 6 V, a corrente foi de 22 mA. A integração em protoboard, com o driver alimentado a 5 V, não funcionou. Em 26/10/2026 a causa foi identificada: falha no **conector mini do encoder do N20**, que também leva os fios de potência do motor. O DRV8833 não apresentou falha. Falta refazer o conector e repetir o acionamento pelo driver para comprovar a resposta PWM.
+- **3.5, encoders:** o procedimento acima usa os pinos da Rev 1 (GPIO0/1/3/10), e a página [Justificativa dos componentes](../04-projeto-conceitual/justificativa-componentes.md) cita as reservas da Rev 2.0 (GPIO4/5 e GPIO6/7). Na pinagem adotada, o encoder esquerdo fica em GPIO3 (A) e GPIO4 (B); o direito, reservado em GPIO5 e GPIO20, ainda não está ligado.
 
 ### Issues e tarefas relacionadas
 
