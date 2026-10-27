@@ -52,7 +52,7 @@ Em 21/10/2026, a eletrônica enviou o esquemático e a lista de componentes da *
 
 Enquanto os encoders não eram integrados à Rev 2.0, o plano previa estimar o deslocamento pelo comando dos motores, corrigido pelos sensores de distância (modo sem encoder, [#380](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380)). Com os encoders disponíveis, esse modo passa a ser o plano B.
 
-**O LiDAR não é mais usado.** O código dele (`lib/lidar`, decodificador LD06 e `FonteBytesSerial`) ainda está na `main` e deve sair num PR de código. Os registros de teste anteriores a 21/10 em [Testes de software](../07-testes/software.md) foram feitos com o LiDAR simulado e continuam como histórico.
+**O LiDAR não é mais usado.** O código dele (`lib/lidar`, decodificador LD06 e `FonteBytesSerial`) ainda está na `main` e deve sair num PR de código. Os registros de teste anteriores a 21/10 em [Testes de software](../07-testes/software-registro.md) foram feitos com o LiDAR simulado e continuam como histórico.
 
 ## Dois ambientes: placa e computador
 
@@ -1134,7 +1134,7 @@ O cálculo foi feito para um único sensor no centro do robô, com o feixe abaix
 * **Fail-safe dos sensores de distância:** sem leitura válida, o robô segue reto na potência mínima e sem correção; depois de 500 ms sem leitura, freia.
 * **Motores:** potência de −1000 a 1000 por roda, positiva para a frente (a mesma convenção do `IEncoder`). O `MotoresDrv8833` usa PWM de 20 kHz e 10 bits, no modo *fast decay* do DRV8833, e freia ligando IN1 e IN2. O motor direito é invertido no `main.cpp`, pela montagem espelhada.
 
-Os ganhos, as potências e as distâncias de desaceleração estão em `ConfiguracaoControle.h` e são **provisórios**: foram ajustados numa simulação do corredor ([Testes de Software](../07-testes/software.md)) e precisam ser confirmados na bancada.
+Os ganhos, as potências e as distâncias de desaceleração estão em `ConfiguracaoControle.h` e são **provisórios**: foram ajustados numa simulação do corredor ([Testes de Software](../07-testes/software-registro.md)) e precisam ser confirmados na bancada.
 
 ### Interface da Classe
 
@@ -2126,11 +2126,11 @@ pio test -e native -f test_nucleo   # só um módulo
 pio run -e esp32c3                  # compila para a placa
 ```
 
-Resultado do projeto base, executado em 04/10/2026: **10 de 10 testes aprovados** e build para o ESP32-C3 concluído com 4,2% de RAM e 18,9% de Flash. O registro completo da execução (ambiente, saídas e pendências) está em [Testes de Software](../07-testes/software.md#registro-de-execucao-dos-testes).
+Resultado do projeto base, executado em 04/10/2026: **10 de 10 testes aprovados** e build para o ESP32-C3 concluído com 4,2% de RAM e 18,9% de Flash. O registro completo da execução (ambiente, saídas e pendências) está em [Testes de Software](../07-testes/software-registro.md#registro-de-execucao-dos-testes).
 
 ### Como ler uma falha
 
-Exemplo real, com um valor esperado alterado de propósito (registrado em [Testes de Software](../07-testes/software.md#verificacao-de-deteccao-de-falhas-teste-negativo)):
+Exemplo real, com um valor esperado alterado de propósito (registrado em [Testes de Software](../07-testes/software-registro.md#verificacao-de-deteccao-de-falhas-teste-negativo)):
 
 ```text
 test/test_nucleo/test_direcao.cpp:21: test_girar_direita_percorre_as_quatro_direcoes: Expected 2 Was 1  [FAILED]
@@ -2192,7 +2192,7 @@ Ao investigar uma falha, compare o esperado com o obtido: ou o código tem um er
 - **Boot do sistema** ([#50](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/50)): o autoteste do I²C, a trava dos motores e o relatório estão prontos e testados no computador com dispositivos simulados. Falta a bancada: medir o tempo desde o ligar (o `boot_ms` não conta a ROM nem o bootloader), conferir o `WHO_AM_I` do módulo montado e confirmar com a eletrônica que o pino AD0 do MPU6050 está em nível baixo (0x68).
 - **Calibração dos sensores e do giroscópio** ([#240](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/240)): a rotina de autocalibração dos 3 VL53L0X e do MPU6050 (eixo Z), a verificação de repouso (rejeição de movimento), a medição do tempo decorrido dentro de 1 s (RNF-08) e todos os testes com simulação foram concluídos. Falta a validação na bancada com o robô físico parado na célula de largada ([#175](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/175)).
 - **Falha do I²C durante a corrida** ([#241](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/241)): a detecção nos 4 dispositivos, as tentativas, o reinício do ToF pelo XSHUT e da IMU, a trava dos motores, a pausa do ciclo de navegação e o estado no log e na telemetria estão prontos e testados no computador com falhas simuladas, inclusive numa corrida inteira. Falta a bancada (veja [as pendências](#falha-do-i2c-durante-a-corrida-supervisori2c)).
-- **Execução dos movimentos** ([#184](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/184)): os comandos "avançar uma célula", "girar 90°" e "girar 180°", o ciclo percepção → mapa → decisão → atuação e o gatilho da largada estão prontos, testados no computador (incluindo corridas completas no robô simulado) e ligados no `main.cpp`. Falta a bancada: medir o erro de deslocamento com as etapas 7 e 8 de `scripts/bancada_deslocamento.py` e registrar em [Testes de Software](../07-testes/software.md). A folga de 5,9 mm do giro no lugar ([Folga do giro no lugar](#folga-do-giro-no-lugar)) precisa da mecânica e da sintonia da centralização.
+- **Execução dos movimentos** ([#184](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/184)): os comandos "avançar uma célula", "girar 90°" e "girar 180°", o ciclo percepção → mapa → decisão → atuação e o gatilho da largada estão prontos, testados no computador (incluindo corridas completas no robô simulado) e ligados no `main.cpp`. Falta a bancada: medir o erro de deslocamento com as etapas 7 e 8 de `scripts/bancada_deslocamento.py` e registrar em [Testes de Software](../07-testes/software-registro.md). A folga de 5,9 mm do giro no lugar ([Folga do giro no lugar](#folga-do-giro-no-lugar)) precisa da mecânica e da sintonia da centralização.
 - **Correção pelas paredes** ([#188](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/188)): a posição lateral pelas paredes, a correção ao longo do avanço com encoder, o realinhamento antes dos giros e o rumo pelo corredor estão prontos, testados no computador e ligados no `main.cpp`. Na simulação, as corridas com contato caíram de 84–92 para 2 em 189. Falta a bancada: rodar as etapas 9 e 10 de `scripts/bancada_deslocamento.py` e ajustar `ConfiguracaoLocalizacao.h` com a geometria real dos ToF e do chassi, o ruído do VL53L0X e a deriva real do giroscópio.
 - **Colisão e recuperação** ([#192](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/192)): a detecção pelo acelerômetro e pelo ToF frontal, o recuo até o centro, a retomada sem perder o mapa nem a posição e o evento na telemetria serial estão prontos, testados no computador (inclusive em corridas inteiras com batidas) e ligados no `main.cpp`. Faltam a bancada (limiar do impacto e faixa do acelerômetro), o evento no envio ao Supabase e a detecção por encoder.
 

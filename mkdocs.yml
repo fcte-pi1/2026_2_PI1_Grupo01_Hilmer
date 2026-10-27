@@ -120,6 +120,7 @@ nav:
       - 7.2.1 Ensaio de Bancada de Baterias: 07-testes/energia/teste-componentes/bateria/teste-bancada-bateria.md
       - 7.3 Hardware: 07-testes/hardware.md
       - 7.4 Software: 07-testes/software.md
+      - 7.4.1 Registro de execução por sprint: 07-testes/software-registro.md
       - 7.5 Integração: 07-testes/integracao.md
   - 8. Avaliação de desempenho: 08-avaliacao-de-desempenho.md
   - 9. Relatório de encerramento: 09-relatorio-de-encerramento.md
