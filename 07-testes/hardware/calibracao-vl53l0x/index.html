@@ -1,0 +1,2501 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentação do projeto de Projeto Integrador 1 (PI1) — Grupo 01, professor Hilmer.">
+      
+      
+        <meta name="author" content="Grupo 01 - Hilmer">
+      
+      
+        <link rel="canonical" href="https://fcte-pi1.github.io/2026_2_PI1_Grupo01_Hilmer/07-testes/hardware/calibracao-vl53l0x/">
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../integracao-sensores-i2c/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>7.3.1 Calibração do VL53L0X - PI1 · Grupo 01 (Hilmer) — 2026/2</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#calibracao-do-sensor-de-distancia-vl53l0x" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../../.." title="PI1 · Grupo 01 (Hilmer) — 2026/2" class="md-header__button md-logo" aria-label="PI1 · Grupo 01 (Hilmer) — 2026/2" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PI1 · Grupo 01 (Hilmer) — 2026/2
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              7.3.1 Calibração do VL53L0X
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para o modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para o modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para o modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para o modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fcte-pi1/2026_2_PI1_Grupo01_Hilmer
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="PI1 · Grupo 01 (Hilmer) — 2026/2" class="md-nav__button md-logo" aria-label="PI1 · Grupo 01 (Hilmer) — 2026/2" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PI1 · Grupo 01 (Hilmer) — 2026/2
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fcte-pi1/2026_2_PI1_Grupo01_Hilmer
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../status-equipes/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Status das equipes
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Status das equipes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status-equipes/software/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Software
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status-equipes/eletronica/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Eletrônica
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status-equipes/energia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Energia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status-equipes/estrutura/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Estrutura
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../01-tap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1. TAP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../02-requisitos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2. Requisitos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../03-eap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3. EAP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../04-projeto-conceitual/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4. Projeto conceitual
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    4. Projeto conceitual
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/estruturas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 Estruturas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/labirinto-testes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1.1 Labirinto de testes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/energia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Energia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/energia/protecoes-entrada/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.1 Proteções de entrada
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/energia/reguladores-buck/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.2 Reguladores Step-Down (Buck)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/energia/curva-descarga-lipo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.3 Curva de Descarga e SoC LiPo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/energia/monitoramento-tensao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.4 Monitoramento de Tensão (ADC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/energia/ensaios-protecoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.5 Ensaios de subtensão e PPTC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/energia/pop-recarga-bateria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.6 POP de recarga balanceada
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/energia/dimensiona-divisor-resistivo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.7 Dimensionamento de divisor resistivo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/hardware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 Hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/hardware-diagramas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3.1 Diagramas de hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/justificativa-componentes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3.2 Justificativa dos componentes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/software/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Software
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/firmware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4.1 Firmware: implementação
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../05-cronograma/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5. Cronograma
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../06-orcamento/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6. Orçamento
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7. Testes
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    7. Testes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../estrutura/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.1 Estrutura
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../energia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2 Energia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../energia/teste-componentes/bateria/teste-bancada-bateria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2.1 Ensaio de Bancada de Baterias
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3 Hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3.1 Calibração do VL53L0X
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3.1 Calibração do VL53L0X
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#objetivo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Objetivo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#montagem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Montagem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#procedimento" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Procedimento
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resultados" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resultados
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Resultados">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tentativa-descartada-o-sensor-via-a-montagem-e-nao-o-alvo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tentativa descartada: o sensor via a montagem, e não o alvo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rodada-1-calibracao-leitura-crua" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rodada 1: calibração (leitura crua)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rodada-2-validacao-com-desconto-de-68-mm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rodada 2: validação com desconto de 68 mm
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verificacoes-das-causas-do-desvio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verificações das causas do desvio
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comparacao-das-correcoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comparação das correções
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#precisao-observada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Precisão observada
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conclusão
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pendencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pendências
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dados-e-reproducao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dados e reprodução
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historico-de-versoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Histórico de versões
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integracao-sensores-i2c/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3.2 Integração dos sensores I²C
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../software/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.4 Software
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../software-registro/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.4.1 Registro de execução por sprint
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integracao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5 Integração
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../08-avaliacao-de-desempenho/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8. Avaliação de desempenho
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../09-relatorio-de-encerramento/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9. Relatório de encerramento
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#objetivo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Objetivo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#montagem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Montagem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#procedimento" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Procedimento
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resultados" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resultados
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Resultados">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tentativa-descartada-o-sensor-via-a-montagem-e-nao-o-alvo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tentativa descartada: o sensor via a montagem, e não o alvo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rodada-1-calibracao-leitura-crua" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rodada 1: calibração (leitura crua)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rodada-2-validacao-com-desconto-de-68-mm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rodada 2: validação com desconto de 68 mm
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verificacoes-das-causas-do-desvio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verificações das causas do desvio
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comparacao-das-correcoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comparação das correções
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#precisao-observada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Precisão observada
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conclusão
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pendencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pendências
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dados-e-reproducao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dados e reprodução
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historico-de-versoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Histórico de versões
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/edit/main/docs/07-testes/hardware/calibracao-vl53l0x.md" title="Editar esta página" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="calibracao-do-sensor-de-distancia-vl53l0x">Calibração do sensor de distância VL53L0X<a class="headerlink" href="#calibracao-do-sensor-de-distancia-vl53l0x" title="Permanent link">&para;</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Escopo deste registro</p>
+<p>Teste de bancada de <strong>um</strong> VL53L0X (o sensor da frente), ligado sozinho a um ESP32-C3 Super Mini numa protoboard, com o firmware e a pinagem do repositório <a href="https://github.com/brun0duarte/micromouse">brun0duarte/micromouse</a> (commit <code>baa44c9</code>). <strong>Não é a placa Rev 2.0 do projeto</strong> nem o firmware do robô. Os outros dois VL53L0X, a integração com o MPU6050 e os motores e a repetição na placa Rev 2.0 estão em <a href="#pendencias">Pendências</a>.</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Componente</td>
+<td>Sensor de distância ToF VL53L0X (módulo, sensor da frente)</td>
+</tr>
+<tr>
+<td>Requisito</td>
+<td>Leitura de distância das paredes para a percepção (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/175">#175</a>, HU-02 / RF02)</td>
+</tr>
+<tr>
+<td>Data da execução</td>
+<td>26/10/2026</td>
+</tr>
+<tr>
+<td>Executado por</td>
+<td>Ana Carolina Fialho</td>
+</tr>
+<tr>
+<td>Tipo de teste</td>
+<td>Bancada, com o sensor real e régua; estatística com 100 leituras por distância</td>
+</tr>
+<tr>
+<td>Resultado</td>
+<td>Sensor estável e linear, com <strong>desvio próprio de ~57 a 86 mm</strong> (lê a mais); precisa de correção em software</td>
+</tr>
+</tbody>
+</table>
+<h2 id="objetivo">Objetivo<a class="headerlink" href="#objetivo" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Medir a <strong>exatidão</strong> do VL53L0X (quanto a leitura se afasta da distância real) e a <strong>repetibilidade</strong> (quanto ela varia com o alvo parado), de 3 a 30 cm, a faixa que o robô usa dentro do labirinto.</li>
+<li>Encontrar a <strong>correção</strong> que deixa a leitura dentro da tolerância e validar essa correção numa segunda rodada.</li>
+</ol>
+<h2 id="montagem">Montagem<a class="headerlink" href="#montagem" title="Permanent link">&para;</a></h2>
+<p><img alt="Montagem da bancada: sensor na borda do papelão, apontado para o alvo, com a régua no meio" src="../../../figs/vl53l0x-calibracao-montagem.jpg" /></p>
+<p><strong>Figura 1.</strong> Montagem: o VL53L0X fica na borda da caixa de papelão, olhando para o alvo (a bolsa). A régua passa entre os dois, e o ESP32-C3 na protoboard envia as leituras pela USB.</p>
+<p><img alt="Detalhe: o alvo encostado na marca da régua, com o zero na face do sensor" src="../../../figs/vl53l0x-calibracao-alvo-e-regua.jpg" /></p>
+<p><strong>Figura 2.</strong> Detalhe da régua: o zero fica na face do sensor, e o alvo é posicionado em cada marca.</p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Detalhe</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Placa</td>
+<td>ESP32-C3 Super Mini, ligada ao computador pela USB-C</td>
+</tr>
+<tr>
+<td>Ligação do sensor</td>
+<td>VIN no 3V3 da placa, GND, SDA no GPIO6, SCL no GPIO7, XSHUT solto (pinagem do <code>PINAGEM.md</code> do repositório micromouse)</td>
+</tr>
+<tr>
+<td>Firmware</td>
+<td><code>src/main.cpp</code> do repositório micromouse: envia uma linha CSV a cada 20 ms (50 por segundo); a 11ª coluna é a distância do sensor da frente em mm</td>
+</tr>
+<tr>
+<td>Compilação</td>
+<td>PlatformIO com <code>espressif32@7.1.3</code> (a mesma plataforma do firmware do projeto) e um arquivo local de compatibilidade para a chamada <code>analogWriteFrequency(pino, frequência)</code>, que o repositório micromouse usa na versão 3 do Arduino-ESP32. O código do repositório não foi alterado</td>
+</tr>
+<tr>
+<td>Alvo</td>
+<td>Superfície plana, perpendicular ao sensor: a bolsa preta da Figura 1 e, numa verificação, uma folha branca (ver <a href="#verificacoes-das-causas-do-desvio">Verificações</a>)</td>
+</tr>
+<tr>
+<td>Coleta e análise</td>
+<td><a href="../../../scripts/calibrar_tof.py"><code>docs/scripts/calibrar_tof.py</code></a>, em Python com <code>pyserial</code> e <code>matplotlib</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="procedimento">Procedimento<a class="headerlink" href="#procedimento" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Gravar o firmware na placa e conferir no monitor serial a linha <code>VL53L0X frente ok</code>.</li>
+<li>Rodar o script: <code>python calibrar_tof.py</code> (calibração, sem desconto: <code>--desconto 0</code>).</li>
+<li>Para cada distância da régua, posicionar o alvo, conferir com a opção <strong><code>v</code></strong> (4 s de leituras ao vivo) que a leitura está <strong>estável</strong>, e só então confirmar.</li>
+<li>O script descarta as 10 primeiras leituras depois de cada ajuste, coleta <strong>100 leituras válidas</strong> e calcula média, desvio-padrão, mínimo, máximo, mediana, erro e percentual de leituras válidas.</li>
+<li>No fim, o script gera a tabela, a reta de correção (mínimos quadrados) e o gráfico.</li>
+</ol>
+<p><strong>Critério de aceitação</strong> (o mesmo da bancada dos ToF do firmware): erro médio dentro de <strong>±10 mm ou ±5% da distância</strong>, o que for maior, e pelo menos <strong>95% de leituras válidas</strong>.</p>
+<h2 id="resultados">Resultados<a class="headerlink" href="#resultados" title="Permanent link">&para;</a></h2>
+<h3 id="tentativa-descartada-o-sensor-via-a-montagem-e-nao-o-alvo">Tentativa descartada: o sensor via a montagem, e não o alvo<a class="headerlink" href="#tentativa-descartada-o-sensor-via-a-montagem-e-nao-o-alvo" title="Permanent link">&para;</a></h3>
+<p>Na primeira tentativa, a leitura ficou <strong>parada</strong> perto de 130 mm e depois de 100 mm, de 3 a 40 cm, mesmo com o alvo mudando de lugar. O sensor estava vendo um objeto fixo da montagem a uns 10 cm, e não o alvo. Essa rodada foi <strong>descartada</strong>. Depois de refazer a montagem e passar a conferir cada distância com a opção <code>v</code>, a leitura passou a acompanhar o alvo.</p>
+<table>
+<thead>
+<tr>
+<th>Real (mm)</th>
+<th style="text-align: right;">30</th>
+<th style="text-align: right;">50</th>
+<th style="text-align: right;">100</th>
+<th style="text-align: right;">150</th>
+<th style="text-align: right;">200</th>
+<th style="text-align: right;">300</th>
+<th style="text-align: right;">400</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Média lida (mm)</td>
+<td style="text-align: right;">131,4</td>
+<td style="text-align: right;">132,3</td>
+<td style="text-align: right;">137,8</td>
+<td style="text-align: right;">101,1</td>
+<td style="text-align: right;">100,3</td>
+<td style="text-align: right;">100,9</td>
+<td style="text-align: right;">100,7</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="Gráfico da tentativa descartada: a leitura não acompanha a distância" src="../../../figs/vl53l0x-calibracao-descartada.png" /></p>
+<p><strong>Figura 3.</strong> Tentativa descartada: a leitura não acompanha a régua. Mantida aqui como registro do erro de montagem e da conferência que passou a ser feita.</p>
+<p>Também se descobriu, nessa etapa, que leituras antigas se acumulavam na porta USB enquanto o script esperava a confirmação. O script passou a descartar esse acúmulo antes de cada medida e a avisar se chegarem mais de 50 leituras por segundo.</p>
+<h3 id="rodada-1-calibracao-leitura-crua">Rodada 1: calibração (leitura crua)<a class="headerlink" href="#rodada-1-calibracao-leitura-crua" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Real (mm)</th>
+<th style="text-align: right;">Média (mm)</th>
+<th style="text-align: right;">Desvio-padrão (mm)</th>
+<th style="text-align: right;">Mín.</th>
+<th style="text-align: right;">Máx.</th>
+<th style="text-align: right;">Diferença (mm)</th>
+<th style="text-align: right;">Válidas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">98,1</td>
+<td style="text-align: right;">1,3</td>
+<td style="text-align: right;">95</td>
+<td style="text-align: right;">101</td>
+<td style="text-align: right;">+68,1</td>
+<td style="text-align: right;">100%</td>
+</tr>
+<tr>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">122,1</td>
+<td style="text-align: right;">1,4</td>
+<td style="text-align: right;">117</td>
+<td style="text-align: right;">125</td>
+<td style="text-align: right;">+72,1</td>
+<td style="text-align: right;">100%</td>
+</tr>
+<tr>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">181,3</td>
+<td style="text-align: right;">1,2</td>
+<td style="text-align: right;">179</td>
+<td style="text-align: right;">184</td>
+<td style="text-align: right;">+81,3</td>
+<td style="text-align: right;">100%</td>
+</tr>
+<tr>
+<td style="text-align: right;">150</td>
+<td style="text-align: right;">233,3</td>
+<td style="text-align: right;">1,6</td>
+<td style="text-align: right;">230</td>
+<td style="text-align: right;">238</td>
+<td style="text-align: right;">+83,3</td>
+<td style="text-align: right;">100%</td>
+</tr>
+<tr>
+<td style="text-align: right;">200</td>
+<td style="text-align: right;">284,8</td>
+<td style="text-align: right;">2,4</td>
+<td style="text-align: right;">280</td>
+<td style="text-align: right;">291</td>
+<td style="text-align: right;">+84,8</td>
+<td style="text-align: right;">100%</td>
+</tr>
+<tr>
+<td style="text-align: right;">300</td>
+<td style="text-align: right;">369,7</td>
+<td style="text-align: right;">3,4</td>
+<td style="text-align: right;">361</td>
+<td style="text-align: right;">378</td>
+<td style="text-align: right;">+69,7</td>
+<td style="text-align: right;">100%</td>
+</tr>
+</tbody>
+</table>
+<p>Resposta do sensor: <strong>leitura = 1,012 · real + 74,9 mm</strong> (R² = 0,995). A inclinação perto de 1 mostra que o sensor é <strong>linear</strong>: o erro vem de um <strong>desvio somado</strong> à distância, e não de uma escala errada.</p>
+<p><img alt="Gráficos da rodada 1" src="../../../figs/vl53l0x-calibracao-rodada1.png" /></p>
+<p><strong>Figura 4.</strong> Rodada 1 (calibração): leitura × régua, erro por distância e dispersão das 100 leituras de cada ponto.</p>
+<h3 id="rodada-2-validacao-com-desconto-de-68-mm">Rodada 2: validação com desconto de 68 mm<a class="headerlink" href="#rodada-2-validacao-com-desconto-de-68-mm" title="Permanent link">&para;</a></h3>
+<p>A equipe escolheu inicialmente um desconto de <strong>68 mm</strong>, o mesmo usado no visualizador do repositório micromouse. A segunda rodada aplicou esse desconto a cada leitura.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Real (mm)</th>
+<th style="text-align: right;">Média crua (mm)</th>
+<th style="text-align: right;">Média corrigida (mm)</th>
+<th style="text-align: right;">Desvio-padrão (mm)</th>
+<th style="text-align: right;">Erro (mm)</th>
+<th style="text-align: right;">Tolerância</th>
+<th style="text-align: center;">Dentro?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">126,4</td>
+<td style="text-align: right;">58,4</td>
+<td style="text-align: right;">1,1</td>
+<td style="text-align: right;">+8,4</td>
+<td style="text-align: right;">±10</td>
+<td style="text-align: center;">sim</td>
+</tr>
+<tr>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">185,1</td>
+<td style="text-align: right;">117,1</td>
+<td style="text-align: right;">1,2</td>
+<td style="text-align: right;">+17,1</td>
+<td style="text-align: right;">±10</td>
+<td style="text-align: center;"><strong>não</strong></td>
+</tr>
+<tr>
+<td style="text-align: right;">150</td>
+<td style="text-align: right;">229,8</td>
+<td style="text-align: right;">161,8</td>
+<td style="text-align: right;">1,4</td>
+<td style="text-align: right;">+11,8</td>
+<td style="text-align: right;">±10</td>
+<td style="text-align: center;"><strong>não</strong></td>
+</tr>
+<tr>
+<td style="text-align: right;">200</td>
+<td style="text-align: right;">286,2</td>
+<td style="text-align: right;">218,2</td>
+<td style="text-align: right;">2,3</td>
+<td style="text-align: right;">+18,2</td>
+<td style="text-align: right;">±10</td>
+<td style="text-align: center;"><strong>não</strong></td>
+</tr>
+<tr>
+<td style="text-align: right;">300</td>
+<td style="text-align: right;">356,9</td>
+<td style="text-align: right;">288,9</td>
+<td style="text-align: right;">4,1</td>
+<td style="text-align: right;">−11,1</td>
+<td style="text-align: right;">±15</td>
+<td style="text-align: center;">sim</td>
+</tr>
+</tbody>
+</table>
+<p>Com 68 mm, <strong>3 das 5 distâncias ficaram fora da tolerância</strong>, todas com a leitura a mais: o desconto de 68 mm é pequeno para este módulo.</p>
+<p><img alt="Gráficos da rodada 2" src="../../../figs/vl53l0x-calibracao-rodada2-validacao68.png" /></p>
+<p><strong>Figura 5.</strong> Rodada 2 (validação com desconto de 68 mm).</p>
+<h3 id="verificacoes-das-causas-do-desvio">Verificações das causas do desvio<a class="headerlink" href="#verificacoes-das-causas-do-desvio" title="Permanent link">&para;</a></h3>
+<p>Um desvio de 70 a 86 mm é grande para o VL53L0X, então duas outras causas foram verificadas antes de atribuí-lo ao sensor:</p>
+<table>
+<thead>
+<tr>
+<th>Hipótese</th>
+<th>Verificação</th>
+<th>Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Zero da régua fora da face do sensor</td>
+<td>Conferência visual da posição (Figura 2)</td>
+<td>Descartada: o zero está na face do sensor</td>
+</tr>
+<tr>
+<td>Alvo preto (reflete pouco infravermelho)</td>
+<td>Folha branca presa na frente do alvo, a 10 e a 20 cm, com a opção <code>v</code></td>
+<td>Descartada: o desvio se repetiu. Verificação qualitativa, sem registro numérico</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Limite mínimo:</strong> a 3 cm, a leitura variou muito entre as tentativas (85 a 195 mm). Abaixo de <strong>~5 cm</strong> o sensor não mede de forma confiável, e o ponto de 3 cm ficou fora do ajuste da correção.</p>
+<h3 id="comparacao-das-correcoes">Comparação das correções<a class="headerlink" href="#comparacao-das-correcoes" title="Permanent link">&para;</a></h3>
+<p><img alt="Comparativo das rodadas e das correções" src="../../../figs/vl53l0x-calibracao-comparativo.png" /></p>
+<p><strong>Figura 6.</strong> A: leitura crua das duas rodadas contra a régua. B: erro que sobra depois de cada correção, na média das duas rodadas, com a faixa de tolerância.</p>
+<p>Erro que sobra em cada correção (rodada 1 / rodada 2 / média), em mm:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Real (mm)</th>
+<th>Desconto de 68 mm</th>
+<th>Desconto de 78 mm</th>
+<th>Reta: real = 1,039 · cru − 86,8</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">50</td>
+<td>+4,1 / +8,4 / +6,3</td>
+<td>−5,9 / −1,6 / −3,7</td>
+<td>−10,0 / −5,5 / −7,7</td>
+</tr>
+<tr>
+<td style="text-align: right;">100</td>
+<td>+13,3 / +17,1 / <strong>+15,2</strong></td>
+<td>+3,3 / +7,1 / +5,2</td>
+<td>+1,6 / +5,5 / +3,5</td>
+</tr>
+<tr>
+<td style="text-align: right;">150</td>
+<td>+15,3 / +11,8 / <strong>+13,5</strong></td>
+<td>+5,3 / +1,8 / +3,5</td>
+<td>+5,5 / +1,9 / +3,7</td>
+</tr>
+<tr>
+<td style="text-align: right;">200</td>
+<td>+16,8 / +18,2 / <strong>+17,5</strong></td>
+<td>+6,8 / +8,2 / +7,5</td>
+<td>+9,1 / +10,5 / +9,8</td>
+</tr>
+<tr>
+<td style="text-align: right;">300</td>
+<td>+1,7 / −11,1 / −4,7</td>
+<td>−8,3 / <strong>−21,1</strong> / −14,7</td>
+<td>−2,8 / −16,0 / −9,4</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Desconto de 78 mm:</strong> de 5 a 20 cm, todos os pontos das duas rodadas ficam dentro de ±10 mm (pior caso, +8,2 mm). A 30 cm, a rodada 2 sai da tolerância (−21,1 mm, para ±15 mm).</li>
+<li><strong>Reta:</strong> melhora o 30 cm (média de −9,4 mm), mas tem os piores casos em 5 cm (−10,0 mm) e 20 cm (+10,5 mm).</li>
+</ul>
+<p>As colunas de 78 mm e da reta foram <strong>calculadas sobre os mesmos dados</strong> das duas rodadas, e não numa rodada independente. Elas indicam a correção a validar, e não substituem a validação.</p>
+<h2 id="precisao-observada">Precisão observada<a class="headerlink" href="#precisao-observada" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Medida</th>
+<th>Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Repetibilidade (desvio-padrão com o alvo parado)</td>
+<td>1,1 a 4,1 mm de 5 a 30 cm, crescendo com a distância</td>
+</tr>
+<tr>
+<td>Leituras válidas</td>
+<td>100% em todas as distâncias das rodadas 1 e 2</td>
+</tr>
+<tr>
+<td>Linearidade</td>
+<td>Inclinação da reta leitura × régua de 1,01 (rodada 1) e 0,92 (rodada 2, puxada pelo ponto de 30 cm), com R² de 0,995 e 0,989</td>
+</tr>
+<tr>
+<td>Desvio do módulo (leitura − régua)</td>
+<td>+72 a +86 mm de 5 a 20 cm; +57 a +70 mm a 30 cm</td>
+</tr>
+<tr>
+<td>Faixa útil medida</td>
+<td>5 a 30 cm (abaixo de ~5 cm, sem medida confiável)</td>
+</tr>
+</tbody>
+</table>
+<p>O VL53L0X não traz o desvio de cada módulo corrigido de fábrica na biblioteca usada (<code>pololu/VL53L0X</code>). Segundo a fabricante (ST), a exatidão especificada depende da calibração do <em>offset</em> de cada módulo, o que confirma a necessidade da correção em software.</p>
+<h2 id="conclusao">Conclusão<a class="headerlink" href="#conclusao" title="Permanent link">&para;</a></h2>
+<ol>
+<li>O sensor está <strong>funcionando</strong>: responde, acompanha o alvo, é praticamente linear de 5 a 20 cm e muito repetível (desvio-padrão de 1 a 4 mm). A 30 cm, a leitura variou mais entre as rodadas (369,7 e 356,9 mm).</li>
+<li><strong>Sem correção, ele não atende</strong> ao critério: lê de 57 a 86 mm a mais.</li>
+<li>O desconto de <strong>68 mm</strong> (rodada 2) <strong>não atende</strong> de 10 a 20 cm.</li>
+<li>O desconto de <strong>78 mm</strong> é o candidato para <strong>5 a 20 cm</strong>, a faixa das paredes laterais e da parede da frente na célula seguinte. <strong>Falta a validação independente.</strong></li>
+<li>O desvio é <strong>do módulo</strong>: cada um dos três VL53L0X precisa ser calibrado separadamente. No firmware do robô, a calibração do boot (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/240">#240</a>) mede e desconta o desvio de cada sensor na largada; este teste dá a ordem de grandeza esperada para conferir esse valor.</li>
+</ol>
+<h2 id="pendencias">Pendências<a class="headerlink" href="#pendencias" title="Permanent link">&para;</a></h2>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Validação independente do desconto de 78 mm: 3 rodadas, de 5 a 30 cm (<code>python calibrar_tof.py --desconto 78</code>).</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Calibração dos outros dois VL53L0X (esquerda e direita), um de cada vez.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Teste dos 3 VL53L0X juntos no mesmo barramento, com o MPU6050: feito em 26/10/2026, ver <a href="../integracao-sensores-i2c/">Integração dos sensores I²C</a>. Falta repetir com os motores ligados.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Repetição na placa Rev 2.0, com o firmware do projeto e a calibração do boot (#240).</li>
+</ul>
+<h2 id="dados-e-reproducao">Dados e reprodução<a class="headerlink" href="#dados-e-reproducao" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Arquivo</th>
+<th>Conteúdo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../dados/vl53l0x/rodada1-calibracao-leituras.csv"><code>rodada1-calibracao-leituras.csv</code></a></td>
+<td>As 600 leituras da rodada 1 (crua)</td>
+</tr>
+<tr>
+<td><a href="../dados/vl53l0x/rodada1-calibracao-resumo.csv"><code>rodada1-calibracao-resumo.csv</code></a></td>
+<td>Resumo por distância da rodada 1</td>
+</tr>
+<tr>
+<td><a href="../dados/vl53l0x/rodada2-validacao68-leituras.csv"><code>rodada2-validacao68-leituras.csv</code></a></td>
+<td>As 500 leituras da rodada 2 (já com o desconto de 68 mm)</td>
+</tr>
+<tr>
+<td><a href="../dados/vl53l0x/rodada2-validacao68-resumo.csv"><code>rodada2-validacao68-resumo.csv</code></a></td>
+<td>Resumo por distância da rodada 2</td>
+</tr>
+<tr>
+<td><a href="../dados/vl53l0x/descartada-montagem-resumo.csv"><code>descartada-montagem-resumo.csv</code></a></td>
+<td>Resumo da tentativa descartada</td>
+</tr>
+<tr>
+<td><a href="../../../scripts/calibrar_tof.py"><code>calibrar_tof.py</code></a></td>
+<td>Script de coleta e análise</td>
+</tr>
+<tr>
+<td><a href="../../../scripts/grafico_comparativo_vl53l0x.py"><code>grafico_comparativo_vl53l0x.py</code></a></td>
+<td>Gera a Figura 6 a partir das duas rodadas</td>
+</tr>
+</tbody>
+</table>
+<p>Para repetir: grave o <code>src/main.cpp</code> do repositório micromouse, instale <code>pyserial</code> e <code>matplotlib</code> e rode <code>python calibrar_tof.py --desconto 0</code> (calibração) ou <code>python calibrar_tof.py --desconto 78</code> (validação). Cada rodada gera uma pasta com as leituras, o resumo, o relatório e o gráfico.</p>
+<h2 id="historico-de-versoes">Histórico de versões<a class="headerlink" href="#historico-de-versoes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Versão</th>
+<th>Data</th>
+<th>Descrição</th>
+<th>Autor</th>
+<th>Revisor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.0</td>
+<td>26/10/2026</td>
+<td>Calibração do VL53L0X da frente com régua: tentativa descartada, rodada de calibração, validação com 68 mm e comparação das correções</td>
+<td>Ana Carolina Fialho</td>
+<td>—</td>
+</tr>
+<tr>
+<td>1.1</td>
+<td>26/10/2026</td>
+<td>Pendência do teste com os 3 sensores juntos ligada ao registro de integração</td>
+<td>Ana Carolina Fialho</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Anterior: 7.3 Hardware">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                7.3 Hardware
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../integracao-sensores-i2c/" class="md-footer__link md-footer__link--next" aria-label="Próximo: 7.3.2 Integração dos sensores I²C">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                7.3.2 Integração dos sensores I²C
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "navigation.top", "navigation.footer", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.action.edit"], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+        <script src="../../../scripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
