@@ -106,7 +106,7 @@ O documento-base especifica dois micromotores DC com redução, conectados a J1 
 Os encoders fornecem realimentação do movimento das rodas/motores e estão previstos para integração ao projeto.
 
 - **Por que usar:** permitem ao microcontrolador acompanhar deslocamento e sentido de rotação por sinais de quadratura A/B.
-- **Conexões previstas:** encoder esquerdo nos `GPIO4` e `GPIO5`; encoder direito nos `GPIO6` e `GPIO7`, conforme as reservas do projeto conceitual de hardware.
+- **Conexões previstas:** encoder esquerdo nos `GPIO4` e `GPIO5`; encoder direito nos `GPIO6` e `GPIO7`, conforme as reservas do projeto conceitual de hardware (Rev 2.0). No protótipo em protoboard de 23/10/2026, que usa o I²C nos GPIO6/7, o encoder esquerdo foi ligado nos `GPIO3` e `GPIO4`, com o direito reservado nos `GPIO5` e `GPIO20` (ver [testes de hardware](../07-testes/hardware.md)).
 - **Função no sistema:** fornecer feedback para controle de velocidade, distância e movimento do robô.
 - **Validação:** verificar os níveis lógicos e a necessidade/valores dos _pull-ups_; os encoders ainda não estão instalados na Rev 2.0.
 

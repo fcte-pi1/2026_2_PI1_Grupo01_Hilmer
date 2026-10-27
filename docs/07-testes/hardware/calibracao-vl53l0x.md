@@ -153,7 +153,7 @@ O VL53L0X não traz o desvio de cada módulo corrigido de fábrica na biblioteca
 
 - [ ] Validação independente do desconto de 78 mm: 3 rodadas, de 5 a 30 cm (`python calibrar_tof.py --desconto 78`).
 - [ ] Calibração dos outros dois VL53L0X (esquerda e direita), um de cada vez.
-- [ ] Teste dos 3 VL53L0X juntos no mesmo barramento (`pio test -f test_distancia` do repositório micromouse) e com os motores ligados.
+- [x] Teste dos 3 VL53L0X juntos no mesmo barramento, com o MPU6050: feito em 26/10/2026, ver [Integração dos sensores I²C](integracao-sensores-i2c.md). Falta repetir com os motores ligados.
 - [ ] Repetição na placa Rev 2.0, com o firmware do projeto e a calibração do boot (#240).
 
 ## Dados e reprodução
@@ -175,3 +175,4 @@ Para repetir: grave o `src/main.cpp` do repositório micromouse, instale `pyseri
 | Versão | Data | Descrição | Autor | Revisor |
 |---|---|---|---|---|
 | 1.0 | 26/10/2026 | Calibração do VL53L0X da frente com régua: tentativa descartada, rodada de calibração, validação com 68 mm e comparação das correções | Ana Carolina Fialho | — |
+| 1.1 | 26/10/2026 | Pendência do teste com os 3 sensores juntos ligada ao registro de integração | Ana Carolina Fialho | — |
