@@ -1,0 +1,16 @@
+gpio,rotulo_na_placa,sinal,destino,direcao,strapping,gpio_no_esquematico_rev2.0,observacoes
+0,ADC1-0,ESQ_IN1,U6 DRV8833 IN1 (motor esquerdo),saida PWM,nao,10,
+1,ADC1-1,ESQ_IN2,U6 DRV8833 IN2 (motor esquerdo),saida PWM,nao,3,
+2,D0 / A0,(livre),-,-,sim,-,Nao usar como saida: precisa ficar em 1 no reset. Unico canal livre do ADC1 (candidato ao BAT_ADC)
+3,D1 / A1,ENC_ESQ_A,Encoder esquerdo canal A,entrada,nao,4,Encoder do N20 alimentado em 3V3
+4,D2 / A2,ENC_ESQ_B,Encoder esquerdo canal B,entrada,nao,5,
+5,D3 / A3,(reservado) ENC_DIR_A,Encoder direito canal A,entrada,nao,6,Encoder direito ainda nao ligado
+6,D4 / SDA,SDA,J3 J4 J5 J6 (3 VL53L0X e MPU6050),bidirecional,nao,9,I2C a 400 kHz
+7,D5 / SCL,SCL,J3 J4 J5 J6 (3 VL53L0X e MPU6050),saida,nao,8,
+8,D8 / SCK,XSHUT_DIR,J5 VL53L0X direito XSHUT,saida (solta com INPUT_PULLUP),sim,2,Pull-up do modulo mantem em 1 no reset; nao ligar nada que puxe para GND
+9,D9 / MISO,XSHUT_ESQ,J3 VL53L0X esquerdo XSHUT,saida (solta com INPUT_PULLUP),sim,0,Botao BOOT da Super Mini; nivel 0 no reset entra em modo de gravacao
+10,D10 / MOSI,DIR_IN1,U6 DRV8833 IN3 (motor direito),saida PWM,nao,20,
+18,(USB-C),USB_DM,USB nativa D-,bidirecional,nao,18,Log e gravacao (USB CDC)
+19,(USB-C),USB_DP,USB nativa D+,bidirecional,nao,19,Log e gravacao (USB CDC)
+20,D7 / RX,(reservado) ENC_DIR_B,Encoder direito canal B,entrada,nao,7,U0RXD; encoder direito ainda nao ligado
+21,D6 / TX,DIR_IN2,U6 DRV8833 IN4 (motor direito),saida PWM,nao,21,U0TXD: a ROM transmite e a linha fica em 1 durante o boot

@@ -119,6 +119,8 @@ nav:
       - 7.2 Energia: 07-testes/energia.md
       - 7.2.1 Ensaio de Bancada de Baterias: 07-testes/energia/teste-componentes/bateria/teste-bancada-bateria.md
       - 7.3 Hardware: 07-testes/hardware.md
+      - 7.3.1 Calibração do VL53L0X: 07-testes/hardware/calibracao-vl53l0x.md
+      - 7.3.2 Integração dos sensores I²C: 07-testes/hardware/integracao-sensores-i2c.md
       - 7.4 Software: 07-testes/software.md
       - 7.4.1 Registro de execução por sprint: 07-testes/software-registro.md
       - 7.5 Integração: 07-testes/integracao.md

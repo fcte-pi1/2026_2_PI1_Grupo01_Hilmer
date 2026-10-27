@@ -1,0 +1,28 @@
+referencia,quantidade,componente,valor_ou_modelo,alimentacao,interface,datasheet,observacoes
+BT1,1,Bateria LiPo 2S,7.4 V nominal / 8.4 V maximo,-,-,-,Capacidade e BMS a confirmar (protecao_entrada.kicad_sch cita 650 mAh 75C)
+F1,1,Fusivel PPTC,Bourns MF-R185 (Ihold 1.85 A / Itrip 3.7 A),VBAT,-,../datasheets/mf-r_series_bourns.pdf,
+SW1,1,Chave geral,SPST (KCD1),VBAT,-,-,Corrente nominal a confirmar
+Q1,1,P-MOSFET de protecao contra inversao,AO3407A,VBAT,-,../datasheets/ao3407a_datasheet_aos.pdf,Somente em protecao_entrada.kicad_sch; ainda nao esta na folha principal
+D_Z1,1,Zener de protecao do gate,BZT52C12,VBAT,-,../datasheets/bzt52c_series_diodes.pdf,Somente em protecao_entrada.kicad_sch
+R_G1,1,Resistor de gate,100 kOhm,VBAT,-,-,Somente em protecao_entrada.kicad_sch
+U2,1,Conversor buck,MP1584EN ajustado para 5.0 V,VBAT,-,-,Alimenta o pino 5V da Super Mini
+U4,1,Conversor buck,MP1584EN ajustado para 6.0 V,VBAT,-,-,Alimenta VM do DRV8833
+U5,1,Conversor buck,MP1584EN ajustado para 3.3 V,VBAT,-,-,Alimenta J3 a J6
+U3,1,Placa de controle,ESP32-C3 Super Mini,5V (U2),USB nativa GPIO18/19,../datasheets/esp32-c3_datasheet_en.pdf,Simbolo do KiCad e o ESP32-C3-DevKitM-1; conferir pinout fisico
+J3,1,Sensor ToF esquerdo,Modulo VL53L0X,3.3 V (U5),I2C 0x31 apos boot; XSHUT GPIO9,../datasheets/vl53l0x_datasheet_st.pdf,Sem footprint definido
+J4,1,Sensor ToF frontal,Modulo VL53L0X,3.3 V (U5),I2C 0x30 apos boot; XSHUT nao ligado,../datasheets/vl53l0x_datasheet_st.pdf,Sem footprint definido; apos reset sem cortar energia continua em 0x30
+J5,1,Sensor ToF direito,Modulo VL53L0X,3.3 V (U5),I2C 0x29 (fabrica); XSHUT GPIO8,../datasheets/vl53l0x_datasheet_st.pdf,Sem footprint definido; GPIO8 e strapping
+J6,1,IMU,Modulo MPU6050 (AD0 em GND),3.3 V (U5),I2C 0x68 (SDA GPIO6 / SCL GPIO7),../datasheets/mpu-6000-6050_product-specification.pdf,
+U6,1,Driver de motores,Modulo DRV8833,6 V (U4),IN1/IN2 GPIO0/1; IN3/IN4 GPIO10/21,../datasheets/drv8833_datasheet_ti.pdf,nSLEEP (EEP) com pull-up R4 para 6 V: driver sempre habilitado
+J1,1,Motor esquerdo,GA12-N20-S0310D-E 6 V (sugerido),6 V via DRV8833 OUT1/OUT2,-,-,Corrente em vazio de 22 mA a 6 V (teste 3.3 de 22/10); reducao e corrente de travamento a confirmar; encoder ligado em GPIO3 (A) / GPIO4 (B) com VCC 3V3
+J2,1,Motor direito,GA12-N20-S0310D-E 6 V (sugerido),6 V via DRV8833 OUT3/OUT4,-,-,Corrente em vazio de 22 mA a 6 V (teste 3.3 de 22/10); reducao e corrente de travamento a confirmar; encoder ainda nao ligado (reservado GPIO5 / GPIO20)
+R1,1,Divisor da bateria (alto),100 kOhm,VBAT,-,-,
+R2,1,Divisor da bateria (baixo),33 kOhm,-,BAT_ADC_TEST,-,Relatorio PDF diz 39 kOhm; o esquematico Rev 2.0 vale. GPIO2 (ADC1_CH2) e o unico canal livre do ADC1
+R4,1,Pull-up do nSLEEP do DRV8833,47 kOhm,6 V,-,-,
+C2,1,Capacitor de saida do buck 5 V,100 uF,5 V,-,-,
+C3,1,Capacitor do buck 6 V,10 uF,6 V,-,-,
+C4,1,Capacitor de saida do buck 6 V,100 uF,6 V,-,-,
+C5,1,Filtro do divisor da bateria,100 nF,-,BAT_ADC_TEST,-,
+C6,1,Capacitor do buck 5 V,10 uF,5 V,-,-,
+C7,1,Capacitor de saida do buck 3.3 V,100 nF,3.3 V,-,-,Valor a confirmar: C2 e C4 (saidas 5 V e 6 V) sao 100 uF
+C8,1,Capacitor do buck 3.3 V,10 uF,3.3 V,-,-,
