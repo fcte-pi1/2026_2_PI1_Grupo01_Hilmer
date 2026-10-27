@@ -26,14 +26,80 @@
 
 | **ID** | **Descrição** | **Data de Início** | **Data de Conclusão** | **Responsável** | **Resultados Esperados** | **Resultados Obtidos** | **Aprovação Interna (S/N)** | **Aprovação do Orientador (S/N)** | **Observações** |
 |:------:|---------------|--------------------|-----------------------|-----------------|--------------------------|------------------------|:---------------------------:|:--------------------------------:|-----------------|
-| 3.1 | Alimentação e Linhas de Tensão | | | | 3,3 V e VBAT estáveis | | | | Verificado em bancada |
-| 3.2 | Comunicação LiDAR (UART) | | | | Recepção dos pacotes LD06 | | | | |
-| 3.3 | Acionamento dos Motores (DRV8833) | | | | Resposta PWM nos canais A e B | | | | |
-| 3.4 | IMU (I2C) | | | | Dados de aceleração e giro | | | | |
+| 3.1 | Alimentação e Linhas de Tensão | 21/10/2026 | 21/10/2026 | Equipe de Energia | 3,3 V e VBAT estáveis | Resultado esperado atingido: estabilidade de 3,3 V e de VBAT confirmada. Bateria LiPo 2S inspecionada, balanceada e carregada a 8,40 V, conforme teste 2.3 de Energia | S | S | Estabilidade das linhas confirmada pela equipe executora. Referência ao [teste 2.3 de inspeção e carga da bateria em Energia](energia.md). |
+| 3.2 | Sensores de Distância ToF VL53L0X (I2C) | | | | Reconhecimento dos três sensores no barramento I2C, com endereços distintos, e leitura de distância frontal, esquerda e direita | | | | Sensores J3, J4 e J5, alimentados em 3,3 V. |
+| 3.3 | Acionamento dos Motores (DRV8833) | 22/10/2026 | 22/10/2026 | Aline / Equipe | Resposta PWM nos canais A e B | Alimentação direta dos motores a 6 V realizada, com corrente registrada de 22 mA; integração do acionamento em protoboard com driver alimentado a 5 V não funcionou | | | Resposta PWM não comprovada. Ver procedimento 3.3. |
+| 3.4 | IMU MPU6050 (I2C) | 26/10/2026 | 26/10/2026 | Giovana, Carol e Bruno | Reconhecimento da IMU no barramento I2C e leitura de dados de aceleração e giro | Resposta funcional observada: a orientação do modelo na tela acompanha as inclinações e rotações manuais da montagem | | | Sensor J6, alimentado em 3,3 V conforme o projeto. Ver procedimento 3.4. |
 | 3.5 | **Encoders de Quadratura (18 cm)** | 16/10/2026 | 17/10/2026 | Cláudio / Equipe | Leitura x4 por interrupção; erro $\le \pm 3\%$ em 180 mm | Roteiro e script serial automatizados; aguardando bancada final | S | | Issue #186, HU-05 |
 | 3.6 | [Protótipo em protoboard: 3 VL53L0X e MPU6050 no mesmo I²C](#registro-de-26102026-prototipo-em-protoboard-e-situacao-dos-testes) | 23/10/2026 | 23/10/2026 | Bruno Duarte | Os 4 dispositivos lidos ao mesmo tempo pelo ESP32-C3 | Sucesso parcial; dados congelam após "Zerar orientação" (detalhes na seção do registro) | S | | Motores desconectados; alimentação pela USB |
 | 3.7 | [Sensor de distância VL53L0X: calibração com régua](hardware/calibracao-vl53l0x.md) | 26/10/2026 | 26/10/2026 | Ana Carolina Fialho | Erro de até ±10 mm ou ±5% de 5 a 30 cm, com 95% ou mais de leituras válidas | Estável (desvio-padrão de 1 a 4 mm) e linear; lê de 57 a 86 mm a mais. Desconto de 68 mm reprovado de 10 a 20 cm; 78 mm atende de 5 a 20 cm nos dados medidos | N | | Validação independente do desconto de 78 mm e calibração dos outros 2 sensores pendentes. #175 |
 | 3.8 | | | | | | | | | |
+
+---
+
+## Procedimento de Teste 3.3: Motores e Circuito de Acionamento
+
+**Data dos testes:** 22/10/2026.
+
+### 1. Objetivo
+Verificar a alimentação básica dos motores DC e testar a integração do circuito de acionamento montado conforme o esquemático do projeto.
+
+### 2. Instrumentação
+
+* **Fonte de bancada:** alimentação dos motores em 6 V, com indicação de tensão e corrente no visor.
+* **Motores DC com redução:** componentes submetidos ao teste de alimentação direta e ao teste de integração.
+* **Driver de motores:** alimentado em 5 V no teste de integração.
+* **Protoboard e fios de conexão:** montagem do circuito de acionamento conforme o esquemático do projeto.
+
+### 3. Montagem e Procedimento Realizado
+1. Conectar os motores diretamente a uma fonte de bancada ajustada para **6 V**.
+2. Aplicar a alimentação aos terminais dos motores e observar as indicações de tensão e corrente da fonte.
+3. Montar o circuito de acionamento em protoboard conforme o esquemático.
+4. Alimentar o driver com **5 V** e realizar o teste de integração para acionamento dos motores.
+
+### 4. Resultados Obtidos
+
+| Ensaio | Condição | Resultado |
+|--------|----------|-----------|
+| Alimentação direta dos motores | Fonte ajustada para 6 V | Aplicação de alimentação e consumo elétrico registrados. A rotação e o desempenho sob carga não foram quantificados. |
+| Corrente dos motores | Leitura no visor da fonte com alimentação de 6 V | Corrente registrada de 22 mA (0,022 A). |
+| Integração do circuito de acionamento | Montagem em protoboard conforme o esquemático, com driver alimentado a 5 V | A integração não funcionou. A causa da falha não foi identificada. |
+
+### 5. Avaliação
+O ensaio com alimentação direta a 6 V documenta uma verificação elétrica preliminar dos motores. O teste de integração apresentou resultado insatisfatório e não comprovou a resposta PWM nos canais A e B exigida no item 3.3. A falha de integração, isoladamente, não identifica qual componente ou ligação causou o problema.
+
+---
+
+## Procedimento de Teste 3.4: IMU MPU6050
+
+**Data dos testes:** 26/10/2026.
+
+### 1. Objetivo
+Verificar a resposta funcional da IMU MPU6050 às inclinações e rotações da montagem, acompanhando a atualização da orientação exibida no computador.
+
+### 2. Instrumentação
+
+* **IMU MPU6050:** sensor de aceleração e giro previsto no projeto, com comunicação I2C e alimentação de 3,3 V.
+* **Placa de controle, protoboard e fios de conexão:** montagem utilizada para aquisição dos dados do sensor.
+* **Notebook com interface de visualização:** exibição de um modelo tridimensional, indicadores numéricos e gráficos durante o ensaio.
+
+### 3. Montagem e Procedimento Realizado
+1. Com a montagem conectada ao notebook e a interface de visualização em execução, observar a orientação inicial do modelo na tela.
+2. Segurar a protoboard e realizar inclinações e rotações manuais em diferentes direções.
+3. Acompanhar a mudança de orientação do modelo durante os movimentos e nas posições intermediárias.
+4. Repetir a movimentação para observar a continuidade da resposta exibida.
+
+### 4. Resultados Obtidos
+
+| Ensaio | Condição | Resultado |
+|--------|----------|-----------|
+| Resposta às inclinações | Inclinação manual da montagem em diferentes direções | O modelo na tela muda de inclinação durante a movimentação da protoboard. |
+| Resposta às rotações | Rotação manual da montagem | A orientação do modelo é atualizada durante os giros, demonstrando resposta funcional ao movimento. |
+| Visualização dos dados | Interface em execução no notebook | Modelo tridimensional, indicadores numéricos e gráficos visíveis durante o ensaio. Os valores não foram transcritos por falta de legibilidade suficiente. |
+
+### 5. Avaliação
+
+Não foram quantificados erro angular, deriva, taxa de amostragem ou latência. A calibração e a precisão das leituras permanecem sem validação quantitativa neste registro.
 
 ---
 
