@@ -2472,6 +2472,8 @@
       
         
       
+        
+      
     
     
     
@@ -2648,6 +2650,34 @@
     
   
     7.4 Software
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-testes/software-registro/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.4.1 Registro de execução por sprint
   
 
     
@@ -4147,7 +4177,7 @@
 </tbody>
 </table>
 <p>Enquanto os encoders não eram integrados à Rev 2.0, o plano previa estimar o deslocamento pelo comando dos motores, corrigido pelos sensores de distância (modo sem encoder, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380">#380</a>). Com os encoders disponíveis, esse modo passa a ser o plano B.</p>
-<p><strong>O LiDAR não é mais usado.</strong> O código dele (<code>lib/lidar</code>, decodificador LD06 e <code>FonteBytesSerial</code>) ainda está na <code>main</code> e deve sair num PR de código. Os registros de teste anteriores a 21/10 em <a href="../../07-testes/software/">Testes de software</a> foram feitos com o LiDAR simulado e continuam como histórico.</p>
+<p><strong>O LiDAR não é mais usado.</strong> O código dele (<code>lib/lidar</code>, decodificador LD06 e <code>FonteBytesSerial</code>) ainda está na <code>main</code> e deve sair num PR de código. Os registros de teste anteriores a 21/10 em <a href="../../07-testes/software-registro/">Testes de software</a> foram feitos com o LiDAR simulado e continuam como histórico.</p>
 <h2 id="dois-ambientes-placa-e-computador">Dois ambientes: placa e computador<a class="headerlink" href="#dois-ambientes-placa-e-computador" title="Permanent link">&para;</a></h2>
 <p>O <code>platformio.ini</code> define dois ambientes de compilação para o mesmo código:</p>
 <pre class="mermaid"><code>flowchart TB
@@ -6002,7 +6032,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <li><strong>Fail-safe dos sensores de distância:</strong> sem leitura válida, o robô segue reto na potência mínima e sem correção; depois de 500 ms sem leitura, freia.</li>
 <li><strong>Motores:</strong> potência de −1000 a 1000 por roda, positiva para a frente (a mesma convenção do <code>IEncoder</code>). O <code>MotoresDrv8833</code> usa PWM de 20 kHz e 10 bits, no modo <em>fast decay</em> do DRV8833, e freia ligando IN1 e IN2. O motor direito é invertido no <code>main.cpp</code>, pela montagem espelhada.</li>
 </ul>
-<p>Os ganhos, as potências e as distâncias de desaceleração estão em <code>ConfiguracaoControle.h</code> e são <strong>provisórios</strong>: foram ajustados numa simulação do corredor (<a href="../../07-testes/software/">Testes de Software</a>) e precisam ser confirmados na bancada.</p>
+<p>Os ganhos, as potências e as distâncias de desaceleração estão em <code>ConfiguracaoControle.h</code> e são <strong>provisórios</strong>: foram ajustados numa simulação do corredor (<a href="../../07-testes/software-registro/">Testes de Software</a>) e precisam ser confirmados na bancada.</p>
 <h3 id="interface-da-classe_8">Interface da Classe<a class="headerlink" href="#interface-da-classe_8" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong><code>ControleMovimento::atualizar(ISensorDistancia&amp;, IMotores&amp;, dtMs)</code>:</strong> lê os sensores de distância, calcula e aplica nos motores; chame uma vez por leitura nova (cerca de 100 ms). Devolve o <code>EstadoMovimento</code>: <code>Cruzeiro</code>, <code>Desacelerando</code>, <code>ParadoNaParede</code>, <code>SemLeitura</code> ou <code>ParadoSemLeitura</code>.</li>
@@ -8479,9 +8509,9 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native<span class="w"> </span>-f<span class="w"> </span>test_nucleo<span class="w">   </span><span class="c1"># só um módulo</span>
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>pio<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>esp32c3<span class="w">                  </span><span class="c1"># compila para a placa</span>
 </code></pre></div>
-<p>Resultado do projeto base, executado em 04/10/2026: <strong>10 de 10 testes aprovados</strong> e build para o ESP32-C3 concluído com 4,2% de RAM e 18,9% de Flash. O registro completo da execução (ambiente, saídas e pendências) está em <a href="../../07-testes/software/#registro-de-execucao-dos-testes">Testes de Software</a>.</p>
+<p>Resultado do projeto base, executado em 04/10/2026: <strong>10 de 10 testes aprovados</strong> e build para o ESP32-C3 concluído com 4,2% de RAM e 18,9% de Flash. O registro completo da execução (ambiente, saídas e pendências) está em <a href="../../07-testes/software-registro/#registro-de-execucao-dos-testes">Testes de Software</a>.</p>
 <h3 id="como-ler-uma-falha">Como ler uma falha<a class="headerlink" href="#como-ler-uma-falha" title="Permanent link">&para;</a></h3>
-<p>Exemplo real, com um valor esperado alterado de propósito (registrado em <a href="../../07-testes/software/#verificacao-de-deteccao-de-falhas-teste-negativo">Testes de Software</a>):</p>
+<p>Exemplo real, com um valor esperado alterado de propósito (registrado em <a href="../../07-testes/software-registro/#verificacao-de-deteccao-de-falhas-teste-negativo">Testes de Software</a>):</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>test/test_nucleo/test_direcao.cpp:21: test_girar_direita_percorre_as_quatro_direcoes: Expected 2 Was 1  [FAILED]
 </code></pre></div>
 <table>
@@ -8670,7 +8700,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <li><strong>Boot do sistema</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/50">#50</a>): o autoteste do I²C, a trava dos motores e o relatório estão prontos e testados no computador com dispositivos simulados. Falta a bancada: medir o tempo desde o ligar (o <code>boot_ms</code> não conta a ROM nem o bootloader), conferir o <code>WHO_AM_I</code> do módulo montado e confirmar com a eletrônica que o pino AD0 do MPU6050 está em nível baixo (0x68).</li>
 <li><strong>Calibração dos sensores e do giroscópio</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/240">#240</a>): a rotina de autocalibração dos 3 VL53L0X e do MPU6050 (eixo Z), a verificação de repouso (rejeição de movimento), a medição do tempo decorrido dentro de 1 s (RNF-08) e todos os testes com simulação foram concluídos. Falta a validação na bancada com o robô físico parado na célula de largada (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/175">#175</a>).</li>
 <li><strong>Falha do I²C durante a corrida</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/241">#241</a>): a detecção nos 4 dispositivos, as tentativas, o reinício do ToF pelo XSHUT e da IMU, a trava dos motores, a pausa do ciclo de navegação e o estado no log e na telemetria estão prontos e testados no computador com falhas simuladas, inclusive numa corrida inteira. Falta a bancada (veja <a href="#falha-do-i2c-durante-a-corrida-supervisori2c">as pendências</a>).</li>
-<li><strong>Execução dos movimentos</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/184">#184</a>): os comandos "avançar uma célula", "girar 90°" e "girar 180°", o ciclo percepção → mapa → decisão → atuação e o gatilho da largada estão prontos, testados no computador (incluindo corridas completas no robô simulado) e ligados no <code>main.cpp</code>. Falta a bancada: medir o erro de deslocamento com as etapas 7 e 8 de <code>scripts/bancada_deslocamento.py</code> e registrar em <a href="../../07-testes/software/">Testes de Software</a>. A folga de 5,9 mm do giro no lugar (<a href="#folga-do-giro-no-lugar">Folga do giro no lugar</a>) precisa da mecânica e da sintonia da centralização.</li>
+<li><strong>Execução dos movimentos</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/184">#184</a>): os comandos "avançar uma célula", "girar 90°" e "girar 180°", o ciclo percepção → mapa → decisão → atuação e o gatilho da largada estão prontos, testados no computador (incluindo corridas completas no robô simulado) e ligados no <code>main.cpp</code>. Falta a bancada: medir o erro de deslocamento com as etapas 7 e 8 de <code>scripts/bancada_deslocamento.py</code> e registrar em <a href="../../07-testes/software-registro/">Testes de Software</a>. A folga de 5,9 mm do giro no lugar (<a href="#folga-do-giro-no-lugar">Folga do giro no lugar</a>) precisa da mecânica e da sintonia da centralização.</li>
 <li><strong>Correção pelas paredes</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/188">#188</a>): a posição lateral pelas paredes, a correção ao longo do avanço com encoder, o realinhamento antes dos giros e o rumo pelo corredor estão prontos, testados no computador e ligados no <code>main.cpp</code>. Na simulação, as corridas com contato caíram de 84–92 para 2 em 189. Falta a bancada: rodar as etapas 9 e 10 de <code>scripts/bancada_deslocamento.py</code> e ajustar <code>ConfiguracaoLocalizacao.h</code> com a geometria real dos ToF e do chassi, o ruído do VL53L0X e a deriva real do giroscópio.</li>
 <li><strong>Colisão e recuperação</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/192">#192</a>): a detecção pelo acelerômetro e pelo ToF frontal, o recuo até o centro, a retomada sem perder o mapa nem a posição e o evento na telemetria serial estão prontos, testados no computador (inclusive em corridas inteiras com batidas) e ligados no <code>main.cpp</code>. Faltam a bancada (limiar do impacto e faixa do acelerômetro), o evento no envio ao Supabase e a detecção por encoder.</li>
 </ul>
