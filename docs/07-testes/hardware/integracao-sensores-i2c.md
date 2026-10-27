@@ -115,11 +115,11 @@ As distâncias reais do anteparo não foram medidas com régua, então esta tabe
 
 <video controls preload="metadata" width="100%" src="../../../videos/integracao-i2c-tela.mp4"></video>
 
-**Vídeo 1.** Gravação da tela do visualizador durante o ensaio (22,6 s).
+**Vídeo 1.** Gravação da tela do visualizador durante o ensaio (22,6 s). Arquivo: [`docs/videos/integracao-i2c-tela.mp4`](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/docs/videos/integracao-i2c-tela.mp4).
 
 <video controls preload="metadata" width="360" src="../../../videos/integracao-i2c-bancada.mp4"></video>
 
-**Vídeo 2.** Mesmo ensaio, filmado com o celular: a protoboard sendo girada e o painel respondendo (22,6 s).
+**Vídeo 2.** Mesmo ensaio, filmado com o celular: a protoboard sendo girada e o painel respondendo (22,6 s). Arquivo: [`docs/videos/integracao-i2c-bancada.mp4`](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/docs/videos/integracao-i2c-bancada.mp4).
 
 ![Painel do visualizador aos 10 s: orientação, distâncias e acelerômetro](../../figs/integracao-i2c-painel-t10s.jpg)
 
