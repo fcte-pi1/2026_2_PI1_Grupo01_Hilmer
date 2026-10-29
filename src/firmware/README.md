@@ -8,7 +8,7 @@ A documentação detalhada do código (camadas, tipos, pinagem, interface do LiD
 
 ```
 src/firmware/
-├── platformio.ini     # ambientes esp32c3 (placa), native (testes no computador), native_cobertura (testes com cobertura, usado no CI), bancada_tof e bancada_deslocamento (firmwares de bancada)
+├── platformio.ini     # ambientes esp32c3 (placa), native (testes no computador), native_cobertura (testes com cobertura, usado no CI), bancada_geral, bancada_tof e bancada_deslocamento (firmwares de bancada)
 ├── src/main.cpp       # ponto de entrada: cria as tarefas FreeRTOS (navegação e telemetria)
 ├── src/bancada/       # programas de bancada, fora do firmware do robô
 ├── lib/               # uma biblioteca por camada
@@ -483,6 +483,56 @@ Os parâmetros estão em `lib/tof/src/ConfiguracaoTof.h` e são **provisórios**
 
 No computador, o `TofSimulado` (`lib/simulacao`) faz o papel do driver: gera a amostra bruta de cada sensor no `LabirintoSimulado` (distância da face, 30 mm mais perto que o centro, e 8190 mm sem alvo além de 1200 mm) e a passa pelo `CombinadorTof`. `forcarAmostra(lado, mm)` troca a próxima amostra de um lado (por exemplo, sensor encostado) e `simularFalha(lado, true)` faz um sensor parar de responder. O `test_integracao_tof` explora os labirintos 4×4, 8×4 e 12×4 por essa cadeia, mais um 12×4 com corredores longos que só se fecha com o "sem alvo" tratado como livre, e confere que o mapa final é igual ao labirinto.
 
+### Bancada geral: menu de sensores e motores
+
+Para conferir o robô montado (sensores, motores e encoders) sem escrever código, grave o firmware de bancada geral e use o menu pelo monitor serial. Ele usa os mesmos drivers do robô (`TofVl53l0x`, `ImuMpu6050` e `MotoresDrv8833`) e a pinagem do `Pinos.h`.
+
+```bash
+pio run -e bancada_geral -t upload && pio device monitor -e bancada_geral
+```
+
+**Guia completo, para Windows, macOS e Linux, com instalação, solução de problemas e exemplos de diagnóstico:** [Guia da bancada geral](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/docs/07-testes/guia-bancada-geral.md). Digite só a tecla do menu, sem Enter. O menu aparece sozinho quando o monitor abre, e Enter mostra o menu de novo (para sair do monitor, `Ctrl+C`).
+
+| Tecla | O que faz |
+|:-:|---|
+| `t` | **Autoteste**: confere o I²C, os 3 ToF, o MPU6050 e os encoders parados e mostra `[OK]` ou `[FALHA]` com a dica de cada item. Não aciona motor |
+| `1` | Varredura I²C: lista quem responde e compara com o esperado (`0x30`, `0x31`, `0x32` e `0x68`) |
+| `2` | Reinicia os 3 ToF e o MPU6050 e diz qual não respondeu |
+| `3` / `4` | ToF: uma leitura / leitura contínua dos 3 sensores, em mm ou com o estado (fora de alcance, falha) |
+| `5` / `6` | MPU6050: uma leitura / leitura contínua do giro Z e da aceleração X e Y |
+| `7` | Abre o menu de motores |
+| `8` | Mostra a pinagem em uso |
+| `9` / `0` | Encoders: contagem contínua dos dois (gire a roda à mão) / zera a contagem |
+| `r` | Reinicia a placa por software (não precisa do botão RESET) |
+
+No menu de motores, as teclas `1` a `8` acionam o motor esquerdo, o direito, os dois e os giros no lugar, para a frente e para trás; `c` abre o modo contínuo (até 60 s): o motor fica ligado e a tela mostra os pulsos e a velocidade ao vivo, e dá para trocar o motor (`e`, `d`, `b`), o sentido (`r`) e a potência (`+`, `-`) sem parar; qualquer outra tecla freia, e fechar o monitor também; `9` e `a` fazem uma rampa no motor esquerdo ou no direito (sobe a potência de 100 a 1000 em degraus de 0,3 s e diz em qual a roda começou a girar, pelo encoder); `+` e `-` mudam a potência (100 a 1000, começa em 300) e `0` volta. Cada teste dura no máximo 2 s (a rampa, até 6 s) e qualquer tecla freia os motores. Com VM de 5 V, a potência 300 equivale a um duty de só 21% (cerca de 1 V no motor), que costuma ficar abaixo da zona morta do N20: se a roda não gira, suba a potência ou use a rampa. Ao fim de cada teste, o programa mostra os pulsos de cada encoder e compara o sinal com o do comando: sem pulsos, sinal coerente ou **sinal oposto** (nesse caso, se a roda andou ao contrário o motor está invertido; se andou para o lado certo, o encoder está com A e B trocados). Os motores ficam freados no boot e fora desse menu.
+
+> **Segurança:** faça o primeiro teste de motor com as rodas fora do chão. A potência 1000 já fica limitada pelo driver ao duty de `LIMITE_DUTY_MOTORES_MILESIMOS` (`ConfiguracaoMotores.h`).
+
+Os encoders usam a mesma inversão do `main.cpp` (esquerdo normal, direito invertido) e entradas com pull-up: o sinal dos canais A e B não pode passar de 3,3 V. Esse programa só compila e roda na placa, então não tem teste automatizado. O CI não o compila hoje; para conferir, rode `pio run -e bancada_geral`.
+
+#### Como acrescentar um componente ao menu
+
+A bancada é uma ferramenta de equipe: ao mudar um driver, um pino ou a arquitetura de um componente, atualize também o menu, para ele continuar testando o que o robô usa.
+
+1. **Reuse o driver do robô** (`lib/drivers_esp32`) e os pinos do `Pinos.h`. A bancada não define pinos próprios: assim, uma mudança de pino aparece nela automaticamente.
+2. **Crie o objeto no topo** de `src/bancada/bancada_geral.cpp`, como os de `imu`, `tof` e `encoderEsq`, e inicie-o no `setup()`.
+3. **Escreva uma função por teste**, no `namespace` anônimo, que imprima o resultado em uma ou poucas linhas, sem acentos (a USB CDC e alguns terminais do Windows quebram caracteres acentuados).
+4. **Ligue uma tecla** em `executarPrincipal()` (ou em `executarMotores()`, se for atuador) e descreva-a em `imprimirMenuPrincipal()`. Funções que ficam em laço devem terminar com `teclaPressionada()`.
+5. **Se o componente se move ou esquenta**, limite a duração (como `DURACAO_TESTE_MOTOR_MS`), freie no fim e deixe qualquer tecla interromper.
+6. **Se for um sensor**, inclua um item em `autoteste()` com `registrar(...)`, informando a dica de diagnóstico para o caso de falha.
+7. Rode `pio run -e bancada_geral` (sem warnings), teste na placa, descreva a tecla na tabela acima e no guia da bancada.
+
+Exemplo: ler um botão de largada em um pino novo `BOTAO_LARGADA` (declarado no `Pinos.h`):
+
+```cpp
+void lerBotao() {
+  Serial.printf("Botao de largada: %s\n", digitalRead(pinos::BOTAO_LARGADA) == LOW ? "pressionado" : "solto");
+}
+// em executarPrincipal(): case 'b': lerBotao(); break;
+// em imprimirMenuPrincipal(): Serial.println(" b  botao de largada");
+```
+
 ### Bancada dos VL53L0X
 
 Para conferir o driver no hardware montado, junto com a eletrônica, use o menu de bancada (precisa de `pip install pyserial`):
@@ -706,6 +756,7 @@ Execute os comandos dentro de `src/firmware`:
 |---|---|
 | Compilar para o ESP32-C3 | `pio run -e esp32c3` |
 | Gravar na placa | `pio run -e esp32c3 -t upload` |
+| Gravar a bancada geral (menu de sensores e motores) | `pio run -e bancada_geral -t upload && pio device monitor -e bancada_geral` |
 | Gravar o firmware de bancada dos VL53L0X | `pio run -e bancada_tof -t upload` (ou pelo `scripts/bancada_tof.py`) |
 | Gravar o firmware de bancada do deslocamento | `pio run -e bancada_deslocamento -t upload` (ou pelo `scripts/bancada_deslocamento.py`) |
 | Abrir o monitor serial | `pio device monitor` (`B` repete o relatório do boot; `Z` zera os encoders) |
