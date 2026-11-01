@@ -503,13 +503,46 @@ pio run -e bancada_geral -t upload && pio device monitor -e bancada_geral
 | `7` | Abre o menu de motores |
 | `8` | Mostra a pinagem em uso |
 | `9` / `0` | Encoders: contagem contínua dos dois (gire a roda à mão) / zera a contagem |
+| `i` | **Teste integrado**: liga os dois motores por 5 s e lê ToF, MPU6050 e encoders ao mesmo tempo. Mostra se os dois giram juntos, se o PWM derruba algum sensor e, no DevKit, quanto a bateria cai |
 | `r` | Reinicia a placa por software (não precisa do botão RESET) |
 
-No menu de motores, as teclas `1` a `8` acionam o motor esquerdo, o direito, os dois e os giros no lugar, para a frente e para trás; `c` abre o modo contínuo (até 60 s): o motor fica ligado e a tela mostra os pulsos e a velocidade ao vivo, e dá para trocar o motor (`e`, `d`, `b`), o sentido (`r`) e a potência (`+`, `-`) sem parar; qualquer outra tecla freia, e fechar o monitor também; `9` e `a` fazem uma rampa no motor esquerdo ou no direito (sobe a potência de 100 a 1000 em degraus de 0,3 s e diz em qual a roda começou a girar, pelo encoder); `+` e `-` mudam a potência (100 a 1000, começa em 300) e `0` volta. Cada teste dura no máximo 2 s (a rampa, até 6 s) e qualquer tecla freia os motores. Com VM de 5 V, a potência 300 equivale a um duty de só 21% (cerca de 1 V no motor), que costuma ficar abaixo da zona morta do N20: se a roda não gira, suba a potência ou use a rampa. Ao fim de cada teste, o programa mostra os pulsos de cada encoder e compara o sinal com o do comando: sem pulsos, sinal coerente ou **sinal oposto** (nesse caso, se a roda andou ao contrário o motor está invertido; se andou para o lado certo, o encoder está com A e B trocados). Os motores ficam freados no boot e fora desse menu.
+Os testes `t` e `i` terminam com uma linha `REGISTRO: ...` com os números e o veredito, para colar direto no registro de testes (`docs/07-testes/hardware.md`).
+
+No menu de motores, as teclas `1` a `8` acionam o motor esquerdo, o direito, os dois e os giros no lugar, para a frente e para trás; `c` abre o modo contínuo (até 60 s): o motor fica ligado e a tela mostra os pulsos e a velocidade ao vivo, e dá para trocar o motor (`e`, `d`, `b`), o sentido (`r`) e a potência (`+`, `-`) sem parar; qualquer outra tecla freia, e fechar o monitor também; `9` e `a` fazem uma rampa no motor esquerdo ou no direito (sobe a potência de 100 a 1000 em degraus de 0,3 s e diz em qual a roda começou a girar, pelo encoder); `+` e `-` mudam a potência (100 a 1000, começa em 300), `l` e `k` mudam o limite de duty (de 10% a 100%, começa nos 70% do robô; o multímetro no motor lê duty × VM, então com VM de 6 V e 70% o máximo é 4,2 V, e acima disso é só para teste) e `0` volta. Cada teste dura no máximo 2 s (a rampa, até 6 s) e qualquer tecla freia os motores. Com VM de 5 V, a potência 300 equivale a um duty de só 21% (cerca de 1 V no motor), que costuma ficar abaixo da zona morta do N20: se a roda não gira, suba a potência ou use a rampa. Ao fim de cada teste, o programa mostra os pulsos de cada encoder e compara o sinal com o do comando: sem pulsos, sinal coerente ou **sinal oposto** (nesse caso, se a roda andou ao contrário o motor está invertido; se andou para o lado certo, o encoder está com A e B trocados). Os motores ficam freados no boot e fora desse menu.
 
 > **Segurança:** faça o primeiro teste de motor com as rodas fora do chão. A potência 1000 já fica limitada pelo driver ao duty de `LIMITE_DUTY_MOTORES_MILESIMOS` (`ConfiguracaoMotores.h`).
 
 Os encoders usam a mesma inversão do `main.cpp` (esquerdo normal, direito invertido) e entradas com pull-up: o sinal dos canais A e B não pode passar de 3,3 V. Esse programa só compila e roda na placa, então não tem teste automatizado. O CI não o compila hoje; para conferir, rode `pio run -e bancada_geral`.
+
+#### Bancada geral no ESP32 DevKit (bancada_geral_devkit)
+
+A mesma bancada, para o ESP32 DevKit V1 da bancada integrada, no ambiente `bancada_geral_devkit`. A pinagem vem de `lib/nucleo/src/Pinos.h`, no bloco ativado por `-DPLACA_ESP32_DEVKIT`:
+
+| Sinal | GPIO | Sinal | GPIO |
+|---|---|---|---|
+| I²C SDA / SCL | 21 / 22 | Motor esquerdo IN1 / IN2 | 25 / 26 |
+| XSHUT esquerdo / frontal / direito | 16 / 17 / 4 | Motor direito IN3 / IN4 | 27 / 14 |
+| Encoder esquerdo A / B | 32 / 33 | Botão BTN_START | 23 |
+| Encoder direito A / B | 18 / 19 | Bateria (ADC, divisor 100 k / 33 k) | 34 |
+
+```bash
+pio run -e bancada_geral_devkit -t upload && pio device monitor -e bancada_geral_devkit
+```
+
+Ao abrir o monitor, a placa reinicia e o menu aparece sozinho. Além das teclas acima, o DevKit tem `a` (tensão da bateria pelo divisor do GPIO34), `b` (botão de largada ao vivo, qualquer tecla para), o autoteste com bateria e botão, a queda da bateria durante os testes de motor e `w` (telemetria). No reset, o GPIO14 (IN4 do motor direito) emite um pulso PWM curto, e a roda direita pode dar um tranco.
+
+##### Telemetria na bancada (tecla `w`)
+
+O firmware do robô só cria a corrida depois da calibração, que exige o autoteste dos sensores. A tecla `w` abre um submenu que testa o Wi-Fi e a gravação no banco sem depender dos sensores, com o mesmo cliente HTTP (`EnvioHttpSupabase`) do robô. Antes de gravar, copie `include/credenciais.exemplo.h` para `include/credenciais.h` (o Git ignora o arquivo), preencha os campos e, na bancada, use `CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1`. Sem o arquivo, o firmware compila e o submenu explica o que fazer.
+
+| Tecla | O que faz |
+|---|---|
+| `a` | Fluxo completo: Wi-Fi, DNS, criar corrida, enviar lote, reenviar o lote (confere que não duplica) e encerrar. Termina com `RESULTADO` |
+| `w` / `d` | Conecta no Wi-Fi (mostra IP e sinal) / resolve o nome do Supabase |
+| `c` / `l` / `r` / `e` | Cria a corrida / envia 5 amostras de teste / reenvia o último lote / encerra como `nao_concluida` |
+| `s` / `0` | Status / volta ao menu principal |
+
+Cada etapa sai como `[OK]` ou `[FALHA]`, com o código HTTP, a resposta do servidor e a dica do que conferir (senha, 2,4 GHz, token, função não publicada, migração não aplicada). **Grava linhas reais no banco do `credenciais.h`**: use o projeto de testes ou apague a corrida depois. O ESP32-C3 não enxerga redes de 5 GHz; o hotspot do celular precisa estar em 2,4 GHz.
 
 #### Como acrescentar um componente ao menu
 

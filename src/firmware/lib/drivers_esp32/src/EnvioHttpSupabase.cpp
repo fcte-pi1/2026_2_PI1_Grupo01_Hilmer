@@ -45,8 +45,13 @@ int EnvioHttpSupabase::postar(const char* caminho, const char* corpo, size_t tam
   http_.addHeader("x-device-token", credenciais_.tokenDispositivo);
 
   const int codigo = http_.POST(reinterpret_cast<uint8_t*>(const_cast<char*>(corpo)), tamanho);
-  if (codigo > 0 && resposta != nullptr) {
-    *resposta = http_.getString();
+  ultimaResposta_ = "";
+  if (codigo > 0) {
+    String texto = http_.getString();
+    ultimaResposta_ = texto.substring(0, 160);
+    if (resposta != nullptr) {
+      *resposta = texto;
+    }
   }
   http_.end();
   return codigo;
