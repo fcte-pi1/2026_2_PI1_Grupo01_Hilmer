@@ -28,10 +28,13 @@
 
 /// Certificado raiz (PEM) que valida o HTTPS do projeto. Para obter: abra a URL do projeto no
 /// navegador, clique no cadeado → certificado → o primeiro da cadeia (a raiz) → exportar em PEM, e
-/// cole o conteúdo inteiro aqui, com as linhas BEGIN e END.
-#define CREDENCIAL_CERTIFICADO_RAIZ R"PEM(-----BEGIN CERTIFICATE-----
-cole aqui o certificado raiz
------END CERTIFICATE-----)PEM"
+/// cole o conteúdo inteiro aqui, uma linha do PEM por linha abaixo, cada uma entre aspas e terminada em
+/// `\n"` e `\` (o `#define` não aceita texto de várias linhas sem isso). Na bancada, com
+/// `CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1`, este valor não é usado.
+#define CREDENCIAL_CERTIFICADO_RAIZ \
+  "-----BEGIN CERTIFICATE-----\n" \
+  "cole aqui o certificado raiz\n" \
+  "-----END CERTIFICATE-----\n"
 
 /// 1 só na bancada, para testar sem o certificado: aceita qualquer servidor (`setInsecure`). Nunca
 /// deixe 1 na versão da competição.

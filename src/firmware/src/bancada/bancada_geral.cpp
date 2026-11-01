@@ -9,13 +9,18 @@
 /// SEGURANÇA: os motores ficam freados no boot e só giram dentro do submenu de motores, por
 /// `DURACAO_TESTE_MOTOR_MS` no máximo. Qualquer tecla (menos Enter) freia os motores na hora.
 /// Para o primeiro teste, deixe as rodas fora do chão.
+///
+/// Placas: o ambiente `bancada_geral` é a Super Mini (ESP32-C3, serial pela USB nativa); o
+/// `bancada_geral_devkit` é o ESP32 DevKit V1 (`-DPLACA_ESP32_DEVKIT`, serial pelo conversor USB da
+/// placa), que também confere o botão de largada e a tensão da bateria. A pinagem de cada placa
+/// está em `Pinos.h`.
 
 #include <Arduino.h>
 #include <Wire.h>
 #include <stdarg.h>
 #include <stdlib.h>
 
-#if !defined(ARDUINO_USB_CDC_ON_BOOT) || !ARDUINO_USB_CDC_ON_BOOT
+#if !defined(PLACA_ESP32_DEVKIT) && (!defined(ARDUINO_USB_CDC_ON_BOOT) || !ARDUINO_USB_CDC_ON_BOOT)
 #error "Serial pela USB nativa: defina ARDUINO_USB_MODE=1 e ARDUINO_USB_CDC_ON_BOOT=1 no platformio.ini (Pinos.h)"
 #endif
 
@@ -27,6 +32,29 @@
 #include "MotoresDrv8833.h"
 #include "Pinos.h"
 #include "TofVl53l0x.h"
+
+// Telemetria na mesma bancada (Wi-Fi, HTTPS e gravacao no Supabase): so quando o ambiente define
+// `BANCADA_COM_TELEMETRIA` (o `bancada_geral_devkit`). Precisa de `include/credenciais.h`; sem ele, o
+// firmware compila e o menu de telemetria explica o que fazer.
+#if defined(BANCADA_COM_TELEMETRIA)
+#include <HTTPClient.h>
+#include <WiFi.h>
+#include <string.h>
+
+#if __has_include("credenciais.h")
+#include "credenciais.h"
+#define BANCADA_TEM_CREDENCIAIS 1
+#else
+#define BANCADA_TEM_CREDENCIAIS 0
+#endif
+
+#include "AmostraTelemetria.h"
+#include "ConfiguracaoRede.h"
+#include "CredenciaisSupabase.h"
+#include "EnvioHttpSupabase.h"
+#include "ReconexaoWifi.h"
+#include "RedeWifiEsp32.h"
+#endif
 
 using namespace micromouse;
 
@@ -56,6 +84,29 @@ constexpr uint32_t AUTOTESTE_ESPERA_ENCODER_MS = 1000;
 constexpr uint8_t AUTOTESTE_LEITURAS_GIRO = 50;
 constexpr int32_t AUTOTESTE_GIRO_PARADO_MAX_DECIMOS = 50;
 
+#if defined(PLACA_ESP32_DEVKIT)
+/// Divisor da bateria (R1 de 100 kohm no positivo, R2 de 33 kohm no GND) e faixa da LiPo 2S. A
+/// tensão no pino é a da bateria vezes R2 / (R1 + R2), e só vale com a chave geral ligada.
+constexpr uint32_t BATERIA_R1_OHMS = 100000;
+constexpr uint32_t BATERIA_R2_OHMS = 33000;
+constexpr uint32_t BATERIA_LEITURAS = 16;
+constexpr uint32_t BATERIA_CORTE_MV = 6600;   ///< Abaixo disso a LiPo 2S está descarregada.
+constexpr uint32_t BATERIA_PLENA_MV = 8400;   ///< Carga plena da LiPo 2S.
+constexpr uint32_t BATERIA_MAXIMA_VALIDA_MV = 8700;
+#endif
+
+/// Tensão nominal do VM (buck U4) e passo do limite de duty. O multímetro, no motor, lê a tensão
+/// média do PWM: duty × VM. Com o limite do robô (70%) e VM de 6 V, o máximo é 4,2 V.
+constexpr uint32_t VM_NOMINAL_MV = 6000;
+constexpr uint16_t LIMITE_DUTY_PASSO_MILESIMOS = 100;
+constexpr uint16_t LIMITE_DUTY_MINIMO_MILESIMOS = 100;
+constexpr uint16_t LIMITE_DUTY_MAXIMO_MILESIMOS = 1000;
+
+/// Teste integrado: duração com os dois motores ligados, e quanto a bateria pode cair (em mV) antes de
+/// a bancada avisar que a fonte não aguenta os motores.
+constexpr uint32_t TESTE_INTEGRADO_DURACAO_MS = 5000;
+constexpr uint32_t QUEDA_MAXIMA_BATERIA_MV = 1000;
+
 /// Menos pulsos que isso num teste de motor contam como "encoder sem sinal".
 constexpr int32_t PULSOS_MINIMOS_NO_TESTE = 10;
 
@@ -71,14 +122,20 @@ constexpr int32_t RAMPA_PULSOS_PARA_GIRAR = 3;
 constexpr uint32_t TEMPO_MAXIMO_CONTINUO_MS = 60000;
 
 /// Duty efetivo, em %, de uma potência (o driver limita o duty a `LIMITE_DUTY_MOTORES_MILESIMOS`).
-constexpr int dutyPercentual(int16_t potencia) {
-  return (potencia < 0 ? -potencia : potencia) * static_cast<int>(LIMITE_DUTY_MOTORES_MILESIMOS) / 10000;
+/// Limite de duty da bancada, em milésimos. Começa no do robô; as teclas `l` e `k` o mudam.
+uint16_t limiteDutyMilesimos = LIMITE_DUTY_MOTORES_MILESIMOS;
+
+int dutyPercentual(int16_t potencia) {
+  return (potencia < 0 ? -potencia : potencia) * static_cast<int>(limiteDutyMilesimos) / 10000;
 }
+
+/// Tensão média estimada nos terminais do motor, em décimos de volt: duty × VM nominal.
+int tensaoMediaDecivolts(int16_t potencia) { return dutyPercentual(potencia) * static_cast<int>(VM_NOMINAL_MV) / 1000; }
 
 constexpr Lado LADOS[3] = {Lado::Frente, Lado::Esquerda, Lado::Direita};
 constexpr const char* NOMES[3] = {"frente", "esquerda", "direita"};
 
-enum class Tela : uint8_t { Principal, Motores };
+enum class Tela : uint8_t { Principal, Motores, Telemetria };
 
 /// Motor(es) acionados no modo contínuo.
 enum class Alvo : uint8_t { Esquerdo, Direito, Ambos };
@@ -138,9 +195,17 @@ void imprimirMenuPrincipal() {
   Serial.println(" 5  MPU6050: uma leitura (giro Z e aceleracao X/Y)");
   Serial.println(" 6  MPU6050: leitura continua (qualquer tecla para)");
   Serial.println(" 7  motores (abre o menu de motores)");
+  Serial.println(" i  TESTE INTEGRADO: liga os dois motores e le ToF, MPU6050 e encoders ao mesmo tempo");
   Serial.println(" 8  pinagem (GPIO de cada sinal)");
   Serial.println(" 9  encoders: contagem continua, gire a roda a mao (qualquer tecla para)");
   Serial.println(" 0  zerar a contagem dos encoders");
+#if defined(PLACA_ESP32_DEVKIT)
+  Serial.println(" a  bateria: tensao pelo divisor no GPIO34");
+  Serial.println(" b  botao de largada: mostra quando aperta e solta (qualquer tecla para)");
+#endif
+#if defined(BANCADA_COM_TELEMETRIA)
+  Serial.println(" w  telemetria: Wi-Fi, HTTPS e gravacao no banco (abre um submenu)");
+#endif
   Serial.println(" r  reiniciar a placa");
   Serial.println(" Enter  mostra este menu");
 }
@@ -148,8 +213,11 @@ void imprimirMenuPrincipal() {
 void imprimirMenuMotores() {
   Serial.println();
   Serial.println("=== MOTORES (cada teste dura no maximo 2 s; qualquer tecla freia) ===");
-  Serial.printf(" Potencia atual: %d de 1000 (duty efetivo %d%%, limite do driver %u%%)\n", potencia,
-                dutyPercentual(potencia), static_cast<unsigned>(LIMITE_DUTY_MOTORES_MILESIMOS / 10));
+  Serial.printf(" Potencia atual: %d de 1000 (duty efetivo %d%%, tensao media estimada %d.%d V com VM de 6 V)\n", potencia,
+                dutyPercentual(potencia), tensaoMediaDecivolts(potencia) / 10, tensaoMediaDecivolts(potencia) % 10);
+  Serial.printf(" Limite de duty: %u%% (o do robo e %u%%): a potencia 1000 vira %u%% do VM\n",
+                static_cast<unsigned>(limiteDutyMilesimos / 10), static_cast<unsigned>(LIMITE_DUTY_MOTORES_MILESIMOS / 10),
+                static_cast<unsigned>(limiteDutyMilesimos / 10));
   Serial.println(" 1  motor esquerdo para a frente     2  motor esquerdo para tras");
   Serial.println(" 3  motor direito para a frente      4  motor direito para tras");
   Serial.println(" 5  os dois para a frente            6  os dois para tras");
@@ -158,6 +226,8 @@ void imprimirMenuMotores() {
   Serial.println("    (a rampa sobe a potencia aos poucos e diz em qual a roda comecou a girar)");
   Serial.println(" c  modo continuo: fica acionando e mostrando os pulsos ao vivo (ate 60 s)");
   Serial.println(" +  aumenta a potencia               -  diminui a potencia");
+  Serial.println(" l  aumenta o limite de duty (+10%)  k  diminui o limite de duty (-10%)");
+  Serial.println("    (mais tensao nos motores: o multimetro no motor le duty x VM; acima de 70% so para teste)");
   Serial.println(" 0  voltar ao menu principal");
   Serial.println(" ATENCAO: o primeiro teste com as rodas fora do chao.");
 }
@@ -305,6 +375,55 @@ void zerarEncoders() {
   Serial.println("Encoders zerados.");
 }
 
+#if defined(PLACA_ESP32_DEVKIT)
+/// Tensão da bateria em mV, pela média de `BATERIA_LEITURAS` leituras do ADC no divisor R1/R2.
+uint32_t lerBateriaMv() {
+  uint32_t somaPinoMv = 0;
+  for (uint32_t i = 0; i < BATERIA_LEITURAS; i++) {
+    somaPinoMv += analogReadMilliVolts(pinos::BATERIA_ADC);
+    delay(2);
+  }
+  const uint32_t pinoMv = somaPinoMv / BATERIA_LEITURAS;
+  return pinoMv * (BATERIA_R1_OHMS + BATERIA_R2_OHMS) / BATERIA_R2_OHMS;
+}
+
+/// Uma leitura só (sem média), rápida o bastante para rodar dentro do laço dos testes de motor.
+uint32_t lerBateriaRapidaMv() {
+  return analogReadMilliVolts(pinos::BATERIA_ADC) * (BATERIA_R1_OHMS + BATERIA_R2_OHMS) / BATERIA_R2_OHMS;
+}
+
+void imprimirBateria() {
+  const uint32_t bateriaMv = lerBateriaMv();
+  const int32_t carga = (static_cast<int32_t>(bateriaMv) - static_cast<int32_t>(BATERIA_CORTE_MV)) * 100 /
+                        static_cast<int32_t>(BATERIA_PLENA_MV - BATERIA_CORTE_MV);
+  Serial.printf("Bateria: %.2f V (GPIO%d, divisor %lu/%lu ohms); carga estimada %ld%% (6,6 V a 8,4 V, aproximacao linear)\n",
+                bateriaMv / 1000.0f, pinos::BATERIA_ADC, static_cast<unsigned long>(BATERIA_R1_OHMS),
+                static_cast<unsigned long>(BATERIA_R2_OHMS), static_cast<long>(constrain(carga, 0, 100)));
+  if (bateriaMv < 1000) {
+    Serial.println("  aviso: quase 0 V. A chave geral esta desligada ou o divisor (R1, R2) nao esta ligado ao GPIO34.");
+  } else if (bateriaMv < BATERIA_CORTE_MV) {
+    Serial.println("  aviso: abaixo de 6,6 V. Recarregue a bateria antes de testar os motores.");
+  }
+}
+
+/// Mostra o estado do botão de largada a cada mudança, até chegar uma tecla.
+void lerBotaoContinuo() {
+  pinMode(pinos::BOTAO_START, INPUT_PULLUP);
+  Serial.printf("Botao BTN_START (GPIO%d, pull-up interno). Aperte e solte o botao; qualquer tecla para.\n",
+                pinos::BOTAO_START);
+  int anterior = -1;
+  while (!teclaPressionada()) {
+    const int estado = digitalRead(pinos::BOTAO_START);
+    if (estado != anterior) {
+      anterior = estado;
+      Serial.printf("  botao %s (nivel %s)\n", estado == LOW ? "PRESSIONADO" : "solto", estado == LOW ? "LOW" : "HIGH");
+    }
+    delay(5);
+  }
+  Serial.println("Fim da leitura do botao.");
+}
+#endif
+
 /// Soma dos itens do autoteste.
 struct ResumoAutoteste {
   uint8_t ok = 0;
@@ -419,12 +538,35 @@ void autoteste() {
             "encoder direito estavel (%ld pulsos, %lu transicoes invalidas)", static_cast<long>(pulsosDir),
             static_cast<unsigned long>(novasDir));
 
+#if defined(PLACA_ESP32_DEVKIT)
+  Serial.println("5) Bateria e botao");
+  const uint32_t bateriaMv = lerBateriaMv();
+  registrar(resumo, bateriaMv >= BATERIA_CORTE_MV && bateriaMv <= BATERIA_MAXIMA_VALIDA_MV,
+            "esperado entre 6,6 V e 8,4 V: perto de 0 V = chave geral desligada ou divisor solto no GPIO34; abaixo de 6,6 V = recarregue",
+            "bateria %.2f V", bateriaMv / 1000.0f);
+  pinMode(pinos::BOTAO_START, INPUT_PULLUP);
+  delay(5);
+  registrar(resumo, digitalRead(pinos::BOTAO_START) == HIGH,
+            "o pino esta em LOW sem apertar: botao pressionado, em curto ou terminal ligado ao GND errado",
+            "botao BTN_START solto (nivel alto)");
+#endif
+
   Serial.printf("RESULTADO: %u OK, %u FALHA(S).\n", resumo.ok, resumo.falhas);
+  Serial.printf("REGISTRO: autoteste | ok=%u falhas=%u | veredito=%s\n", resumo.ok, resumo.falhas,
+                resumo.falhas == 0 ? "OK" : "FALHA");
+#if defined(PLACA_ESP32_DEVKIT)
+  Serial.println("Nao verificado aqui: motores (tecla 7), o sentido dos encoders (gire a roda a mao com a tecla 9) e o aperto do botao (tecla b).");
+#else
   Serial.println("Nao verificado aqui: motores (tecla 7) e o sentido dos encoders (gire a roda a mao com a tecla 9).");
+#endif
 }
 
 void imprimirPinagem() {
+#if defined(PLACA_ESP32_DEVKIT)
+  Serial.println("Pinagem (Pinos.h, ESP32 DevKit V1):");
+#else
   Serial.println("Pinagem (Pinos.h, Rev 2.0):");
+#endif
   Serial.printf("  I2C: SDA=GPIO%d, SCL=GPIO%d\n", pinos::I2C_SDA, pinos::I2C_SCL);
   Serial.printf("  XSHUT: frente=GPIO%d, esquerda=GPIO%d, direita=GPIO%d\n", pinos::XSHUT_FRONTAL,
                 pinos::XSHUT_ESQ, pinos::XSHUT_DIR);
@@ -432,6 +574,29 @@ void imprimirPinagem() {
   Serial.printf("  Motor direito: IN3=GPIO%d, IN4=GPIO%d\n", pinos::MOTOR_DIR_IN3, pinos::MOTOR_DIR_IN4);
   Serial.printf("  Encoders: esq A=GPIO%d B=GPIO%d, dir A=GPIO%d B=GPIO%d (entradas com pull-up, no maximo 3,3 V)\n",
                 pinos::ENCODER_ESQ_A, pinos::ENCODER_ESQ_B, pinos::ENCODER_DIR_A, pinos::ENCODER_DIR_B);
+#if defined(PLACA_ESP32_DEVKIT)
+  Serial.printf("  Botao BTN_START: GPIO%d (pull-up). Bateria (ADC): GPIO%d\n", pinos::BOTAO_START, pinos::BATERIA_ADC);
+#endif
+}
+
+/// Muda o limite de duty dos motores em `delta` milésimos e avisa o que isso significa.
+void mudarLimiteDuty(int16_t delta) {
+  int32_t novo = static_cast<int32_t>(limiteDutyMilesimos) + delta;
+  if (novo < LIMITE_DUTY_MINIMO_MILESIMOS) {
+    novo = LIMITE_DUTY_MINIMO_MILESIMOS;
+  } else if (novo > LIMITE_DUTY_MAXIMO_MILESIMOS) {
+    novo = LIMITE_DUTY_MAXIMO_MILESIMOS;
+  }
+  limiteDutyMilesimos = static_cast<uint16_t>(novo);
+  motores.definirLimiteDuty(limiteDutyMilesimos);
+  Serial.printf("Limite de duty: %u%% (tensao media maxima estimada %u.%u V com VM de 6 V)\n",
+                static_cast<unsigned>(limiteDutyMilesimos / 10),
+                static_cast<unsigned>(limiteDutyMilesimos * VM_NOMINAL_MV / 1000000UL),
+                static_cast<unsigned>((limiteDutyMilesimos * VM_NOMINAL_MV / 100000UL) % 10));
+  if (limiteDutyMilesimos > LIMITE_DUTY_MOTORES_MILESIMOS) {
+    Serial.printf("  aviso: acima do limite do robo (%u%%). So para teste: com o N20 de 6 V, nao passe de VM x duty = 6 V.\n",
+                  static_cast<unsigned>(LIMITE_DUTY_MOTORES_MILESIMOS / 10));
+  }
 }
 
 /// Diz o que a contagem de uma roda mostra, comparando com o sinal da potência comandada.
@@ -459,6 +624,10 @@ void acionar(const char* descricao, int16_t esquerda, int16_t direita) {
                 esquerda, direita, dutyPercentual(esquerda != 0 ? esquerda : direita));
   encoderEsq.zerar();
   encoderDir.zerar();
+#if defined(PLACA_ESP32_DEVKIT)
+  const uint32_t bateriaAntesMv = lerBateriaMv();
+  uint32_t bateriaMinimaMv = bateriaAntesMv;
+#endif
   motores.definirPotencia({esquerda, direita});
   const uint32_t inicioMs = millis();
   bool interrompido = false;
@@ -467,12 +636,120 @@ void acionar(const char* descricao, int16_t esquerda, int16_t direita) {
       interrompido = true;
       break;
     }
+#if defined(PLACA_ESP32_DEVKIT)
+    const uint32_t bateriaMv = lerBateriaRapidaMv();
+    if (bateriaMv > 1000 && bateriaMv < bateriaMinimaMv) {
+      bateriaMinimaMv = bateriaMv;
+    }
+#endif
     delay(5);
   }
   motores.parar();
   Serial.println(interrompido ? "> freado por tecla." : "> tempo esgotado, motores freados.");
+#if defined(PLACA_ESP32_DEVKIT)
+  Serial.printf("  bateria: %.2f V parado, %.2f V no minimo com o motor ligado (queda de %.2f V)\n",
+                bateriaAntesMv / 1000.0f, bateriaMinimaMv / 1000.0f, (bateriaAntesMv - bateriaMinimaMv) / 1000.0f);
+#endif
   avaliarEncoder("esquerdo", encoderEsq.lerContagem(), esquerda);
   avaliarEncoder("direito", encoderDir.lerContagem(), direita);
+}
+
+/// Liga os dois motores e, ao mesmo tempo, lê ToF, MPU6050 e encoders (e a bateria, no DevKit): é o que
+/// o robô faz andando. Aponta se o PWM dos motores derruba a leitura dos sensores, se os dois motores
+/// giram juntos e se a bateria aguenta. O resultado sai em itens `[OK]`/`[FALHA]` e numa linha `REGISTRO`.
+void testeIntegrado() {
+  Serial.printf("TESTE INTEGRADO: os dois motores para a frente (potencia %d, duty %d%%) por %lu s,\n"
+                "lendo ToF, MPU6050 e encoders. Rodas fora do chao. Qualquer tecla freia.\n",
+                potencia, dutyPercentual(potencia), static_cast<unsigned long>(TESTE_INTEGRADO_DURACAO_MS / 1000));
+  lerTofPor(ESPERA_LEITURA_TOF_MS);  // os ToF precisam de leituras contínuas para ter amostra
+
+  uint32_t leiturasTof = 0;
+  uint32_t falhasTof = 0;
+  uint32_t leiturasImu = 0;
+  uint32_t falhasImu = 0;
+  uint16_t menorMm[3] = {UINT16_MAX, UINT16_MAX, UINT16_MAX};
+  uint16_t maiorMm[3] = {0, 0, 0};
+  const uint32_t invalidasEsqAntes = encoderEsq.transicoesInvalidas();
+  const uint32_t invalidasDirAntes = encoderDir.transicoesInvalidas();
+#if defined(PLACA_ESP32_DEVKIT)
+  const uint32_t bateriaAntesMv = lerBateriaMv();
+  uint32_t bateriaMinimaMv = bateriaAntesMv;
+#endif
+
+  encoderEsq.zerar();
+  encoderDir.zerar();
+  motores.definirPotencia({potencia, potencia});
+  const uint32_t inicioMs = millis();
+  bool interrompido = false;
+  while (millis() - inicioMs < TESTE_INTEGRADO_DURACAO_MS) {
+    if (teclaPressionada()) {
+      interrompido = true;
+      break;
+    }
+    DistanciasLaterais descartada;
+    tof.lerDistanciasLaterais(descartada);
+    for (uint8_t i = 0; i < 3; i++) {
+      const AmostraTof& amostra = tof.amostra(LADOS[i]);
+      leiturasTof++;
+      if (amostra.estado == EstadoAmostraTof::Falha) {
+        falhasTof++;
+      } else if (amostra.estado == EstadoAmostraTof::Valida) {
+        menorMm[i] = amostra.distanciaMm < menorMm[i] ? amostra.distanciaMm : menorMm[i];
+        maiorMm[i] = amostra.distanciaMm > maiorMm[i] ? amostra.distanciaMm : maiorMm[i];
+      }
+    }
+    int16_t giro = 0;
+    leiturasImu++;
+    if (!imu.lerTaxaGiroZ(giro)) {
+      falhasImu++;
+    }
+#if defined(PLACA_ESP32_DEVKIT)
+    const uint32_t bateriaMv = lerBateriaRapidaMv();
+    if (bateriaMv > 1000 && bateriaMv < bateriaMinimaMv) {
+      bateriaMinimaMv = bateriaMv;
+    }
+#endif
+    delay(PERIODO_LEITURA_TOF_MS);
+  }
+  motores.parar();
+  const int32_t pulsosEsq = encoderEsq.lerContagem();
+  const int32_t pulsosDir = encoderDir.lerContagem();
+  const uint32_t invalidas = (encoderEsq.transicoesInvalidas() - invalidasEsqAntes) +
+                             (encoderDir.transicoesInvalidas() - invalidasDirAntes);
+  Serial.println(interrompido ? "> freado por tecla." : "> tempo esgotado, motores freados.");
+
+  ResumoAutoteste resumo;
+  registrar(resumo, labs(pulsosEsq) >= PULSOS_MINIMOS_NO_TESTE,
+            "a roda esquerda nao girou: veja a rampa (menu de motores) e a tensao do VM",
+            "roda esquerda girou: %ld pulsos", static_cast<long>(pulsosEsq));
+  registrar(resumo, labs(pulsosDir) >= PULSOS_MINIMOS_NO_TESTE,
+            "a roda direita nao girou: confira IN3 (GPIO27), IN4 (GPIO14), o VM e os fios OUT3/OUT4",
+            "roda direita girou: %ld pulsos", static_cast<long>(pulsosDir));
+  registrar(resumo, invalidas == 0,
+            "transicoes invalidas com o motor ligado: ruido do PWM no encoder; confira GND, VCC de 3,3 V e a blindagem dos fios",
+            "encoders sem transicoes invalidas (%lu)", static_cast<unsigned long>(invalidas));
+  registrar(resumo, falhasTof == 0,
+            "ToF falhando com o motor ligado: ruido ou queda de tensao no 3,3 V; confira GND comum e o capacitor do trilho",
+            "ToF sem falhas (%lu leituras)", static_cast<unsigned long>(leiturasTof));
+  registrar(resumo, falhasImu == 0,
+            "o MPU6050 falhou com o motor ligado: ruido no I2C; afaste os fios do motor e confira os pull-ups",
+            "MPU6050 sem falhas (%lu leituras)", static_cast<unsigned long>(leiturasImu));
+#if defined(PLACA_ESP32_DEVKIT)
+  registrar(resumo, bateriaAntesMv - bateriaMinimaMv <= QUEDA_MAXIMA_BATERIA_MV,
+            "a bateria cai demais com os motores ligados: a fonte nao aguenta a corrente; veja o buck do VM e o capacitor de bulk",
+            "bateria %.2f V parado, %.2f V no minimo (queda de %.2f V, limite %.2f V)", bateriaAntesMv / 1000.0f,
+            bateriaMinimaMv / 1000.0f, (bateriaAntesMv - bateriaMinimaMv) / 1000.0f, QUEDA_MAXIMA_BATERIA_MV / 1000.0f);
+#endif
+  for (uint8_t i = 0; i < 3; i++) {
+    if (maiorMm[i] > 0) {
+      Serial.printf("  ToF %s variou de %u a %u mm durante o teste\n", NOMES[i], menorMm[i], maiorMm[i]);
+    }
+  }
+  Serial.printf("RESULTADO: %u OK, %u FALHA(S).\n", resumo.ok, resumo.falhas);
+  Serial.printf("REGISTRO: integrado | potencia=%d duty=%d%% | pulsos_esq=%ld pulsos_dir=%ld | invalidas=%lu | tof_falhas=%lu imu_falhas=%lu | veredito=%s\n",
+                potencia, dutyPercentual(potencia), static_cast<long>(pulsosEsq), static_cast<long>(pulsosDir),
+                static_cast<unsigned long>(invalidas), static_cast<unsigned long>(falhasTof),
+                static_cast<unsigned long>(falhasImu), resumo.falhas == 0 ? "OK" : "FALHA");
 }
 
 /// Sobe a potência de um motor em degraus e diz em qual a roda começou a girar, pelo encoder.
@@ -520,7 +797,7 @@ void modoContinuo() {
   Alvo alvo = Alvo::Esquerdo;
   bool re = false;
   Serial.println("> MODO CONTINUO. Teclas: e = motor esquerdo, d = motor direito, b = os dois,");
-  Serial.println(">   r = inverte o sentido, + e - = potencia. Qualquer outra tecla (espaco) freia.");
+  Serial.println(">   r = inverte o sentido, + e - = potencia, l e k = limite de duty. Qualquer outra tecla (espaco) freia.");
   encoderEsq.zerar();
   encoderDir.zerar();
   const uint32_t inicioMs = millis();
@@ -557,6 +834,14 @@ void modoContinuo() {
           break;
         case '-':
           potencia = potencia - POTENCIA_PASSO < POTENCIA_MINIMA ? POTENCIA_MINIMA : potencia - POTENCIA_PASSO;
+          break;
+        case 'l':
+        case 'L':
+          mudarLimiteDuty(LIMITE_DUTY_PASSO_MILESIMOS);
+          break;
+        case 'k':
+        case 'K':
+          mudarLimiteDuty(-static_cast<int16_t>(LIMITE_DUTY_PASSO_MILESIMOS));
           break;
         default:
           parar = true;
@@ -644,6 +929,14 @@ void executarMotores(char tecla) {
       potencia = potencia - POTENCIA_PASSO < POTENCIA_MINIMA ? POTENCIA_MINIMA : potencia - POTENCIA_PASSO;
       Serial.printf("Potencia: %d de 1000\n", potencia);
       break;
+    case 'l':
+    case 'L':
+      mudarLimiteDuty(LIMITE_DUTY_PASSO_MILESIMOS);
+      break;
+    case 'k':
+    case 'K':
+      mudarLimiteDuty(-static_cast<int16_t>(LIMITE_DUTY_PASSO_MILESIMOS));
+      break;
     case '0':
       tela = Tela::Principal;
       imprimirMenuPrincipal();
@@ -653,6 +946,435 @@ void executarMotores(char tecla) {
       break;
   }
 }
+
+#if defined(BANCADA_COM_TELEMETRIA)
+// ---------------------------------------------------------------- telemetria
+
+/// Tempo máximo esperando o Wi-Fi conectar nos comandos que precisam dele, em ms.
+constexpr uint32_t ESPERA_WIFI_MS = 20000;
+
+/// Quantas amostras de teste o comando de lote envia.
+constexpr uint16_t AMOSTRAS_POR_LOTE = 5;
+
+/// Falha de HTTP que nem saiu do robô (valor do `EnvioHttpSupabase`, que não é público).
+constexpr int SEM_CHAMADA = -1000;
+
+CredenciaisSupabase lerCredenciais() {
+  CredenciaisSupabase c;
+#if BANCADA_TEM_CREDENCIAIS
+  c.ssidWifi = CREDENCIAL_WIFI_SSID;
+  c.senhaWifi = CREDENCIAL_WIFI_SENHA;
+  c.urlProjeto = CREDENCIAL_SUPABASE_URL;
+  c.chaveAnon = CREDENCIAL_SUPABASE_ANON;
+  c.tokenDispositivo = CREDENCIAL_DEVICE_TOKEN;
+  c.certificadoRaiz = CREDENCIAL_CERTIFICADO_RAIZ;
+  c.semValidarCertificado = CREDENCIAL_SEM_VALIDAR_CERTIFICADO != 0;
+#endif
+  return c;
+}
+
+const CredenciaisSupabase credenciais = lerCredenciais();
+RedeWifiEsp32 redeWifi(credenciais.ssidWifi, credenciais.senhaWifi);
+ReconexaoWifi reconexaoWifi(redeWifi);
+EnvioHttpSupabase clienteSupabase(credenciais);
+
+bool wifiIniciado = false;
+uint32_t corridaId = 0;
+bool corridaCriada = false;
+bool corridaEncerrada = false;
+uint32_t proximaSequencia = 1;
+AmostraTelemetria ultimoLote[AMOSTRAS_POR_LOTE];
+uint16_t ultimoLoteTamanho = 0;
+
+/// Contadores da sessão, mostrados no status.
+uint16_t chamadasOk = 0;
+uint16_t chamadasComFalha = 0;
+
+// ---------------------------------------------------------------- utilidades
+
+/// `true` se as credenciais existem e estão completas; senão, diz o que fazer.
+bool credenciaisOk() {
+  if (!BANCADA_TEM_CREDENCIAIS) {
+    Serial.println("  [FALHA] sem include/credenciais.h.");
+    Serial.println("          dica: copie include/credenciais.exemplo.h para include/credenciais.h,");
+    Serial.println("          preencha os campos, use CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1 na bancada e grave de novo.");
+    return false;
+  }
+  if (!credenciaisValidas(credenciais)) {
+    Serial.println("  [FALHA] credenciais incompletas em include/credenciais.h.");
+    Serial.println("          dica: confira SSID, URL (https://...), chave anon, device token e o certificado");
+    Serial.println("          (ou CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1). Os valores do exemplo contam como preenchidos:");
+    Serial.println("          troque todos pelos reais.");
+    return false;
+  }
+  return true;
+}
+
+/// Nome do estado do Wi-Fi e a dica mais provável.
+const char* explicarStatusWifi(wl_status_t status) {
+  switch (status) {
+    case WL_NO_SSID_AVAIL:
+      return "rede nao encontrada. Confira o nome e se ela e 2,4 GHz (o ESP32-C3 nao enxerga 5 GHz).";
+    case WL_CONNECT_FAILED:
+      return "a rede recusou a conexao. Confira a senha.";
+    case WL_CONNECTION_LOST:
+      return "a conexao caiu. Aproxime a placa do roteador.";
+    case WL_DISCONNECTED:
+      return "sem conexao ainda. Senha errada, sinal fraco ou o roteador nao aceita a placa.";
+    default:
+      return "estado desconhecido.";
+  }
+}
+
+/// Liga o Wi-Fi na primeira vez que for preciso.
+void iniciarWifiSeNecessario() {
+  if (wifiIniciado) {
+    return;
+  }
+  redeWifi.iniciar();
+  clienteSupabase.iniciar();
+  wifiIniciado = true;
+}
+
+/// Espera o Wi-Fi conectar por até `ESPERA_WIFI_MS`, mostrando um ponto por segundo.
+bool conectarWifi() {
+  if (!credenciaisOk()) {
+    return false;
+  }
+  iniciarWifiSeNecessario();
+  const uint32_t inicio = millis();
+  uint32_t ultimoPonto = inicio;
+  bool avisou = false;
+  while (!reconexaoWifi.ciclo(millis())) {
+    if (!avisou) {
+      Serial.printf("  conectando em \"%s\" ", credenciais.ssidWifi);
+      avisou = true;
+    }
+    if (millis() - ultimoPonto >= 1000) {
+      Serial.print('.');
+      ultimoPonto = millis();
+    }
+    if (millis() - inicio >= ESPERA_WIFI_MS) {
+      Serial.println();
+      Serial.printf("  [FALHA] Wi-Fi nao conectou em %lu s.\n", static_cast<unsigned long>(ESPERA_WIFI_MS / 1000));
+      Serial.printf("          dica: %s\n", explicarStatusWifi(WiFi.status()));
+      return false;
+    }
+    delay(50);
+  }
+  if (avisou) {
+    Serial.println();
+  }
+  return true;
+}
+
+/// Host da URL do projeto (`https://abc.supabase.co/` -> `abc.supabase.co`).
+bool extrairHost(char* saida, size_t capacidade) {
+  const char* url = credenciais.urlProjeto;
+  if (url == nullptr || strncmp(url, "https://", 8) != 0) {
+    return false;
+  }
+  const char* inicio = url + 8;
+  size_t tamanho = 0;
+  while (inicio[tamanho] != '\0' && inicio[tamanho] != '/' && inicio[tamanho] != ':') {
+    ++tamanho;
+  }
+  if (tamanho == 0 || tamanho >= capacidade) {
+    return false;
+  }
+  memcpy(saida, inicio, tamanho);
+  saida[tamanho] = '\0';
+  return true;
+}
+
+/// Diz o que o código HTTP significa e o que fazer.
+void explicarCodigoHttp(int codigo) {
+  if (codigo >= 200 && codigo < 300) {
+    return;
+  }
+  if (codigo == SEM_CHAMADA) {
+    Serial.println("          dica: a chamada nem saiu da placa (URL ou corpo grande demais). Confira CREDENCIAL_SUPABASE_URL.");
+  } else if (codigo <= 0) {
+    Serial.printf("          dica: sem resposta do servidor (%s).\n", HTTPClient::errorToString(codigo).c_str());
+    Serial.println("          Se for connection refused ou tempo esgotado: use a tecla d para ver o DNS; se o DNS passa,");
+    Serial.println("          o problema e o TLS. Na bancada, use CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1.");
+  } else if (codigo == 401 || codigo == 403) {
+    Serial.println("          dica: chave anon ou device token recusados. Confira CREDENCIAL_SUPABASE_ANON e CREDENCIAL_DEVICE_TOKEN");
+    Serial.println("          (o token precisa ser igual ao segredo DEVICE_TOKEN das Edge Functions).");
+  } else if (codigo == 404) {
+    Serial.println("          dica: leia a resposta do servidor acima. \"Requested function was not found\" = a Edge Function");
+    Serial.println("          nao foi publicada (supabase functions deploy telemetria). \"corrida_inexistente\" = a corrida");
+    Serial.println("          nao existe nesse banco (tecle c de novo).");
+  } else if (codigo == 400) {
+    Serial.println("          dica: o servidor recusou o corpo. Confira se as migracoes foram aplicadas no banco.");
+  } else if (codigo >= 500) {
+    Serial.println("          dica: erro dentro da funcao ou do banco. Veja os logs em Edge Functions > Logs no painel do Supabase.");
+  }
+}
+
+/// Registra o resultado de uma chamada: `[OK]`/`[FALHA]`, código, tempo e a dica.
+bool relatarChamada(const char* nome, int codigo, uint32_t duracaoMs, const char* detalhe) {
+  const bool ok = codigo >= 200 && codigo < 300;
+  if (ok) {
+    ++chamadasOk;
+    Serial.printf("  [OK]    %s: HTTP %d em %lu ms%s%s\n", nome, codigo, static_cast<unsigned long>(duracaoMs),
+                  detalhe[0] != '\0' ? ", " : "", detalhe);
+  } else {
+    ++chamadasComFalha;
+    Serial.printf("  [FALHA] %s: HTTP %d em %lu ms\n", nome, codigo, static_cast<unsigned long>(duracaoMs));
+    if (clienteSupabase.ultimaResposta().length() > 0) {
+      Serial.printf("          resposta do servidor: %s\n", clienteSupabase.ultimaResposta().c_str());
+    }
+    explicarCodigoHttp(codigo);
+  }
+  return ok;
+}
+
+// ---------------------------------------------------------------- comandos
+
+/// `w`: conecta e mostra o que a rede entregou.
+bool comandoWifi() {
+  Serial.println("--- Wi-Fi ---");
+  if (!conectarWifi()) {
+    return false;
+  }
+  Serial.printf("  [OK]    conectado em \"%s\", IP %s, sinal %d dBm\n", credenciais.ssidWifi,
+                WiFi.localIP().toString().c_str(), WiFi.RSSI());
+  if (WiFi.RSSI() < -80) {
+    Serial.println("          aviso: sinal fraco (abaixo de -80 dBm). Pode falhar HTTPS; aproxime do roteador.");
+  }
+  return true;
+}
+
+/// `d`: resolve o nome do servidor, o primeiro passo antes do HTTPS.
+bool comandoDns() {
+  Serial.println("--- DNS ---");
+  if (!conectarWifi()) {
+    return false;
+  }
+  char host[96];
+  if (!extrairHost(host, sizeof(host))) {
+    Serial.println("  [FALHA] CREDENCIAL_SUPABASE_URL invalida. dica: use o formato https://SEU-PROJETO.supabase.co");
+    return false;
+  }
+  IPAddress ip;
+  const uint32_t inicio = millis();
+  if (WiFi.hostByName(host, ip) != 1) {
+    ++chamadasComFalha;
+    Serial.printf("  [FALHA] nao resolveu \"%s\".\n", host);
+    Serial.println("          dica: confira o nome do projeto na URL e se a rede tem internet (portal cativo de");
+    Serial.println("          universidade pede login no navegador e bloqueia a placa; use um hotspot do celular).");
+    return false;
+  }
+  ++chamadasOk;
+  Serial.printf("  [OK]    %s -> %s em %lu ms\n", host, ip.toString().c_str(), static_cast<unsigned long>(millis() - inicio));
+  return true;
+}
+
+/// `c`: `POST /corridas`, que cria a corrida no banco.
+bool comandoCriarCorrida() {
+  Serial.println("--- Criar corrida (POST /functions/v1/corridas) ---");
+  if (!conectarWifi()) {
+    return false;
+  }
+  uint32_t id = 0;
+  const uint32_t inicio = millis();
+  const ResultadoEnvio r = clienteSupabase.criarCorrida(LABIRINTO_CORRIDA_PADRAO, id);
+  char detalhe[40] = "";
+  if (r.codigoHttp >= 200 && r.codigoHttp < 300) {
+    snprintf(detalhe, sizeof(detalhe), "corrida_id %lu", static_cast<unsigned long>(id));
+  }
+  if (!relatarChamada("criar corrida", r.codigoHttp, millis() - inicio, detalhe)) {
+    return false;
+  }
+  corridaId = id;
+  corridaCriada = true;
+  corridaEncerrada = false;
+  proximaSequencia = 1;
+  ultimoLoteTamanho = 0;
+  Serial.println("          confira no painel: Table Editor > corridas.");
+  return true;
+}
+
+/// Preenche `ultimoLote` com amostras de teste, que andam pelas células do 4x4.
+void montarLoteDeTeste() {
+  for (uint16_t i = 0; i < AMOSTRAS_POR_LOTE; ++i) {
+    AmostraTelemetria a;
+    a.numeroSequencia = proximaSequencia + i;
+    a.tempoDecorridoMs = a.numeroSequencia * PERIODO_TELEMETRIA_MS;
+    a.velocidadeMmPorS = 100;
+    a.posicaoLinha = static_cast<uint8_t>(((a.numeroSequencia - 1) / 4) % 4);
+    a.posicaoColuna = static_cast<uint8_t>((a.numeroSequencia - 1) % 4);
+    a.orientacao = 'N';
+    a.estado = EstadoCorrida::Explorando;
+    ultimoLote[i] = a;
+  }
+  ultimoLoteTamanho = AMOSTRAS_POR_LOTE;
+  proximaSequencia += AMOSTRAS_POR_LOTE;
+}
+
+/// Envia `ultimoLote` e confere as contagens. `esperadasNovas` é quantas o servidor deveria gravar.
+bool enviarUltimoLote(const char* nome, uint16_t esperadasNovas) {
+  const uint32_t inicio = millis();
+  const ResultadoEnvio r = clienteSupabase.enviarLote(corridaId, ultimoLote, ultimoLoteTamanho);
+  char detalhe[64];
+  snprintf(detalhe, sizeof(detalhe), "gravadas %u, ja existentes %u", r.gravadas, r.existentes);
+  if (!relatarChamada(nome, r.codigoHttp, millis() - inicio, detalhe)) {
+    return false;
+  }
+  if (r.gravadas != esperadasNovas || r.gravadas + r.existentes != ultimoLoteTamanho) {
+    ++chamadasComFalha;
+    Serial.printf("  [FALHA] contagem inesperada: esperava %u gravadas e %u existentes.\n", esperadasNovas,
+                  static_cast<unsigned>(ultimoLoteTamanho - esperadasNovas));
+    Serial.println("          dica: o servidor respondeu 2xx mas as contagens nao fecham. Veja a funcao telemetria no painel.");
+    return false;
+  }
+  return true;
+}
+
+/// `l`: envia um lote novo de amostras de teste.
+bool comandoEnviarLote() {
+  Serial.printf("--- Enviar lote de %u amostras (POST /functions/v1/telemetria) ---\n", AMOSTRAS_POR_LOTE);
+  if (!corridaCriada || corridaEncerrada) {
+    Serial.println("  [FALHA] nao ha corrida aberta. dica: tecle c para criar uma.");
+    return false;
+  }
+  if (!conectarWifi()) {
+    return false;
+  }
+  montarLoteDeTeste();
+  if (!enviarUltimoLote("enviar lote", AMOSTRAS_POR_LOTE)) {
+    return false;
+  }
+  Serial.printf("          sequencias %lu a %lu. Confira no painel: Table Editor > telemetria.\n",
+                static_cast<unsigned long>(ultimoLote[0].numeroSequencia),
+                static_cast<unsigned long>(ultimoLote[ultimoLoteTamanho - 1].numeroSequencia));
+  return true;
+}
+
+/// `r`: reenvia o último lote. O servidor tem de dizer que todas as amostras já existiam.
+bool comandoReenviarLote() {
+  Serial.println("--- Reenviar o ultimo lote (teste de duplicata) ---");
+  if (!corridaCriada || corridaEncerrada || ultimoLoteTamanho == 0) {
+    Serial.println("  [FALHA] nao ha lote para reenviar. dica: tecle c e depois l.");
+    return false;
+  }
+  if (!conectarWifi()) {
+    return false;
+  }
+  if (!enviarUltimoLote("reenviar lote", 0)) {
+    return false;
+  }
+  Serial.println("          nenhuma amostra duplicada: o reenvio e seguro.");
+  return true;
+}
+
+/// `e`: encerra a corrida como `nao_concluida`.
+bool comandoEncerrarCorrida() {
+  Serial.println("--- Encerrar corrida (POST /functions/v1/corridas/{id}/encerrar) ---");
+  if (!corridaCriada) {
+    Serial.println("  [FALHA] nao ha corrida criada. dica: tecle c.");
+    return false;
+  }
+  if (!conectarWifi()) {
+    return false;
+  }
+  clienteSupabase.definirResultadoCorrida(false);
+  const uint32_t inicio = millis();
+  const ResultadoEnvio r = clienteSupabase.encerrarCorrida(corridaId);
+  if (!relatarChamada("encerrar corrida", r.codigoHttp, millis() - inicio, "status nao_concluida")) {
+    return false;
+  }
+  corridaEncerrada = true;
+  return true;
+}
+
+/// `a`: o fluxo inteiro, na ordem em que o robô o faz.
+void comandoFluxoCompleto() {
+  Serial.println("=== FLUXO COMPLETO: Wi-Fi, DNS, corrida, lote, reenvio e encerramento ===");
+  corridaCriada = false;
+  const uint16_t okAntes = chamadasOk;
+  const uint16_t falhasAntes = chamadasComFalha;
+  const bool passou = comandoWifi() && comandoDns() && comandoCriarCorrida() && comandoEnviarLote() &&
+                      comandoReenviarLote() && comandoEncerrarCorrida();
+  Serial.println("---");
+  if (passou) {
+    Serial.printf("RESULTADO: %u etapas OK, 0 falhas. A placa fala com o banco.\n", chamadasOk - okAntes);
+  } else {
+    Serial.printf("RESULTADO: parou na primeira falha (%u OK, %u FALHA). Leia a dica da etapa que falhou.\n",
+                  chamadasOk - okAntes, chamadasComFalha - falhasAntes);
+  }
+}
+
+/// `s`: o que a bancada sabe agora.
+void comandoStatus() {
+  Serial.println("--- Status ---");
+  Serial.printf("  Wi-Fi: %s", WiFi.status() == WL_CONNECTED ? "conectado" : "desconectado");
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.printf(" (\"%s\", %s, %d dBm)", credenciais.ssidWifi, WiFi.localIP().toString().c_str(), WiFi.RSSI());
+  }
+  Serial.println();
+  Serial.printf("  Quedas do Wi-Fi: %lu, tentativas de conexao: %lu\n", static_cast<unsigned long>(reconexaoWifi.quedas()),
+                static_cast<unsigned long>(reconexaoWifi.tentativas()));
+  if (corridaCriada) {
+    Serial.printf("  Corrida: id %lu, %s, proxima sequencia %lu\n", static_cast<unsigned long>(corridaId),
+                  corridaEncerrada ? "encerrada" : "aberta", static_cast<unsigned long>(proximaSequencia));
+  } else {
+    Serial.println("  Corrida: nenhuma criada nesta sessao");
+  }
+  Serial.printf("  Chamadas: %u OK, %u com falha\n", chamadasOk, chamadasComFalha);
+}
+
+void imprimirMenuTelemetria() {
+  Serial.println();
+  Serial.println("=== TELEMETRIA: Wi-Fi, HTTPS e banco (grava linhas reais no banco do credenciais.h) ===");
+  Serial.println(" a  FLUXO COMPLETO: faz tudo abaixo e diz se a placa fala com o banco");
+  Serial.println(" w  conectar no Wi-Fi");
+  Serial.println(" d  resolver o nome do Supabase (DNS)");
+  Serial.println(" c  criar uma corrida no banco");
+  Serial.println(" l  enviar um lote de 5 amostras de teste");
+  Serial.println(" r  reenviar o ultimo lote (confere que nao duplica)");
+  Serial.println(" e  encerrar a corrida");
+  Serial.println(" s  status");
+  Serial.println(" 0  voltar ao menu principal");
+}
+
+void executarTelemetria(char tecla) {
+  switch (tecla) {
+    case 'a':
+      comandoFluxoCompleto();
+      break;
+    case 'w':
+      comandoWifi();
+      break;
+    case 'd':
+      comandoDns();
+      break;
+    case 'c':
+      comandoCriarCorrida();
+      break;
+    case 'l':
+      comandoEnviarLote();
+      break;
+    case 'r':
+      comandoReenviarLote();
+      break;
+    case 'e':
+      comandoEncerrarCorrida();
+      break;
+    case 's':
+      comandoStatus();
+      break;
+    case '0':
+      tela = Tela::Principal;
+      imprimirMenuPrincipal();
+      break;
+    default:
+      imprimirMenuTelemetria();
+      break;
+  }
+}
+#endif
 
 void executarPrincipal(char tecla) {
   switch (tecla) {
@@ -681,6 +1403,10 @@ void executarPrincipal(char tecla) {
     case '8':
       imprimirPinagem();
       break;
+    case 'i':
+    case 'I':
+      testeIntegrado();
+      break;
     case 't':
     case 'T':
       autoteste();
@@ -691,6 +1417,23 @@ void executarPrincipal(char tecla) {
     case '0':
       zerarEncoders();
       break;
+#if defined(BANCADA_COM_TELEMETRIA)
+    case 'w':
+    case 'W':
+      tela = Tela::Telemetria;
+      imprimirMenuTelemetria();
+      break;
+#endif
+#if defined(PLACA_ESP32_DEVKIT)
+    case 'a':
+    case 'A':
+      imprimirBateria();
+      break;
+    case 'b':
+    case 'B':
+      lerBotaoContinuo();
+      break;
+#endif
     case 'r':
     case 'R':
       Serial.println("Reiniciando a placa... (se o monitor fechar, abra de novo)");
@@ -705,12 +1448,52 @@ void executarPrincipal(char tecla) {
   }
 }
 
+/// Mostra o menu da tela em que a bancada está.
+void imprimirMenuAtual() {
+  switch (tela) {
+    case Tela::Motores:
+      imprimirMenuMotores();
+      break;
+#if defined(BANCADA_COM_TELEMETRIA)
+    case Tela::Telemetria:
+      imprimirMenuTelemetria();
+      break;
+#endif
+    default:
+      imprimirMenuPrincipal();
+      break;
+  }
+}
+
+/// Executa a tecla na tela em que a bancada está.
+void executarTecla(char tecla) {
+  switch (tela) {
+    case Tela::Motores:
+      executarMotores(tecla);
+      break;
+#if defined(BANCADA_COM_TELEMETRIA)
+    case Tela::Telemetria:
+      executarTelemetria(tecla);
+      break;
+#endif
+    default:
+      executarPrincipal(tecla);
+      break;
+  }
+}
+
 }  // namespace
 
 void setup() {
   Serial.begin(115200);
-  Serial.setTxTimeoutMs(0);
+#if ARDUINO_USB_CDC_ON_BOOT
+  Serial.setTxTimeoutMs(0);  // a USB nativa não trava a escrita se o monitor fechar
+#endif
   motores.iniciar();  // freados durante toda a bancada, até o submenu de motores
+#if defined(PLACA_ESP32_DEVKIT)
+  pinMode(pinos::BOTAO_START, INPUT_PULLUP);
+  analogSetPinAttenuation(pinos::BATERIA_ADC, ADC_11db);  // faixa até cerca de 3,1 V no pino
+#endif
   barramento.iniciar(pinos::I2C_SDA, pinos::I2C_SCL);  // inicia o `Wire`
   encoderEsq.iniciar();
   encoderDir.iniciar();
@@ -720,24 +1503,33 @@ void setup() {
 }
 
 void loop() {
+#if defined(BANCADA_COM_TELEMETRIA)
+  // Mantém o Wi-Fi vivo entre os comandos, depois que ele foi ligado a primeira vez.
+  if (wifiIniciado) {
+    reconexaoWifi.ciclo(millis());
+  }
+#endif
   static char anterior = 0;
   static bool monitorAberto = false;
-  // Mostra o menu sozinho quando o monitor serial abre, sem precisar digitar nada.
+  // Mostra o menu sozinho quando o monitor serial abre, sem precisar digitar nada. Só na USB nativa:
+  // na UART do DevKit o `Serial` é sempre verdadeiro, e abrir o monitor reinicia a placa (o menu sai no `setup()`).
+#if ARDUINO_USB_CDC_ON_BOOT
   if (static_cast<bool>(Serial) != monitorAberto) {
     monitorAberto = static_cast<bool>(Serial);
     if (monitorAberto) {
       delay(300);
-      tela == Tela::Motores ? imprimirMenuMotores() : imprimirMenuPrincipal();
+      imprimirMenuAtual();
     }
   }
+#endif
   while (Serial.available() > 0) {
     const char tecla = static_cast<char>(Serial.read());
     const bool fimDeLinha = tecla == '\r' || tecla == '\n';
     // Enter pode chegar como CR, LF ou CRLF: mostra o menu uma vez só.
     if (fimDeLinha && !(tecla == '\n' && anterior == '\r')) {
-      tela == Tela::Motores ? imprimirMenuMotores() : imprimirMenuPrincipal();
+      imprimirMenuAtual();
     } else if (!fimDeLinha) {
-      tela == Tela::Motores ? executarMotores(tecla) : executarPrincipal(tecla);
+      executarTecla(tecla);
     }
     anterior = tecla;
   }

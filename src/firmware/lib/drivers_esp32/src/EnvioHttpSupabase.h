@@ -39,6 +39,10 @@ class EnvioHttpSupabase : public IEnvioTelemetria {
   /// Status mandado no encerramento: `concluida` se o robô chegou ao objetivo, senão `nao_concluida`.
   void definirResultadoCorrida(bool concluida) { concluida_ = concluida; }
 
+  /// Corpo da resposta da última chamada que o servidor respondeu (cortado em 160 caracteres), para
+  /// a bancada mostrar o motivo de um erro. Vazio se não houve resposta.
+  const String& ultimaResposta() const { return ultimaResposta_; }
+
   /// @copydoc IEnvioTelemetria::enviarLote
   ResultadoEnvio enviarLote(uint32_t corridaId, const AmostraTelemetria* amostras, uint16_t quantidade) override;
 
@@ -53,6 +57,7 @@ class EnvioHttpSupabase : public IEnvioTelemetria {
   const CredenciaisSupabase& credenciais_;
   uint32_t tempoLimiteMs_;
   bool concluida_ = false;
+  String ultimaResposta_;
   WiFiClientSecure cliente_;
   HTTPClient http_;
   char lote_[TAMANHO_MAXIMO_LOTE_JSON];
