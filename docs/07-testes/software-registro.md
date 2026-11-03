@@ -4216,3 +4216,139 @@ Para conferir se os testes pegam erros, e não só passam, foram feitas alteraç
 - **Bancada:** com o robô montado, bater devagar contra a parede e ver o `desvio_mg` no log para ajustar `LIMIAR_IMPACTO_MG` (entre o maior desvio andando sem bater e o menor batendo); conferir se o pico satura a faixa de ±4 g, onde o robô para depois do recuo e a frente parada com o robô preso.
 - **Evento no Supabase:** o `coletarAmostra()` do `main.cpp` só manda `objetivo_alcancado`; a colisão precisa ir como `EventoTelemetria::Colisao`, que o contrato já tem, para aparecer no banco e no dashboard.
 - **Encoders:** a detecção por encoder parado com os motores acionados, quando os encoders forem instalados.
+
+### Sprint 6 · Testes da PoliticaReenvio pedidos na revisão do buffer e reenvio
+
+!!! warning "Testes no computador"
+    Todos os testes deste registro rodaram **no computador**. O servidor e a rede foram simulados pelo `EnvioSimulado`, que fica fora do ar e responde os códigos HTTP que o teste pede. O comportamento com o Wi-Fi caindo de verdade fica para a bancada ([#478](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/478)).
+
+| Item | Valor |
+|---|---|
+| Tarefa | [#482 Completar os testes da PoliticaReenvio pedidos na revisão](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/482) |
+| Origem | Revisão da Ana Carolina no PR [#412](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/412) (*buffer* e reenvio, [#238](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/238)): na prova de mutação dela, 25 de 31 alterações foram detectadas, e 4 comportamentos ficaram sem teste |
+| História de usuário | HU-16 · Estabilização de Conexão ([#46](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/46)); RF16 e RNF05 |
+| Código testado | `src/firmware/lib/comunicacao` (`PoliticaReenvio` e `ControladorEnvio`) na `main` de 26/10/2026 (commit `9612a3b`), com os testes novos da branch `test/482-politica-reenvio` (commit `2a627ec`) |
+| Data da execução | 03/11/2026 |
+| Executado por | Eduardo Viana |
+| Tipo de teste | Unitário e de integração, no computador, com o servidor simulado `EnvioSimulado` |
+| Documentação do código | [Comunicação: envio da telemetria ao Supabase, *buffer* e reenvio](../04-projeto-conceitual/firmware.md#comunicacao-envio-da-telemetria-ao-supabase-buffer-e-reenvio) |
+
+**Ambiente de execução:** Linux (Ubuntu 24.04.5 LTS), g++ 13.3.0 (C++17), Unity 2.6.1, ArduinoJson 7.4.2 e gcov 13.3.0. Os testes foram compilados direto com o g++, com as mesmas bibliotecas do ambiente `native` (todas as de `lib/`, menos `drivers_esp32`); cada bloco traz o comando equivalente do PlatformIO.
+
+#### Critérios da issue e testes
+
+O código da `main` já tinha o teto da espera, a faixa `2xx` sem o `300` e a volta a 1 s depois de descartar e de retomar. O que faltava eram testes que pegassem quem desfizesse isso. Por isso, "falhar antes da correção" foi conferido assim: o defeito descrito na revisão foi colocado de propósito no código, o teste rodou e falhou; com o código da `main`, o mesmo teste passa.
+
+| Critério da #482 | Como foi atendido | Situação |
+|---|---|:-:|
+| Os 4 casos da revisão em `test/test_reenvio_telemetria`, cada um falhando antes da correção e passando depois | 4 casos novos, um por pedido da revisão (tabela abaixo); cada um falhou com o defeito correspondente e passa com o código da `main` | Aprovado |
+| Suíte nativa e cobertura sem regressão | 801 aprovados (eram 797; os 4 casos novos) e cobertura de `lib/` igual, 98,0% | Aprovado |
+
+| Pedido da revisão | Teste | Com o defeito | Com o código da `main` |
+|---|---|---|:-:|
+| Muitas falhas seguidas (cerca de 40): sem o limite em `proximaEsperaMs_`, a espera estoura o `uint32_t` e volta a quase zero | `test_quarenta_falhas_seguidas_nao_estouram_a_espera` | Falha na 5ª falha: `Expected 32000 to be less than or equal to 30000` (a espera passa do teto; o dobro estoura o `uint32_t` na 29ª, e da 30ª em diante a espera é zero) | Passa |
+| Resposta `300` deve pausar (`<= 300` como sucesso passava despercebido) | `test_resposta_300_pausa_o_envio` | Falha: `codigo 300` (o `300` virava sucesso; sem gravadas nem existentes, o lote seria reenviado sem fim em vez de pausar) | Passa |
+| Depois de um lote descartado (`400`/`404`/`413`/`422`), a espera volta a 1 s | `test_lote_descartado_volta_a_espera_ao_minimo` | Falha: `Expected 1000 Was 8000` (a próxima falha esperaria 8 s) | Passa |
+| Depois de `retomar()`, a espera volta a 1 s | `test_retomar_volta_a_espera_ao_minimo` | Falha: `Expected 1000 Was 8000` | Passa |
+
+Os casos também prendem os vizinhos das faixas que a revisão não citou: `199` e `600` pausam, e o teto vale mesmo com a espera mínima configurada acima dele.
+
+#### O que mudou no código
+
+| Arquivo | Mudança |
+| :--- | :--- |
+| `test/test_reenvio_telemetria/test_reenvio_telemetria.cpp` | 4 casos novos e o auxiliar `acumularTresFalhas` (três respostas `503`, até a espera chegar a 8 s) |
+| `README.md` do firmware | A espera volta a 1 s também depois de um lote descartado e do `retomar()`; o `envio_pausado` também sai em códigos que não se resolvem sozinhos, como um `3xx` |
+
+Nenhum arquivo de `lib/` ou do `main.cpp` mudou.
+
+#### Testes unitários e de integração
+
+```bash
+pio test -e native -f test_reenvio_telemetria -f test_envio_supabase
+```
+
+| Suíte | Casos | Resultado |
+| :--- | :--- | :--- |
+| `test_reenvio_telemetria` | 41 | **41 aprovados** (4 da #482) |
+| `test_envio_supabase` | 24 | **24 aprovados** |
+
+Os casos novos estão descritos na tabela de testes da [documentação do firmware](../04-projeto-conceitual/firmware.md#testes).
+
+```text
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:737:test_nomes_do_estado_e_do_evento_batem_com_o_banco:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:738:test_amostra_ocupa_pouco_e_o_buffer_cabe_dez_minutos:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:739:test_buffer_guarda_na_ordem_de_chegada:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:740:test_buffer_copia_no_maximo_o_pedido:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:741:test_buffer_cheio_sobrescreve_o_mais_antigo_e_conta_a_perda:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:742:test_buffer_da_a_volta_no_vetor_varias_vezes:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:743:test_buffer_remove_so_o_prefixo_confirmado:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:744:test_buffer_confirmacao_de_item_ja_sobrescrito_nao_remove_nada:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:745:test_buffer_remover_alem_do_tamanho_limita_e_limpar_zera:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:746:test_classificacao_das_respostas:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:747:test_espera_dobra_ate_o_teto_e_volta_ao_minimo_no_sucesso:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:748:test_espera_vem_da_configuracao:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:749:test_quarenta_falhas_seguidas_nao_estouram_a_espera:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:750:test_registrar_numera_na_coleta_e_nunca_chama_a_rede:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:751:test_sem_corrida_ou_sem_amostras_o_ciclo_fica_ocioso:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:752:test_lote_confirmado_sai_do_buffer_na_ordem:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:753:test_lotes_de_no_maximo_100_amostras:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:754:test_o_tamanho_do_lote_vem_da_configuracao:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:755:test_espera_crescente_entre_tentativas_e_volta_ao_minimo:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:756:test_o_relogio_que_da_a_volta_nao_trava_a_espera:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:757:test_primeira_tentativa_com_o_relogio_alto_nao_espera:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:758:test_integracao_rede_fora_no_meio_da_corrida_nao_perde_nem_duplica:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:759:test_integracao_resposta_perdida_nao_duplica:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:760:test_integracao_buffer_cheio_perde_so_as_mais_antigas:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:761:test_integracao_confirmacao_nao_apaga_amostras_novas:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:762:test_lote_recusado_e_descartado_e_a_fila_segue:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:763:test_erro_do_servidor_e_limite_de_requisicoes_sao_tentados_de_novo:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:764:test_nao_autorizado_pausa_o_envio_ate_retomar:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:765:test_resposta_300_pausa_o_envio:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:766:test_lote_descartado_volta_a_espera_ao_minimo:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:767:test_retomar_volta_a_espera_ao_minimo:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:768:test_resposta_que_nao_fecha_com_o_tamanho_do_lote_nao_remove_nada:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:769:test_integracao_encerramento_so_depois_do_ultimo_lote:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:770:test_encerramento_sem_amostras_pendentes_sai_na_hora:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:771:test_encerramento_sem_rede_tenta_de_novo_depois_da_espera:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:772:test_pedir_o_encerramento_de_novo_nao_reinicia_o_atraso:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:773:test_encerramento_atrasado_continua_tentando_ate_conseguir:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:774:test_encerramento_de_corrida_inexistente_nao_insiste:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:775:test_encerramento_com_credencial_recusada_pausa:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:776:test_a_trava_nunca_e_segurada_durante_a_rede:PASS
+test/test_reenvio_telemetria/test_reenvio_telemetria.cpp:777:test_nova_corrida_limpa_buffer_numeracao_e_contadores:PASS
+41 Tests 0 Failures 0 Ignored
+```
+
+#### Cobertura e suíte completa
+
+```bash
+pio test -e native_cobertura
+gcovr --root . --filter 'lib/' --object-directory .pio/build/native_cobertura --fail-under-line 80
+```
+
+| Verificação | Resultado |
+|---|---|
+| Suíte completa (as 42 suítes do `native`) | **801 aprovados, 0 falhas** |
+| Cobertura das linhas de `lib/`, somando todas as suítes | **98,0%** (3824 de 3901), igual à de antes, acima da meta de 80% |
+| `PoliticaReenvio.cpp` e `ControladorEnvio.cpp` | 100% (22 e 109 linhas), como antes |
+
+Os dois arquivos já tinham 100% de cobertura, e mesmo assim 8 das 26 alterações da prova de mutação passavam despercebidas. A cobertura mostra que a linha rodou; não mostra que algum teste conferiu o resultado dela.
+
+#### Prova de mutação
+
+Cada alteração proposital foi feita uma de cada vez em `PoliticaReenvio.cpp` ou `ControladorEnvio.cpp`, rodando `test_reenvio_telemetria` e `test_envio_supabase`. Por exemplo: `300` ou `199` contando como sucesso, `600` sendo repetido, sem o teto em `proximaEsperaMs_`, a espera devolvida sem o teto, o lote descartado ou o `retomar()` sem voltar a espera a 1 s, um sucesso sem voltar a espera a 1 s, `408` ou `422` fora da sua classe e a resposta de pausa sem pausar. Alterações que não mudam o comportamento, como `>` por `>=` no teto (os dois lados dão 30 s), ficaram de fora.
+
+| Execução | Antes (testes da `main`) | Depois (com a #482) |
+|---|---|---|
+| Classificação das respostas (14 alterações) | 10 detectadas | **14 detectadas** |
+| Espera da `PoliticaReenvio` (5 alterações) | 3 detectadas | **5 detectadas** |
+| Espera e pausa no `ControladorEnvio` (7 alterações) | 5 detectadas | **7 detectadas** |
+| Total | 18 de 26 | **26 de 26 alterações detectadas** |
+
+As 8 que passavam antes: `300`, `199` e `600` fora da classe certa, qualquer código acima de `500` sendo repetido, o teto de `proximaEsperaMs_`, o teto da espera devolvida e a volta a 1 s depois de descartar e de `retomar()`.
+
+#### Pendências desta etapa
+
+- **Wi-Fi real:** as esperas (1 s dobrando até 30 s) continuam provisórias; o teste com a rede caindo de verdade é a [#478](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/478).
+- **Log da pausa:** o `envio_pausado` sai com o `motivo` `credenciais_recusadas` também num `3xx`, porque o `ControladorEnvio` não guarda o último código HTTP. Se isso atrapalhar na bancada, dá para guardar o código e pô-lo no log.
