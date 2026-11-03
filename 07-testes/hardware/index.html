@@ -1160,6 +1160,8 @@
       
         
       
+        
+      
     
     
     
@@ -1774,6 +1776,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integracao/ensaio-integrado-protoboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5.1 Ensaio Integrado em Protoboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2292,6 +2322,54 @@
 </tr>
 <tr>
 <td style="text-align: center;">3.9</td>
+<td><a href="../integracao/ensaio-integrado-protoboard/#33-afericao-com-o-circuito-totalmente-energizado-sob-carga">Alimentação com os 3 reguladores Buck sob carga (ESP32 DevKit V1 em protoboard)</a></td>
+<td>29/10/2026</td>
+<td>29/10/2026</td>
+<td>Elias Oliveira e Cláudio Henrique</td>
+<td><code>U2</code> em 5,0 V, <code>U5</code> em 3,3 V e <code>U4</code> em 6,0 V (±2%) com todo o circuito energizado</td>
+<td><code>U2</code>, <code>U5</code> e <code>U4</code> mantiveram 5,0 V, 3,3 V e 6,0 V aferidos com multímetro, com Wi-Fi e motores em operação e sem reinício do microcontrolador</td>
+<td style="text-align: center;">S</td>
+<td style="text-align: center;"></td>
+<td>Sem os resistores e capacitores discretos externos; o divisor da bateria não foi montado</td>
+</tr>
+<tr>
+<td style="text-align: center;">3.10</td>
+<td><a href="../integracao/ensaio-integrado-protoboard/#41-operacao-do-driver-drv8833-motores-n20-e-firmware-na-esp32-devkit-v1">Driver DRV8833 e motores N20 na ESP32 DevKit V1</a></td>
+<td>29/10/2026</td>
+<td>29/10/2026</td>
+<td>Elias Oliveira e Cláudio Henrique</td>
+<td>Driver habilitado em 3,3 V (<code>nSLEEP</code>), alimentado em 6,0 V, e os dois motores respondendo ao PWM</td>
+<td>Driver habilitado e alimentado em 6,0 V; motor esquerdo acionado nos sentidos de avanço, recuo e parada, sem reinício. O motor direito não girou e os dois motores não rodaram juntos</td>
+<td style="text-align: center;">N</td>
+<td style="text-align: center;"></td>
+<td>Pendente: motor direito, os dois motores juntos, contagem dos encoders e zona morta (#483)</td>
+</tr>
+<tr>
+<td style="text-align: center;">3.11</td>
+<td><a href="../integracao/ensaio-integrado-protoboard/#42-teste-dinamico-dos-sensores-de-distancia-vl53l0x-no-firmware">Sensores ToF VL53L0X e IMU MPU6050 na ESP32 DevKit V1</a></td>
+<td>29/10/2026</td>
+<td>29/10/2026</td>
+<td>Elias Oliveira e Cláudio Henrique</td>
+<td>Os 3 ToF (0x30, 0x31 e 0x32) e a IMU (0x68) respondem pelos pinos <code>XSHUT</code> e pelo I²C da DevKit, com leitura contínua de distância</td>
+<td>Os 4 dispositivos reconhecidos e as distâncias dos ToF respondendo à aproximação da mão em tempo real (Vídeo 1)</td>
+<td style="text-align: center;">S</td>
+<td style="text-align: center;"></td>
+<td>Complementa os testes 3.7 e 3.8</td>
+</tr>
+<tr>
+<td style="text-align: center;">3.12</td>
+<td><a href="../integracao/ensaio-integrado-protoboard/#43-teste-de-comunicacao-wi-fi-e-envio-de-telemetria-para-as-edge-functions-do-supabase">Telemetria por Wi-Fi para as Edge Functions do Supabase</a></td>
+<td>29/10/2026</td>
+<td>29/10/2026</td>
+<td>Elias Oliveira e Cláudio Henrique</td>
+<td>Conexão Wi-Fi, <code>POST /corridas</code> com 201 e <code>POST /telemetria</code> com 200, com as amostras gravadas em <code>public.telemetria</code></td>
+<td>Corrida 11 criada (201) e 3 lotes de 5 amostras gravados (200), conferidos na tabela <code>telemetria</code> (Vídeo 2)</td>
+<td style="text-align: center;">S</td>
+<td style="text-align: center;"></td>
+<td>Amostras de teste da bancada, por hotspot de celular; reenvio com queda de Wi-Fi em #478</td>
+</tr>
+<tr>
+<td style="text-align: center;">3.13</td>
 <td></td>
 <td></td>
 <td></td>

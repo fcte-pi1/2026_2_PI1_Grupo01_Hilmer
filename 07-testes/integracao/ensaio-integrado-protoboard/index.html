@@ -1,0 +1,3551 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentação do projeto de Projeto Integrador 1 (PI1) — Grupo 01, professor Hilmer.">
+      
+      
+        <meta name="author" content="Grupo 01 - Hilmer">
+      
+      
+        <link rel="canonical" href="https://fcte-pi1.github.io/2026_2_PI1_Grupo01_Hilmer/07-testes/integracao/ensaio-integrado-protoboard/">
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../../../08-avaliacao-de-desempenho/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>7.5.1 Ensaio Integrado em Protoboard - PI1 · Grupo 01 (Hilmer) — 2026/2</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ensaio-integrado-em-protoboard-energia-hardware-firmware-e-telemetria-esp32-devkit-v1" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../../.." title="PI1 · Grupo 01 (Hilmer) — 2026/2" class="md-header__button md-logo" aria-label="PI1 · Grupo 01 (Hilmer) — 2026/2" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PI1 · Grupo 01 (Hilmer) — 2026/2
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              7.5.1 Ensaio Integrado em Protoboard
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para o modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para o modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Mudar para o modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para o modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fcte-pi1/2026_2_PI1_Grupo01_Hilmer
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="PI1 · Grupo 01 (Hilmer) — 2026/2" class="md-nav__button md-logo" aria-label="PI1 · Grupo 01 (Hilmer) — 2026/2" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PI1 · Grupo 01 (Hilmer) — 2026/2
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fcte-pi1/2026_2_PI1_Grupo01_Hilmer
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../status-equipes/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Status das equipes
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Status das equipes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status-equipes/software/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Software
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status-equipes/eletronica/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Eletrônica
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status-equipes/energia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Energia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../status-equipes/estrutura/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Estrutura
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../01-tap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1. TAP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../02-requisitos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2. Requisitos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../03-eap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3. EAP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../04-projeto-conceitual/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4. Projeto conceitual
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    4. Projeto conceitual
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/estruturas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1 Estruturas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/labirinto-testes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.1.1 Labirinto de testes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/energia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 Energia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/energia/protecoes-entrada/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.1 Proteções de entrada
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/energia/reguladores-buck/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.2 Reguladores Step-Down (Buck)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/energia/curva-descarga-lipo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.3 Curva de Descarga e SoC LiPo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/energia/monitoramento-tensao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.4 Monitoramento de Tensão (ADC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/energia/ensaios-protecoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.5 Ensaios de subtensão e PPTC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/energia/pop-recarga-bateria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.6 POP de recarga balanceada
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/energia/dimensiona-divisor-resistivo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2.7 Dimensionamento de divisor resistivo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/hardware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 Hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/hardware-diagramas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3.1 Diagramas de hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/justificativa-componentes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3.2 Justificativa dos componentes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/software/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Software
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../04-projeto-conceitual/firmware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4.1 Firmware: implementação
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../05-cronograma/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5. Cronograma
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../06-orcamento/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6. Orçamento
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7. Testes
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    7. Testes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../estrutura/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.1 Estrutura
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../energia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2 Energia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../energia/teste-componentes/bateria/teste-bancada-bateria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2.1 Ensaio de Bancada de Baterias
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3 Hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/calibracao-vl53l0x/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3.1 Calibração do VL53L0X
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/integracao-sensores-i2c/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3.2 Integração dos sensores I²C
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../software/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.4 Software
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../software-registro/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.4.1 Registro de execução por sprint
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5 Integração
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5.1 Ensaio Integrado em Protoboard
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5.1 Ensaio Integrado em Protoboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-edicoes-e-adaptacoes-realizadas-na-montagem-de-bancada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Edições e Adaptações Realizadas na Montagem de Bancada
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-plano-de-ligacao-utilizado-mapeamento-pino-a-pino" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Plano de Ligação Utilizado (Mapeamento Pino a Pino)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Plano de Ligação Utilizado (Mapeamento Pino a Pino)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-entrada-de-bateria-protecao-f1-e-chave-geral-sw1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1. Entrada de Bateria, Proteção (F1) e Chave Geral (SW1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-conversores-step-down-buck-u2-u5-e-u4-mp1584en" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2. Conversores Step-Down Buck (U2, U5 e U4: MP1584EN)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-circuito-divisor-de-tensao-r1-r2-e-c5-omitidos-no-ensaio-e-botao-btn_start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3. Circuito Divisor de Tensão (R1, R2 e C5, omitidos no ensaio) e Botão (BTN_START)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-sensores-laser-tof-vl53l0x-j3-esquerdo-j4-frontal-j5-direito" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4. Sensores Laser ToF VL53L0X (J3 Esquerdo, J4 Frontal, J5 Direito)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.4. Sensores Laser ToF VL53L0X (J3 Esquerdo, J4 Frontal, J5 Direito)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#241-vl53l0x-esquerdo-j3-endereco-final-0x30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.1. VL53L0X Esquerdo (J3, endereço final 0x30)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#242-vl53l0x-frontal-j4-endereco-final-0x31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.2. VL53L0X Frontal (J4, endereço final 0x31)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#243-vl53l0x-direito-j5-endereco-final-0x32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.3. VL53L0X Direito (J5, endereço final 0x32)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-unidade-de-medicao-inercial-imu-mpu6050-gy-521" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5. Unidade de Medição Inercial (IMU MPU6050 / GY-521)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26-driver-de-ponte-h-dupla-drv8833" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.6. Driver de Ponte H Dupla (DRV8833)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#27-motores-dc-n20-com-encoder-hall-esquerdo-e-direito" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.7. Motores DC N20 com Encoder Hall (Esquerdo e Direito)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.7. Motores DC N20 com Encoder Hall (Esquerdo e Direito)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#271-motor-n20-esquerdo-conector-de-6-vias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.7.1. Motor N20 Esquerdo (Conector de 6 Vias)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#272-motor-n20-direito-conector-de-6-vias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.7.2. Motor N20 Direito (Conector de 6 Vias)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#28-microcontrolador-esp32-devkit-v1-conferencia-final-de-todos-os-pinos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.8. Microcontrolador (ESP32 DevKit V1: conferência final de todos os pinos)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-procedimento-de-verificacao-de-ligacoes-e-saidas-com-multimetro" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Procedimento de Verificação de Ligações e Saídas com Multímetro
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Procedimento de Verificação de Ligações e Saídas com Multímetro">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-inspecao-a-frio-escala-de-continuidade-bip-sonoro-e-resistencia-omega" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1. Inspeção a Frio (Escala de Continuidade / Bip Sonoro e Resistência \(\Omega\))
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-calibracao-previa-e-afericao-dos-3-reguladores-buck-escala-de-tensao-continua-20-v-dc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2. Calibração Prévia e Aferição dos 3 Reguladores Buck (Escala de Tensão Contínua, 20 V DC)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-afericao-com-o-circuito-totalmente-energizado-sob-carga" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3. Aferição com o Circuito Totalmente Energizado (Sob Carga)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-resultados-dos-testes-funcionais-integrados" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Resultados dos Testes Funcionais Integrados
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Resultados dos Testes Funcionais Integrados">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-operacao-do-driver-drv8833-motores-n20-e-firmware-na-esp32-devkit-v1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1. Operação do Driver DRV8833, Motores N20 e Firmware na ESP32 DevKit V1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-teste-dinamico-dos-sensores-de-distancia-vl53l0x-no-firmware" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2. Teste Dinâmico dos Sensores de Distância (VL53L0X) no Firmware
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-teste-de-comunicacao-wi-fi-e-envio-de-telemetria-para-as-edge-functions-do-supabase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3. Teste de Comunicação Wi-Fi e Envio de Telemetria para as Edge Functions do Supabase
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-resumo-da-avaliacao-e-conclusao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Resumo da Avaliação e Conclusão
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Resumo da Avaliação e Conclusão">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-limitacoes-do-ensaio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1. Limitações do ensaio
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historico-de-versoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Histórico de Versões
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../08-avaliacao-de-desempenho/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8. Avaliação de desempenho
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../09-relatorio-de-encerramento/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9. Relatório de encerramento
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-edicoes-e-adaptacoes-realizadas-na-montagem-de-bancada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Edições e Adaptações Realizadas na Montagem de Bancada
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-plano-de-ligacao-utilizado-mapeamento-pino-a-pino" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Plano de Ligação Utilizado (Mapeamento Pino a Pino)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Plano de Ligação Utilizado (Mapeamento Pino a Pino)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-entrada-de-bateria-protecao-f1-e-chave-geral-sw1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1. Entrada de Bateria, Proteção (F1) e Chave Geral (SW1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-conversores-step-down-buck-u2-u5-e-u4-mp1584en" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2. Conversores Step-Down Buck (U2, U5 e U4: MP1584EN)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-circuito-divisor-de-tensao-r1-r2-e-c5-omitidos-no-ensaio-e-botao-btn_start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3. Circuito Divisor de Tensão (R1, R2 e C5, omitidos no ensaio) e Botão (BTN_START)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-sensores-laser-tof-vl53l0x-j3-esquerdo-j4-frontal-j5-direito" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4. Sensores Laser ToF VL53L0X (J3 Esquerdo, J4 Frontal, J5 Direito)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.4. Sensores Laser ToF VL53L0X (J3 Esquerdo, J4 Frontal, J5 Direito)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#241-vl53l0x-esquerdo-j3-endereco-final-0x30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.1. VL53L0X Esquerdo (J3, endereço final 0x30)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#242-vl53l0x-frontal-j4-endereco-final-0x31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.2. VL53L0X Frontal (J4, endereço final 0x31)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#243-vl53l0x-direito-j5-endereco-final-0x32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.3. VL53L0X Direito (J5, endereço final 0x32)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-unidade-de-medicao-inercial-imu-mpu6050-gy-521" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5. Unidade de Medição Inercial (IMU MPU6050 / GY-521)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26-driver-de-ponte-h-dupla-drv8833" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.6. Driver de Ponte H Dupla (DRV8833)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#27-motores-dc-n20-com-encoder-hall-esquerdo-e-direito" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.7. Motores DC N20 com Encoder Hall (Esquerdo e Direito)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.7. Motores DC N20 com Encoder Hall (Esquerdo e Direito)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#271-motor-n20-esquerdo-conector-de-6-vias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.7.1. Motor N20 Esquerdo (Conector de 6 Vias)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#272-motor-n20-direito-conector-de-6-vias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.7.2. Motor N20 Direito (Conector de 6 Vias)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#28-microcontrolador-esp32-devkit-v1-conferencia-final-de-todos-os-pinos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.8. Microcontrolador (ESP32 DevKit V1: conferência final de todos os pinos)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-procedimento-de-verificacao-de-ligacoes-e-saidas-com-multimetro" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Procedimento de Verificação de Ligações e Saídas com Multímetro
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Procedimento de Verificação de Ligações e Saídas com Multímetro">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-inspecao-a-frio-escala-de-continuidade-bip-sonoro-e-resistencia-omega" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1. Inspeção a Frio (Escala de Continuidade / Bip Sonoro e Resistência \(\Omega\))
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-calibracao-previa-e-afericao-dos-3-reguladores-buck-escala-de-tensao-continua-20-v-dc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2. Calibração Prévia e Aferição dos 3 Reguladores Buck (Escala de Tensão Contínua, 20 V DC)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-afericao-com-o-circuito-totalmente-energizado-sob-carga" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3. Aferição com o Circuito Totalmente Energizado (Sob Carga)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-resultados-dos-testes-funcionais-integrados" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Resultados dos Testes Funcionais Integrados
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Resultados dos Testes Funcionais Integrados">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-operacao-do-driver-drv8833-motores-n20-e-firmware-na-esp32-devkit-v1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1. Operação do Driver DRV8833, Motores N20 e Firmware na ESP32 DevKit V1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-teste-dinamico-dos-sensores-de-distancia-vl53l0x-no-firmware" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2. Teste Dinâmico dos Sensores de Distância (VL53L0X) no Firmware
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-teste-de-comunicacao-wi-fi-e-envio-de-telemetria-para-as-edge-functions-do-supabase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3. Teste de Comunicação Wi-Fi e Envio de Telemetria para as Edge Functions do Supabase
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-resumo-da-avaliacao-e-conclusao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Resumo da Avaliação e Conclusão
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Resumo da Avaliação e Conclusão">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-limitacoes-do-ensaio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1. Limitações do ensaio
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historico-de-versoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Histórico de Versões
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/edit/main/docs/07-testes/integracao/ensaio-integrado-protoboard.md" title="Editar esta página" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="ensaio-integrado-em-protoboard-energia-hardware-firmware-e-telemetria-esp32-devkit-v1">Ensaio Integrado em Protoboard: Energia, Hardware, Firmware e Telemetria (ESP32 DevKit V1)<a class="headerlink" href="#ensaio-integrado-em-protoboard-energia-hardware-firmware-e-telemetria-esp32-devkit-v1" title="Permanent link">&para;</a></h1>
+<p>Este documento registra o <strong>ensaio de integração geral em bancada (protoboard)</strong>, contemplando a energização simultânea de todos os subsistemas do Micromouse, a validação das saídas dos três conversores Buck com multímetro, o acionamento do driver de motores e dos micromotores N20, a leitura dos sensores no barramento I²C com o firmware do projeto e a transmissão de telemetria via Wi-Fi diretamente da <strong>ESP32 DevKit V1</strong> para as <em>Edge Functions</em> do banco de dados <strong>Supabase</strong>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Item</th>
+<th style="text-align: left;">Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Subsistemas Integrados</strong></td>
+<td style="text-align: left;">Energia (LiPo 2S + 3× Buck MP1584EN), Hardware (ESP32 DevKit V1, DRV8833, 2× Motores N20 c/ Encoder, 3× VL53L0X, IMU MPU6050) e Software/Firmware (Sensores, Controle e Telemetria Wi-Fi/Supabase)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Data da Execução</strong></td>
+<td style="text-align: left;">29/10/2026</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Responsáveis / Executores</strong></td>
+<td style="text-align: left;">Elias Oliveira e Cláudio Henrique</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Ambiente de Montagem</strong></td>
+<td style="text-align: left;">Duas protoboards interligadas ao chassi impresso em 3D com motores e rodas (operação equivalente ao robô completo em bancada)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Resultado Global</strong></td>
+<td style="text-align: left;"><strong>Aprovado com pendência.</strong> Circuito integralmente energizado e estável; tensões dos 3 reguladores aferidas; driver DRV8833 e sensores I²C operacionais; motor esquerdo acionado pelo firmware, mas o motor direito não girou e os dois motores não rodaram ao mesmo tempo (pendência registrada na #483); conexão Wi-Fi e envio de lotes de telemetria às <em>Edge Functions</em> do Supabase (<code>HTTP 201</code> e <code>HTTP 200</code>) validados com persistência confirmada no banco</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-edicoes-e-adaptacoes-realizadas-na-montagem-de-bancada">1. Edições e Adaptações Realizadas na Montagem de Bancada<a class="headerlink" href="#1-edicoes-e-adaptacoes-realizadas-na-montagem-de-bancada" title="Permanent link">&para;</a></h2>
+<p>Para viabilizar a validação funcional completa de ponta a ponta antes da montagem na placa de circuito impresso (PCB) definitiva, foram adotadas as seguintes <strong>edições e simplificações de hardware</strong> em relação ao esquemático teórico da Rev 2.0:</p>
+<ol>
+<li><strong>Montagem sem Resistores e Capacitores Discretos Externos:</strong></li>
+<li>Todo o circuito foi montado e testado <strong>sem a utilização de resistores e capacitores discretos avulsos</strong> na protoboard.</li>
+<li><strong>Supressão do divisor resistivo e filtro do ADC (<code>R1 = 100 kΩ</code>, <code>R2 = 33 kΩ</code> e <code>C5 = 100 nF</code>):</strong> o circuito de monitoramento analógico da tensão da bateria no pino <code>GPIO 34</code> (<code>BAT_ADC</code>) não foi populado nesta montagem em protoboard.</li>
+<li><strong>Habilitação direta do driver <code>DRV8833</code> (sem <code>R4 = 47 kΩ</code>):</strong> o pino <code>nSLEEP</code> (<code>EEP</code>/<code>STBY</code>) do módulo DRV8833 foi conectado diretamente ao barramento regulado de <code>+3,3 V</code> (<code>+3V3_SENS</code>), garantindo nível lógico alto estável para operação da ponte H.</li>
+<li><strong>Operação sem capacitores eletrolíticos/cerâmicos externos (<code>C2</code>, <code>C3</code>, <code>C4</code>, <code>C6</code>, <code>C7</code>, <code>C8</code>):</strong> a filtragem de entrada e saída operou exclusivamente com os capacitores cerâmicos SMD (MLCC) e resistores de <em>pull-up</em> já integrados de fábrica nos próprios módulos comerciais (<em>breakouts</em> dos conversores <code>MP1584EN</code>, dos sensores <code>VL53L0X</code>, da <code>MPU6050</code> e do <code>DRV8833</code>), além dos resistores internos de <em>pull-up</em> (<code>INPUT_PULLUP</code>) da própria ESP32.</li>
+<li><strong>Emprego da Placa <code>ESP32 DevKit V1</code>:</strong></li>
+<li>Utilizou-se o módulo <strong>ESP32 DevKit V1</strong> (ESP32 clássico, ambiente <code>bancada_geral_devkit</code> do PlatformIO, com a flag <code>-DPLACA_ESP32_DEVKIT</code>), permitindo alimentar o microcontrolador pelo pino <code>VIN</code> (<code>5,0 V</code> vindos do Buck <code>U2</code>) e dedicar 17 pinos de I/O sem conflito entre a interface serial USB, o barramento I²C, os sinais <code>XSHUT</code>, o PWM dos motores e os canais de quadratura dos encoders.</li>
+<li><strong>Configuração Funcional Equivalente ao Robô ("Rato em Protoboard"):</strong></li>
+<li>Os componentes eletrônicos (três conversores Buck, ESP32 DevKit V1, driver DRV8833, IMU MPU6050 e os três sensores VL53L0X) foram dispostos em duas protoboards acopladas por chicotes diretamente ao chassi mecânico impresso em 3D contendo os dois micromotores DC N20 e rodas, reproduzindo fielmente o comportamento elétrico e lógico do Micromouse completo.</li>
+</ol>
+<figure>
+<p><img alt="Circuito completo montado na protoboard integrado ao chassi do Micromouse" src="../../../figs/integracao-protoboard-circuito-completo.jpg" width="520" /></p>
+<figcaption>
+
+Figura 1. Montagem integrada em bancada: os três reguladores Step-Down Buck MP1584EN, a placa ESP32 DevKit V1, o driver DRV8833, a IMU MPU6050 e os sensores ToF VL53L0X montados nas protoboards e interligados ao chassi impresso com os dois motores N20 e rodas, operando como o robô completo sem resistores ou capacitores discretos externos.
+
+</figcaption>
+</figure>
+<hr />
+<h2 id="2-plano-de-ligacao-utilizado-mapeamento-pino-a-pino">2. Plano de Ligação Utilizado (Mapeamento Pino a Pino)<a class="headerlink" href="#2-plano-de-ligacao-utilizado-mapeamento-pino-a-pino" title="Permanent link">&para;</a></h2>
+<p>Abaixo estão as tabelas de fiação pino a pino utilizadas como referência para a montagem, segmentadas individualmente por componente.</p>
+<div class="admonition info">
+<p class="admonition-title">Nota sobre os componentes passivos na bancada</p>
+<p>Conforme descrito na <a href="#1-edicoes-e-adaptacoes-realizadas-na-montagem-de-bancada">Seção 1</a>, durante a execução prática deste ensaio <strong>não foram instalados os resistores (<code>R1</code>, <code>R2</code>) nem os capacitores externos (<code>C5</code> e capacitor de <em>bulk</em> na saída de <code>U4</code>)</strong>. A Tabela 3 é mantida abaixo como registro integral do plano de pinagem do <code>ESP32 DevKit V1</code>, destacando-se a omissão física dos passivos discretos na protoboard.</p>
+</div>
+<h3 id="21-entrada-de-bateria-protecao-f1-e-chave-geral-sw1">2.1. Entrada de Bateria, Proteção (<code>F1</code>) e Chave Geral (<code>SW1</code>)<a class="headerlink" href="#21-entrada-de-bateria-protecao-f1-e-chave-geral-sw1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Componente de Origem</th>
+<th style="text-align: left;">Terminal / Pino (Origem)</th>
+<th style="text-align: left;">Componente de Destino</th>
+<th style="text-align: left;">Terminal / Pino (Destino)</th>
+<th style="text-align: center;">Nível de Tensão</th>
+<th style="text-align: left;">Descrição / Função</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Bateria LiPo 2S</strong></td>
+<td style="text-align: left;">Fio Vermelho (<code>+</code>)</td>
+<td style="text-align: left;"><strong>Fusível PPTC <code>F1</code></strong> (MF-R185)</td>
+<td style="text-align: left;"><code>Terminal 1</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(7{,}4\text{ V a }8{,}4\text{ V}\)</span></td>
+<td style="text-align: left;">Entrada primária da bateria</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Fusível PPTC <code>F1</code></strong></td>
+<td style="text-align: left;"><code>Terminal 2</code></td>
+<td style="text-align: left;"><strong>Chave Geral <code>SW1</code></strong></td>
+<td style="text-align: left;"><code>Pino 1</code> (Entrada)</td>
+<td style="text-align: center;"><span class="arithmatex">\(7{,}4\text{ V a }8{,}4\text{ V}\)</span></td>
+<td style="text-align: left;">Linha protegida contra sobrecorrente</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Chave Geral <code>SW1</code></strong></td>
+<td style="text-align: left;"><code>Pino 2</code> (Saída)</td>
+<td style="text-align: left;"><strong>Barramento <code>VBAT</code></strong></td>
+<td style="text-align: left;">Trilha / Linha <code>VBAT</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(7{,}4\text{ V a }8{,}4\text{ V}\)</span></td>
+<td style="text-align: left;">Alimenta <code>U2</code>, <code>U4</code>, <code>U5</code> (e <span class="arithmatex">\(R_1\)</span> no plano completo)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Bateria LiPo 2S</strong></td>
+<td style="text-align: left;">Fio Preto (<code>-</code>)</td>
+<td style="text-align: left;"><strong>Barramento <code>GND</code></strong></td>
+<td style="text-align: left;">Trilha / Linha <code>GND Comum</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0{,}0\text{ V}\)</span></td>
+<td style="text-align: left;">Terra de referência unificado de todo o robô</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22-conversores-step-down-buck-u2-u5-e-u4-mp1584en">2.2. Conversores Step-Down Buck (<code>U2</code>, <code>U5</code> e <code>U4</code>: MP1584EN)<a class="headerlink" href="#22-conversores-step-down-buck-u2-u5-e-u4-mp1584en" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>Regra de Bancada Aplicada:</strong> Foram conectados primeiro os pinos <code>IN+</code> e <code>IN-</code>, ajustado o trimpot de cada módulo com o multímetro na saída e <strong>só depois</strong> conectados os pinos <code>OUT+</code> ao restante do circuito.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Componente de Origem</th>
+<th style="text-align: left;">Terminal / Pino (Origem)</th>
+<th style="text-align: left;">Componente de Destino</th>
+<th style="text-align: left;">Terminal / Pino (Destino)</th>
+<th style="text-align: center;">Nível de Tensão</th>
+<th style="text-align: left;">Descrição / Função</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Buck <code>U2</code> (5,0 V)</strong></td>
+<td style="text-align: left;"><code>IN+</code></td>
+<td style="text-align: left;"><strong>Chave Geral <code>SW1</code></strong></td>
+<td style="text-align: left;"><code>Pino 2</code> (Barramento <code>VBAT</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(7{,}4\text{ V a }8{,}4\text{ V}\)</span></td>
+<td style="text-align: left;">Entrada de alta tensão do conversor 5 V</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Buck <code>U2</code> (5,0 V)</strong></td>
+<td style="text-align: left;"><code>IN-</code></td>
+<td style="text-align: left;"><strong>Barramento <code>GND</code></strong></td>
+<td style="text-align: left;"><code>GND Comum</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0{,}0\text{ V}\)</span></td>
+<td style="text-align: left;">Terra de entrada do conversor 5 V</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Buck <code>U2</code> (5,0 V)</strong></td>
+<td style="text-align: left;"><code>OUT+</code></td>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>VIN</code> (ou <code>5V</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(+5{,}0\text{ V}\)</span></td>
+<td style="text-align: left;">Alimentação exclusiva do ESP32</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Buck <code>U2</code> (5,0 V)</strong></td>
+<td style="text-align: left;"><code>OUT-</code></td>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GND</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0{,}0\text{ V}\)</span></td>
+<td style="text-align: left;">Retorno de terra para o ESP32</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Buck <code>U5</code> (3,3 V)</strong></td>
+<td style="text-align: left;"><code>IN+</code></td>
+<td style="text-align: left;"><strong>Chave Geral <code>SW1</code></strong></td>
+<td style="text-align: left;"><code>Pino 2</code> (Barramento <code>VBAT</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(7{,}4\text{ V a }8{,}4\text{ V}\)</span></td>
+<td style="text-align: left;">Entrada de alta tensão do conversor 3,3 V</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Buck <code>U5</code> (3,3 V)</strong></td>
+<td style="text-align: left;"><code>IN-</code></td>
+<td style="text-align: left;"><strong>Barramento <code>GND</code></strong></td>
+<td style="text-align: left;"><code>GND Comum</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0{,}0\text{ V}\)</span></td>
+<td style="text-align: left;">Terra de entrada do conversor 3,3 V</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Buck <code>U5</code> (3,3 V)</strong></td>
+<td style="text-align: left;"><code>OUT+</code></td>
+<td style="text-align: left;"><strong>Barramento <code>+3V3_SENS</code></strong></td>
+<td style="text-align: left;"><code>VIN</code> (3× ToF, MPU), <code>VCC</code> (Encoders) e <code>nSLEEP</code> (DRV8833)</td>
+<td style="text-align: center;"><span class="arithmatex">\(+3{,}3\text{ V}\)</span></td>
+<td style="text-align: left;">Alimentação lógica externa regulada</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Buck <code>U5</code> (3,3 V)</strong></td>
+<td style="text-align: left;"><code>OUT-</code></td>
+<td style="text-align: left;"><strong>Barramento <code>GND</code></strong></td>
+<td style="text-align: left;"><code>GND Comum</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0{,}0\text{ V}\)</span></td>
+<td style="text-align: left;">Retorno de terra dos sensores e lógica</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Buck <code>U4</code> (6,0 V)</strong></td>
+<td style="text-align: left;"><code>IN+</code></td>
+<td style="text-align: left;"><strong>Chave Geral <code>SW1</code></strong></td>
+<td style="text-align: left;"><code>Pino 2</code> (Barramento <code>VBAT</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(7{,}4\text{ V a }8{,}4\text{ V}\)</span></td>
+<td style="text-align: left;">Entrada de alta tensão do conversor 6 V</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Buck <code>U4</code> (6,0 V)</strong></td>
+<td style="text-align: left;"><code>IN-</code></td>
+<td style="text-align: left;"><strong>Barramento <code>GND</code></strong></td>
+<td style="text-align: left;"><code>GND Comum</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0{,}0\text{ V}\)</span></td>
+<td style="text-align: left;">Terra de entrada do conversor 6 V</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Buck <code>U4</code> (6,0 V)</strong></td>
+<td style="text-align: left;"><code>OUT+</code></td>
+<td style="text-align: left;"><strong>Driver DRV8833</strong></td>
+<td style="text-align: left;">Pino <code>VM</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(+6{,}0\text{ V}\)</span></td>
+<td style="text-align: left;">Alimentação de potência dos motores DC</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Buck <code>U4</code> (6,0 V)</strong></td>
+<td style="text-align: left;"><code>OUT-</code></td>
+<td style="text-align: left;"><strong>Driver DRV8833</strong></td>
+<td style="text-align: left;">Pino <code>GND</code> (Potência)</td>
+<td style="text-align: center;"><span class="arithmatex">\(0{,}0\text{ V}\)</span></td>
+<td style="text-align: left;">Retorno de potência dos motores DC</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-circuito-divisor-de-tensao-r1-r2-e-c5-omitidos-no-ensaio-e-botao-btn_start">2.3. Circuito Divisor de Tensão (<code>R1</code>, <code>R2</code> e <code>C5</code>, <em>omitidos no ensaio</em>) e Botão (<code>BTN_START</code>)<a class="headerlink" href="#23-circuito-divisor-de-tensao-r1-r2-e-c5-omitidos-no-ensaio-e-botao-btn_start" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Componente de Origem</th>
+<th style="text-align: left;">Terminal / Pino (Origem)</th>
+<th style="text-align: left;">Componente de Destino</th>
+<th style="text-align: left;">Terminal / Pino (Destino)</th>
+<th style="text-align: center;">Nível de Tensão</th>
+<th style="text-align: left;">Descrição / Função</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Resistor <code>R1</code> (<span class="arithmatex">\(100\text{ k}\Omega\)</span>)</strong> <em>(omitido)</em></td>
+<td style="text-align: left;"><code>Terminal 1</code></td>
+<td style="text-align: left;"><strong>Chave Geral <code>SW1</code></strong></td>
+<td style="text-align: left;"><code>Pino 2</code> (Barramento <code>VBAT</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(7{,}4\text{ V a }8{,}4\text{ V}\)</span></td>
+<td style="text-align: left;">Coleta tensão da bateria pós-chave <em>(não montado na protoboard)</em></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Resistor <code>R1</code> (<span class="arithmatex">\(100\text{ k}\Omega\)</span>)</strong> <em>(omitido)</em></td>
+<td style="text-align: left;"><code>Terminal 2</code></td>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 34</code> (Nó <code>BAT_ADC</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(1{,}83\text{ V a }2{,}08\text{ V}\)</span></td>
+<td style="text-align: left;">Entrega sinal atenuado ao ADC1 <em>(não montado na protoboard)</em></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Resistor <code>R2</code> (<span class="arithmatex">\(33\text{ k}\Omega\)</span>)</strong> <em>(omitido)</em></td>
+<td style="text-align: left;"><code>Terminal 1</code></td>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 34</code> (Nó <code>BAT_ADC</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(1{,}83\text{ V a }2{,}08\text{ V}\)</span></td>
+<td style="text-align: left;">Junta-se ao <code>Terminal 2</code> de <code>R1</code> <em>(não montado na protoboard)</em></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Resistor <code>R2</code> (<span class="arithmatex">\(33\text{ k}\Omega\)</span>)</strong> <em>(omitido)</em></td>
+<td style="text-align: left;"><code>Terminal 2</code></td>
+<td style="text-align: left;"><strong>Barramento <code>GND</code></strong></td>
+<td style="text-align: left;"><code>GND Comum</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0{,}0\text{ V}\)</span></td>
+<td style="text-align: left;">Fecha o divisor resistivo para o terra <em>(não montado na protoboard)</em></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Capacitor <code>C5</code> (<span class="arithmatex">\(100\text{ nF}\)</span>)</strong> <em>(omitido)</em></td>
+<td style="text-align: left;"><code>Terminal 1</code></td>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 34</code> (Nó <code>BAT_ADC</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(1{,}83\text{ V a }2{,}08\text{ V}\)</span></td>
+<td style="text-align: left;">Em paralelo com <code>R2</code>, filtro passa-baixas <em>(não montado na protoboard)</em></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Capacitor <code>C5</code> (<span class="arithmatex">\(100\text{ nF}\)</span>)</strong> <em>(omitido)</em></td>
+<td style="text-align: left;"><code>Terminal 2</code></td>
+<td style="text-align: left;"><strong>Barramento <code>GND</code></strong></td>
+<td style="text-align: left;"><code>GND Comum</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0{,}0\text{ V}\)</span></td>
+<td style="text-align: left;">Desvia ruído de alta frequência para o terra <em>(não montado na protoboard)</em></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Botão <code>BTN_START</code></strong></td>
+<td style="text-align: left;"><code>Terminal 1</code></td>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 23</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(3{,}3\text{ V}\)</span> (Pull-up)</td>
+<td style="text-align: left;">Aciona partida/calibração ao ir para <code>0 V</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Botão <code>BTN_START</code></strong></td>
+<td style="text-align: left;"><code>Terminal 2</code></td>
+<td style="text-align: left;"><strong>Barramento <code>GND</code></strong></td>
+<td style="text-align: left;"><code>GND Comum</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0{,}0\text{ V}\)</span></td>
+<td style="text-align: left;">Aterra o pino <code>GPIO 23</code> quando pressionado</td>
+</tr>
+</tbody>
+</table>
+<h3 id="24-sensores-laser-tof-vl53l0x-j3-esquerdo-j4-frontal-j5-direito">2.4. Sensores Laser ToF VL53L0X (<code>J3</code> Esquerdo, <code>J4</code> Frontal, <code>J5</code> Direito)<a class="headerlink" href="#24-sensores-laser-tof-vl53l0x-j3-esquerdo-j4-frontal-j5-direito" title="Permanent link">&para;</a></h3>
+<h4 id="241-vl53l0x-esquerdo-j3-endereco-final-0x30">2.4.1. VL53L0X Esquerdo (<code>J3</code>, endereço final <code>0x30</code>)<a class="headerlink" href="#241-vl53l0x-esquerdo-j3-endereco-final-0x30" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Componente de Origem</th>
+<th style="text-align: left;">Terminal / Pino (Origem)</th>
+<th style="text-align: left;">Componente de Destino</th>
+<th style="text-align: left;">Terminal / Pino (Destino)</th>
+<th style="text-align: center;">Nível de Tensão</th>
+<th style="text-align: left;">Descrição / Função</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>VL53L0X Esquerdo (<code>J3</code>)</strong></td>
+<td style="text-align: left;"><code>VIN</code> (ou <code>VCC</code>)</td>
+<td style="text-align: left;"><strong>Buck <code>U5</code> (3,3 V)</strong></td>
+<td style="text-align: left;"><code>OUT+</code> (Barramento <code>+3V3_SENS</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(+3{,}3\text{ V}\)</span></td>
+<td style="text-align: left;">Alimentação do módulo esquerdo</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>VL53L0X Esquerdo (<code>J3</code>)</strong></td>
+<td style="text-align: left;"><code>GND</code></td>
+<td style="text-align: left;"><strong>Barramento <code>GND</code></strong></td>
+<td style="text-align: left;"><code>GND Comum</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0{,}0\text{ V}\)</span></td>
+<td style="text-align: left;">Referência elétrica</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>VL53L0X Esquerdo (<code>J3</code>)</strong></td>
+<td style="text-align: left;"><code>SDA</code></td>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 21</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(3{,}3\text{ V}\)</span> (I²C)</td>
+<td style="text-align: left;">Via de dados I²C (em paralelo com os demais)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>VL53L0X Esquerdo (<code>J3</code>)</strong></td>
+<td style="text-align: left;"><code>SCL</code></td>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 22</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(3{,}3\text{ V}\)</span> (I²C)</td>
+<td style="text-align: left;">Via de clock I²C (em paralelo com os demais)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>VL53L0X Esquerdo (<code>J3</code>)</strong></td>
+<td style="text-align: left;"><code>XSHUT</code></td>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 16</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V} / 3{,}3\text{ V}\)</span></td>
+<td style="text-align: left;">Pino exclusivo para acordar e mudar endereço</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>VL53L0X Esquerdo (<code>J3</code>)</strong></td>
+<td style="text-align: left;"><code>GPIO1</code></td>
+<td style="text-align: left;"><em>Não conectado</em></td>
+<td style="text-align: left;"><em>Em aberto (Isolado)</em></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">Interrupção não utilizada</td>
+</tr>
+</tbody>
+</table>
+<h4 id="242-vl53l0x-frontal-j4-endereco-final-0x31">2.4.2. VL53L0X Frontal (<code>J4</code>, endereço final <code>0x31</code>)<a class="headerlink" href="#242-vl53l0x-frontal-j4-endereco-final-0x31" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Componente de Origem</th>
+<th style="text-align: left;">Terminal / Pino (Origem)</th>
+<th style="text-align: left;">Componente de Destino</th>
+<th style="text-align: left;">Terminal / Pino (Destino)</th>
+<th style="text-align: center;">Nível de Tensão</th>
+<th style="text-align: left;">Descrição / Função</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>VL53L0X Frontal (<code>J4</code>)</strong></td>
+<td style="text-align: left;"><code>VIN</code> (ou <code>VCC</code>)</td>
+<td style="text-align: left;"><strong>Buck <code>U5</code> (3,3 V)</strong></td>
+<td style="text-align: left;"><code>OUT+</code> (Barramento <code>+3V3_SENS</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(+3{,}3\text{ V}\)</span></td>
+<td style="text-align: left;">Alimentação do módulo frontal</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>VL53L0X Frontal (<code>J4</code>)</strong></td>
+<td style="text-align: left;"><code>GND</code></td>
+<td style="text-align: left;"><strong>Barramento <code>GND</code></strong></td>
+<td style="text-align: left;"><code>GND Comum</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0{,}0\text{ V}\)</span></td>
+<td style="text-align: left;">Referência elétrica</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>VL53L0X Frontal (<code>J4</code>)</strong></td>
+<td style="text-align: left;"><code>SDA</code></td>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 21</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(3{,}3\text{ V}\)</span> (I²C)</td>
+<td style="text-align: left;">Via de dados I²C (em paralelo com os demais)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>VL53L0X Frontal (<code>J4</code>)</strong></td>
+<td style="text-align: left;"><code>SCL</code></td>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 22</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(3{,}3\text{ V}\)</span> (I²C)</td>
+<td style="text-align: left;">Via de clock I²C (em paralelo com os demais)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>VL53L0X Frontal (<code>J4</code>)</strong></td>
+<td style="text-align: left;"><code>XSHUT</code></td>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 17</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V} / 3{,}3\text{ V}\)</span></td>
+<td style="text-align: left;">Pino exclusivo para acordar e mudar endereço</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>VL53L0X Frontal (<code>J4</code>)</strong></td>
+<td style="text-align: left;"><code>GPIO1</code></td>
+<td style="text-align: left;"><em>Não conectado</em></td>
+<td style="text-align: left;"><em>Em aberto (Isolado)</em></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">Interrupção não utilizada</td>
+</tr>
+</tbody>
+</table>
+<h4 id="243-vl53l0x-direito-j5-endereco-final-0x32">2.4.3. VL53L0X Direito (<code>J5</code>, endereço final <code>0x32</code>)<a class="headerlink" href="#243-vl53l0x-direito-j5-endereco-final-0x32" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Componente de Origem</th>
+<th style="text-align: left;">Terminal / Pino (Origem)</th>
+<th style="text-align: left;">Componente de Destino</th>
+<th style="text-align: left;">Terminal / Pino (Destino)</th>
+<th style="text-align: center;">Nível de Tensão</th>
+<th style="text-align: left;">Descrição / Função</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>VL53L0X Direito (<code>J5</code>)</strong></td>
+<td style="text-align: left;"><code>VIN</code> (ou <code>VCC</code>)</td>
+<td style="text-align: left;"><strong>Buck <code>U5</code> (3,3 V)</strong></td>
+<td style="text-align: left;"><code>OUT+</code> (Barramento <code>+3V3_SENS</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(+3{,}3\text{ V}\)</span></td>
+<td style="text-align: left;">Alimentação do módulo direito</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>VL53L0X Direito (<code>J5</code>)</strong></td>
+<td style="text-align: left;"><code>GND</code></td>
+<td style="text-align: left;"><strong>Barramento <code>GND</code></strong></td>
+<td style="text-align: left;"><code>GND Comum</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0{,}0\text{ V}\)</span></td>
+<td style="text-align: left;">Referência elétrica</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>VL53L0X Direito (<code>J5</code>)</strong></td>
+<td style="text-align: left;"><code>SDA</code></td>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 21</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(3{,}3\text{ V}\)</span> (I²C)</td>
+<td style="text-align: left;">Via de dados I²C (em paralelo com os demais)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>VL53L0X Direito (<code>J5</code>)</strong></td>
+<td style="text-align: left;"><code>SCL</code></td>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 22</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(3{,}3\text{ V}\)</span> (I²C)</td>
+<td style="text-align: left;">Via de clock I²C (em paralelo com os demais)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>VL53L0X Direito (<code>J5</code>)</strong></td>
+<td style="text-align: left;"><code>XSHUT</code></td>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 4</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V} / 3{,}3\text{ V}\)</span></td>
+<td style="text-align: left;">Pino exclusivo para acordar e mudar endereço</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>VL53L0X Direito (<code>J5</code>)</strong></td>
+<td style="text-align: left;"><code>GPIO1</code></td>
+<td style="text-align: left;"><em>Não conectado</em></td>
+<td style="text-align: left;"><em>Em aberto (Isolado)</em></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">Interrupção não utilizada</td>
+</tr>
+</tbody>
+</table>
+<h3 id="25-unidade-de-medicao-inercial-imu-mpu6050-gy-521">2.5. Unidade de Medição Inercial (IMU <code>MPU6050</code> / GY-521)<a class="headerlink" href="#25-unidade-de-medicao-inercial-imu-mpu6050-gy-521" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Componente de Origem</th>
+<th style="text-align: left;">Terminal / Pino (Origem)</th>
+<th style="text-align: left;">Componente de Destino</th>
+<th style="text-align: left;">Terminal / Pino (Destino)</th>
+<th style="text-align: center;">Nível de Tensão</th>
+<th style="text-align: left;">Descrição / Função</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>IMU <code>MPU6050</code></strong></td>
+<td style="text-align: left;"><code>VCC</code></td>
+<td style="text-align: left;"><strong>Buck <code>U5</code> (3,3 V)</strong></td>
+<td style="text-align: left;"><code>OUT+</code> (Barramento <code>+3V3_SENS</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(+3{,}3\text{ V}\)</span></td>
+<td style="text-align: left;">Alimentação do módulo giroscópio/acelerômetro</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>IMU <code>MPU6050</code></strong></td>
+<td style="text-align: left;"><code>GND</code></td>
+<td style="text-align: left;"><strong>Barramento <code>GND</code></strong></td>
+<td style="text-align: left;"><code>GND Comum</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0{,}0\text{ V}\)</span></td>
+<td style="text-align: left;">Referência elétrica</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>IMU <code>MPU6050</code></strong></td>
+<td style="text-align: left;"><code>SCL</code></td>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 22</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(3{,}3\text{ V}\)</span> (I²C)</td>
+<td style="text-align: left;">Via de clock I²C</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>IMU <code>MPU6050</code></strong></td>
+<td style="text-align: left;"><code>SDA</code></td>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 21</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(3{,}3\text{ V}\)</span> (I²C)</td>
+<td style="text-align: left;">Via de dados I²C</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>IMU <code>MPU6050</code></strong></td>
+<td style="text-align: left;"><code>XDA</code> e <code>XCL</code></td>
+<td style="text-align: left;"><em>Não conectados</em></td>
+<td style="text-align: left;"><em>Em aberto (Isolado)</em></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">Barramento I²C auxiliar não utilizado</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>IMU <code>MPU6050</code></strong></td>
+<td style="text-align: left;"><code>AD0</code></td>
+<td style="text-align: left;"><strong>Barramento <code>GND</code></strong></td>
+<td style="text-align: left;"><code>GND Comum</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0{,}0\text{ V}\)</span></td>
+<td style="text-align: left;">Trava o endereço I²C em <code>0x68</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>IMU <code>MPU6050</code></strong></td>
+<td style="text-align: left;"><code>INT</code></td>
+<td style="text-align: left;"><em>Não conectado</em></td>
+<td style="text-align: left;"><em>Em aberto (Isolado)</em></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">Leitura feita via I²C direto</td>
+</tr>
+</tbody>
+</table>
+<h3 id="26-driver-de-ponte-h-dupla-drv8833">2.6. Driver de Ponte H Dupla (<code>DRV8833</code>)<a class="headerlink" href="#26-driver-de-ponte-h-dupla-drv8833" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Componente de Origem</th>
+<th style="text-align: left;">Terminal / Pino (Origem)</th>
+<th style="text-align: left;">Componente de Destino</th>
+<th style="text-align: left;">Terminal / Pino (Destino)</th>
+<th style="text-align: center;">Nível de Tensão</th>
+<th style="text-align: left;">Descrição / Função</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Driver <code>DRV8833</code></strong></td>
+<td style="text-align: left;"><code>VM</code> (ou <code>VCC</code>)</td>
+<td style="text-align: left;"><strong>Buck <code>U4</code> (6,0 V)</strong></td>
+<td style="text-align: left;"><code>OUT+</code> <em>(sem cap. externo no ensaio)</em></td>
+<td style="text-align: center;"><span class="arithmatex">\(+6{,}0\text{ V}\)</span></td>
+<td style="text-align: left;">Alimentação da ponte H dos motores</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Driver <code>DRV8833</code></strong></td>
+<td style="text-align: left;"><code>GND</code></td>
+<td style="text-align: left;"><strong>Barramento <code>GND</code></strong></td>
+<td style="text-align: left;"><code>GND Comum</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0{,}0\text{ V}\)</span></td>
+<td style="text-align: left;">Terra de potência e lógica do driver</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Driver <code>DRV8833</code></strong></td>
+<td style="text-align: left;"><code>nSLEEP</code> (ou <code>EEP</code>/<code>STBY</code>)</td>
+<td style="text-align: left;"><strong>Buck <code>U5</code> (3,3 V)</strong></td>
+<td style="text-align: left;"><code>OUT+</code> (Barramento <code>+3V3_SENS</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(+3{,}3\text{ V}\)</span></td>
+<td style="text-align: left;"><strong>Obrigatório:</strong> habilita o funcionamento do chip (ligação direta, sem resistor)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Driver <code>DRV8833</code></strong></td>
+<td style="text-align: left;"><code>IN1</code> (ou <code>AIN1</code>)</td>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 25</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V a }3{,}3\text{ V}\)</span> (PWM)</td>
+<td style="text-align: left;">Entrada de controle Motor Esquerdo (A)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Driver <code>DRV8833</code></strong></td>
+<td style="text-align: left;"><code>IN2</code> (ou <code>AIN2</code>)</td>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 26</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V a }3{,}3\text{ V}\)</span> (PWM)</td>
+<td style="text-align: left;">Entrada de controle Motor Esquerdo (B)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Driver <code>DRV8833</code></strong></td>
+<td style="text-align: left;"><code>IN3</code> (ou <code>BIN1</code>)</td>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 27</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V a }3{,}3\text{ V}\)</span> (PWM)</td>
+<td style="text-align: left;">Entrada de controle Motor Direito (A)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Driver <code>DRV8833</code></strong></td>
+<td style="text-align: left;"><code>IN4</code> (ou <code>BIN2</code>)</td>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 14</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V a }3{,}3\text{ V}\)</span> (PWM)</td>
+<td style="text-align: left;">Entrada de controle Motor Direito (B)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Driver <code>DRV8833</code></strong></td>
+<td style="text-align: left;"><code>OUT1</code> (ou <code>AOUT1</code>)</td>
+<td style="text-align: left;"><strong>Motor N20 Esquerdo</strong></td>
+<td style="text-align: left;">Pino 1, fio vermelho (<code>M+</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V a }6{,}0\text{ V}\)</span> (PWM)</td>
+<td style="text-align: left;">Saída de potência positiva Motor Esquerdo</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Driver <code>DRV8833</code></strong></td>
+<td style="text-align: left;"><code>OUT2</code> (ou <code>AOUT2</code>)</td>
+<td style="text-align: left;"><strong>Motor N20 Esquerdo</strong></td>
+<td style="text-align: left;">Pino 6, fio branco (<code>M-</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V a }6{,}0\text{ V}\)</span> (PWM)</td>
+<td style="text-align: left;">Saída de potência negativa Motor Esquerdo</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Driver <code>DRV8833</code></strong></td>
+<td style="text-align: left;"><code>OUT3</code> (ou <code>BOUT1</code>)</td>
+<td style="text-align: left;"><strong>Motor N20 Direito</strong></td>
+<td style="text-align: left;">Pino 1, fio vermelho (<code>M+</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V a }6{,}0\text{ V}\)</span> (PWM)</td>
+<td style="text-align: left;">Saída de potência positiva Motor Direito</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Driver <code>DRV8833</code></strong></td>
+<td style="text-align: left;"><code>OUT4</code> (ou <code>BOUT2</code>)</td>
+<td style="text-align: left;"><strong>Motor N20 Direito</strong></td>
+<td style="text-align: left;">Pino 6, fio branco (<code>M-</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V a }6{,}0\text{ V}\)</span> (PWM)</td>
+<td style="text-align: left;">Saída de potência negativa Motor Direito</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Driver <code>DRV8833</code></strong></td>
+<td style="text-align: left;"><code>nFAULT</code> (ou <code>ULT</code>)</td>
+<td style="text-align: left;"><em>Não conectado</em></td>
+<td style="text-align: left;"><em>Em aberto (Isolado)</em></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: left;">Saída de alarme de sobrecorrente (opcional)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="27-motores-dc-n20-com-encoder-hall-esquerdo-e-direito">2.7. Motores DC N20 com Encoder Hall (Esquerdo e Direito)<a class="headerlink" href="#27-motores-dc-n20-com-encoder-hall-esquerdo-e-direito" title="Permanent link">&para;</a></h3>
+<h4 id="271-motor-n20-esquerdo-conector-de-6-vias">2.7.1. Motor N20 Esquerdo (Conector de 6 Vias)<a class="headerlink" href="#271-motor-n20-esquerdo-conector-de-6-vias" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Componente de Origem</th>
+<th style="text-align: left;">Terminal / Pino (Origem)</th>
+<th style="text-align: left;">Componente de Destino</th>
+<th style="text-align: left;">Terminal / Pino (Destino)</th>
+<th style="text-align: center;">Nível de Tensão</th>
+<th style="text-align: left;">Descrição / Função</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Motor N20 Esquerdo</strong></td>
+<td style="text-align: left;">Pino 1: <code>M+</code> (Vermelho)</td>
+<td style="text-align: left;"><strong>Driver <code>DRV8833</code></strong></td>
+<td style="text-align: left;">Pino <code>OUT1</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V a }6{,}0\text{ V}\)</span> (PWM)</td>
+<td style="text-align: left;">Bobina do motor (Polo <span class="arithmatex">\(+\)</span>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Motor N20 Esquerdo</strong></td>
+<td style="text-align: left;">Pino 2: <code>GND</code> (Preto)</td>
+<td style="text-align: left;"><strong>Barramento <code>GND</code></strong></td>
+<td style="text-align: left;"><code>GND Comum</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0{,}0\text{ V}\)</span></td>
+<td style="text-align: left;">Terra exclusivo do sensor Hall</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Motor N20 Esquerdo</strong></td>
+<td style="text-align: left;">Pino 3: <code>C1</code> (Amarelo)</td>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 32</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V} / 3{,}3\text{ V}\)</span></td>
+<td style="text-align: left;">Pulso de quadratura, canal A Esquerdo</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Motor N20 Esquerdo</strong></td>
+<td style="text-align: left;">Pino 4: <code>C2</code> (Verde)</td>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 33</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V} / 3{,}3\text{ V}\)</span></td>
+<td style="text-align: left;">Pulso de quadratura, canal B Esquerdo</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Motor N20 Esquerdo</strong></td>
+<td style="text-align: left;">Pino 5: <code>VCC</code> (Azul)</td>
+<td style="text-align: left;"><strong>Buck <code>U5</code> (3,3 V)</strong></td>
+<td style="text-align: left;"><code>OUT+</code> (Barramento <code>+3V3_SENS</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(+3{,}3\text{ V}\)</span></td>
+<td style="text-align: left;">Alimentação lógica do sensor Hall</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Motor N20 Esquerdo</strong></td>
+<td style="text-align: left;">Pino 6: <code>M-</code> (Branco)</td>
+<td style="text-align: left;"><strong>Driver <code>DRV8833</code></strong></td>
+<td style="text-align: left;">Pino <code>OUT2</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V a }6{,}0\text{ V}\)</span> (PWM)</td>
+<td style="text-align: left;">Bobina do motor (Polo <span class="arithmatex">\(-\)</span>)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="272-motor-n20-direito-conector-de-6-vias">2.7.2. Motor N20 Direito (Conector de 6 Vias)<a class="headerlink" href="#272-motor-n20-direito-conector-de-6-vias" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Componente de Origem</th>
+<th style="text-align: left;">Terminal / Pino (Origem)</th>
+<th style="text-align: left;">Componente de Destino</th>
+<th style="text-align: left;">Terminal / Pino (Destino)</th>
+<th style="text-align: center;">Nível de Tensão</th>
+<th style="text-align: left;">Descrição / Função</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Motor N20 Direito</strong></td>
+<td style="text-align: left;">Pino 1: <code>M+</code> (Vermelho)</td>
+<td style="text-align: left;"><strong>Driver <code>DRV8833</code></strong></td>
+<td style="text-align: left;">Pino <code>OUT3</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V a }6{,}0\text{ V}\)</span> (PWM)</td>
+<td style="text-align: left;">Bobina do motor (Polo <span class="arithmatex">\(+\)</span>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Motor N20 Direito</strong></td>
+<td style="text-align: left;">Pino 2: <code>GND</code> (Preto)</td>
+<td style="text-align: left;"><strong>Barramento <code>GND</code></strong></td>
+<td style="text-align: left;"><code>GND Comum</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0{,}0\text{ V}\)</span></td>
+<td style="text-align: left;">Terra exclusivo do sensor Hall</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Motor N20 Direito</strong></td>
+<td style="text-align: left;">Pino 3: <code>C1</code> (Amarelo)</td>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 18</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V} / 3{,}3\text{ V}\)</span></td>
+<td style="text-align: left;">Pulso de quadratura, canal A Direito</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Motor N20 Direito</strong></td>
+<td style="text-align: left;">Pino 4: <code>C2</code> (Verde)</td>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 19</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V} / 3{,}3\text{ V}\)</span></td>
+<td style="text-align: left;">Pulso de quadratura, canal B Direito</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Motor N20 Direito</strong></td>
+<td style="text-align: left;">Pino 5: <code>VCC</code> (Azul)</td>
+<td style="text-align: left;"><strong>Buck <code>U5</code> (3,3 V)</strong></td>
+<td style="text-align: left;"><code>OUT+</code> (Barramento <code>+3V3_SENS</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(+3{,}3\text{ V}\)</span></td>
+<td style="text-align: left;">Alimentação lógica do sensor Hall</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Motor N20 Direito</strong></td>
+<td style="text-align: left;">Pino 6: <code>M-</code> (Branco)</td>
+<td style="text-align: left;"><strong>Driver <code>DRV8833</code></strong></td>
+<td style="text-align: left;">Pino <code>OUT4</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V a }6{,}0\text{ V}\)</span> (PWM)</td>
+<td style="text-align: left;">Bobina do motor (Polo <span class="arithmatex">\(-\)</span>)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="28-microcontrolador-esp32-devkit-v1-conferencia-final-de-todos-os-pinos">2.8. Microcontrolador (<code>ESP32 DevKit V1</code>: conferência final de todos os pinos)<a class="headerlink" href="#28-microcontrolador-esp32-devkit-v1-conferencia-final-de-todos-os-pinos" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Componente de Origem</th>
+<th style="text-align: left;">Terminal / Pino (Origem)</th>
+<th style="text-align: left;">Componente de Destino</th>
+<th style="text-align: left;">Terminal / Pino (Destino)</th>
+<th style="text-align: center;">Nível de Tensão</th>
+<th style="text-align: left;">Descrição / Função</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>VIN</code> (ou <code>5V</code>)</td>
+<td style="text-align: left;"><strong>Buck <code>U2</code> (5,0 V)</strong></td>
+<td style="text-align: left;">Pino <code>OUT+</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(+5{,}0\text{ V}\)</span></td>
+<td style="text-align: left;">Entrada de alimentação regulada</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GND</code></td>
+<td style="text-align: left;"><strong>Barramento <code>GND</code></strong></td>
+<td style="text-align: left;"><code>GND Comum</code> (e <code>OUT-</code> de <code>U2</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(0{,}0\text{ V}\)</span></td>
+<td style="text-align: left;">Referência elétrica geral</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 4</code></td>
+<td style="text-align: left;"><strong>VL53L0X Direito (<code>J5</code>)</strong></td>
+<td style="text-align: left;">Pino <code>XSHUT</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V} / 3{,}3\text{ V}\)</span></td>
+<td style="text-align: left;">Habilitação do ToF Direito</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 14</code></td>
+<td style="text-align: left;"><strong>Driver <code>DRV8833</code></strong></td>
+<td style="text-align: left;">Pino <code>IN4</code> (ou <code>BIN2</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V a }3{,}3\text{ V}\)</span> (PWM)</td>
+<td style="text-align: left;">Comando Motor Direito (Ré/Freio)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 16</code> (<code>RX2</code>)</td>
+<td style="text-align: left;"><strong>VL53L0X Esquerdo (<code>J3</code>)</strong></td>
+<td style="text-align: left;">Pino <code>XSHUT</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V} / 3{,}3\text{ V}\)</span></td>
+<td style="text-align: left;">Habilitação do ToF Esquerdo</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 17</code> (<code>TX2</code>)</td>
+<td style="text-align: left;"><strong>VL53L0X Frontal (<code>J4</code>)</strong></td>
+<td style="text-align: left;">Pino <code>XSHUT</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V} / 3{,}3\text{ V}\)</span></td>
+<td style="text-align: left;">Habilitação do ToF Frontal</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 18</code></td>
+<td style="text-align: left;"><strong>Motor N20 Direito</strong></td>
+<td style="text-align: left;">Pino 3, fio amarelo (<code>C1</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V} / 3{,}3\text{ V}\)</span></td>
+<td style="text-align: left;">Interrupção Encoder Direito (Canal A)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 19</code></td>
+<td style="text-align: left;"><strong>Motor N20 Direito</strong></td>
+<td style="text-align: left;">Pino 4, fio verde (<code>C2</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V} / 3{,}3\text{ V}\)</span></td>
+<td style="text-align: left;">Quadratura Encoder Direito (canal B)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 21</code></td>
+<td style="text-align: left;"><strong>3× VL53L0X e <code>MPU6050</code></strong></td>
+<td style="text-align: left;">Pinos <code>SDA</code> (dos 4 módulos)</td>
+<td style="text-align: center;"><span class="arithmatex">\(3{,}3\text{ V}\)</span> (I²C)</td>
+<td style="text-align: left;">Barramento de Dados I²C</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 22</code></td>
+<td style="text-align: left;"><strong>3× VL53L0X e <code>MPU6050</code></strong></td>
+<td style="text-align: left;">Pinos <code>SCL</code> (dos 4 módulos)</td>
+<td style="text-align: center;"><span class="arithmatex">\(3{,}3\text{ V}\)</span> (I²C)</td>
+<td style="text-align: left;">Barramento de Clock I²C</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 23</code></td>
+<td style="text-align: left;"><strong>Botão <code>BTN_START</code></strong></td>
+<td style="text-align: left;"><code>Terminal 1</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(3{,}3\text{ V} \rightarrow 0\text{ V}\)</span></td>
+<td style="text-align: left;">Botão de largada (<code>INPUT_PULLUP</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 25</code></td>
+<td style="text-align: left;"><strong>Driver <code>DRV8833</code></strong></td>
+<td style="text-align: left;">Pino <code>IN1</code> (ou <code>AIN1</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V a }3{,}3\text{ V}\)</span> (PWM)</td>
+<td style="text-align: left;">Comando Motor Esquerdo (Frente)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 26</code></td>
+<td style="text-align: left;"><strong>Driver <code>DRV8833</code></strong></td>
+<td style="text-align: left;">Pino <code>IN2</code> (ou <code>AIN2</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V a }3{,}3\text{ V}\)</span> (PWM)</td>
+<td style="text-align: left;">Comando Motor Esquerdo (Ré/Freio)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 27</code></td>
+<td style="text-align: left;"><strong>Driver <code>DRV8833</code></strong></td>
+<td style="text-align: left;">Pino <code>IN3</code> (ou <code>BIN1</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V a }3{,}3\text{ V}\)</span> (PWM)</td>
+<td style="text-align: left;">Comando Motor Direito (Frente)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 32</code></td>
+<td style="text-align: left;"><strong>Motor N20 Esquerdo</strong></td>
+<td style="text-align: left;">Pino 3, fio amarelo (<code>C1</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V} / 3{,}3\text{ V}\)</span></td>
+<td style="text-align: left;">Interrupção Encoder Esquerdo (Canal A)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 33</code></td>
+<td style="text-align: left;"><strong>Motor N20 Esquerdo</strong></td>
+<td style="text-align: left;">Pino 4, fio verde (<code>C2</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V} / 3{,}3\text{ V}\)</span></td>
+<td style="text-align: left;">Quadratura Encoder Esquerdo (canal B)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ESP32 DevKit V1</strong></td>
+<td style="text-align: left;">Pino <code>GPIO 34</code></td>
+<td style="text-align: left;"><strong>Divisor (<code>R1</code>, <code>R2</code>, <code>C5</code>)</strong></td>
+<td style="text-align: left;">Junção central (<code>BAT_ADC_TEST</code>)</td>
+<td style="text-align: center;"><span class="arithmatex">\(1{,}83\text{ V a }2{,}08\text{ V}\)</span></td>
+<td style="text-align: left;">Leitura analógica da tensão da bateria <em>(divisor não montado neste ensaio)</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-procedimento-de-verificacao-de-ligacoes-e-saidas-com-multimetro">3. Procedimento de Verificação de Ligações e Saídas com Multímetro<a class="headerlink" href="#3-procedimento-de-verificacao-de-ligacoes-e-saidas-com-multimetro" title="Permanent link">&para;</a></h2>
+<p>Para garantir a integridade dos módulos antes e durante a energização completa do circuito na protoboard, todas as ligações e saídas foram inspecionadas com <strong>multímetro digital</strong> seguindo três etapas sistemáticas:</p>
+<h3 id="31-inspecao-a-frio-escala-de-continuidade-bip-sonoro-e-resistencia-omega">3.1. Inspeção a Frio (Escala de Continuidade / Bip Sonoro e Resistência <span class="arithmatex">\(\Omega\)</span>)<a class="headerlink" href="#31-inspecao-a-frio-escala-de-continuidade-bip-sonoro-e-resistencia-omega" title="Permanent link">&para;</a></h3>
+<p>Com a bateria LiPo 2S desconectada:</p>
+<ol>
+<li><strong>Unificação do Terra (<code>GND Comum</code>):</strong> Com a ponta de prova preta fixa no barramento principal de <code>GND</code>, tocou-se a ponta vermelha nos pinos <code>IN-</code> e <code>OUT-</code> dos três conversores <code>MP1584EN</code> (<code>U2</code>, <code>U4</code>, <code>U5</code>), no pino <code>GND</code> da <code>ESP32 DevKit V1</code>, no <code>GND</code> do <code>DRV8833</code>, nos pinos <code>GND</code> dos 3 sensores <code>VL53L0X</code>, nos pinos <code>GND</code> e <code>AD0</code> da <code>MPU6050</code> e no fio preto (Pino 2) dos dois encoders N20, confirmando continuidade plena (<span class="arithmatex">\(\approx 0{,}0\ \Omega\text{ a }0{,}2\ \Omega\)</span>).</li>
+<li><strong>Ausência de Curto-Circuito entre Barramentos:</strong> Mediu-se a impedância entre <code>VBAT</code> e <code>GND</code>, <code>+6V0</code> e <code>GND</code>, <code>+5V0</code> e <code>GND</code>, e <code>+3V3_SENS</code> e <code>GND</code>, bem como entre barramentos adjacentes (<code>+6V0</code> vs. <code>+3V3_SENS</code>), verificando ausência de curto-circuito antes de energizar.</li>
+<li><strong>Conferência Ponto a Ponto de Sinais:</strong> Verificou-se a continuidade entre os terminais metálicos dos módulos (<code>SDA</code>, <code>SCL</code>, <code>XSHUT</code>, <code>IN1..IN4</code>, <code>OUT1..OUT4</code>, <code>C1/C2</code>) e os respectivos pinos da <code>ESP32 DevKit V1</code> e do <code>DRV8833</code> para descartar mau contato nos barramentos das duas protoboards.</li>
+</ol>
+<h3 id="32-calibracao-previa-e-afericao-dos-3-reguladores-buck-escala-de-tensao-continua-20-v-dc">3.2. Calibração Prévia e Aferição dos 3 Reguladores Buck (Escala de Tensão Contínua, <code>20 V DC</code>)<a class="headerlink" href="#32-calibracao-previa-e-afericao-dos-3-reguladores-buck-escala-de-tensao-continua-20-v-dc" title="Permanent link">&para;</a></h3>
+<p>Aplicando a <strong>Regra de Bancada</strong>:</p>
+<ol>
+<li>Com as saídas <code>OUT+</code> dos três conversores desconectadas das cargas (em aberto), conectou-se apenas a entrada primária (<code>VBAT</code> em <code>IN+</code> e <code>GND Comum</code> em <code>IN-</code>).</li>
+<li>Com a ponta preta do multímetro no <code>GND Comum</code> e a ponta vermelha no pino <code>OUT+</code> de cada conversor <code>MP1584EN</code>, ajustou-se o trimpot multivoltas e aferiu-se a tensão regulada:</li>
+<li><strong>Regulador <code>U2</code> (ESP32 DevKit V1):</strong> ajustado e aferido em <strong><span class="arithmatex">\(5{,}00\text{ V} \pm 0{,}02\text{ V}\)</span></strong>.</li>
+<li><strong>Regulador <code>U5</code> (Sensores I²C, Encoders e <code>nSLEEP</code>):</strong> ajustado e aferido em <strong><span class="arithmatex">\(3{,}30\text{ V} \pm 0{,}02\text{ V}\)</span></strong>.</li>
+<li><strong>Regulador <code>U4</code> (Potência dos Motores / <code>DRV8833</code>):</strong> ajustado e aferido em <strong><span class="arithmatex">\(6{,}00\text{ V} \pm 0{,}02\text{ V}\)</span></strong>.</li>
+</ol>
+<h3 id="33-afericao-com-o-circuito-totalmente-energizado-sob-carga">3.3. Aferição com o Circuito Totalmente Energizado (Sob Carga)<a class="headerlink" href="#33-afericao-com-o-circuito-totalmente-energizado-sob-carga" title="Permanent link">&para;</a></h3>
+<p>Após interligar os pinos <code>OUT+</code> às cargas da protoboard e energizar todo o sistema:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Ponto de Medição com Multímetro (Ponta Vermelha vs. <code>GND</code>)</th>
+<th style="text-align: center;">Tensão Esperada</th>
+<th style="text-align: center;">Resultado Aferido em Bancada</th>
+<th style="text-align: center;">Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Barramento de Entrada (<code>VBAT</code> nos pinos <code>IN+</code> de <code>U2</code>, <code>U4</code>, <code>U5</code>)</strong></td>
+<td style="text-align: center;"><span class="arithmatex">\(7{,}4\text{ V a }8{,}4\text{ V}\)</span></td>
+<td style="text-align: center;">Tensão da bateria LiPo 2S presente e estável nos 3 conversores</td>
+<td style="text-align: center;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Saída do Regulador <code>U2</code> (<code>OUT+</code> <span class="arithmatex">\(\rightarrow\)</span> pino <code>VIN</code> da ESP32 DevKit V1)</strong></td>
+<td style="text-align: center;"><span class="arithmatex">\(+5{,}00\text{ V} \pm 2\%\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(\approx 5{,}0\text{ V}\)</span> estáveis com ESP32 e rádio Wi-Fi em operação</td>
+<td style="text-align: center;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Saída do Regulador <code>U5</code> (<code>OUT+</code> <span class="arithmatex">\(\rightarrow\)</span> <code>+3V3_SENS</code>)</strong></td>
+<td style="text-align: center;"><span class="arithmatex">\(+3{,}30\text{ V} \pm 2\%\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(\approx 3{,}3\text{ V}\)</span> estáveis alimentando 3× VL53L0X, MPU6050, encoders e <code>nSLEEP</code></td>
+<td style="text-align: center;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Saída do Regulador <code>U4</code> (<code>OUT+</code> <span class="arithmatex">\(\rightarrow\)</span> pino <code>VM</code> do DRV8833)</strong></td>
+<td style="text-align: center;"><span class="arithmatex">\(+6{,}00\text{ V} \pm 2\%\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(\approx 6{,}0\text{ V}\)</span> estáveis no estágio de potência da ponte H</td>
+<td style="text-align: center;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Pino <code>nSLEEP</code> (<code>EEP</code>) do Driver <code>DRV8833</code></strong></td>
+<td style="text-align: center;"><span class="arithmatex">\(+3{,}3\text{ V}\)</span> (Habilitado)</td>
+<td style="text-align: center;"><span class="arithmatex">\(3{,}3\text{ V}\)</span> contínuos (driver ativo e fora de <em>sleep</em>)</td>
+<td style="text-align: center;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Barramento I²C (<code>GPIO 21</code> SDA e <code>GPIO 22</code> SCL em repouso)</strong></td>
+<td style="text-align: center;"><span class="arithmatex">\(\approx +3{,}3\text{ V}\)</span></td>
+<td style="text-align: center;">Nível alto em repouso mantido pelos <em>pull-ups</em> internos dos módulos sensores</td>
+<td style="text-align: center;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Saídas da Ponte H sob comando PWM</strong></td>
+<td style="text-align: center;"><span class="arithmatex">\(0\text{ V a }6{,}0\text{ V}\)</span></td>
+<td style="text-align: center;"><code>OUT1/OUT2</code> (motor esquerdo): excursão de tensão proporcional ao <em>duty cycle</em> comandado e inversão de polaridade na ré. <code>OUT3/OUT4</code> (motor direito): motor sem girar, em análise na #483</td>
+<td style="text-align: center;"><strong>Parcial</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-resultados-dos-testes-funcionais-integrados">4. Resultados dos Testes Funcionais Integrados<a class="headerlink" href="#4-resultados-dos-testes-funcionais-integrados" title="Permanent link">&para;</a></h2>
+<h3 id="41-operacao-do-driver-drv8833-motores-n20-e-firmware-na-esp32-devkit-v1">4.1. Operação do Driver <code>DRV8833</code>, Motores N20 e Firmware na <code>ESP32 DevKit V1</code><a class="headerlink" href="#41-operacao-do-driver-drv8833-motores-n20-e-firmware-na-esp32-devkit-v1" title="Permanent link">&para;</a></h3>
+<p>Com todo o circuito energizado na protoboard e o chassi posicionado sobre a caixa organizadora na bancada (Figura 1), foi gravado o firmware de bancada integrada na <strong>ESP32 DevKit V1</strong>:</p>
+<ul>
+<li><strong>Inicialização e Autoteste I²C:</strong> a ESP32 executou a sequência de <em>reset</em> individual pelos pinos <code>XSHUT</code> (<code>GPIO 16</code> para o sensor esquerdo <code>0x30</code>, <code>GPIO 17</code> para o frontal <code>0x31</code> e <code>GPIO 4</code> para o direito <code>0x32</code>) e reconheceu os sensores ToF juntamente com a IMU <code>MPU6050</code> (<code>0x68</code>) no barramento I²C (<code>GPIO 21</code> / <code>GPIO 22</code>).</li>
+<li><strong>Acionamento do Driver <code>DRV8833</code> e Motores N20:</strong> os sinais PWM nos pinos <code>GPIO 25/26</code> (motor esquerdo) e <code>GPIO 27/14</code> (motor direito) acionaram corretamente as duas pontes H do <code>DRV8833</code> alimentadas pelos <span class="arithmatex">\(6{,}0\text{ V}\)</span> do regulador <code>U4</code>, movimentando o <strong>motor esquerdo</strong> nos sentidos de avanço, recuo e parada, sem reinicialização (<em>brownout</em>) do microcontrolador, mesmo sem os capacitores eletrolíticos externos na protoboard.</li>
+<li><strong>Pendência nos motores:</strong> nesta bancada o <strong>motor direito não girou</strong> e os <strong>dois motores não rodaram ao mesmo tempo</strong>. A causa ainda não foi identificada e é investigada na issue <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/483">#483</a> (fiação de <code>IN3</code>/<code>IN4</code>, tensão do <code>VM</code> sob carga e zona morta do N20). O restante do ensaio (reguladores, sensores e telemetria) não depende dessa correção.</li>
+</ul>
+<h3 id="42-teste-dinamico-dos-sensores-de-distancia-vl53l0x-no-firmware">4.2. Teste Dinâmico dos Sensores de Distância (<code>VL53L0X</code>) no Firmware<a class="headerlink" href="#42-teste-dinamico-dos-sensores-de-distancia-vl53l0x-no-firmware" title="Permanent link">&para;</a></h3>
+<p>No primeiro vídeo do ensaio, validou-se a leitura contínua em tempo real dos sensores de proximidade <code>VL53L0X</code> executando o firmware desenvolvido na própria <code>ESP32 DevKit V1</code>:</p>
+<ul>
+<li>No monitor serial do VS Code / PlatformIO, o firmware imprime continuamente o quadro de telemetria local dos sensores:
+  <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>ToF | frente: 102 mm | esquerda: 373 mm | direita: fora de alcance
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>ToF | frente:  78 mm | esquerda: 374 mm | direita:  76 mm
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>ToF | frente:  53 mm | esquerda: 373 mm | direita:  67 mm
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>ToF | frente: 131 mm | esquerda: 378 mm | direita: fora de alcance
+</code></pre></div></li>
+<li>Ao aproximar e afastar a mão diante dos sensores montados na protoboard, as leituras de distância (<code>frente</code> e <code>direita</code>) respondem instantaneamente (variando de <code>fora de alcance</code> para <code>174 mm</code>, <code>121 mm</code>, <code>76 mm</code>, <code>53 mm</code> e retornando a <code>fora de alcance</code> quando desobstruídos), enquanto o sensor apontado para um obstáculo estacionário na bancada (<code>esquerda</code>) mantém leitura estável em torno de <code>372 mm a 379 mm</code>.</li>
+</ul>
+<video controls preload="metadata" width="420" src="../../../videos/integracao-protoboard-sensores.mp4"></video>
+
+<p>Vídeo 1. Teste dinâmico dos sensores de distância ToF VL53L0X na protoboard: a aproximação da mão altera em tempo real as leituras exibidas pelo firmware da ESP32 no terminal serial. Arquivo: <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/docs/videos/integracao-protoboard-sensores.mp4"><code>docs/videos/integracao-protoboard-sensores.mp4</code></a>.</p>
+<h3 id="43-teste-de-comunicacao-wi-fi-e-envio-de-telemetria-para-as-edge-functions-do-supabase">4.3. Teste de Comunicação Wi-Fi e Envio de Telemetria para as <em>Edge Functions</em> do Supabase<a class="headerlink" href="#43-teste-de-comunicacao-wi-fi-e-envio-de-telemetria-para-as-edge-functions-do-supabase" title="Permanent link">&para;</a></h3>
+<p>No segundo vídeo do ensaio, validou-se o fluxo completo de comunicação sem fio da <strong>ESP32 DevKit V1</strong> utilizando o adaptador Wi-Fi interno (<code>2,4 GHz</code>) e o cliente HTTPS (<code>EnvioHttpSupabase</code>) autenticando e enviando pacotes JSON para as <em>Edge Functions</em> (<code>corridas</code> e <code>telemetria</code>) do projeto no <strong>Supabase</strong>:</p>
+<ol>
+<li><strong>Comando executado no terminal</strong> (versão inicial do firmware de telemetria, hoje incorporada à bancada geral):
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pio<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>bancada_telemetria<span class="w"> </span>-t<span class="w"> </span>upload<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pio<span class="w"> </span>device<span class="w"> </span>monitor<span class="w"> </span>-e<span class="w"> </span>bancada_telemetria
+</code></pre></div>
+   Para repetir o teste com a bancada geral, grave o ambiente <code>bancada_geral_devkit</code>, tecle <code>w</code> (telemetria) e depois <code>a</code> (fluxo completo). As mensagens <code>[OK]</code> abaixo são as mesmas.</li>
+<li><strong>Conexão ao Ponto de Acesso Wi-Fi (<code>Teste_Esp</code>):</strong></li>
+<li>A ESP32 conectou-se à rede Wi-Fi <code>Teste_Esp</code>, recebendo o endereço IP <code>10.155.121.234</code> com nível de sinal RSSI de <code>-43 dBm</code>.</li>
+<li><strong>Criação de Corrida na <em>Edge Function</em> (<code>POST /functions/v1/corridas</code>):</strong></li>
+<li>O firmware disparou a chamada HTTPS autenticada com <code>apikey</code>, <code>Authorization: Bearer</code> e <code>x-device-token</code>, obtendo:
+     <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>[OK] criar corrida: HTTP 201 em 2033 ms, corrida_id 11
+</code></pre></div></li>
+<li><strong>Envio de Lotes de Telemetria (<code>POST /functions/v1/telemetria</code>):</strong></li>
+<li>Foram disparados três lotes consecutivos de 5 amostras cada para a <code>corrida_id = 11</code>:<ul>
+<li><strong>1º Lote (sequências 1 a 5):</strong> <code>[OK] enviar lote: HTTP 200 em 813 ms, gravadas 5, ja existentes 0</code></li>
+<li><strong>2º Lote (sequências 6 a 10):</strong> <code>[OK] enviar lote: HTTP 200 em 752 ms, gravadas 5, ja existentes 0</code></li>
+<li><strong>3º Lote (sequências 11 a 15):</strong> <code>[OK] enviar lote: HTTP 200 em 752 ms, gravadas 5, ja existentes 0</code></li>
+</ul>
+</li>
+<li><strong>Verificação Direta no Banco de Dados Supabase (<code>public.telemetria</code>):</strong></li>
+<li>No vídeo, ao atualizar o painel <em>Table Editor</em> do Supabase em produção (<code>public.telemetria</code>), o total de registros da tabela passa imediatamente de <strong>18 records</strong> (até o <code>id 42</code>, <code>numero_sequencia = 10</code>) para <strong>23 records</strong> (exibindo as novas linhas <code>id 43</code> a <code>id 47</code>, vinculadas à <code>corrida_id = 11</code> com <code>numero_sequencia</code> de <code>11</code> a <code>15</code>), comprovando a persistência ponta a ponta a partir da ESP32.</li>
+</ol>
+<video controls preload="metadata" width="420" src="../../../videos/integracao-protoboard-telemetria-supabase.mp4"></video>
+
+<p>Vídeo 2. Teste de envio de telemetria pela ESP32 via Wi-Fi para as <em>Edge Functions</em> do Supabase (<code>POST /functions/v1/corridas</code> <span class="arithmatex">\(\rightarrow\)</span> <code>HTTP 201</code>, <code>corrida_id = 11</code>; <code>POST /functions/v1/telemetria</code> <span class="arithmatex">\(\rightarrow\)</span> <code>HTTP 200</code>, 3 lotes de 5 amostras) e confirmação imediata das linhas inseridas na tabela <code>public.telemetria</code> do Supabase. Arquivo: <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/docs/videos/integracao-protoboard-telemetria-supabase.mp4"><code>docs/videos/integracao-protoboard-telemetria-supabase.mp4</code></a>.</p>
+<hr />
+<h2 id="5-resumo-da-avaliacao-e-conclusao">5. Resumo da Avaliação e Conclusão<a class="headerlink" href="#5-resumo-da-avaliacao-e-conclusao" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Item Avaliado</th>
+<th style="text-align: left;">Critério Esperado</th>
+<th style="text-align: left;">Resultado Obtido</th>
+<th style="text-align: center;">Situação</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Energização Geral e 3 Reguladores Buck (<code>U2</code>, <code>U4</code>, <code>U5</code>)</strong></td>
+<td style="text-align: left;">Saídas estáveis em <span class="arithmatex">\(5{,}0\text{ V}\)</span>, <span class="arithmatex">\(6{,}0\text{ V}\)</span> e <span class="arithmatex">\(3{,}3\text{ V}\)</span> aferidas com multímetro</td>
+<td style="text-align: left;">Os três conversores MP1584EN mantiveram as tensões nominais com todo o circuito energizado na protoboard</td>
+<td style="text-align: center;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Operação sem Resistores e Capacitores Externos</strong></td>
+<td style="text-align: left;">Funcionamento lógico e de potência em bancada sem <code>R1</code>, <code>R2</code>, <code>R4</code> e <code>C2..C8</code></td>
+<td style="text-align: left;">Circuito operou de forma estável apoiado nos passivos internos dos módulos e no <code>nSLEEP</code> ligado em <span class="arithmatex">\(+3{,}3\text{ V}\)</span></td>
+<td style="text-align: center;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Operação da <code>ESP32 DevKit V1</code> e Sensores I²C</strong></td>
+<td style="text-align: left;">Inicialização via <code>XSHUT</code> e leitura contínua dos <code>VL53L0X</code> e <code>MPU6050</code></td>
+<td style="text-align: left;">Leituras de distância responsivas em tempo real no terminal serial (Vídeo 1)</td>
+<td style="text-align: center;"><strong>Aprovado</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Operação do Driver <code>DRV8833</code> e Motores N20</strong></td>
+<td style="text-align: left;">Acionamento de ambos os motores do chassi via comandos PWM da ESP32</td>
+<td style="text-align: left;">Driver habilitado em <span class="arithmatex">\(+3{,}3\text{ V}\)</span> e alimentado em <span class="arithmatex">\(+6{,}0\text{ V}\)</span>; motor esquerdo respondeu aos comandos do firmware, motor direito não girou e os dois não rodaram juntos (#483)</td>
+<td style="text-align: center;"><strong>Parcial</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Comunicação Wi-Fi e Telemetria no Supabase</strong></td>
+<td style="text-align: left;">Conexão Wi-Fi, criação de corrida e ingestão de lotes via <em>Edge Functions</em></td>
+<td style="text-align: left;"><code>HTTP 201</code> em <code>/functions/v1/corridas</code> (<code>corrida_id 11</code>) e <code>HTTP 200</code> em <code>/functions/v1/telemetria</code> (15 amostras persistidas em <code>public.telemetria</code>, Vídeo 2)</td>
+<td style="text-align: center;"><strong>Aprovado</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="51-limitacoes-do-ensaio">5.1. Limitações do ensaio<a class="headerlink" href="#51-limitacoes-do-ensaio" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Leitura da bateria:</strong> o divisor resistivo (<code>R1</code>, <code>R2</code> e <code>C5</code>) não foi montado, então a leitura analógica da tensão da bateria (<code>GPIO 34</code>) não foi testada neste ensaio.</li>
+<li><strong>Encoders:</strong> o ensaio não registra a contagem de pulsos nem o sentido dos encoders. Esse teste fica na integração dos encoders ao firmware (#475) e na bancada dos motores (#483).</li>
+<li><strong>Amostras da telemetria:</strong> os lotes enviados ao Supabase são amostras de teste geradas pela bancada, e não dados de uma corrida real do robô. A telemetria de uma corrida completa é validada nas issues #232 e #237.</li>
+<li><strong>Passivos omitidos:</strong> o resultado vale para a montagem sem os resistores e capacitores discretos externos. A montagem na PCB definitiva (com <code>R1</code>, <code>R2</code>, <code>R4</code> e <code>C2</code> a <code>C8</code>) repete as aferições da Seção 3.</li>
+</ul>
+<hr />
+<h2 id="historico-de-versoes">Histórico de Versões<a class="headerlink" href="#historico-de-versoes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Versão</th>
+<th style="text-align: center;">Data</th>
+<th style="text-align: left;">Descrição</th>
+<th style="text-align: left;">Autor(es)</th>
+<th style="text-align: left;">Revisor(es)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1.0</td>
+<td style="text-align: center;">03/11/2026</td>
+<td style="text-align: left;">Criação do documento de ensaio integrado em protoboard (sem resistores e capacitores externos): plano de ligação completo para a ESP32 DevKit V1, procedimento de aferição com multímetro, validação dos 3 reguladores Buck, driver DRV8833, motores N20, sensores ToF e telemetria Wi-Fi/Supabase com foto e vídeos</td>
+<td style="text-align: left;">Elias Oliveira e Cláudio Henrique</td>
+<td style="text-align: left;">Equipe de Energia, Hardware e Software</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Anterior: 7.5 Integração">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                7.5 Integração
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../../08-avaliacao-de-desempenho/" class="md-footer__link md-footer__link--next" aria-label="Próximo: 8. Avaliação de desempenho">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                8. Avaliação de desempenho
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "navigation.top", "navigation.footer", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.action.edit"], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+        <script src="../../../scripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
