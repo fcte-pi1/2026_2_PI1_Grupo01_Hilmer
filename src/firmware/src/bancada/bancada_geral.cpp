@@ -121,6 +121,12 @@ constexpr int32_t RAMPA_PULSOS_PARA_GIRAR = 3;
 /// Duração máxima do modo contínuo, em ms. Passado esse tempo, os motores freiam sozinhos.
 constexpr uint32_t TEMPO_MAXIMO_CONTINUO_MS = 60000;
 
+#if !ARDUINO_USB_CDC_ON_BOOT
+/// Na UART do DevKit, `if (!Serial)` não percebe o monitor fechar (ele só confere se a UART está
+/// instalada). Por isso o modo contínuo exige uma tecla (`m` mantém) a cada `PRAZO_SEM_TECLA_MS`.
+constexpr uint32_t PRAZO_SEM_TECLA_MS = 10000;
+#endif
+
 /// Duty efetivo, em %, de uma potência (o driver limita o duty a `LIMITE_DUTY_MOTORES_MILESIMOS`).
 /// Limite de duty da bancada, em milésimos. Começa no do robô; as teclas `l` e `k` o mudam.
 uint16_t limiteDutyMilesimos = LIMITE_DUTY_MOTORES_MILESIMOS;
@@ -204,7 +210,7 @@ void imprimirMenuPrincipal() {
   Serial.println(" b  botao de largada: mostra quando aperta e solta (qualquer tecla para)");
 #endif
 #if defined(BANCADA_COM_TELEMETRIA)
-  Serial.println(" w  telemetria: Wi-Fi, HTTPS e gravacao no banco (abre um submenu)");
+  Serial.println(" w  telemetria: Wi-Fi, HTTPS e banco (submenu; grava corrida de verdade no banco do credenciais.h)");
 #endif
   Serial.println(" r  reiniciar a placa");
   Serial.println(" Enter  mostra este menu");
@@ -792,12 +798,16 @@ void rampa(bool esquerdo) {
 
 /// Modo contínuo: aciona o motor sem o limite de 2 s, mostra os pulsos e a velocidade dos encoders
 /// a cada `PERIODO_FLUXO_MS` e deixa trocar motor, sentido e potência sem parar. Para ao receber
-/// qualquer outra tecla, ao fechar o monitor ou depois de `TEMPO_MAXIMO_CONTINUO_MS`.
+/// qualquer outra tecla, ao fechar o monitor (só na USB nativa; na UART do DevKit, passados
+/// `PRAZO_SEM_TECLA_MS` sem tecla) ou depois de `TEMPO_MAXIMO_CONTINUO_MS`.
 void modoContinuo() {
   Alvo alvo = Alvo::Esquerdo;
   bool re = false;
   Serial.println("> MODO CONTINUO. Teclas: e = motor esquerdo, d = motor direito, b = os dois,");
   Serial.println(">   r = inverte o sentido, + e - = potencia, l e k = limite de duty. Qualquer outra tecla (espaco) freia.");
+#if !ARDUINO_USB_CDC_ON_BOOT
+  Serial.println(">   Neste modo o programa nao percebe o monitor fechar: tecle m a cada 10 s para manter, senao os motores freiam.");
+#endif
   encoderEsq.zerar();
   encoderDir.zerar();
   const uint32_t inicioMs = millis();
@@ -805,12 +815,23 @@ void modoContinuo() {
   int32_t anteriorEsq = 0;
   int32_t anteriorDir = 0;
   const char* motivo = "tempo maximo atingido";
+#if !ARDUINO_USB_CDC_ON_BOOT
+  uint32_t ultimaTeclaMs = inicioMs;
+#endif
   while (millis() - inicioMs < TEMPO_MAXIMO_CONTINUO_MS) {
     bool parar = false;
     while (Serial.available() > 0 && !parar) {
-      switch (static_cast<char>(Serial.read())) {
+      const char tecla = static_cast<char>(Serial.read());
+#if !ARDUINO_USB_CDC_ON_BOOT
+      if (tecla != '\r' && tecla != '\n') {
+        ultimaTeclaMs = millis();
+      }
+#endif
+      switch (tecla) {
         case '\r':
         case '\n':
+        case 'm':
+        case 'M':
           break;
         case 'e':
         case 'E':
@@ -856,6 +877,12 @@ void modoContinuo() {
       motivo = "monitor serial fechado";
       break;
     }
+#if !ARDUINO_USB_CDC_ON_BOOT
+    if (millis() - ultimaTeclaMs >= PRAZO_SEM_TECLA_MS) {
+      motivo = "10 s sem tecla (o monitor pode ter fechado)";
+      break;
+    }
+#endif
     const int16_t comando = re ? -potencia : potencia;
     motores.definirPotencia({alvo == Alvo::Direito ? int16_t{0} : comando,
                              alvo == Alvo::Esquerdo ? int16_t{0} : comando});
@@ -1327,7 +1354,9 @@ void comandoStatus() {
 
 void imprimirMenuTelemetria() {
   Serial.println();
-  Serial.println("=== TELEMETRIA: Wi-Fi, HTTPS e banco (grava linhas reais no banco do credenciais.h) ===");
+  Serial.println("=== TELEMETRIA: Wi-Fi, HTTPS e banco ===");
+  Serial.println(" ATENCAO: a, c e l gravam uma corrida e amostras de teste DE VERDADE no banco do credenciais.h.");
+  Serial.println("          Use o projeto Supabase de testes ou apague a corrida depois, para nao encher o historico.");
   Serial.println(" a  FLUXO COMPLETO: faz tudo abaixo e diz se a placa fala com o banco");
   Serial.println(" w  conectar no Wi-Fi");
   Serial.println(" d  resolver o nome do Supabase (DNS)");
