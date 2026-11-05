@@ -1,0 +1,37 @@
+/* Mapa de calor e notas da Matriz de riscos (docs/matriz-riscos). */
+:root {
+  --risco-baixa: #8fd18a;
+  --risco-moderada: #f5d65b;
+  --risco-alta: #f59e4c;
+  --risco-critica: #e8604c;
+  --risco-tinta: #1f1f1e;
+  --risco-borda: #ffffff;
+}
+[data-md-color-scheme="slate"] {
+  --risco-borda: var(--md-default-bg-color);
+}
+
+.mapa-calor { overflow-x: auto; margin: 0.8em 0 0.6em; }
+.mapa-calor table { border-collapse: separate; border-spacing: 3px; margin: 0 auto; font-size: 0.72rem; }
+.md-typeset .mapa-calor th { font-weight: 700; text-align: center; padding: 4px 6px; line-height: 1.2; }
+.mapa-calor th small { font-weight: 400; opacity: 0.7; }
+.mapa-calor th.canto { vertical-align: bottom; }
+.mapa-calor td {
+  width: 92px; height: 54px; min-width: 64px; border-radius: 6px; position: relative;
+  text-align: center; vertical-align: middle; color: var(--risco-tinta); padding: 14px 4px 4px;
+}
+.mapa-calor td .ponto { position: absolute; top: 3px; right: 6px; font-size: 0.62rem; opacity: 0.65; }
+.mapa-calor td .risco {
+  display: inline-block; min-width: 1.7em; margin: 1px; padding: 1px 5px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85); color: var(--risco-tinta); font-weight: 700;
+}
+
+.nota-baixa { background: var(--risco-baixa); }
+.nota-moderada { background: var(--risco-moderada); }
+.nota-alta { background: var(--risco-alta); }
+.nota-critica { background: var(--risco-critica); }
+
+.md-typeset .nota {
+  display: inline-block; min-width: 2em; padding: 1px 7px; border-radius: 999px;
+  color: var(--risco-tinta); font-weight: 700; text-align: center; white-space: nowrap;
+}
