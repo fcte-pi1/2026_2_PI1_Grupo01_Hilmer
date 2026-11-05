@@ -4457,8 +4457,8 @@
 </tr>
 </tbody>
 </table>
-<p>Enquanto os encoders não eram integrados à Rev 2.0, o plano previa estimar o deslocamento pelo comando dos motores, corrigido pelos sensores de distância (modo sem encoder, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380">#380</a>). Com os encoders disponíveis, esse modo passa a ser o plano B.</p>
-<p><strong>O LiDAR não é mais usado.</strong> O código dele (<code>lib/lidar</code>, decodificador LD06 e <code>FonteBytesSerial</code>) ainda está na <code>main</code> e deve sair num PR de código. Os registros de teste anteriores a 21/10 em <a href="../../07-testes/software-registro/">Testes de software</a> foram feitos com o LiDAR simulado e continuam como histórico.</p>
+<p>Enquanto os encoders não eram integrados à Rev 2.0, o plano previa estimar o deslocamento pelo comando dos motores, corrigido pelos sensores de distância (modo sem encoder, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380">#380</a>). Com os encoders disponíveis, esse modo passa a ser o plano B: desde a <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/475">#475</a>, <code>ENCODERS_INSTALADOS</code> é <code>true</code> por padrão, e o modo estimado só entra compilando com <code>-DENCODERS_INSTALADOS_VALOR=0</code>.</p>
+<p><strong>O LiDAR não é mais usado.</strong> O código dele (<code>lib/lidar</code>, decodificador LD06, <code>FonteBytesSerial</code> e os testes <code>test_lidar</code> e <code>test_decodificador_ld06</code>) foi removido do firmware na <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/481">#481</a>. Os registros de teste anteriores a 21/10 em <a href="../../07-testes/software-registro/">Testes de software</a> foram feitos com o LiDAR simulado e continuam como histórico.</p>
 <h2 id="dois-ambientes-placa-e-computador">Dois ambientes: placa e computador<a class="headerlink" href="#dois-ambientes-placa-e-computador" title="Permanent link">&para;</a></h2>
 <p>O <code>platformio.ini</code> define dois ambientes de compilação para o mesmo código:</p>
 <pre class="mermaid"><code>flowchart TB
@@ -4579,10 +4579,6 @@
 <tr>
 <td><code>lib/imu</code></td>
 <td>Calibração do viés e ângulo de giro do giroscópio (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378">#378</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/403">#403</a>, em revisão)</td>
-</tr>
-<tr>
-<td><code>lib/lidar</code></td>
-<td>Código do LiDAR da versão anterior do hardware; <strong>não é usado</strong> e deve ser removido</td>
 </tr>
 <tr>
 <td><code>lib/comunicacao</code></td>
@@ -4821,15 +4817,10 @@
         +simularFalha(lado, falha)
         +lerDistanciasLaterais(saida) bool
     }
-    class LidarUart {
-        &lt;&lt;lidar, sem uso desde a Rev 2.0&gt;&gt;
-        +lerDistanciasLaterais(saida) bool
-    }
     ISensorDistancia &lt;|.. SensorDistanciaSimulado
     ISensorDistancia &lt;|.. TofVl53l0x
-    ISensorDistancia &lt;|.. TofSimulado
-    ISensorDistancia &lt;|.. LidarUart</code></pre>
-<p><strong>Figura 3.</strong> Interface <code>ISensorDistancia</code> e suas implementações: o <code>SensorDistanciaSimulado</code>, que devolve as leituras escolhidas pelo teste, o <code>TofVl53l0x</code>, driver dos 3 VL53L0X da Rev 2.0, o <code>TofSimulado</code>, que simula os 3 VL53L0X num labirinto passando pelo <code>CombinadorTof</code> real, e o <code>LidarUart</code>, do LiDAR da primeira versão do hardware, que fica no código sem uso até depois da ED1.</p>
+    ISensorDistancia &lt;|.. TofSimulado</code></pre>
+<p><strong>Figura 3.</strong> Interface <code>ISensorDistancia</code> e suas implementações: o <code>SensorDistanciaSimulado</code>, que devolve as leituras escolhidas pelo teste, o <code>TofVl53l0x</code>, driver dos 3 VL53L0X da Rev 2.0, o <code>TofSimulado</code>, que simula os 3 VL53L0X num labirinto passando pelo <code>CombinadorTof</code> real.</p>
 <p><strong>Contrato de <code>ISensorDistancia::lerDistanciasLaterais</code>:</strong> retorna <code>true</code> e preenche <code>saida</code> (em mm) quando há leitura válida das três direções; retorna <code>false</code> quando o sensor não responde ou a leitura é inválida. Nesse caso, o conteúdo de <code>saida</code> não deve ser usado. Medida fora da faixa do sensor <strong>não</strong> é inválida: sai limitada à faixa (no <code>TofVl53l0x</code>, "sem alvo" vira o alcance máximo, lado livre, e "perto demais" vira o mínimo, parede).</p>
 <p><strong>Contrato de <code>ISensorDistancia::idadeUltimaLeituraMs</code>:</strong> idade, em ms, da amostra mais antiga que compõe a última leitura, medida no momento da chamada. Serve para a navegação não reagir duas vezes ao mesmo dado. A implementação padrão devolve 0 (leitura sempre nova), o que vale para o <code>SensorDistanciaSimulado</code>.</p>
 <p><strong><code>SensorDistanciaSimulado</code></strong> devolve o que o teste configurar. A cada leitura, segue esta ordem:</p>
@@ -4841,10 +4832,10 @@
 <li>caso contrário, a leitura falha.</li>
 </ol>
 <p>A fila é circular, com capacidade fixa de 16 leituras; <code>enfileirarLeitura</code> retorna <code>false</code> quando ela está cheia.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">SensorDistanciaSimulado</span><span class="w"> </span><span class="n">lidar</span><span class="p">;</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">lidar</span><span class="p">.</span><span class="n">definirLeituraFixa</span><span class="p">({</span><span class="mi">500</span><span class="p">,</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span><span class="w"> </span><span class="mi">500</span><span class="p">});</span><span class="w">  </span><span class="c1">// corredor livre</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">lidar</span><span class="p">.</span><span class="n">enfileirarLeitura</span><span class="p">({</span><span class="mi">90</span><span class="p">,</span><span class="w"> </span><span class="mi">90</span><span class="p">,</span><span class="w"> </span><span class="mi">270</span><span class="p">});</span><span class="w">     </span><span class="c1">// depois, parede à frente e à esquerda</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">ISensorDistancia</span><span class="o">&amp;</span><span class="w"> </span><span class="n">sensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lidar</span><span class="p">;</span><span class="w">           </span><span class="c1">// a lógica recebe só a interface</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">SensorDistanciaSimulado</span><span class="w"> </span><span class="n">sensorSimulado</span><span class="p">;</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">sensorSimulado</span><span class="p">.</span><span class="n">definirLeituraFixa</span><span class="p">({</span><span class="mi">500</span><span class="p">,</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span><span class="w"> </span><span class="mi">500</span><span class="p">});</span><span class="w">  </span><span class="c1">// corredor livre</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">sensorSimulado</span><span class="p">.</span><span class="n">enfileirarLeitura</span><span class="p">({</span><span class="mi">90</span><span class="p">,</span><span class="w"> </span><span class="mi">90</span><span class="p">,</span><span class="w"> </span><span class="mi">270</span><span class="p">});</span><span class="w">     </span><span class="c1">// depois, parede à frente e à esquerda</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">ISensorDistancia</span><span class="o">&amp;</span><span class="w"> </span><span class="n">sensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sensorSimulado</span><span class="p">;</span><span class="w">           </span><span class="c1">// a lógica recebe só a interface</span>
 </code></pre></div>
 <h2 id="sensores-de-distancia-3-vl53l0x-tofvl53l0x">Sensores de distância: 3 VL53L0X (<code>TofVl53l0x</code>)<a class="headerlink" href="#sensores-de-distancia-3-vl53l0x-tofvl53l0x" title="Permanent link">&para;</a></h2>
 <p>Na Rev 2.0 do hardware (21/10/2026), o LiDAR por UART deu lugar a <strong>3 sensores VL53L0X</strong> pelo I²C: um à esquerda, um à frente e um à direita. O <code>TofVl53l0x</code> (<code>lib/drivers_esp32</code>) implementa a <code>ISensorDistancia</code>, então o resto do firmware não mudou (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/36">HU-02</a>). A regra que decide se uma leitura vale fica no <code>CombinadorTof</code> (<code>lib/tof</code>), sem Arduino, e é testada no computador; o driver só conversa com os sensores pela biblioteca <code>pololu/VL53L0X</code> (1.3.1), que entra apenas no ambiente <code>esp32c3</code>.</p>
@@ -6254,7 +6245,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <h2 id="atuacao-centralizacao-no-corredor-e-parada-frontal">Atuação: centralização no corredor e parada frontal<a class="headerlink" href="#atuacao-centralizacao-no-corredor-e-parada-frontal" title="Permanent link">&para;</a></h2>
 <p>O módulo de atuação (<code>lib/atuacao</code>) leva o robô em linha reta mantendo-o no centro do corredor e o faz desacelerar e parar antes de uma parede frontal (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/191">#191</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/359">#359</a>). Atende aos critérios 1 e 2 da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/182">HU-12</a> (RF-12). Como não depende do Arduino, é testado no ambiente <code>native</code>; só o driver do DRV8833 fica em <code>drivers_esp32</code>.</p>
 <pre class="mermaid"><code>flowchart LR
-    lidar["Sensores de distância (ISensorDistancia)&lt;br/&gt;frente, esquerda, direita"] --&gt; controle["ControleMovimento"]
+    sensores["Sensores de distância (ISensorDistancia)&lt;br/&gt;frente, esquerda, direita"] --&gt; controle["ControleMovimento"]
     controle --&gt; lateral["ControladorCentralizacao&lt;br/&gt;correção lateral (PD)"]
     controle --&gt; frontal["PerfilParadaFrontal&lt;br/&gt;potência base"]
     controle --&gt; motores["IMotores&lt;br/&gt;potência de cada roda"]
@@ -6770,7 +6761,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <li>rever a zona morta do giroscópio com a #378, se a deriva real passar de 0,1 °/s.</li>
 </ul>
 <h2 id="navegacao-deslocamento-sem-encoder">Navegação: deslocamento sem encoder<a class="headerlink" href="#navegacao-deslocamento-sem-encoder" title="Permanent link">&para;</a></h2>
-<p>A <code>Odometria</code> precisa de contagens de roda. Enquanto os encoders não estiverem montados no robô (<code>ENCODERS_INSTALADOS = false</code> em <code>ConfiguracaoDeslocamento.h</code>), as contagens vêm de uma estimativa (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380">#380</a>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/41">HU-05</a>):</p>
+<p>A <code>Odometria</code> precisa de contagens de roda. Com os encoders montados (<code>ENCODERS_INSTALADOS</code> verdadeiro em <code>ConfiguracaoDeslocamento.h</code>, o padrão desde a <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/475">#475</a>), as contagens vêm do <code>EncoderEsp32</code>. No plano B (<code>-DENCODERS_INSTALADOS_VALOR=0</code>), as contagens vêm de uma estimativa (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380">#380</a>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/41">HU-05</a>):</p>
 <ul>
 <li>o deslocamento é <strong>estimado pela potência comandada aos motores vezes o tempo</strong>;</li>
 <li>a estimativa é <strong>corrigida pelos ToF</strong> sempre que uma parede dá uma referência de posição.</li>
@@ -6815,8 +6806,8 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <tbody>
 <tr>
 <td><code>ENCODERS_INSTALADOS</code></td>
-<td><code>false</code></td>
-<td>Sem encoders montados. Com <code>true</code>, a odometria volta aos <code>EncoderEsp32</code> (GPIO4 a 7)</td>
+<td><code>true</code></td>
+<td>Odometria pelos <code>EncoderEsp32</code> (pinos no <code>Pinos.h</code>). Para o modo estimado, compile com <code>-DENCODERS_INSTALADOS_VALOR=0</code> (ambiente <code>bancada_deslocamento_sem_encoder</code>)</td>
 </tr>
 <tr>
 <td><code>TABELA_VELOCIDADE</code></td>
@@ -6874,7 +6865,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <li>lê o ToF e considera a leitura nova quando o instante da amostra mais antiga muda (<code>idadeUltimaLeituraMs</code>, da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a>);</li>
 <li>chama <code>ciclo</code> a cada 10 ms.</li>
 </ul>
-<p>A telemetria informa <code>pose_valida</code> como <code>posicaoValida() &amp;&amp; poseConfiavel()</code> e acrescenta <code>deslocamento</code> (<code>"estimado"</code> ou <code>"encoder"</code>) e <code>sem_correcao_mm</code>. No modo estimado, o comando <code>Z</code> da bancada reposiciona o robô no centro da célula atual e devolve a confiança. Com <code>ENCODERS_INSTALADOS = true</code>, tudo volta ao caminho dos encoders reais.</p>
+<p>A telemetria informa <code>pose_valida</code> como <code>posicaoValida() &amp;&amp; poseConfiavel()</code> e acrescenta <code>deslocamento</code> (<code>"estimado"</code> ou <code>"encoder"</code>) e <code>sem_correcao_mm</code>. No modo estimado, o comando <code>Z</code> da bancada reposiciona o robô no centro da célula atual e devolve a confiança. Com os encoders (o padrão), tudo segue pelo caminho dos encoders reais.</p>
 <p><strong>Limites deste modo:</strong></p>
 <ul>
 <li><strong>Mais deriva que com encoder:</strong> patinagem, bateria fraca e erro da tabela viram erro de posição até a próxima referência.</li>
@@ -8140,7 +8131,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 </tr>
 <tr>
 <td></td>
-<td><code>test_com_leituras_simuladas_do_lidar</code></td>
+<td><code>test_com_leituras_simuladas_do_sensor</code></td>
 <td>Integração com sensor simulado gerando amostras válidas</td>
 </tr>
 <tr>
@@ -8180,7 +8171,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 </tr>
 <tr>
 <td></td>
-<td><code>test_rotina_calibracao_sucesso_com_imu_simulado_e_lidar_simulado</code></td>
+<td><code>test_rotina_calibracao_sucesso_com_imu_simulado_e_sensor_simulado</code></td>
 <td>Calibração simultânea completa com ToF e IMU simulados com sucesso</td>
 </tr>
 <tr>
@@ -9128,6 +9119,20 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <td style="text-align: center;">26/10/2026</td>
 <td>Detecção de colisão pelo acelerômetro e pelo ToF frontal, recuo até o centro e retomada sem perder o mapa nem a posição (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/192">#192</a>)</td>
 <td>Eduardo Viana</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.12</td>
+<td style="text-align: center;">04/11/2026</td>
+<td>Remoção do código do LiDAR (<code>lib/lidar</code>, <code>FonteBytesSerial</code> e seus testes) e dos nomes <code>lidar</code> nos testes e comentários (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/481">#481</a>)</td>
+<td>Cláudio Henrique</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.13</td>
+<td style="text-align: center;">04/11/2026</td>
+<td>Encoders como modo padrão do deslocamento: <code>ENCODERS_INSTALADOS</code> verdadeiro por padrão, modo estimado como plano B por <code>-DENCODERS_INSTALADOS_VALOR=0</code> e bancada do deslocamento nos dois modos (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/475">#475</a>)</td>
+<td>Cláudio Henrique</td>
 <td>—</td>
 </tr>
 </tbody>

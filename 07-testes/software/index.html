@@ -2160,6 +2160,7 @@
 <li><strong>Backend:</strong> lógica, roteador e autenticação das Edge Functions. O <code>index.ts</code> de cada função (<code>Deno.serve</code>) não roda no Node e é conferido pelo <code>deno check</code> do CI.</li>
 <li><strong>Frontend:</strong> todo o <code>src/</code>, exceto os testes, <code>src/test/</code> e <code>main.tsx</code>.</li>
 </ul>
+<p><strong>Atualização de 04/11/2026 (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/481">#481</a>):</strong> com a remoção do código do LiDAR, o firmware passou a ter 764 testes em 40 suítes (713 unitários e 51 de integração), todos aprovados, com 98,2% das linhas e 84,3% dos ramos de <code>lib/</code> (4 469 linhas). Saíram 33 testes: 22 de <code>test_lidar</code> e 11 de <code>test_decodificador_ld06</code>. O total das três camadas passa a 1 005 (850 unitários e 155 de integração). Os resultados da tabela e os prints abaixo são da execução de 26/10, com 797 testes.</p>
 <table>
 <thead>
 <tr>
