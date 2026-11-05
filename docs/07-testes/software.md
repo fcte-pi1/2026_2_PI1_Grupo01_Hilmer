@@ -30,6 +30,8 @@ O critério é de pelo menos 80% do código-fonte. No firmware e no backend o CI
 - **Backend:** lógica, roteador e autenticação das Edge Functions. O `index.ts` de cada função (`Deno.serve`) não roda no Node e é conferido pelo `deno check` do CI.
 - **Frontend:** todo o `src/`, exceto os testes, `src/test/` e `main.tsx`.
 
+**Atualização de 04/11/2026 ([#481](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/481)):** com a remoção do código do LiDAR, o firmware passou a ter 764 testes em 40 suítes (713 unitários e 51 de integração), todos aprovados, com 98,2% das linhas e 84,3% dos ramos de `lib/` (4 469 linhas). Saíram 33 testes: 22 de `test_lidar` e 11 de `test_decodificador_ld06`. O total das três camadas passa a 1 005 (850 unitários e 155 de integração). Os resultados da tabela e os prints abaixo são da execução de 26/10, com 797 testes.
+
 | Outra verificação | Comando | Resultado |
 |---|---|---|
 | Compilação para a ESP32-C3 | `pio run -e esp32c3` | Sucesso. RAM 26,9% (88 292 de 327 680 bytes), Flash 74,0% (969 906 de 1 310 720 bytes) |
