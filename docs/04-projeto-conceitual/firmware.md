@@ -52,7 +52,7 @@ Em 21/10/2026, a eletrônica enviou o esquemático e a lista de componentes da *
 
 Enquanto os encoders não eram integrados à Rev 2.0, o plano previa estimar o deslocamento pelo comando dos motores, corrigido pelos sensores de distância (modo sem encoder, [#380](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380)). Com os encoders disponíveis, esse modo passa a ser o plano B: desde a [#475](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/475), `ENCODERS_INSTALADOS` é `true` por padrão, e o modo estimado só entra compilando com `-DENCODERS_INSTALADOS_VALOR=0`.
 
-**O LiDAR não é mais usado.** O código dele (`lib/lidar`, decodificador LD06 e `FonteBytesSerial`) ainda está na `main` e deve sair num PR de código. Os registros de teste anteriores a 21/10 em [Testes de software](../07-testes/software-registro.md) foram feitos com o LiDAR simulado e continuam como histórico.
+**O LiDAR não é mais usado.** O código dele (`lib/lidar`, decodificador LD06, `FonteBytesSerial` e os testes `test_lidar` e `test_decodificador_ld06`) foi removido do firmware na [#481](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/481). Os registros de teste anteriores a 21/10 em [Testes de software](../07-testes/software-registro.md) foram feitos com o LiDAR simulado e continuam como histórico.
 
 ## Dois ambientes: placa e computador
 
@@ -103,7 +103,6 @@ Há ainda os ambientes de bancada, que herdam o `esp32c3` mas compilam só um pr
 | `lib/execucao` | Execução dos movimentos entre células (`ExecutorMovimentos`), ciclo percepção → mapa → decisão → atuação (`CicloNavegacao`) e gatilho da largada (`GatilhoLargada`), com os parâmetros em `ConfiguracaoExecucao.h` ([#184](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/184)); detecção de colisão e recuperação (`DetectorColisao`, `ConfiguracaoColisao.h`, [#192](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/192)) |
 | `lib/localizacao` | Correção do erro acumulado pelas paredes (`CorrecaoPelasParedes`), com os parâmetros do realinhamento e do rumo pelo corredor em `ConfiguracaoLocalizacao.h` ([#188](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/188)) |
 | `lib/imu` | Calibração do viés e ângulo de giro do giroscópio ([#378](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378), PR [#403](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/403), em revisão) |
-| `lib/lidar` | Código do LiDAR da versão anterior do hardware; **não é usado** e deve ser removido |
 | `lib/comunicacao` | Telemetria e eventos pontuais (`TelemetriaJson`, [#189](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/189)), serialização do mapa em JSON ([#178](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/178)) e *buffer* de reenvio (Épico 03) |
 | `lib/simulacao` | Falsos para os testes: `SensorDistanciaSimulado`, `LabirintoSimulado` ([#224](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/224)), `TofSimulado` ([#344](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344)), `EncoderSimulado`, `MotoresSimulados`, `BarramentoI2cSimulado` ([#50](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/50)) e `ImuSimulado` (PR [#403](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/403), em revisão) |
 | `lib/drivers_esp32` | Drivers que dependem do Arduino: 3 VL53L0X pelo I²C (`TofVl53l0x`), varredura do I²C (`BarramentoI2cEsp32`), encoders, motores pelo DRV8833 e Wi-Fi; o driver do MPU6050 está em desenvolvimento ([#378](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378)) |
@@ -212,17 +211,12 @@ classDiagram
         +simularFalha(lado, falha)
         +lerDistanciasLaterais(saida) bool
     }
-    class LidarUart {
-        <<lidar, sem uso desde a Rev 2.0>>
-        +lerDistanciasLaterais(saida) bool
-    }
     ISensorDistancia <|.. SensorDistanciaSimulado
     ISensorDistancia <|.. TofVl53l0x
     ISensorDistancia <|.. TofSimulado
-    ISensorDistancia <|.. LidarUart
 ```
 
-**Figura 3.** Interface `ISensorDistancia` e suas implementações: o `SensorDistanciaSimulado`, que devolve as leituras escolhidas pelo teste, o `TofVl53l0x`, driver dos 3 VL53L0X da Rev 2.0, o `TofSimulado`, que simula os 3 VL53L0X num labirinto passando pelo `CombinadorTof` real, e o `LidarUart`, do LiDAR da primeira versão do hardware, que fica no código sem uso até depois da ED1.
+**Figura 3.** Interface `ISensorDistancia` e suas implementações: o `SensorDistanciaSimulado`, que devolve as leituras escolhidas pelo teste, o `TofVl53l0x`, driver dos 3 VL53L0X da Rev 2.0, o `TofSimulado`, que simula os 3 VL53L0X num labirinto passando pelo `CombinadorTof` real.
 
 **Contrato de `ISensorDistancia::lerDistanciasLaterais`:** retorna `true` e preenche `saida` (em mm) quando há leitura válida das três direções; retorna `false` quando o sensor não responde ou a leitura é inválida. Nesse caso, o conteúdo de `saida` não deve ser usado. Medida fora da faixa do sensor **não** é inválida: sai limitada à faixa (no `TofVl53l0x`, "sem alvo" vira o alcance máximo, lado livre, e "perto demais" vira o mínimo, parede).
 
@@ -239,10 +233,10 @@ classDiagram
 A fila é circular, com capacidade fixa de 16 leituras; `enfileirarLeitura` retorna `false` quando ela está cheia.
 
 ```cpp
-SensorDistanciaSimulado lidar;
-lidar.definirLeituraFixa({500, 500, 500});  // corredor livre
-lidar.enfileirarLeitura({90, 90, 270});     // depois, parede à frente e à esquerda
-ISensorDistancia& sensor = lidar;           // a lógica recebe só a interface
+SensorDistanciaSimulado sensorSimulado;
+sensorSimulado.definirLeituraFixa({500, 500, 500});  // corredor livre
+sensorSimulado.enfileirarLeitura({90, 90, 270});     // depois, parede à frente e à esquerda
+ISensorDistancia& sensor = sensorSimulado;           // a lógica recebe só a interface
 ```
 
 ## Sensores de distância: 3 VL53L0X (`TofVl53l0x`)
@@ -1102,7 +1096,7 @@ O módulo de atuação (`lib/atuacao`) leva o robô em linha reta mantendo-o no 
 
 ```mermaid
 flowchart LR
-    lidar["Sensores de distância (ISensorDistancia)<br/>frente, esquerda, direita"] --> controle["ControleMovimento"]
+    sensores["Sensores de distância (ISensorDistancia)<br/>frente, esquerda, direita"] --> controle["ControleMovimento"]
     controle --> lateral["ControladorCentralizacao<br/>correção lateral (PD)"]
     controle --> frontal["PerfilParadaFrontal<br/>potência base"]
     controle --> motores["IMotores<br/>potência de cada roda"]
@@ -1988,7 +1982,7 @@ Os testes rodam no computador, no ambiente `native`, com o framework **Unity**. 
 | | `test_recusa_mantem_desvios_da_calibracao_anterior` | Falha preserva integralmente os desvios calibrados anteriores |
 | | `test_amostra_fora_de_calibrando_e_ignorada` | Injeção de amostras com estado fora de `Calibrando` é ignorada |
 | | `test_orcamento_tof_cabe_no_rnf08` | Tempo estimado dos ToF (400 ms) cumpre o orçamento global de 1000 ms do RNF-08 |
-| | `test_com_leituras_simuladas_do_lidar` | Integração com sensor simulado gerando amostras válidas |
+| | `test_com_leituras_simuladas_do_sensor` | Integração com sensor simulado gerando amostras válidas |
 | `test_rotina_calibracao/test_rotina_calibracao.cpp` | `test_calibrador_giro_inicial_nao_calibrado_e_vies_zero` | CalibradorGiro inicia em `NaoCalibrado` e viés zerado |
 | | `test_calibrador_giro_calcula_vies_pela_media_arredondada` | Média arredondada de 50 amostras em décimos de °/s |
 | | `test_calibrador_giro_vies_negativo_arredondado` | Média e arredondamento simétrico para viés negativo |
@@ -1996,7 +1990,7 @@ Os testes rodam no computador, no ambiente `native`, com o framework **Unity**. 
 | | `test_calibrador_giro_recusa_se_robo_se_mover_variacao_excessiva` | Oscilação > 50 décimos de °/s (5,0 °/s) ativa recusa por movimento |
 | | `test_calibrador_giro_recusa_mantem_vies_anterior` | Recusa preserva o viés da calibração bem-sucedida anterior |
 | | `test_calibrador_giro_amostra_fora_de_calibrando_e_ignorada` | Amostras adicionadas fora do estado `Calibrando` são descartadas |
-| | `test_rotina_calibracao_sucesso_com_imu_simulado_e_lidar_simulado` | Calibração simultânea completa com ToF e IMU simulados com sucesso |
+| | `test_rotina_calibracao_sucesso_com_imu_simulado_e_sensor_simulado` | Calibração simultânea completa com ToF e IMU simulados com sucesso |
 | | `test_rotina_calibracao_duracao_medida_dentro_do_orcamento_rnf08` | Medição ativa de tempo encerra em 500 ms, cumprindo o limite de 1000 ms (RNF-08) |
 | | `test_rotina_calibracao_falha_tempo_excedido_quando_estoura_orcamento` | Transiciona para `TempoExcedido` se o tempo acumulado ultrapassar 1000 ms |
 | | `test_rotina_calibracao_recusa_quando_robo_se_move_no_giro` | Recusa por movimento do giroscópio transiciona a rotina para `RecusadaPorMovimento` |
@@ -2219,4 +2213,5 @@ Ao investigar uma falha, compare o esperado com o obtido: ou o código tem um er
 | 1.9 | 25/10/2026 | Execução dos movimentos entre células: executor, ciclo de navegação, gatilho da largada, folga do giro no lugar, bancada da execução e seus testes ([#184](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/184)) | Marllon Fausto | — |
 | 1.10 | 25/10/2026 | Correção do erro acumulado pelas paredes: posição lateral e ao longo do avanço, realinhamento antes dos giros, rumo pelo corredor, resultado da varredura, bancada e testes; filtro da parede lateral distante e direção da odometria a cada ciclo na execução ([#188](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/188)) | Marllon Fausto | — |
 | 1.11 | 26/10/2026 | Detecção de colisão pelo acelerômetro e pelo ToF frontal, recuo até o centro e retomada sem perder o mapa nem a posição ([#192](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/192)) | Eduardo Viana | — |
-| 1.12 | 04/11/2026 | Encoders como modo padrão do deslocamento: `ENCODERS_INSTALADOS` verdadeiro por padrão, modo estimado como plano B por `-DENCODERS_INSTALADOS_VALOR=0` e bancada do deslocamento nos dois modos ([#475](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/475)) | Cláudio Henrique | — |
+| 1.12 | 04/11/2026 | Remoção do código do LiDAR (`lib/lidar`, `FonteBytesSerial` e seus testes) e dos nomes `lidar` nos testes e comentários ([#481](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/481)) | Cláudio Henrique | — |
+| 1.13 | 04/11/2026 | Encoders como modo padrão do deslocamento: `ENCODERS_INSTALADOS` verdadeiro por padrão, modo estimado como plano B por `-DENCODERS_INSTALADOS_VALOR=0` e bancada do deslocamento nos dois modos ([#475](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/475)) | Cláudio Henrique | — |
