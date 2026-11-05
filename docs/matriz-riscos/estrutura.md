@@ -50,8 +50,24 @@ Como ler o impacto e a probabilidade: veja [Matriz de riscos](README.md#como-ler
 
 **Observação da equipe:** os riscos que impedem o robô de passar no labirinto (5), que afetam a resistência da estrutura (3) e o encaixe dos componentes (1) merecem atenção primeiro, porque impedem a corrida.
 
+## Evolução por sprint
+
+Nota de cada risco (probabilidade × impacto) ao fim de cada sprint, com uma frase sobre o que mudou. As colunas das sprints seguintes são preenchidas nos fechamentos de 11/11, 18/11 e 23/11. Risco resolvido sai da tabela de riscos e continua aqui, com o desfecho.
+
+| **Nº** | **Risco** | **Sprint 6 (até 04/11)** | **Sprint 7 (até 11/11)** | **Sprint 8 (até 18/11)** | **Fechamento (até 23/11)** |
+|:---:|---|:---:|---|---|---|
+| 1 | As peças não encaixam nos componentes reais (medidas, folgas ou alinhamento diferentes do CAD) | 12 | — | — | — |
+| 2 | As bases da estrutura ficam desalinhadas | 4 | — | — | — |
+| 3 | A estrutura é frágil e deforma ou quebra | 9 | — | — | — |
+| 4 | As paredes removíveis do labirinto não encaixam ou travam (rasgos ou cavilhas) | 4 | — | — | — |
+| 5 | O robô não passa pelos corredores do labirinto | 10 | — | — | — |
+| 6 | É preciso imprimir de novo a estrutura do robô | 8 | — | — | — |
+| 7 | É preciso fabricar de novo partes do labirinto | 6 | — | — | — |
+| 8 | Mudanças no CAD sem registro de versão | 4 | — | — | — |
+
 ## Histórico de versões
 
 | **Versão** | **Data** | **Descrição** | **Autor(es)** | **Revisor(es)** |
 |:----------:|:--------:|---------------|---------------|-----------------|
 | 1.0 | 04/11/2026 | Matriz de riscos da estrutura: notas, mapa de calor, motivo de cada nota e possíveis soluções | Equipe de Estrutura (riscos e soluções); Ana Carolina Fialho (página e notas) | Ana Carolina Nunes |
+| 1.1 | 04/11/2026 | Revisão do PR #500: tabela de evolução por sprint | Cláudio Henrique | — |
