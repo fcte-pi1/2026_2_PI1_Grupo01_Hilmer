@@ -28,7 +28,7 @@ Como ler o impacto e a probabilidade: veja [Matriz de riscos](README.md#como-ler
 |:---:|---|---|---|:---:|:---:|:---:|
 | 1 | Corrente alta demais ou aquecimento no driver DRV8833 e nos reguladores | O robô para de andar e componentes podem queimar | A corrente de travamento do N20 nunca foi medida, e o driver só foi testado com o motor esquerdo | Possível (3) | Alto (4) | <span class="nota nota-alta">12</span> |
 | 2 | Alimentação errada: tensão incorreta, trilhos de 3,3 V unidos sem querer, ou USB e VIN ligados juntos sem isolamento | Pode queimar o ESP32, os sensores ou os reguladores | Na bancada, USB e bateria são ligadas juntas sem isolamento verificado; um erro queima a placa | Possível (3) | Muito alto (5) | <span class="nota nota-critica">15</span> |
-| 3 | Mau contato ou ligação errada nos conectores dos motores e encoders | O motor não aciona e o robô perde a medida de quanto andou | Já falhou: o conector do N20 causou a falha do teste 3.3, e o motor direito não girou em 29/10 | Provável (4) | Alto (4) | <span class="nota nota-critica">16</span> |
+| 3 | Mau contato ou ligação errada nos conectores dos motores e encoders | O motor não aciona e o robô perde a medida de quanto andou | Já falhou: o conector do N20 causou a falha do teste 3.3. Em 29/10 o motor direito não girou, e a causa ainda é investigada ([#483](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/483)) | Provável (4) | Alto (4) | <span class="nota nota-critica">16</span> |
 | 4 | VL53L0X lendo errado por falta de calibração | O robô vê parede onde não tem (ou o contrário), bate e erra o mapa | A frente lê cerca de 80 mm a mais (teste 3.7), e esquerda e direita nunca foram calibradas | Provável (4) | Médio (3) | <span class="nota nota-alta">12</span> |
 | 5 | Sensor tampado ou mal posicionado no chassi | O sensor lê o próprio robô ou os fios, e a navegação erra | No teste 3.8, o sensor da direita leu um valor quase fixo, provavelmente por um fio na frente; o chassi final ainda não foi montado | Possível (3) | Alto (4) | <span class="nota nota-alta">12</span> |
 | 6 | Motor gira sozinho ao ligar ou reiniciar a placa | O robô sai andando e bate | O pulso do GPIO14 no boot já é conhecido (está no `Pinos.h`), e a troca para o GPIO13 ainda não foi validada | Provável (4) | Médio (3) | <span class="nota nota-alta">12</span> |
@@ -47,15 +47,34 @@ Como ler o impacto e a probabilidade: veja [Matriz de riscos](README.md#como-ler
 | 3 | Conectores | Refazer os conectores com defeito, conferir a ordem dos terminais e identificar os cabos. Testar continuidade com tudo desligado e prender os fios para não puxarem o conector | Testar motor e encoder separados para achar o ponto da falha e refazer o conector |
 | 4 | Calibração dos VL53L0X | Calibrar cada um dos 3 sensores com régua e anteparo em distâncias conhecidas e aplicar a correção de cada um. Repetir na montagem final e com os motores ligados | Usar a calibração no boot do firmware (#240) e refazer a medição com régua |
 | 5 | Posição dos sensores | Afastar suportes e fios do campo de visão e fixar cada sensor sempre na mesma orientação. Testar cada um com anteparo, principalmente o da direita, que ainda não foi demonstrado | Reposicionar o sensor ou o fio que está na frente e repetir o teste |
-| 6 | Motor girando ao ligar | Confirmar o IN4 no GPIO13 na placa e no firmware. Testar ligar, reiniciar e gravar com as rodas fora do chão | Revisar o bloqueio do driver por hardware e o estado dos pinos no boot antes de liberar os motores |
+| 6 | Motor girando ao ligar | Confirmar o IN4 no GPIO13 na placa e no firmware (o Software atualiza o `Pinos.h` e a bancada depois do [#497](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/497)). Testar ligar, reiniciar e gravar com as rodas fora do chão | Revisar o bloqueio do driver por hardware e o estado dos pinos no boot antes de liberar os motores |
 | 7 | Queda de tensão e ruído | Medir as tensões na partida, na frenagem e com os dois motores ligados. Revisar aterramento e capacitores e separar os cabos de potência dos de sinal | Repetir o teste dos sensores com os motores ligados e reforçar o desacoplamento |
 | 8 | I²C | Ligar os VL53L0X um por vez pelo XSHUT e dar um endereço para cada um em toda partida. Registrar a varredura do barramento e conferir os pull-ups | Usar a recuperação de falha do firmware (#241) e revisar fios e soldas do barramento |
 | 9 | Leitura da bateria | Conferir o divisor, o filtro e a ligação no GPIO34. Comparar a leitura do ADC com o multímetro em várias tensões e calibrar | Medir a bateria com multímetro antes de cada corrida até a leitura ser corrigida |
 | 10 | Atraso na montagem | Ter responsável e prazo para montagem, inspeção e ensaios (já no Projects). Conferir as peças disponíveis e deixar tempo para retrabalho | Validar por partes e priorizar o que o software precisa primeiro: motores, encoders e sensores |
 | 11 | Calibração da MPU6050 | Calibrar acelerômetro e giroscópio com o robô parado, medir a deriva em ensaios longos e prender bem a IMU | Recalibrar e comparar as curvas com uma referência conhecida (giro de 90° medido) |
 
+## Evolução por sprint
+
+Nota de cada risco (probabilidade × impacto) ao fim de cada sprint, com uma frase sobre o que mudou. As colunas das sprints seguintes são preenchidas nos fechamentos de 11/11, 18/11 e 23/11. Risco resolvido sai da tabela de riscos e continua aqui, com o desfecho.
+
+| **Nº** | **Risco** | **Sprint 6 (até 04/11)** | **Sprint 7 (até 11/11)** | **Sprint 8 (até 18/11)** | **Fechamento (até 23/11)** |
+|:---:|---|:---:|---|---|---|
+| 1 | Corrente alta demais ou aquecimento no driver DRV8833 e nos reguladores | 12 | — | — | — |
+| 2 | Alimentação errada: tensão incorreta, trilhos de 3,3 V unidos sem querer, ou USB e VIN ligados juntos sem isolamento | 15 | — | — | — |
+| 3 | Mau contato ou ligação errada nos conectores dos motores e encoders | 16 | — | — | — |
+| 4 | VL53L0X lendo errado por falta de calibração | 12 | — | — | — |
+| 5 | Sensor tampado ou mal posicionado no chassi | 12 | — | — | — |
+| 6 | Motor gira sozinho ao ligar ou reiniciar a placa | 12 | — | — | — |
+| 7 | Queda de tensão ou ruído quando os motores ligam | 12 | — | — | — |
+| 8 | Falha no I²C ou dois VL53L0X no mesmo endereço | 12 | — | — | — |
+| 9 | Leitura errada da tensão da bateria pelo ADC | 4 | — | — | — |
+| 10 | Atraso na montagem e na validação da placa definitiva | 12 | — | — | — |
+| 11 | MPU6050 medindo errado por falta de calibração ou por vibração | 6 | — | — | — |
+
 ## Histórico de versões
 
 | **Versão** | **Data** | **Descrição** | **Autor(es)** | **Revisor(es)** |
 |:----------:|:--------:|---------------|---------------|-----------------|
 | 1.0 | 04/11/2026 | Matriz de riscos da eletrônica (riscos 1 a 11): notas, mapa de calor, motivo de cada nota e possíveis soluções | Equipe de Eletrônica (riscos e soluções); Ana Carolina Fialho (página e notas) | Aline de Carvalho Rodrigues |
+| 1.1 | 04/11/2026 | Revisão do PR #500: textos dos riscos 3 e 6 e tabela de evolução por sprint | Cláudio Henrique | — |
