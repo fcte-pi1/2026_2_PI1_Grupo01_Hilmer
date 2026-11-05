@@ -50,8 +50,25 @@ Como ler o impacto e a probabilidade: veja [Matriz de riscos](README.md#como-ler
 | 8 | Sem telemetria da bateria | Ler a tensão no GPIO34 pelo firmware e enviar na telemetria ([#492](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/492), [#215](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/215)) | Mostrar a tensão no monitor serial como plano B e medir com o multímetro entre as corridas |
 | 9 | Integrante sair | Manter esquemáticos, cálculos e procedimentos documentados no repositório e fazer as tarefas críticas sempre em dupla | Redistribuir as tarefas entre a frente, com apoio da gerência geral |
 
+## Evolução por sprint
+
+Nota de cada risco (probabilidade × impacto) ao fim de cada sprint, com uma frase sobre o que mudou. As colunas das sprints seguintes são preenchidas nos fechamentos de 11/11, 18/11 e 23/11. Risco resolvido sai da tabela de riscos e continua aqui, com o desfecho.
+
+| **Nº** | **Risco** | **Sprint 6 (até 04/11)** | **Sprint 7 (até 11/11)** | **Sprint 8 (até 18/11)** | **Fechamento (até 23/11)** |
+|:---:|---|:---:|---|---|---|
+| 1 | Curto ou polaridade invertida ao conectar a bateria | 5 | — | — | — |
+| 2 | Bateria LiPo inchar, pegar fogo ou explodir | 5 | — | — | — |
+| 3 | Corte por subtensão (BMS e UVLO de 6,4 V) não funcionar | 12 | — | — | — |
+| 4 | Tensão errada na saída dos reguladores *buck* (3,3 V, 5 V ou 6 V) | 10 | — | — | — |
+| 5 | Fio soldado no lugar errado na placa | 9 | — | — | — |
+| 6 | Carregador quebrar | 2 | — | — | — |
+| 7 | Bateria sem carga suficiente no dia da inspeção | 8 | — | — | — |
+| 8 | Sem telemetria do consumo da bateria no dashboard | 6 | — | — | — |
+| 9 | Integrante da frente sair da disciplina | 6 | — | — | — |
+
 ## Histórico de versões
 
 | **Versão** | **Data** | **Descrição** | **Autor(es)** | **Revisor(es)** |
 |:----------:|:--------:|---------------|---------------|-----------------|
 | 1.0 | 04/11/2026 | Matriz de riscos da energia: notas, mapa de calor, motivo de cada nota e possíveis soluções | Equipe de Energia (riscos e soluções); Ana Carolina Fialho (página e notas) | Paulo Henrique Melo de Souza |
+| 1.1 | 04/11/2026 | Revisão do PR #500: tabela de evolução por sprint | Cláudio Henrique | — |
