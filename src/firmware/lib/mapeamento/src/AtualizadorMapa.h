@@ -43,11 +43,11 @@ class AtualizadorMapa {
       const Pose &pose,
       const ClassificadorParede::ResultadoClassificacao &classificacao);
 
-  /// Sobrecarga de conveniência: recebe leituras do LiDAR, classifica com o classificador e atualiza o mapa.
+  /// Sobrecarga de conveniência: recebe leituras dos sensores de distância, classifica com o classificador e atualiza o mapa.
   /// @param mapa Mapa a ser atualizado.
   /// @param pose Pose atual do robô.
   /// @param classificador Classificador de paredes.
-  /// @param amostras Leituras do LiDAR.
+  /// @param amostras Leituras dos sensores de distância.
   /// @param quantidadeAmostras Quantidade de amostras.
   /// @return Resultado da atualização contendo o status de cada parede e flag de conflito.
   static ResultadoAtualizacao atualizar(

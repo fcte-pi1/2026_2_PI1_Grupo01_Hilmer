@@ -45,9 +45,9 @@ void verificarDistancias(const LabirintoSimulado& labirinto, Pose pose, uint16_t
   TEST_ASSERT_EQUAL_UINT16(direita, d.direitaMm);
 }
 
-void verificarLeitura(SensorDistanciaSimulado& lidar, uint16_t frente, uint16_t esquerda, uint16_t direita) {
+void verificarLeitura(SensorDistanciaSimulado& sensorSimulado, uint16_t frente, uint16_t esquerda, uint16_t direita) {
   DistanciasLaterais d = {};
-  TEST_ASSERT_TRUE(lidar.lerDistanciasLaterais(d));
+  TEST_ASSERT_TRUE(sensorSimulado.lerDistanciasLaterais(d));
   TEST_ASSERT_EQUAL_UINT16(frente, d.frenteMm);
   TEST_ASSERT_EQUAL_UINT16(esquerda, d.esquerdaMm);
   TEST_ASSERT_EQUAL_UINT16(direita, d.direitaMm);
@@ -396,59 +396,59 @@ void test_distancias_fora_do_labirinto_ou_sem_carga_falham() {
 
 // ---- SensorDistanciaSimulado no modo labirinto
 
-void test_lidar_posicionado_le_o_que_o_labirinto_mostra() {
+void test_sensor_posicionado_le_o_que_o_labirinto_mostra() {
   LabirintoSimulado labirinto;
   carregarExemplo(labirinto, exemplos::LABIRINTO_4X4);
-  SensorDistanciaSimulado lidar;
-  lidar.usarLabirinto(labirinto);
+  SensorDistanciaSimulado sensorSimulado;
+  sensorSimulado.usarLabirinto(labirinto);
 
-  lidar.posicionar({{0, 0}, Direcao::Norte});
-  verificarLeitura(lidar, 630, 90, 90);
+  sensorSimulado.posicionar({{0, 0}, Direcao::Norte});
+  verificarLeitura(sensorSimulado, 630, 90, 90);
   // A leitura não é consumida: repetir a chamada na mesma pose dá o mesmo resultado.
-  verificarLeitura(lidar, 630, 90, 90);
+  verificarLeitura(sensorSimulado, 630, 90, 90);
 
-  lidar.posicionar({{1, 0}, Direcao::Norte});
-  verificarLeitura(lidar, 450, 90, 270);
-  lidar.posicionar({{2, 2}, Direcao::Norte});
-  verificarLeitura(lidar, 270, 270, 90);
+  sensorSimulado.posicionar({{1, 0}, Direcao::Norte});
+  verificarLeitura(sensorSimulado, 450, 90, 270);
+  sensorSimulado.posicionar({{2, 2}, Direcao::Norte});
+  verificarLeitura(sensorSimulado, 270, 270, 90);
 
   // Pela interface, como a lógica do firmware usa.
-  ISensorDistancia& sensor = lidar;
+  ISensorDistancia& sensor = sensorSimulado;
   DistanciasLaterais d = {};
   TEST_ASSERT_TRUE(sensor.lerDistanciasLaterais(d));
   TEST_ASSERT_EQUAL_UINT16(270, d.frenteMm);
 }
 
-void test_lidar_no_labirinto_respeita_falha_e_fila() {
+void test_sensor_no_labirinto_respeita_falha_e_fila() {
   LabirintoSimulado labirinto;
   carregarExemplo(labirinto, exemplos::LABIRINTO_4X4);
-  SensorDistanciaSimulado lidar;
-  lidar.definirLeituraFixa({500, 500, 500});
-  lidar.usarLabirinto(labirinto);
+  SensorDistanciaSimulado sensorSimulado;
+  sensorSimulado.definirLeituraFixa({500, 500, 500});
+  sensorSimulado.usarLabirinto(labirinto);
   DistanciasLaterais d = {};
 
   // Sem posicionar, o modo labirinto não age e vale a leitura fixa.
-  verificarLeitura(lidar, 500, 500, 500);
+  verificarLeitura(sensorSimulado, 500, 500, 500);
 
-  lidar.posicionar({{0, 0}, Direcao::Norte});
-  verificarLeitura(lidar, 630, 90, 90);
+  sensorSimulado.posicionar({{0, 0}, Direcao::Norte});
+  verificarLeitura(sensorSimulado, 630, 90, 90);
 
   // A fila vem antes do labirinto e é consumida uma vez.
-  lidar.enfileirarLeitura({1, 2, 3});
-  verificarLeitura(lidar, 1, 2, 3);
-  verificarLeitura(lidar, 630, 90, 90);
+  sensorSimulado.enfileirarLeitura({1, 2, 3});
+  verificarLeitura(sensorSimulado, 1, 2, 3);
+  verificarLeitura(sensorSimulado, 630, 90, 90);
 
   // A falha vem antes de tudo e não consome a fila.
-  lidar.enfileirarLeitura({4, 5, 6});
-  lidar.simularFalha(true);
-  TEST_ASSERT_FALSE(lidar.lerDistanciasLaterais(d));
-  lidar.simularFalha(false);
-  verificarLeitura(lidar, 4, 5, 6);
-  verificarLeitura(lidar, 630, 90, 90);
+  sensorSimulado.enfileirarLeitura({4, 5, 6});
+  sensorSimulado.simularFalha(true);
+  TEST_ASSERT_FALSE(sensorSimulado.lerDistanciasLaterais(d));
+  sensorSimulado.simularFalha(false);
+  verificarLeitura(sensorSimulado, 4, 5, 6);
+  verificarLeitura(sensorSimulado, 630, 90, 90);
 
   // Pose fora do labirinto: o sensor não responde, em vez de cair na leitura fixa.
-  lidar.posicionar({{9, 9}, Direcao::Norte});
-  TEST_ASSERT_FALSE(lidar.lerDistanciasLaterais(d));
+  sensorSimulado.posicionar({{9, 9}, Direcao::Norte});
+  TEST_ASSERT_FALSE(sensorSimulado.lerDistanciasLaterais(d));
 }
 
 int main(int, char**) {
@@ -470,7 +470,7 @@ int main(int, char**) {
   RUN_TEST(test_labirinto_4x4_completo);
   RUN_TEST(test_labirintos_8x4_e_12x4_medem_corredores_longos);
   RUN_TEST(test_distancias_fora_do_labirinto_ou_sem_carga_falham);
-  RUN_TEST(test_lidar_posicionado_le_o_que_o_labirinto_mostra);
-  RUN_TEST(test_lidar_no_labirinto_respeita_falha_e_fila);
+  RUN_TEST(test_sensor_posicionado_le_o_que_o_labirinto_mostra);
+  RUN_TEST(test_sensor_no_labirinto_respeita_falha_e_fila);
   return UNITY_END();
 }

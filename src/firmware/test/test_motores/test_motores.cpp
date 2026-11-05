@@ -193,17 +193,17 @@ void test_configuracao_da_protecao_passa_pelo_decorador() {
 /// Robô preso numa parede falsa: o controle manda potência de cruzeiro pelo decorador, a leitura não
 /// muda, e o decorador freia e segura o freio mesmo com o controle mandando andar de novo.
 void test_integracao_controle_com_robo_preso() {
-  SensorDistanciaSimulado lidar;
+  SensorDistanciaSimulado sensorSimulado;
   MotoresSimulados driver;
   MotoresComProtecao motores(driver);
   ControleMovimento controle;
-  lidar.definirLeituraFixa(DistanciasLaterais{600, 84, 84});  // centralizado, caminho livre
+  sensorSimulado.definirLeituraFixa(DistanciasLaterais{600, 84, 84});  // centralizado, caminho livre
 
   int ciclos = 0;
   while (!motores.travado() && ciclos < 20) {
-    controle.atualizar(lidar, motores, DT_MS);
+    controle.atualizar(sensorSimulado, motores, DT_MS);
     DistanciasLaterais leitura = {0, 0, 0};
-    const bool valida = lidar.lerDistanciasLaterais(leitura);
+    const bool valida = sensorSimulado.lerDistanciasLaterais(leitura);
     motores.atualizarProtecao(MedidasProtecao{valida, leitura.frenteMm, 0}, DT_MS);
     ++ciclos;
   }
@@ -212,7 +212,7 @@ void test_integracao_controle_com_robo_preso() {
   TEST_ASSERT_TRUE(driver.freados());
 
   for (int i = 0; i < 5; ++i) {  // o controle continua mandando andar
-    controle.atualizar(lidar, motores, DT_MS);
+    controle.atualizar(sensorSimulado, motores, DT_MS);
   }
   TEST_ASSERT_TRUE(driver.freados());
   TEST_ASSERT_EQUAL_UINT32(5, motores.comandosRecusados());

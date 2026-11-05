@@ -234,13 +234,13 @@ void test_dt_zero_nao_avanca_o_tempo() {
 
 namespace {
 
-/// Um ciclo da navegação: o controle comanda os motores a partir do LiDAR simulado e a proteção
+/// Um ciclo da navegação: o controle comanda os motores a partir do sensor de distância simulado e a proteção
 /// confere o resultado. Se travar, freia, como a tarefa de navegação fará.
-EstadoProtecao cicloDaNavegacao(ControleMovimento& controle, SensorDistanciaSimulado& lidar, MotoresSimulados& motores,
+EstadoProtecao cicloDaNavegacao(ControleMovimento& controle, SensorDistanciaSimulado& sensorSimulado, MotoresSimulados& motores,
                                 ProtecaoMotorTravado& protecao, int16_t taxaGiroDecimosDps) {
-  controle.atualizar(lidar, motores, DT_MS);
+  controle.atualizar(sensorSimulado, motores, DT_MS);
   DistanciasLaterais leitura = {0, 0, 0};
-  const bool valida = lidar.lerDistanciasLaterais(leitura);
+  const bool valida = sensorSimulado.lerDistanciasLaterais(leitura);
   const EstadoProtecao estado = protecao.atualizar(
       motores.ultimaPotencia(), MedidasProtecao{valida, leitura.frenteMm, taxaGiroDecimosDps}, DT_MS);
   if (estado == EstadoProtecao::Travado) {
@@ -254,16 +254,16 @@ EstadoProtecao cicloDaNavegacao(ControleMovimento& controle, SensorDistanciaSimu
 /// Robô preso numa parede falsa: o controle manda potência de cruzeiro, a leitura não muda, e a
 /// proteção freia os motores no tempo limite.
 void test_integracao_robo_preso_e_freado() {
-  SensorDistanciaSimulado lidar;
+  SensorDistanciaSimulado sensorSimulado;
   MotoresSimulados motores;
   ControleMovimento controle;
   ProtecaoMotorTravado protecao;
-  lidar.definirLeituraFixa(DistanciasLaterais{600, 84, 84});  // centralizado, caminho livre
+  sensorSimulado.definirLeituraFixa(DistanciasLaterais{600, 84, 84});  // centralizado, caminho livre
 
   EstadoProtecao estado = EstadoProtecao::Normal;
   int ciclos = 0;
   while (estado != EstadoProtecao::Travado && ciclos < 20) {
-    estado = cicloDaNavegacao(controle, lidar, motores, protecao, 0);
+    estado = cicloDaNavegacao(controle, sensorSimulado, motores, protecao, 0);
     ++ciclos;
   }
   TEST_ASSERT_EQUAL(EstadoProtecao::Travado, estado);
@@ -275,16 +275,16 @@ void test_integracao_robo_preso_e_freado() {
 /// Robô andando de verdade: a leitura frontal diminui a cada ciclo e a proteção nunca atua, até o
 /// controle parar na parede.
 void test_integracao_robo_andando_nao_e_freado() {
-  SensorDistanciaSimulado lidar;
+  SensorDistanciaSimulado sensorSimulado;
   MotoresSimulados motores;
   ControleMovimento controle;
   ProtecaoMotorTravado protecao;
 
   uint16_t frente = 800;
   for (int ciclo = 0; ciclo < 60 && !controle.parado(); ++ciclo) {
-    lidar.definirLeituraFixa(DistanciasLaterais{frente, 84, 84});
+    sensorSimulado.definirLeituraFixa(DistanciasLaterais{frente, 84, 84});
     TEST_ASSERT_NOT_EQUAL(EstadoProtecao::Travado,
-                          cicloDaNavegacao(controle, lidar, motores, protecao, 0));
+                          cicloDaNavegacao(controle, sensorSimulado, motores, protecao, 0));
     frente = static_cast<uint16_t>(frente > 20 ? frente - 20 : 0);  // 20 mm por ciclo de 100 ms
   }
   TEST_ASSERT_TRUE(controle.parado());
@@ -295,13 +295,13 @@ void test_integracao_robo_andando_nao_e_freado() {
 /// Depois de travar, a navegação reinicia o controle e a proteção; sem o obstáculo, o robô anda
 /// de novo sem ser freado.
 void test_integracao_destrava_e_volta_a_andar() {
-  SensorDistanciaSimulado lidar;
+  SensorDistanciaSimulado sensorSimulado;
   MotoresSimulados motores;
   ControleMovimento controle;
   ProtecaoMotorTravado protecao;
-  lidar.definirLeituraFixa(DistanciasLaterais{600, 84, 84});
+  sensorSimulado.definirLeituraFixa(DistanciasLaterais{600, 84, 84});
   for (int i = 0; i < 5; ++i) {
-    cicloDaNavegacao(controle, lidar, motores, protecao, 0);
+    cicloDaNavegacao(controle, sensorSimulado, motores, protecao, 0);
   }
   TEST_ASSERT_TRUE(protecao.travado());
 
@@ -309,9 +309,9 @@ void test_integracao_destrava_e_volta_a_andar() {
   controle.reiniciar();
   uint16_t frente = 600;
   for (int i = 0; i < 10; ++i) {
-    lidar.definirLeituraFixa(DistanciasLaterais{frente, 84, 84});
+    sensorSimulado.definirLeituraFixa(DistanciasLaterais{frente, 84, 84});
     TEST_ASSERT_NOT_EQUAL(EstadoProtecao::Travado,
-                          cicloDaNavegacao(controle, lidar, motores, protecao, 0));
+                          cicloDaNavegacao(controle, sensorSimulado, motores, protecao, 0));
     frente -= 15;
   }
   TEST_ASSERT_FALSE(motores.freados());
@@ -319,14 +319,14 @@ void test_integracao_destrava_e_volta_a_andar() {
 
 /// Sem leitura do sensor (falha), a proteção não conclui nada e o controle segue seu fail-safe.
 void test_integracao_sem_leitura_nao_dispara_a_protecao() {
-  SensorDistanciaSimulado lidar;
+  SensorDistanciaSimulado sensorSimulado;
   MotoresSimulados motores;
   ControleMovimento controle;
   ProtecaoMotorTravado protecao;
-  lidar.simularFalha(true);
+  sensorSimulado.simularFalha(true);
   for (int i = 0; i < 20; ++i) {
     TEST_ASSERT_NOT_EQUAL(EstadoProtecao::Travado,
-                          cicloDaNavegacao(controle, lidar, motores, protecao, 0));
+                          cicloDaNavegacao(controle, sensorSimulado, motores, protecao, 0));
   }
 }
 
