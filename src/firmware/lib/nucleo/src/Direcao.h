@@ -35,7 +35,7 @@ constexpr Direcao oposta(Direcao d) {
 
 /// Converte um lado relativo ao robô (frente, esquerda, direita) na direção absoluta do labirinto.
 ///
-/// Usada para gravar no mapa as paredes lidas pelo LiDAR: com o robô virado para
+/// Usada para gravar no mapa as paredes lidas pelos sensores de distância: com o robô virado para
 /// Leste, a parede à esquerda está ao Norte da célula.
 /// @param direcaoDoRobo Direção para a qual o robô está virado.
 /// @param lado Lado relativo ao robô.

@@ -1,7 +1,7 @@
 #pragma once
 
 /// @file LabirintoSimulado.h
-/// @brief Labirinto conhecido (verdade de referência) para simular o LiDAR sem hardware.
+/// @brief Labirinto conhecido (verdade de referência) para simular os sensores de distância sem hardware.
 
 #include <stdint.h>
 
@@ -89,7 +89,7 @@ class LabirintoSimulado {
   /// @return `true` se há parede; também `true` para células fora do labirinto.
   bool temParede(PosicaoCelula celula, Direcao direcao) const;
 
-  /// Distâncias que o LiDAR mediria com o robô no centro da célula, virado para `pose.direcao`.
+  /// Distâncias que os sensores mediriam com o robô no centro da célula, virado para `pose.direcao`.
   /// @param pose Célula e direção do robô.
   /// @param[out] saida Distâncias à frente, à esquerda e à direita, em mm; não muda se a função
   ///             retorna `false`.

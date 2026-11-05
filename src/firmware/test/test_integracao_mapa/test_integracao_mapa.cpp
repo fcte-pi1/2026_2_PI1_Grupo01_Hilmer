@@ -24,13 +24,13 @@ void tearDown() {}
 namespace {
 
 /// Robô simulado que explora o labirinto em profundidade usando só o que o sensor mostra:
-/// a cada célula nova ele lê o LiDAR na pose atual, atualiza o mapa e segue pelas direções
+/// a cada célula nova ele lê os sensores na pose atual, atualiza o mapa e segue pelas direções
 /// que o próprio mapa diz estarem livres.
 class ExploradorSimulado {
  public:
   ExploradorSimulado(const LabirintoSimulado& labirinto, Mapa& mapa)
       : mapa_(mapa) {
-    lidar_.usarLabirinto(labirinto);
+    sensorSimulado_.usarLabirinto(labirinto);
   }
 
   /// Explora a partir da partida (0, 0), virado para o Norte.
@@ -47,9 +47,9 @@ class ExploradorSimulado {
     visitadas_++;
 
     const Pose pose = {celula, direcao};
-    lidar_.posicionar(pose);
+    sensorSimulado_.posicionar(pose);
     DistanciasLaterais leitura = {};
-    if (!lidar_.lerDistanciasLaterais(leitura)) {
+    if (!sensorSimulado_.lerDistanciasLaterais(leitura)) {
       falhas_++;
       return;
     }
@@ -72,7 +72,7 @@ class ExploradorSimulado {
   }
 
   Mapa& mapa_;
-  SensorDistanciaSimulado lidar_;
+  SensorDistanciaSimulado sensorSimulado_;
   ClassificadorParede classificador_;
   bool visitada_[MAX_LINHAS_LABIRINTO][MAX_COLUNAS_LABIRINTO] = {};
   uint8_t visitadas_ = 0;
@@ -143,15 +143,15 @@ void test_uma_celula_registra_so_as_tres_paredes_que_o_sensor_ve() {
   LabirintoSimulado labirinto;
   labirinto.carregar(exemplos::LABIRINTO_4X4);
   Mapa mapa(DimensaoMapa::Labirinto4x4);
-  SensorDistanciaSimulado lidar;
-  lidar.usarLabirinto(labirinto);
+  SensorDistanciaSimulado sensorSimulado;
+  sensorSimulado.usarLabirinto(labirinto);
   ClassificadorParede classificador;
 
   // Em (1, 0) virado para Leste: frente = (1, 1) livre, esquerda (Norte) livre, direita (Sul) livre.
   const Pose pose = {{1, 0}, Direcao::Leste};
-  lidar.posicionar(pose);
+  sensorSimulado.posicionar(pose);
   DistanciasLaterais leitura = {};
-  TEST_ASSERT_TRUE(lidar.lerDistanciasLaterais(leitura));
+  TEST_ASSERT_TRUE(sensorSimulado.lerDistanciasLaterais(leitura));
   AtualizadorMapa::atualizar(mapa, pose, classificador, &leitura, 1);
 
   TEST_ASSERT_EQUAL_UINT8(static_cast<uint8_t>(EstadoParede::Livre),
