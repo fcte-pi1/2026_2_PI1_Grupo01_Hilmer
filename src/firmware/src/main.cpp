@@ -6,8 +6,8 @@
 /// interrupção de hardware no ESP32-C3, alimentam a odometria (pose na malha) e são reportados na
 /// telemetria. Os 3 sensores de distância VL53L0X são lidos pelo I²C na tarefa de navegação, e o
 /// giroscópio do MPU6050 por uma tarefa própria, em intervalo fixo, no mesmo barramento (com mutex).
-/// Enquanto os encoders não são instalados (`ENCODERS_INSTALADOS` em `ConfiguracaoDeslocamento.h`),
-/// o deslocamento é estimado pela potência dos motores e corrigido pelos ToF (#380).
+/// O deslocamento vem dos encoders (`ENCODERS_INSTALADOS` em `ConfiguracaoDeslocamento.h`, #475). O
+/// modo sem encoder, estimado pela potência dos motores e corrigido pelos ToF (#380), é o plano B.
 /// Os motores só são liberados depois do autoteste do boot (#50) encontrar os 4 dispositivos do I²C.
 /// A navegação percebe as paredes no centro de cada célula, grava no mapa, decide pelo Flood Fill e
 /// executa um movimento por vez (avançar uma célula, girar 90° ou 180°, #184), depois da largada
@@ -83,8 +83,8 @@
 /// `const`, só para leitura. `iniciarCorrida()` é chamado quando o tamanho do labirinto for escolhido.
 static micromouse::ArmazenamentoMapa armazenamentoMapa;
 
-/// Encoders das rodas (roda direita invertida devido à montagem mecânica espelhada). Na Rev 2.0 os
-/// pinos estão reservados, mas os encoders ainda não estão instalados.
+/// Encoders das rodas (roda direita invertida devido à montagem mecânica espelhada). Estão nos motores
+/// N20 e são iniciados no `setup()` quando `ENCODERS_INSTALADOS` é verdadeiro (o padrão).
 static micromouse::EncoderEsp32 encoderEsq(micromouse::pinos::ENCODER_ESQ_A,
                                            micromouse::pinos::ENCODER_ESQ_B,
                                            false);

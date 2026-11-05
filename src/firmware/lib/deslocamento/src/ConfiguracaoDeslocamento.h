@@ -23,11 +23,17 @@ namespace micromouse {
 // 1. Os encoders estão instalados?
 // ---------------------------------------------------------------------------------------------
 
-/// `false`: a odometria usa o deslocamento ESTIMADO (este arquivo). `true`: usa os encoders reais
-/// (`EncoderEsp32`, GPIO4 a 7), e o resto deste arquivo deixa de ser usado.
-/// Troque para `true` quando os encoders forem montados; a `Odometria` e o `ControleMovimento` não
-/// mudam com a troca.
-constexpr bool ENCODERS_INSTALADOS = false;
+/// `true` (padrão): a odometria usa os encoders reais (`EncoderEsp32`; pinos no `Pinos.h`), e o resto
+/// deste arquivo deixa de ser usado. `false`: usa o deslocamento ESTIMADO (este arquivo), o modo
+/// de quando os encoders não estavam montados, que vira o plano B. A `Odometria` e o
+/// `ControleMovimento` não mudam com a troca.
+///
+/// Para comparar os dois modos na bancada sem editar o código, compile com
+/// `-DENCODERS_INSTALADOS_VALOR=0` (ambiente `bancada_deslocamento_sem_encoder`).
+#ifndef ENCODERS_INSTALADOS_VALOR
+#define ENCODERS_INSTALADOS_VALOR 1
+#endif
+constexpr bool ENCODERS_INSTALADOS = ENCODERS_INSTALADOS_VALOR != 0;
 
 // ---------------------------------------------------------------------------------------------
 // 2. Tabela de velocidade: quanto o robô anda para cada potência comandada

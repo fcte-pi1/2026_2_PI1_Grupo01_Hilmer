@@ -469,8 +469,19 @@ void test_correcao_pela_frente_virado_para_o_sul() {
   TEST_ASSERT_EQUAL_UINT8(2, odometria.pose().celula.linha);
 }
 
+/// Com os encoders montados (#475), o robô usa os encoders por padrão. O modo estimado só entra
+/// compilando com `-DENCODERS_INSTALADOS_VALOR=0` (ambiente `bancada_deslocamento_sem_encoder`).
+void test_encoders_sao_o_modo_padrao() {
+#if defined(ENCODERS_INSTALADOS_VALOR) && ENCODERS_INSTALADOS_VALOR == 0
+  TEST_ASSERT_FALSE(ENCODERS_INSTALADOS);
+#else
+  TEST_ASSERT_TRUE(ENCODERS_INSTALADOS);
+#endif
+}
+
 int main(int, char**) {
   UNITY_BEGIN();
+  RUN_TEST(test_encoders_sao_o_modo_padrao);
   RUN_TEST(test_tabela_zona_morta_pontos_e_interpolacao);
   RUN_TEST(test_tabela_re_e_saturacao);
   RUN_TEST(test_tabela_vazia_nao_move);

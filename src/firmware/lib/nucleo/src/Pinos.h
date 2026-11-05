@@ -109,8 +109,7 @@ constexpr int MOTOR_DIR_IN4 = 21;  ///< GPIO21 → IN4 (motor direito).
 /// @}
 
 /// @name Encoders de quadratura (canais A e B de cada roda)
-/// Reservados na Rev 2.0: os encoders ainda não estão instalados, mas os pinos já estão definidos
-/// para o `EncoderEsp32` entrar sem mexer na pinagem.
+/// Os encoders estão nos motores N20 (#475) e são lidos pelo `EncoderEsp32`.
 /// @{
 constexpr int ENCODER_ESQ_A = 4;  ///< GPIO4 ← canal A da roda esquerda.
 constexpr int ENCODER_ESQ_B = 5;  ///< GPIO5 ← canal B da roda esquerda.

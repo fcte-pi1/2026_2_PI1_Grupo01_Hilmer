@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Menu de bancada do deslocamento sem encoder (#380), da execução dos movimentos (#184) e da
-correção pelas paredes (#188).
+"""Menu de bancada do deslocamento (#380, #475), da execução dos movimentos (#184) e da correção
+pelas paredes (#188).
 
-Grava o firmware de bancada (ambiente `bancada_deslocamento`), aciona o robô e mostra o log da
-estimativa ao vivo, para a equipe conferir na régua se o que o robô acha que andou bate com o que
-ele andou de verdade: tabela de velocidade, avanço de uma célula, correção pelo ToF num corredor,
-confiança da pose e giro de 90°. As etapas 7 e 8 executam os comandos do robô ("avançar uma célula",
+Grava o firmware de bancada (ambiente `bancada_deslocamento`, com encoders; ou
+`bancada_deslocamento_sem_encoder`, com a estimativa do #380), aciona o robô e mostra o log ao vivo,
+para a equipe conferir na régua se o que o robô acha que andou bate com o que ele andou de verdade.
+Para comparar os dois modos (#475), rode o roteiro nos dois ambientes (`--ambiente`) e compare os
+relatórios. O roteiro confere a tabela de velocidade, o avanço de uma célula, a correção pelo ToF num
+corredor, a confiança da pose (só no modo estimado) e o giro de 90°. As etapas 7 e 8 executam os comandos do robô ("avançar uma célula",
 "girar 90°" e "girar 180°", #184) e registram o erro de deslocamento medido na régua e no
 transferidor. As etapas 9 e 10 (#188) conferem o desvio lateral medido pelas paredes, o
 realinhamento ao centro do corredor e, depois de um percurso, se a célula estimada coincide com a
@@ -15,6 +17,8 @@ registrar em `docs/07-testes/software.md`.
 Uso (a partir de `src/firmware`):
     ./scripts/bancada_deslocamento.py              # escolhe a porta no menu
     ./scripts/bancada_deslocamento.py --porta /dev/ttyACM0
+    ./scripts/bancada_deslocamento.py --ambiente bancada_deslocamento_sem_encoder   # modo estimado
+    ./scripts/bancada_deslocamento.py --ambiente bancada_deslocamento_devkit        # ESP32 DevKit
 
 ATENÇÃO: as etapas acionam os motores. Robô no chão, com espaço livre, e qualquer tecla (Ctrl+C)
 freia na hora. Requer `pyserial` (pip install pyserial) e, para gravar, o PlatformIO (`pio`).
@@ -74,8 +78,9 @@ CAMPOS_CSV = ["tipo", "t_ms", "pot_esq", "pot_dir", "pulsos_esq", "pulsos_dir", 
 class Bancada:
     """Conexão com o firmware de bancada, logs e resultados."""
 
-    def __init__(self, porta):
+    def __init__(self, porta, ambiente="bancada_deslocamento"):
         self.porta = porta
+        self.ambiente = ambiente
         self.serial = None
         self.info = None
         self.resultados = []  # (etapa, situação, detalhe)
@@ -102,8 +107,8 @@ class Bancada:
             return False
         self.info = info
         print(f"{VERDE}Conectado em {self.porta}.{NORMAL}")
-        if info.get("encoders_instalados"):
-            print(f"{AMARELO}ENCODERS_INSTALADOS = true: esta bancada é do modo estimado.{NORMAL}")
+        modo = "COM ENCODER" if info.get("encoders_instalados") else "SEM ENCODER (estimado)"
+        print(f"{VERDE}Modo de deslocamento: {modo}.{NORMAL}")
         if not info.get("tof_ok"):
             print(f"{AMARELO}Algum ToF não iniciou: as correções não vão acontecer.{NORMAL}")
         return True
@@ -288,7 +293,7 @@ def gravar_firmware(bancada):
         print(f"{VERMELHO}PlatformIO (pio) não encontrado. Instale com: pipx install platformio{NORMAL}")
         return
     bancada.fechar()
-    comando = [pio, "run", "-e", "bancada_deslocamento", "-t", "upload", "--upload-port", bancada.porta]
+    comando = [pio, "run", "-e", bancada.ambiente, "-t", "upload", "--upload-port", bancada.porta]
     print("Executando:", " ".join(comando))
     if subprocess.run(comando, cwd=PASTA_FIRMWARE).returncode != 0:
         print(f"{VERMELHO}A gravação falhou. Se a placa não entrar em modo de gravação, segure o "
@@ -304,8 +309,9 @@ def verificar_estado_inicial(bancada):
     info = bancada.comando("INFO", "info")
     if info is None:
         return
-    bancada.aprovar_se("Modo estimado", not info["encoders_instalados"],
-                       f"ENCODERS_INSTALADOS = {str(info['encoders_instalados']).lower()}")
+    modo = "com encoder" if info["encoders_instalados"] else "sem encoder (estimado)"
+    bancada.registrar("Modo de deslocamento", "OBSERVADO", f"{modo}; ENCODERS_INSTALADOS = "
+                      f"{str(info['encoders_instalados']).lower()}")
     bancada.aprovar_se("ToF iniciados", info["tof_ok"],
                        "os 3 sensores responderam" if info["tof_ok"] else "algum sensor falhou (#344)")
     estado = bancada.comando("ZERAR", "estado")
@@ -428,6 +434,11 @@ def verificar_corredor(bancada):
 
 def verificar_confianca(bancada):
     titulo("5. Confiança da pose sem correção")
+    if bancada.info.get("encoders_instalados"):
+        bancada.registrar("Confiança da pose", "NAO SE APLICA",
+                          "com encoder a pose não perde a confiança por falta de correção; use o ambiente "
+                          "bancada_deslocamento_sem_encoder para esta etapa")
+        return
     print("Sem o ToF, depois de 360 mm a telemetria deve passar a dizer pose_valida: false.")
     potencia = int(perguntar_numero("Potência", 400))
     duracao = duracao_para(2.5 * CELULA_MM, bancada.velocidade(potencia))
@@ -646,9 +657,10 @@ def salvar_relatorio(bancada):
     os.makedirs(bancada.pasta_logs, exist_ok=True)
     caminho = os.path.join(bancada.pasta_logs, "relatorio.md")
     linhas = [
-        f"# Bancada do deslocamento sem encoder ({agora:%d/%m/%Y %H:%M})",
+        f"# Bancada do deslocamento ({agora:%d/%m/%Y %H:%M})",
         "",
-        f"- Commit do firmware: `{commit}` (ambiente `bancada_deslocamento`)",
+        f"- Commit do firmware: `{commit}` (ambiente `{bancada.ambiente}`)",
+        f"- Modo de deslocamento: {'com encoder' if (bancada.info or {}).get('encoders_instalados') else 'sem encoder (estimado)'}",
         f"- Porta: `{bancada.porta}`",
     ]
     nomes = {"responsaveis": "Responsáveis", "piso": "Piso", "bateria": "Bateria",
@@ -731,14 +743,19 @@ MENU = (
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--porta", help="porta serial da placa (ex.: /dev/ttyACM0, COM5)")
+    parser.add_argument("--ambiente", default="bancada_deslocamento",
+                        choices=["bancada_deslocamento", "bancada_deslocamento_sem_encoder",
+                                 "bancada_deslocamento_devkit", "bancada_deslocamento_devkit_sem_encoder"],
+                        help="ambiente a gravar: com encoder (padrão) ou o modo estimado, na Super Mini ou "
+                             "no ESP32 DevKit (sufixo _devkit), para comparar os modos (#475)")
     args = parser.parse_args()
 
     print("=" * 66)
-    print("  BANCADA DO DESLOCAMENTO (#380), DOS MOVIMENTOS (#184) E DAS PAREDES (#188)")
+    print("  BANCADA DO DESLOCAMENTO (#380, #475), DOS MOVIMENTOS (#184) E DAS PAREDES (#188)")
     print("  As etapas acionam os motores: robô no chão, espaço livre.")
     print("  Ctrl+C durante um movimento freia os motores na hora.")
     print("=" * 66)
-    bancada = Bancada(args.porta or escolher_porta())
+    bancada = Bancada(args.porta or escolher_porta(), args.ambiente)
     print("\nSe a placa ainda não tem o firmware de bancada, use a opção 1.")
     if not bancada.conectar():
         print("(Tudo bem se for a primeira vez: grave o firmware pela opção 1.)")
