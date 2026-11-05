@@ -675,6 +675,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#evolucao-por-sprint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evolução por sprint
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#historico-de-versoes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1894,6 +1905,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#evolucao-por-sprint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evolução por sprint
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#historico-de-versoes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1985,7 +2007,7 @@
 <td style="text-align: center;">3</td>
 <td>Mau contato ou ligação errada nos conectores dos motores e encoders</td>
 <td>O motor não aciona e o robô perde a medida de quanto andou</td>
-<td>Já falhou: o conector do N20 causou a falha do teste 3.3, e o motor direito não girou em 29/10</td>
+<td>Já falhou: o conector do N20 causou a falha do teste 3.3. Em 29/10 o motor direito não girou, e a causa ainda é investigada (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/483">#483</a>)</td>
 <td style="text-align: center;">Provável (4)</td>
 <td style="text-align: center;">Alto (4)</td>
 <td style="text-align: center;"><span class="nota nota-critica">16</span></td>
@@ -2071,75 +2093,167 @@
 <th style="text-align: center;"><strong>Nº</strong></th>
 <th><strong>Risco</strong></th>
 <th><strong>Como evitar</strong></th>
-<th><strong>Se acontecer</strong></th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align: center;">1</td>
 <td>Corrente alta e aquecimento</td>
-<td>Medir a corrente de partida e de travamento dos motores e comparar com o limite do driver e dos reguladores. Testar com fonte limitada em corrente e acompanhar a temperatura</td>
-<td>Desligar na hora, trocar o componente danificado e revisar o dimensionamento e as proteções</td>
+<td>Primeiro, descobrir quanta corrente os motores puxam na partida e quando ficam travados, consultando o datasheet ou medindo com o rotor preso. Em seguida, comparar esses valores com o que o DRV8833 e os reguladores aguentam. Fazer os primeiros ensaios com uma fonte com limite de corrente, para que qualquer problema não queime componentes. Durante os testes, acompanhar a temperatura do driver e dos reguladores, tocando ou medindo. Se algum esquentar demais, ajustar o dimensionamento ou acrescentar proteções. Está resolvido quando o robô anda e trava sem passar dos limites dos componentes.</td>
 </tr>
 <tr>
 <td style="text-align: center;">2</td>
 <td>Alimentação errada</td>
-<td>Ajustar e medir 3,3 V, 5 V e 6 V antes de ligar os módulos. Manter separados o 3,3 V da DevKit e o dos sensores. Usar só USB ou só VIN até ter um circuito de seleção</td>
-<td>Desligar tudo, medir cada trilho e testar os módulos um por um antes de religar</td>
+<td>Antes de ligar qualquer módulo, ajustar as saídas de 3,3 V, 5 V e 6 V e confirmar cada uma com um multímetro. Só depois de conferir que as tensões estão certas, conectar os módulos. Manter separados o trilho de 3,3 V da DevKit e o dos sensores, sem uni-los. Além disso, alimentar o robô por USB ou por VIN, nunca pelos dois ao mesmo tempo, até que exista um circuito de seleção ou isolamento verificado. Está resolvido quando todas as tensões medidas estão corretas e os trilhos continuam separados.</td>
 </tr>
 <tr>
 <td style="text-align: center;">3</td>
 <td>Conectores</td>
-<td>Refazer os conectores com defeito, conferir a ordem dos terminais e identificar os cabos. Testar continuidade com tudo desligado e prender os fios para não puxarem o conector</td>
-<td>Testar motor e encoder separados para achar o ponto da falha e refazer o conector</td>
+<td>Começar refazendo os conectores que já deram problema. Depois, conferir a ordem física dos terminais e identificar os cabos com etiqueta ou cor, para que ninguém ligue algo no lugar errado. Com a alimentação desligada, testar a continuidade de cada fio. Prender os cabos de forma que um puxão não force o conector (alívio de tração). Por fim, testar o motor sozinho e o encoder sozinho antes de integrar tudo. Está resolvido quando os dois funcionam separadamente e continuam firmes mesmo ao mexer nos cabos.</td>
 </tr>
 <tr>
 <td style="text-align: center;">4</td>
 <td>Calibração dos VL53L0X</td>
-<td>Calibrar cada um dos 3 sensores com régua e anteparo em distâncias conhecidas e aplicar a correção de cada um. Repetir na montagem final e com os motores ligados</td>
-<td>Usar a calibração no boot do firmware (#240) e refazer a medição com régua</td>
+<td>Colocar um anteparo, como uma parede ou um papelão, a distâncias conhecidas, medidas com régua, e comparar a leitura de cada um dos três sensores com a distância real. Como cada módulo erra de um jeito, calcular uma correção para cada um, com atenção especial ao sensor frontal, que apresentou desvio nos ensaios. Aplicar as correções no firmware e medir de novo para confirmar que o erro diminuiu. Repetir o teste com o robô montado e com os motores ligados. Está resolvido quando os três sensores acertam as distâncias de teste também na montagem final.</td>
 </tr>
 <tr>
 <td style="text-align: center;">5</td>
 <td>Posição dos sensores</td>
-<td>Afastar suportes e fios do campo de visão e fixar cada sensor sempre na mesma orientação. Testar cada um com anteparo, principalmente o da direita, que ainda não foi demonstrado</td>
-<td>Reposicionar o sensor ou o fio que está na frente e repetir o teste</td>
+<td>Reposicionar os suportes e arrumar os fios para que nada apareça no campo de visão dos sensores. Fixar cada sensor sempre com a mesma orientação e testar um de cada vez, com anteparos em posições controladas. Dar atenção ao sensor direito, que no teste 3.8 leu um valor quase fixo, provavelmente por um fio na frente. Está resolvido quando cada sensor lê apenas a parede, sem captar o chassi nem os fios.</td>
 </tr>
 <tr>
 <td style="text-align: center;">6</td>
 <td>Motor girando ao ligar</td>
-<td>Confirmar o IN4 no GPIO13 na placa e no firmware. Testar ligar, reiniciar e gravar com as rodas fora do chão</td>
-<td>Revisar o bloqueio do driver por hardware e o estado dos pinos no boot antes de liberar os motores</td>
+<td>Confirmar no hardware que o pino IN4 foi trocado para o GPIO13 e conferir que o firmware usa essa mesma configuração. O Software atualiza o <code>Pinos.h</code> e a bancada geral depois que o <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/497">#497</a> for mesclado. Em seguida, testar com as rodas suspensas, para que um movimento inesperado não cause colisão: ligar o robô, reiniciar e gravar o firmware. Se houver trancos, revisar a inibição por hardware do driver e o estado das entradas na inicialização. Liberar a tração no chão só depois que as rodas ficarem paradas em todos esses testes. Está resolvido quando as rodas não se mexem sozinhas ao ligar, reiniciar ou gravar.</td>
 </tr>
 <tr>
 <td style="text-align: center;">7</td>
 <td>Queda de tensão e ruído</td>
-<td>Medir as tensões na partida, na frenagem e com os dois motores ligados. Revisar aterramento e capacitores e separar os cabos de potência dos de sinal</td>
-<td>Repetir o teste dos sensores com os motores ligados e reforçar o desacoplamento</td>
+<td>Medir as tensões de alimentação durante a partida, a frenagem e o acionamento dos dois motores ao mesmo tempo, que são os momentos mais exigentes. Revisar as conexões, o aterramento e o desacoplamento (capacitores próximos dos componentes). Afastar os cabos de potência dos cabos de sinal para reduzir interferência e repetir os testes dos sensores com os motores em carga. Está resolvido quando o ESP32 não reinicia e os sensores continuam estáveis com os motores acionados.</td>
 </tr>
 <tr>
 <td style="text-align: center;">8</td>
 <td>I²C</td>
-<td>Ligar os VL53L0X um por vez pelo XSHUT e dar um endereço para cada um em toda partida. Registrar a varredura do barramento e conferir os pull-ups</td>
-<td>Usar a recuperação de falha do firmware (#241) e revisar fios e soldas do barramento</td>
+<td>Como todos os VL53L0X saem de fábrica com o mesmo endereço, mantê-los desligados e ligar um de cada vez pelo pino XSHUT, atribuindo um endereço diferente a cada um em toda partida. Fazer uma varredura do barramento e registrar os endereços encontrados. Revisar as conexões e os resistores de pull-up e preparar o firmware para se recuperar de falhas, por exemplo tentando reinicializar o sensor que parou de responder. Validar tudo com todos os dispositivos e os motores ativos. Está resolvido quando todos aparecem na varredura e respondem com o robô em funcionamento.</td>
 </tr>
 <tr>
 <td style="text-align: center;">9</td>
 <td>Leitura da bateria</td>
-<td>Conferir o divisor, o filtro e a ligação no GPIO34. Comparar a leitura do ADC com o multímetro em várias tensões e calibrar</td>
-<td>Medir a bateria com multímetro antes de cada corrida até a leitura ser corrigida</td>
+<td>Conferir o divisor resistivo, o filtro e a ligação ao GPIO34. Comparar a leitura do ADC com a de um multímetro em várias tensões e ajustar a conversão no firmware para que o valor lido reflita a tensão real da bateria. Depois, testar o aviso de bateria baixa usando os limites definidos pela equipe de energia. Está resolvido quando a tensão lida bate com a do multímetro e o aviso dispara no valor combinado.</td>
 </tr>
 <tr>
 <td style="text-align: center;">10</td>
 <td>Atraso na montagem</td>
-<td>Ter responsável e prazo para montagem, inspeção e ensaios (já no Projects). Conferir as peças disponíveis e deixar tempo para retrabalho</td>
-<td>Validar por partes e priorizar o que o software precisa primeiro: motores, encoders e sensores</td>
+<td>Definir um responsável e um prazo para cada etapa de montagem, inspeção e ensaios, e conferir se todos os componentes estão disponíveis. Reservar tempo para retrabalho, porque ele costuma acontecer. Validar o robô por partes (alimentação, motores, sensores e comunicação), registrando o resultado de cada uma, e só depois fazer o teste completo no labirinto. Está resolvido quando todos os subsistemas estão validados e registrados antes desse teste.</td>
 </tr>
 <tr>
 <td style="text-align: center;">11</td>
 <td>Calibração da MPU6050</td>
-<td>Calibrar acelerômetro e giroscópio com o robô parado, medir a deriva em ensaios longos e prender bem a IMU</td>
-<td>Recalibrar e comparar as curvas com uma referência conhecida (giro de 90° medido)</td>
+<td>Calibrar o acelerômetro e o giroscópio com o robô parado e medir a deriva em ensaios mais longos. Fixar a IMU com firmeza para reduzir as vibrações e conferir a orientação do sensor no chassi. Por fim, comparar as curvas medidas com uma referência conhecida. Está resolvido quando a orientação quase não deriva com o robô parado e as curvas saem próximas do esperado.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="evolucao-por-sprint">Evolução por sprint<a class="headerlink" href="#evolucao-por-sprint" title="Permanent link">&para;</a></h2>
+<p>Nota de cada risco (probabilidade × impacto) ao fim de cada sprint, com uma frase sobre o que mudou. As colunas das sprints seguintes são preenchidas nos fechamentos de 11/11, 18/11 e 23/11. Risco resolvido sai da tabela de riscos e continua aqui, com o desfecho.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><strong>Nº</strong></th>
+<th><strong>Risco</strong></th>
+<th style="text-align: center;"><strong>Sprint 6 (até 04/11)</strong></th>
+<th><strong>Sprint 7 (até 11/11)</strong></th>
+<th><strong>Sprint 8 (até 18/11)</strong></th>
+<th><strong>Fechamento (até 23/11)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1</td>
+<td>Corrente alta demais ou aquecimento no driver DRV8833 e nos reguladores</td>
+<td style="text-align: center;">12</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td>Alimentação errada: tensão incorreta, trilhos de 3,3 V unidos sem querer, ou USB e VIN ligados juntos sem isolamento</td>
+<td style="text-align: center;">15</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td>Mau contato ou ligação errada nos conectores dos motores e encoders</td>
+<td style="text-align: center;">16</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td>VL53L0X lendo errado por falta de calibração</td>
+<td style="text-align: center;">12</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td>Sensor tampado ou mal posicionado no chassi</td>
+<td style="text-align: center;">12</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">6</td>
+<td>Motor gira sozinho ao ligar ou reiniciar a placa</td>
+<td style="text-align: center;">12</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">7</td>
+<td>Queda de tensão ou ruído quando os motores ligam</td>
+<td style="text-align: center;">12</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">8</td>
+<td>Falha no I²C ou dois VL53L0X no mesmo endereço</td>
+<td style="text-align: center;">12</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">9</td>
+<td>Leitura errada da tensão da bateria pelo ADC</td>
+<td style="text-align: center;">4</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">10</td>
+<td>Atraso na montagem e na validação da placa definitiva</td>
+<td style="text-align: center;">12</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">11</td>
+<td>MPU6050 medindo errado por falta de calibração ou por vibração</td>
+<td style="text-align: center;">6</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
 </tr>
 </tbody>
 </table>
@@ -2161,6 +2275,13 @@
 <td>Matriz de riscos da eletrônica (riscos 1 a 11): notas, mapa de calor, motivo de cada nota e possíveis soluções</td>
 <td>Equipe de Eletrônica (riscos e soluções); Ana Carolina Fialho (página e notas)</td>
 <td>Aline de Carvalho Rodrigues</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.1</td>
+<td style="text-align: center;">04/11/2026</td>
+<td>Revisão do PR #500: textos dos riscos 3 e 6 e tabela de evolução por sprint</td>
+<td>Cláudio Henrique</td>
+<td>—</td>
 </tr>
 </tbody>
 </table>

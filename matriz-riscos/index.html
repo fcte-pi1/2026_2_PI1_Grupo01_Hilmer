@@ -1814,6 +1814,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#evolucao-por-sprint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evolução por sprint
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#historico-de-versoes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1887,7 +1898,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Avaliação:</strong> 04/11/2026. A matriz é revisada a cada sprint pelo gerente de cada frente: risco resolvido sai da tabela, e risco novo entra com número novo. Depois de mudar uma nota, rode <code>python docs/scripts/matriz_riscos.py</code> para atualizar a coluna Nota e o mapa de calor.</p>
+<p><strong>Avaliação:</strong> 04/11/2026. A matriz é revisada a cada sprint pelo gerente de cada frente: risco resolvido sai da tabela de riscos e continua em "Evolução por sprint", com o desfecho, e risco novo entra com número novo. Depois de mudar uma nota, rode <code>python docs/scripts/matriz_riscos.py</code> para atualizar a coluna Nota e o mapa de calor; a tabela "Evolução por sprint" é preenchida à mão em cada fechamento.</p>
 <h2 id="como-ler">Como ler<a class="headerlink" href="#como-ler" title="Permanent link">&para;</a></h2>
 <p>Cada risco recebe duas notas de 1 a 5:</p>
 <table>
@@ -1958,6 +1969,7 @@
 </tr>
 </tbody>
 </table>
+<p><strong>Cores:</strong> verde é a faixa baixa, amarelo a moderada, laranja a alta e vermelho a crítica. Cada célula traz o número da nota, e a lista de prioridade escreve o nome da faixa, então a cor nunca é a única informação.</p>
 <p><strong>O mapa de calor</strong> cruza as duas notas: quanto mais para cima e para a direita, mais grave. Cada número no mapa é um risco da tabela logo abaixo dele, e o número pequeno no canto da célula é a nota daquela posição.</p>
 <h2 id="matriz-geral-do-projeto">Matriz geral do projeto<a class="headerlink" href="#matriz-geral-do-projeto" title="Permanent link">&para;</a></h2>
 <p>Riscos que envolvem mais de uma frente ou o projeto inteiro.</p>
@@ -2007,7 +2019,7 @@
 <td>A troca para a ESP32 DevKit gera retrabalho em várias frentes</td>
 <td>Esquemático e documentação (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/488">#488</a>), suporte no chassi e leitura da bateria precisam ser refeitos</td>
 <td style="text-align: center;">Eletrônica, estrutura, energia</td>
-<td>O firmware já foi ajustado e testado na DevKit; o que falta já tem tarefa aberta</td>
+<td>A bancada geral já foi testada na DevKit; a migração do firmware do robô (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/489">#489</a>) e as demais tarefas estão abertas</td>
 <td style="text-align: center;">Improvável (2)</td>
 <td style="text-align: center;">Baixo (2)</td>
 <td style="text-align: center;"><span class="nota nota-baixa">4</span></td>
@@ -2118,7 +2130,7 @@
 <tr>
 <td style="text-align: center;">6</td>
 <td>Projects desatualizado</td>
-<td>Cada gerente fecha as issues feitas e move as atrasadas no fim de cada sprint. Fazer o merge da <code>documentacao</code> na <code>main</code> antes da ED2</td>
+<td>Cada gerente fecha as issues feitas e move as atrasadas no fim de cada sprint. Fazer o merge da <code>documentacao</code> na <code>main</code> com antecedência antes da ED2, porque as duas branches divergiram (cada uma tem commits que a outra não tem) e podem dar conflito</td>
 <td>Revisar o Projects na reunião geral e corrigir na hora</td>
 </tr>
 <tr>
@@ -2132,6 +2144,86 @@
 <td>Componente queimado sem reposição</td>
 <td>Ter peças reserva dos itens mais frágeis (driver, reguladores, sensores) e seguir os cuidados de energização das matrizes de eletrônica e energia</td>
 <td>Trocar pela peça reserva e registrar a causa para não repetir</td>
+</tr>
+</tbody>
+</table>
+<h2 id="evolucao-por-sprint">Evolução por sprint<a class="headerlink" href="#evolucao-por-sprint" title="Permanent link">&para;</a></h2>
+<p>Nota de cada risco (probabilidade × impacto) ao fim de cada sprint, com uma frase sobre o que mudou. As colunas das sprints seguintes são preenchidas nos fechamentos de 11/11, 18/11 e 23/11. Risco resolvido sai da tabela de riscos e continua aqui, com o desfecho.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><strong>Nº</strong></th>
+<th><strong>Risco</strong></th>
+<th style="text-align: center;"><strong>Sprint 6 (até 04/11)</strong></th>
+<th><strong>Sprint 7 (até 11/11)</strong></th>
+<th><strong>Sprint 8 (até 18/11)</strong></th>
+<th><strong>Fechamento (até 23/11)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1</td>
+<td>O robô montado no chassi fica pronto tarde</td>
+<td style="text-align: center;">12</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td>A troca para a ESP32 DevKit gera retrabalho em várias frentes</td>
+<td style="text-align: center;">4</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td>O robô não completa o labirinto dentro das regras (10 minutos por labirinto, sem ficar preso)</td>
+<td style="text-align: center;">20</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td>Falha de energia no dia: bateria sem carga ou ESP32 reiniciando com os motores</td>
+<td style="text-align: center;">12</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td>Saída de integrantes ou conhecimento concentrado em poucas pessoas</td>
+<td style="text-align: center;">6</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">6</td>
+<td>Projects e documentação desatualizados</td>
+<td style="text-align: center;">12</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">7</td>
+<td>A telemetria falha na demonstração (Wi-Fi da sala ou banco)</td>
+<td style="text-align: center;">9</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td style="text-align: center;">8</td>
+<td>Um componente queima e não há peça de reposição</td>
+<td style="text-align: center;">12</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
 </tr>
 </tbody>
 </table>
@@ -2153,6 +2245,13 @@
 <td>Criação da seção: escala de notas de 1 a 5, mapa de calor, matriz geral do projeto com motivo de cada nota, soluções e matrizes por frente</td>
 <td>Ana Carolina Fialho</td>
 <td>Cláudio Henrique, Aline de Carvalho Rodrigues, Paulo Henrique Melo de Souza e Ana Carolina Nunes</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.1</td>
+<td style="text-align: center;">04/11/2026</td>
+<td>Revisão do PR #500: textos dos riscos 2 e 6, legenda das cores e tabela de evolução por sprint</td>
+<td>Cláudio Henrique</td>
+<td>—</td>
 </tr>
 </tbody>
 </table>
