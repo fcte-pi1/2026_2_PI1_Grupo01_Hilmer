@@ -50,7 +50,7 @@ Em 21/10/2026, a eletrônica enviou o esquemático e a lista de componentes da *
 | Motores | Motor TT | **N20** pelo DRV8833 | Pinos novos, freio no boot, duty máximo e detecção de motor travado sem encoder ([#341](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/341); veja [Atuação: motores N20 e proteção sem encoder](#atuacao-motores-n20-e-protecao-sem-encoder)) |
 | Encoders | Encoder óptico | Encoders dos N20, em GPIO4 a 7 | A odometria ([#187](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/187)) continua; os parâmetros precisam ser recalibrados para o N20 |
 
-Enquanto os encoders não eram integrados à Rev 2.0, o plano previa estimar o deslocamento pelo comando dos motores, corrigido pelos sensores de distância (modo sem encoder, [#380](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380)). Com os encoders disponíveis, esse modo passa a ser o plano B.
+Enquanto os encoders não eram integrados à Rev 2.0, o plano previa estimar o deslocamento pelo comando dos motores, corrigido pelos sensores de distância (modo sem encoder, [#380](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380)). Com os encoders disponíveis, esse modo passa a ser o plano B: desde a [#475](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/475), `ENCODERS_INSTALADOS` é `true` por padrão, e o modo estimado só entra compilando com `-DENCODERS_INSTALADOS_VALOR=0`.
 
 **O LiDAR não é mais usado.** O código dele (`lib/lidar`, decodificador LD06 e `FonteBytesSerial`) ainda está na `main` e deve sair num PR de código. Os registros de teste anteriores a 21/10 em [Testes de software](../07-testes/software-registro.md) foram feitos com o LiDAR simulado e continuam como histórico.
 
@@ -1434,7 +1434,7 @@ O comando `ZERAR` também reinicia a correção. O menu `scripts/bancada_desloca
 
 ## Navegação: deslocamento sem encoder
 
-A `Odometria` precisa de contagens de roda. Enquanto os encoders não estiverem montados no robô (`ENCODERS_INSTALADOS = false` em `ConfiguracaoDeslocamento.h`), as contagens vêm de uma estimativa ([#380](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380), [HU-05](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/41)):
+A `Odometria` precisa de contagens de roda. Com os encoders montados (`ENCODERS_INSTALADOS` verdadeiro em `ConfiguracaoDeslocamento.h`, o padrão desde a [#475](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/475)), as contagens vêm do `EncoderEsp32`. No plano B (`-DENCODERS_INSTALADOS_VALOR=0`), as contagens vêm de uma estimativa ([#380](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380), [HU-05](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/41)):
 
 * o deslocamento é **estimado pela potência comandada aos motores vezes o tempo**;
 * a estimativa é **corrigida pelos ToF** sempre que uma parede dá uma referência de posição.
@@ -1476,7 +1476,7 @@ flowchart LR
 
 | Parâmetro | Valor | Origem |
 |---|---|---|
-| `ENCODERS_INSTALADOS` | `false` | Sem encoders montados. Com `true`, a odometria volta aos `EncoderEsp32` (GPIO4 a 7) |
+| `ENCODERS_INSTALADOS` | `true` | Odometria pelos `EncoderEsp32` (pinos no `Pinos.h`). Para o modo estimado, compile com `-DENCODERS_INSTALADOS_VALOR=0` (ambiente `bancada_deslocamento_sem_encoder`) |
 | `TABELA_VELOCIDADE` | 150 → 45, 400 → 120, 700 → 210, 1000 → 300 (potência → mm/s) | Modelo da simulação da [#191](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/191) (0,3 mm/s por unidade) e zona morta de 150. A medida na bancada precisa ter o limite de duty da [#341](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/341) valendo (`LIMITE_DUTY_MOTORES_MILESIMOS`, provisório em 70%) |
 | `DISTANCIA_SENSOR_FRONTAL_AO_CENTRO_MM` | 50 | Meio comprimento do chassi |
 | `AVANCO_SENSORES_LATERAIS_MM` | 0 | Sensores laterais supostos alinhados ao centro |
@@ -1500,7 +1500,7 @@ flowchart LR
 * lê o ToF e considera a leitura nova quando o instante da amostra mais antiga muda (`idadeUltimaLeituraMs`, da [#344](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344));
 * chama `ciclo` a cada 10 ms.
 
-A telemetria informa `pose_valida` como `posicaoValida() && poseConfiavel()` e acrescenta `deslocamento` (`"estimado"` ou `"encoder"`) e `sem_correcao_mm`. No modo estimado, o comando `Z` da bancada reposiciona o robô no centro da célula atual e devolve a confiança. Com `ENCODERS_INSTALADOS = true`, tudo volta ao caminho dos encoders reais.
+A telemetria informa `pose_valida` como `posicaoValida() && poseConfiavel()` e acrescenta `deslocamento` (`"estimado"` ou `"encoder"`) e `sem_correcao_mm`. No modo estimado, o comando `Z` da bancada reposiciona o robô no centro da célula atual e devolve a confiança. Com os encoders (o padrão), tudo segue pelo caminho dos encoders reais.
 
 **Limites deste modo:**
 
@@ -2219,3 +2219,4 @@ Ao investigar uma falha, compare o esperado com o obtido: ou o código tem um er
 | 1.9 | 25/10/2026 | Execução dos movimentos entre células: executor, ciclo de navegação, gatilho da largada, folga do giro no lugar, bancada da execução e seus testes ([#184](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/184)) | Marllon Fausto | — |
 | 1.10 | 25/10/2026 | Correção do erro acumulado pelas paredes: posição lateral e ao longo do avanço, realinhamento antes dos giros, rumo pelo corredor, resultado da varredura, bancada e testes; filtro da parede lateral distante e direção da odometria a cada ciclo na execução ([#188](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/188)) | Marllon Fausto | — |
 | 1.11 | 26/10/2026 | Detecção de colisão pelo acelerômetro e pelo ToF frontal, recuo até o centro e retomada sem perder o mapa nem a posição ([#192](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/192)) | Eduardo Viana | — |
+| 1.12 | 04/11/2026 | Encoders como modo padrão do deslocamento: `ENCODERS_INSTALADOS` verdadeiro por padrão, modo estimado como plano B por `-DENCODERS_INSTALADOS_VALOR=0` e bancada do deslocamento nos dois modos ([#475](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/475)) | Cláudio Henrique | — |
