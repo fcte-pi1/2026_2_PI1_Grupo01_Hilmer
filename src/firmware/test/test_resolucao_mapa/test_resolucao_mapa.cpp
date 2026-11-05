@@ -185,7 +185,7 @@ namespace {
 /// até alcançar o objetivo padrão (canto oposto) ou esgotar `maxPassos`.
 ///
 /// A cada passo confere que o robô não atravessou uma parede real do labirinto. Uma leitura
-/// do LiDAR que falha não gera decisão: o robô fica parado e lê de novo.
+/// do sensor que falha não gera decisão: o robô fica parado e lê de novo.
 /// @param falharACada Faz falhar uma a cada `falharACada` leituras (0 = nunca falha).
 void resolverLabirintoSimulado(const char* texto, DimensaoMapa dimensao, uint16_t maxPassos,
                                uint16_t falharACada = 0) {
@@ -193,8 +193,8 @@ void resolverLabirintoSimulado(const char* texto, DimensaoMapa dimensao, uint16_
   TEST_ASSERT_EQUAL_UINT8(static_cast<uint8_t>(ResultadoCarga::Carregado),
                           static_cast<uint8_t>(labirinto.carregar(texto)));
 
-  SensorDistanciaSimulado lidar;
-  lidar.usarLabirinto(labirinto);
+  SensorDistanciaSimulado sensorSimulado;
+  sensorSimulado.usarLabirinto(labirinto);
 
   ClassificadorParede classificador;
   Mapa mapa(dimensao);
@@ -206,13 +206,13 @@ void resolverLabirintoSimulado(const char* texto, DimensaoMapa dimensao, uint16_
 
   while (!navegacao.atingiuObjetivo() && passos < maxPassos && leituras < 2 * maxPassos) {
     const Pose poseAtual = navegacao.obterPose();
-    lidar.posicionar(poseAtual);
+    sensorSimulado.posicionar(poseAtual);
 
     leituras++;
-    lidar.simularFalha(falharACada > 0 && leituras % falharACada == 0);
+    sensorSimulado.simularFalha(falharACada > 0 && leituras % falharACada == 0);
 
     DistanciasLaterais leitura = {};
-    if (!lidar.lerDistanciasLaterais(leitura)) {
+    if (!sensorSimulado.lerDistanciasLaterais(leitura)) {
       // Sem leitura, as paredes da célula seguem desconhecidas: não decide e lê de novo.
       falhas++;
       continue;
@@ -275,7 +275,7 @@ void test_resolucao_labirinto_12x4_simulado() {
   resolverLabirintoSimulado(exemplos::LABIRINTO_12X4, DimensaoMapa::Labirinto12x4, 150);
 }
 
-/// @brief Com o LiDAR falhando uma a cada 3 leituras, o robô não decide sem leitura e
+/// @brief Com o sensor falhando uma a cada 3 leituras, o robô não decide sem leitura e
 /// ainda alcança o objetivo do labirinto 4x4 sem atravessar paredes.
 void test_resolucao_com_falhas_de_leitura() {
   resolverLabirintoSimulado(exemplos::LABIRINTO_4X4, DimensaoMapa::Labirinto4x4, 50, 3);

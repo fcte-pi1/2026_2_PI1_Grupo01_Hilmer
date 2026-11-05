@@ -17,7 +17,6 @@ namespace micromouse {
 /// Implementações:
 /// - `SensorDistanciaSimulado` (`lib/simulacao`): leituras configuradas pelo teste, sem hardware.
 /// - `TofVl53l0x` (`lib/drivers_esp32`): os 3 VL53L0X da Rev 2.0, pelo I²C.
-/// - `LidarUart` (`lib/lidar`): LiDAR 360° por UART, sem uso desde a Rev 2.0.
 class ISensorDistancia {
  public:
   virtual ~ISensorDistancia() = default;

@@ -259,7 +259,7 @@ void test_parada_trava_ate_reiniciar() {
   TEST_ASSERT_EQUAL_INT16(400, p.direita);
 }
 
-/// Fail-safe: sem leitura do LiDAR, segue reto na potência mínima; depois de 500 ms, freia e
+/// Fail-safe: sem leitura dos sensores, segue reto na potência mínima; depois de 500 ms, freia e
 /// continua parado mesmo que a leitura volte.
 void test_sem_leitura_segue_reto_e_depois_para() {
   ControleMovimento controle;
@@ -288,26 +288,26 @@ void test_leitura_valida_zera_o_tempo_sem_leitura() {
   TEST_ASSERT_EQUAL(EstadoMovimento::SemLeitura, controle.estado());
 }
 
-/// `atualizar` lê o LiDAR pela interface e comanda os motores: potência enquanto anda, freio
+/// `atualizar` lê os sensores pela interface e comanda os motores: potência enquanto anda, freio
 /// quando para.
-void test_atualizar_le_o_lidar_e_comanda_os_motores() {
-  SensorDistanciaSimulado lidar;
+void test_atualizar_le_o_sensor_e_comanda_os_motores() {
+  SensorDistanciaSimulado sensorSimulado;
   MotoresSimulados motores;
   ControleMovimento controle;
 
-  lidar.definirLeituraFixa(leitura(LONGE, 94, 74));
-  TEST_ASSERT_EQUAL(EstadoMovimento::Cruzeiro, controle.atualizar(lidar, motores, 100));
+  sensorSimulado.definirLeituraFixa(leitura(LONGE, 94, 74));
+  TEST_ASSERT_EQUAL(EstadoMovimento::Cruzeiro, controle.atualizar(sensorSimulado, motores, 100));
   TEST_ASSERT_FALSE(motores.freados());
   TEST_ASSERT_EQUAL_INT16(380, motores.ultimaPotencia().esquerda);
   TEST_ASSERT_EQUAL_INT16(420, motores.ultimaPotencia().direita);
 
-  lidar.definirLeituraFixa(leitura(80, 84, 84));
-  TEST_ASSERT_EQUAL(EstadoMovimento::ParadoNaParede, controle.atualizar(lidar, motores, 100));
+  sensorSimulado.definirLeituraFixa(leitura(80, 84, 84));
+  TEST_ASSERT_EQUAL(EstadoMovimento::ParadoNaParede, controle.atualizar(sensorSimulado, motores, 100));
   TEST_ASSERT_TRUE(motores.freados());
 
-  lidar.simularFalha(true);
+  sensorSimulado.simularFalha(true);
   controle.reiniciar();
-  TEST_ASSERT_EQUAL(EstadoMovimento::SemLeitura, controle.atualizar(lidar, motores, 100));
+  TEST_ASSERT_EQUAL(EstadoMovimento::SemLeitura, controle.atualizar(sensorSimulado, motores, 100));
   TEST_ASSERT_EQUAL_INT16(150, motores.ultimaPotencia().direita);
   TEST_ASSERT_EQUAL_UINT32(3, motores.comandos());
 }
@@ -373,7 +373,7 @@ namespace {
 /// Robô de tração diferencial num corredor reto com parede frontal, para conferir o
 /// critério 3 (nenhum contato do chassi com as paredes) antes da bancada.
 ///
-/// Modelo: cada roda anda `mmPorSPorPotencia` × potência, a `bitolaMm` uma da outra. O LiDAR
+/// Modelo: cada roda anda `mmPorSPorPotencia` × potência, a `bitolaMm` uma da outra. O sensor
 /// fica no centro do robô e lê a 10 Hz (a cada 100 ms); o movimento é integrado a cada 10 ms.
 struct CenarioCorredor {
   double deslocamentoInicialMm;  ///< Para a direita do centro (negativo: esquerda).
@@ -469,7 +469,7 @@ void test_corredor_saindo_torto_nunca_encosta() {
   }
 }
 
-/// Critério 3 (simulado): com ruído de ±6 mm no LiDAR e com motores mais lentos ou mais rápidos
+/// Critério 3 (simulado): com ruído de ±6 mm no sensor e com motores mais lentos ou mais rápidos
 /// e bitolas diferentes das provisórias, o controle continua sem encostar.
 void test_corredor_com_ruido_e_parametros_diferentes_nunca_encosta() {
   for (double velocidade : {0.2, 0.3, 0.45}) {
@@ -509,7 +509,7 @@ int main(int, char**) {
   RUN_TEST(test_parada_trava_ate_reiniciar);
   RUN_TEST(test_sem_leitura_segue_reto_e_depois_para);
   RUN_TEST(test_leitura_valida_zera_o_tempo_sem_leitura);
-  RUN_TEST(test_atualizar_le_o_lidar_e_comanda_os_motores);
+  RUN_TEST(test_atualizar_le_o_sensor_e_comanda_os_motores);
   RUN_TEST(test_potencia_limitada_a_faixa_permitida);
   RUN_TEST(test_drv8833_potencia_positiva_avanca);
   RUN_TEST(test_drv8833_potencia_negativa_recua);

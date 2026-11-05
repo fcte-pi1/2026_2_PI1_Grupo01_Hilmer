@@ -127,7 +127,7 @@ void test_serializacao_mapa_final_formato_5_3_3() {
 
 /// @brief Critério de Aceite 3: "Testado no labirinto simulado."
 ///
-/// Este teste simula o robô percorrendo um labirinto virtual 4x4 com LiDAR simulado:
+/// Este teste simula o robô percorrendo um labirinto virtual 4x4 com sensor de distância simulado:
 /// - Carrega o labirinto 4x4 de referência (LabirintoSimulado);
 /// - Acopla o sensor virtual (SensorDistanciaSimulado);
 /// - Percorre passo a passo as células até a célula de destino (3, 3);
@@ -140,9 +140,9 @@ void test_mapa_final_testado_no_labirinto_simulado() {
   TEST_ASSERT_EQUAL_UINT8(static_cast<uint8_t>(ResultadoCarga::Carregado),
                           static_cast<uint8_t>(labirinto.carregar(exemplos::LABIRINTO_4X4)));
 
-  // 2. Conecta o sensor LiDAR ao labirinto simulado
-  SensorDistanciaSimulado lidar;
-  lidar.usarLabirinto(labirinto);
+  // 2. Conecta o sensor simulado ao labirinto simulado
+  SensorDistanciaSimulado sensorSimulado;
+  sensorSimulado.usarLabirinto(labirinto);
 
   // 3. Inicializa o armazenamento de mapa para a corrida
   ArmazenamentoMapa armazenamento;
@@ -165,9 +165,9 @@ void test_mapa_final_testado_no_labirinto_simulado() {
 
   // 5. Executa a navegação passo a passo
   for (const Pose& pose : trajeto) {
-    lidar.posicionar(pose);
+    sensorSimulado.posicionar(pose);
     DistanciasLaterais leitura = {};
-    TEST_ASSERT_TRUE(lidar.lerDistanciasLaterais(leitura));
+    TEST_ASSERT_TRUE(sensorSimulado.lerDistanciasLaterais(leitura));
 
     // Atualiza o mapa com as leituras dos sensores
     const ResultadoAtualizacao res =
