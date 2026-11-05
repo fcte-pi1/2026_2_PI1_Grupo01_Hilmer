@@ -79,6 +79,9 @@ markdown_extensions:
   - pymdownx.arithmatex:
       generic: true
 
+extra_css:
+  - stylesheets/matriz-riscos.css
+
 extra_javascript:
   - scripts/mathjax.js
   - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
@@ -91,6 +94,12 @@ nav:
       - Eletrônica: status-equipes/eletronica.md
       - Energia: status-equipes/energia.md
       - Estrutura: status-equipes/estrutura.md
+  - Matriz de riscos:
+      - matriz-riscos/README.md
+      - Software: matriz-riscos/software.md
+      - Eletrônica: matriz-riscos/eletronica.md
+      - Energia: matriz-riscos/energia.md
+      - Estrutura: matriz-riscos/estrutura.md
   - 1. TAP: 01-tap.md
   - 2. Requisitos: 02-requisitos.md
   - 3. EAP: 03-eap.md
