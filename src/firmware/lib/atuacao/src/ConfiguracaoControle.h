@@ -9,7 +9,7 @@
 /// (issue #191): ande num corredor reto saindo 2 cm fora do centro e observe se o robô volta ao
 /// centro sem oscilar e sem encostar.
 ///
-/// A geometria considera o LiDAR no centro do robô, com o feixe abaixo do topo das paredes.
+/// A geometria foi estimada com um sensor no centro do robô (o LiDAR da Rev 1). Com os 3 VL53L0X da Rev 2.0, ajuste na bancada (#479).
 
 #include <stdint.h>
 
@@ -52,7 +52,7 @@ struct ConfiguracaoControle {
   int16_t ganhoDerivativoDecimos = 15;
 
   /// Filtro da derivada, em %: quanto da nova estimativa entra a cada leitura (100 = sem filtro).
-  /// Reduz o efeito do ruído do LiDAR na correção.
+  /// Reduz o efeito do ruído dos sensores na correção.
   uint8_t filtroDerivadaPercentual = 40;
 
   /// Maior correção, em potência, somada a uma roda e subtraída da outra.
@@ -76,7 +76,7 @@ struct ConfiguracaoControle {
   /// (sobram 34 mm entre o chassi e a parede).
   uint16_t distanciaParadaFrontalMm = DISTANCIA_CENTRO_A_PAREDE_MM;
 
-  /// Sem leitura válida do LiDAR por este tempo, o robô freia (fail-safe). Antes disso, segue
+  /// Sem leitura válida dos sensores por este tempo, o robô freia (fail-safe). Antes disso, segue
   /// em linha reta na potência mínima, sem correção.
   uint32_t tempoMaximoSemLeituraMs = 500;
 

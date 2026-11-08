@@ -135,16 +135,16 @@ void test_orcamento_tof_cabe_no_rnf08() {
   TEST_ASSERT_TRUE(ORCAMENTO_CALIBRACAO_TOF_MS < ORCAMENTO_CALIBRACAO_MS);
 }
 
-void test_com_leituras_simuladas_do_lidar() {
-  SensorDistanciaSimulado lidar;
-  lidar.definirLeituraFixa({60, 50, 58});
+void test_com_leituras_simuladas_do_sensor() {
+  SensorDistanciaSimulado sensorSimulado;
+  sensorSimulado.definirLeituraFixa({60, 50, 58});
 
   CalibradorTof calibrador(configRapido());
   calibrador.iniciar({54, 54, 54});
 
   DistanciasLaterais leitura;
   for (uint16_t i = 0; i < 4; ++i) {
-    TEST_ASSERT_TRUE(lidar.lerDistanciasLaterais(leitura));
+    TEST_ASSERT_TRUE(sensorSimulado.lerDistanciasLaterais(leitura));
     calibrador.adicionarAmostra(leitura);
   }
 
@@ -225,7 +225,7 @@ int main(int argc, char** argv) {
   RUN_TEST(test_recusa_mantem_desvios_da_calibracao_anterior);
   RUN_TEST(test_amostra_fora_de_calibrando_e_ignorada);
   RUN_TEST(test_orcamento_tof_cabe_no_rnf08);
-  RUN_TEST(test_com_leituras_simuladas_do_lidar);
+  RUN_TEST(test_com_leituras_simuladas_do_sensor);
   RUN_TEST(test_lado_sem_referencia_fica_fora_da_calibracao);
   RUN_TEST(test_variacao_do_lado_sem_referencia_nao_recusa_a_calibracao);
   RUN_TEST(test_desvio_acima_do_maximo_descarta_a_calibracao);
