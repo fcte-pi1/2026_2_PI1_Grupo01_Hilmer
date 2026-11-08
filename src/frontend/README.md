@@ -46,6 +46,32 @@ Com tudo certo, o rodapé mostra "Supabase conectado: labirintos lidos do banco"
 
 ---
 
+## Publicação
+
+O dashboard web está publicado na **Vercel**, integrado ao repositório do GitHub com deploy contínuo da branch `main` (produção) e geração automática de ambientes de *Preview* a cada Pull Request (#474):
+
+* **URL pública (Produção):** [https://2026-2-pi-1-grupo01-hilmer.vercel.app](https://2026-2-pi-1-grupo01-hilmer.vercel.app)
+
+### Passo a passo da configuração na Vercel
+
+1. Acesse o painel da [Vercel](https://vercel.com/new) com a conta compartilhada do grupo e importe o repositório `fcte-pi1/2026_2_PI1_Grupo01_Hilmer`.
+2. Em **Configure Project**, defina os parâmetros de build:
+   * **Framework Preset:** `Vite`
+   * **Root Directory:** `src/frontend`
+   * **Build Command:** `npm run build`
+   * **Output Directory:** `dist`
+3. Em **Environment Variables**, cadastre as variáveis de ambiente para os ambientes *Production* e *Preview* (valores obtidos em *Project Settings > API* no Supabase):
+   * `VITE_SUPABASE_URL`: URL base do projeto no Supabase (`https://<project-ref>.supabase.co`).
+   * `VITE_SUPABASE_ANON_KEY`: chave pública `anon` (somente leitura via RLS — **nunca** cadastrar a chave `service_role` nem o `DEVICE_TOKEN` do robô).
+4. Clique em **Deploy**. Todo novo *push* ou *merge* na branch `main` publica automaticamente a versão de produção, e cada Pull Request recebe uma URL exclusiva de *Preview*.
+5. **Verificação pós-deploy:**
+   * Ao abrir a URL pública, o rodapé exibe `"Supabase conectado: labirintos lidos do banco"`.
+   * A aba **Histórico de Consultas** lista as corridas gravadas no Supabase.
+   * A aba **Telemetria ao Vivo** recebe eventos em tempo real via Supabase Realtime (`corridas`, `telemetria` e `mapa_celulas`).
+   * Caso utilize restrições de origem no Supabase, inclua o domínio `.vercel.app` em *Authentication > URL Configuration*.
+
+---
+
 ## Estrutura de pastas
 
 ```text
