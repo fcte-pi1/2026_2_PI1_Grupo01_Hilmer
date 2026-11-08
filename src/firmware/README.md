@@ -539,6 +539,7 @@ O firmware do robô só cria a corrida depois da calibração, que exige o autot
 | `a` | Fluxo completo: Wi-Fi, DNS, criar corrida, enviar lote, reenviar o lote (confere que não duplica) e encerrar. Termina com `RESULTADO` |
 | `w` / `d` | Conecta no Wi-Fi (mostra IP e sinal) / resolve o nome do Supabase |
 | `c` / `l` / `r` / `e` | Cria a corrida / envia 5 amostras de teste / reenvia o último lote / encerra como `nao_concluida` |
+| `b` | **Teste de reenvio com queda de Wi-Fi (#478):** 60 s de amostras (1 por segundo) pelo `ControladorEnvio` do robô; desligue o hotspot por cerca de 30 s no meio e religue. No fim, confere as contagens (confirmadas, existentes, descartadas, perdidas, reenvios), dá a consulta SQL para conferir o banco e a linha `REGISTRO` |
 | `s` / `0` | Status / volta ao menu principal |
 
 Cada etapa sai como `[OK]` ou `[FALHA]`, com o código HTTP, a resposta do servidor e a dica do que conferir (senha, 2,4 GHz, token, função não publicada, migração não aplicada). **Grava linhas reais no banco do `credenciais.h`**: use o projeto de testes ou apague a corrida depois. O ESP32-C3 não enxerga redes de 5 GHz; o hotspot do celular precisa estar em 2,4 GHz.
