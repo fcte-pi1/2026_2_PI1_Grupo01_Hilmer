@@ -75,7 +75,7 @@ void test_usb_nativa_fica_reservada_para_o_log() {
 }
 
 void test_uart0_so_alimenta_o_driver_dos_motores() {
-  // GPIO20/21 (UART0) são as entradas IN3/IN4 do driver; nada de LiDAR ou log neles.
+  // GPIO20/21 (UART0) são as entradas IN3/IN4 do driver; nada de log neles.
   TEST_ASSERT_EQUAL_INT(pinos::MOTOR_DIR_IN3, 20);
   TEST_ASSERT_EQUAL_INT(pinos::MOTOR_DIR_IN4, 21);
   TEST_ASSERT_EQUAL_INT(1, vezesEmUso(20));

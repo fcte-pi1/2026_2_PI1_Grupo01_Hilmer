@@ -10,7 +10,7 @@
 
 namespace micromouse {
 
-/// LiDAR falso para testes: devolve as leituras que o teste configurar, sem hardware.
+/// Sensor de distância falso para testes: devolve as leituras que o teste configurar, sem hardware.
 ///
 /// Ordem de prioridade a cada chamada de `lerDistanciasLaterais()`:
 /// 1. se a falha estiver ativa (`simularFalha(true)`), a leitura falha;
@@ -24,19 +24,19 @@ namespace micromouse {
 ///
 /// Exemplo:
 /// @code
-/// SensorDistanciaSimulado lidar;
-/// lidar.definirLeituraFixa({500, 500, 500});  // corredor livre
-/// lidar.enfileirarLeitura({90, 90, 270});     // depois, uma célula com parede à frente e à esquerda
-/// ISensorDistancia& sensor = lidar;           // a lógica recebe só a interface
+/// SensorDistanciaSimulado sensorSimulado;
+/// sensorSimulado.definirLeituraFixa({500, 500, 500});  // corredor livre
+/// sensorSimulado.enfileirarLeitura({90, 90, 270});     // depois, uma célula com parede à frente e à esquerda
+/// ISensorDistancia& sensor = sensorSimulado;           // a lógica recebe só a interface
 /// @endcode
 ///
 /// No modo labirinto, a leitura vem da posição do robô:
 /// @code
 /// LabirintoSimulado labirinto;
 /// labirinto.carregar(texto);
-/// SensorDistanciaSimulado lidar;
-/// lidar.usarLabirinto(labirinto);                          // o labirinto precisa continuar vivo
-/// lidar.posicionar({{0, 0}, Direcao::Norte});              // lê {630, 90, 90} no labirinto 4×4
+/// SensorDistanciaSimulado sensorSimulado;
+/// sensorSimulado.usarLabirinto(labirinto);                          // o labirinto precisa continuar vivo
+/// sensorSimulado.posicionar({{0, 0}, Direcao::Norte});              // lê {630, 90, 90} no labirinto 4×4
 /// @endcode
 class SensorDistanciaSimulado : public ISensorDistancia {
  public:
