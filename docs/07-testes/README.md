@@ -10,5 +10,6 @@ Esta seção reúne os planos e resultados de testes do produto, por área:
     - [7.3.2 Integração dos sensores I²C](hardware/integracao-sensores-i2c.md)
 - [7.4 Software](software.md)
   - [7.4.1 Registro de execução por sprint](software-registro.md)
+  - [7.4.2 Guia da bancada geral](guia-bancada-geral.md)
 - [7.5 Integração](integracao.md)
   - [7.5.1 Ensaio Integrado em Protoboard](integracao/ensaio-integrado-protoboard.md)
