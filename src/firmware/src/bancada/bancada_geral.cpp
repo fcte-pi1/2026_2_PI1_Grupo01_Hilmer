@@ -50,10 +50,12 @@
 
 #include "AmostraTelemetria.h"
 #include "ConfiguracaoRede.h"
+#include "ControladorEnvio.h"
 #include "CredenciaisSupabase.h"
 #include "EnvioHttpSupabase.h"
 #include "ReconexaoWifi.h"
 #include "RedeWifiEsp32.h"
+#include "TravaSecaoCritica.h"
 #endif
 
 using namespace micromouse;
@@ -980,6 +982,12 @@ void executarMotores(char tecla) {
 /// Tempo máximo esperando o Wi-Fi conectar nos comandos que precisam dele, em ms.
 constexpr uint32_t ESPERA_WIFI_MS = 20000;
 
+/// Teste de reenvio (#478): quanto tempo gera amostras, quanto espera o buffer esvaziar no fim e de
+/// quanto em quanto tempo mostra o andamento.
+constexpr uint32_t REENVIO_DURACAO_MS = 60000;
+constexpr uint32_t REENVIO_ESPERA_FINAL_MS = 60000;
+constexpr uint32_t REENVIO_PERIODO_LOG_MS = 5000;
+
 /// Quantas amostras de teste o comando de lote envia.
 constexpr uint16_t AMOSTRAS_POR_LOTE = 5;
 
@@ -1004,6 +1012,9 @@ const CredenciaisSupabase credenciais = lerCredenciais();
 RedeWifiEsp32 redeWifi(credenciais.ssidWifi, credenciais.senhaWifi);
 ReconexaoWifi reconexaoWifi(redeWifi);
 EnvioHttpSupabase clienteSupabase(credenciais);
+TravaSecaoCritica travaBufferEnvio;
+/// O mesmo buffer com reenvio do robô (#238).
+ControladorEnvio controladorEnvio(clienteSupabase, travaBufferEnvio);
 
 bool wifiIniciado = false;
 uint32_t corridaId = 0;
@@ -1333,6 +1344,118 @@ void comandoFluxoCompleto() {
   }
 }
 
+/// `b`: teste de reenvio com queda de Wi-Fi (#478). Usa o mesmo `ControladorEnvio` do robô (buffer,
+/// reenvio em ordem, sem perder e sem duplicar): a bancada gera 1 amostra por segundo, e quem testa
+/// desliga o Wi-Fi (hotspot) por cerca de 30 s no meio e religa. No fim, confere as contagens e diz
+/// a consulta para conferir no banco.
+bool comandoTesteReenvio() {
+  Serial.println("--- Teste de reenvio com queda de Wi-Fi (#478) ---");
+  Serial.printf("  Durante %lu s a bancada gera 1 amostra por segundo. Desligue o Wi-Fi (hotspot) por cerca de\n"
+                "  30 s a partir de 15 s e religue. Qualquer tecla cancela.\n",
+                static_cast<unsigned long>(REENVIO_DURACAO_MS / 1000));
+  if (!conectarWifi()) {
+    return false;
+  }
+  uint32_t id = 0;
+  const uint32_t inicioCriacao = millis();
+  const ResultadoEnvio criada = clienteSupabase.criarCorrida(LABIRINTO_CORRIDA_PADRAO, id);
+  char detalhe[40] = "";
+  if (criada.codigoHttp >= 200 && criada.codigoHttp < 300) {
+    snprintf(detalhe, sizeof(detalhe), "corrida_id %lu", static_cast<unsigned long>(id));
+  }
+  if (!relatarChamada("criar corrida", criada.codigoHttp, millis() - inicioCriacao, detalhe)) {
+    return false;
+  }
+  controladorEnvio.iniciarCorrida(id);
+  clienteSupabase.definirResultadoCorrida(false);
+
+  const uint32_t inicioMs = millis();
+  uint32_t proximaAmostraMs = inicioMs;
+  uint32_t proximoLogMs = inicioMs + REENVIO_PERIODO_LOG_MS;
+  uint32_t geradas = 0;
+  bool cancelado = false;
+  bool encerramentoPedido = false;
+  uint32_t fimGeracaoMs = 0;
+  while (true) {
+    const uint32_t agoraMs = millis();
+    if (teclaPressionada()) {
+      cancelado = true;
+      break;
+    }
+    const bool conectado = reconexaoWifi.ciclo(agoraMs);
+    if (!encerramentoPedido && agoraMs - inicioMs >= REENVIO_DURACAO_MS) {
+      controladorEnvio.solicitarEncerramento(agoraMs);
+      encerramentoPedido = true;
+      fimGeracaoMs = agoraMs;
+      Serial.println("  fim da geracao; esperando o buffer esvaziar e a corrida encerrar");
+    }
+    if (!encerramentoPedido && static_cast<int32_t>(agoraMs - proximaAmostraMs) >= 0) {
+      AmostraTelemetria a;
+      a.tempoDecorridoMs = agoraMs - inicioMs;
+      a.velocidadeMmPorS = 100;
+      a.posicaoLinha = static_cast<uint8_t>((geradas / 4) % 4);
+      a.posicaoColuna = static_cast<uint8_t>(geradas % 4);
+      a.orientacao = 'N';
+      a.estado = EstadoCorrida::Explorando;
+      controladorEnvio.registrar(a);
+      geradas++;
+      proximaAmostraMs += PERIODO_TELEMETRIA_MS;
+    }
+    // Como na tarefa de rede do robô: só chama o servidor com o Wi-Fi conectado.
+    if (conectado) {
+      controladorEnvio.ciclo(agoraMs);
+    }
+    if (static_cast<int32_t>(agoraMs - proximoLogMs) >= 0) {
+      proximoLogMs = agoraMs + REENVIO_PERIODO_LOG_MS;
+      const ContadoresEnvio& c = controladorEnvio.contadores();
+      Serial.printf("  t=%3lu s | wifi %-12s | geradas %3lu | no buffer %3u | confirmadas %3lu | falhas %lu | reenvios %lu\n",
+                    static_cast<unsigned long>((agoraMs - inicioMs) / 1000), conectado ? "conectado" : "SEM CONEXAO",
+                    static_cast<unsigned long>(geradas), controladorEnvio.ocupacao(),
+                    static_cast<unsigned long>(c.amostrasConfirmadas), static_cast<unsigned long>(c.falhas),
+                    static_cast<unsigned long>(c.reenvios));
+    }
+    if (encerramentoPedido && (controladorEnvio.encerrada() || agoraMs - fimGeracaoMs >= REENVIO_ESPERA_FINAL_MS)) {
+      break;
+    }
+    delay(20);
+  }
+  if (cancelado) {
+    Serial.println("  [FALHA] cancelado por tecla; a corrida ficou aberta no banco.");
+    return false;
+  }
+
+  const ContadoresEnvio& c = controladorEnvio.contadores();
+  const bool tudoGravado = c.amostrasConfirmadas + c.amostrasJaExistentes == geradas;
+  Serial.printf("  geradas %lu | confirmadas %lu | ja existentes %lu | descartadas %lu | perdidas no buffer %lu | no buffer %u\n",
+                static_cast<unsigned long>(geradas), static_cast<unsigned long>(c.amostrasConfirmadas),
+                static_cast<unsigned long>(c.amostrasJaExistentes), static_cast<unsigned long>(c.amostrasDescartadas),
+                static_cast<unsigned long>(controladorEnvio.amostrasPerdidas()), controladorEnvio.ocupacao());
+  Serial.printf("  tentativas %lu | falhas %lu | reenvios %lu | quedas do Wi-Fi %lu | corrida encerrada: %s\n",
+                static_cast<unsigned long>(c.tentativas), static_cast<unsigned long>(c.falhas),
+                static_cast<unsigned long>(c.reenvios), static_cast<unsigned long>(reconexaoWifi.quedas()),
+                controladorEnvio.encerrada() ? "sim" : "nao");
+  ResumoAutoteste resumo;
+  registrar(resumo, reconexaoWifi.quedas() > 0,
+            "o Wi-Fi nao caiu durante o teste: desligue o hotspot por 30 s no meio e rode de novo",
+            "o Wi-Fi caiu %lu vez(es) durante o teste", static_cast<unsigned long>(reconexaoWifi.quedas()));
+  registrar(resumo, tudoGravado && c.amostrasDescartadas == 0 && controladorEnvio.amostrasPerdidas() == 0,
+            "amostras perdidas ou descartadas: veja 'descartadas' (o servidor recusou) e 'perdidas no buffer' (encheu)",
+            "todas as %lu amostras foram gravadas, sem perda", static_cast<unsigned long>(geradas));
+  registrar(resumo, controladorEnvio.encerrada(), "a corrida nao foi encerrada: o buffer nao esvaziou a tempo; veja as falhas acima",
+            "corrida encerrada no servidor");
+  Serial.printf("RESULTADO: %u OK, %u FALHA(S).\n", resumo.ok, resumo.falhas);
+  Serial.printf("  Confira no banco (SQL Editor): select count(*), count(distinct numero_sequencia), min(numero_sequencia), "
+                "max(numero_sequencia) from telemetria where corrida_id = %lu;  esperado: %lu, %lu, 1, %lu\n",
+                static_cast<unsigned long>(id), static_cast<unsigned long>(geradas), static_cast<unsigned long>(geradas),
+                static_cast<unsigned long>(geradas));
+  Serial.printf("REGISTRO: reenvio | corrida=%lu geradas=%lu confirmadas=%lu existentes=%lu descartadas=%lu perdidas=%lu reenvios=%lu quedas=%lu | veredito=%s\n",
+                static_cast<unsigned long>(id), static_cast<unsigned long>(geradas), static_cast<unsigned long>(c.amostrasConfirmadas),
+                static_cast<unsigned long>(c.amostrasJaExistentes), static_cast<unsigned long>(c.amostrasDescartadas),
+                static_cast<unsigned long>(controladorEnvio.amostrasPerdidas()), static_cast<unsigned long>(c.reenvios),
+                static_cast<unsigned long>(reconexaoWifi.quedas()), resumo.falhas == 0 ? "OK" : "FALHA");
+  return resumo.falhas == 0;
+}
+
 /// `s`: o que a bancada sabe agora.
 void comandoStatus() {
   Serial.println("--- Status ---");
@@ -1364,6 +1487,7 @@ void imprimirMenuTelemetria() {
   Serial.println(" l  enviar um lote de 5 amostras de teste");
   Serial.println(" r  reenviar o ultimo lote (confere que nao duplica)");
   Serial.println(" e  encerrar a corrida");
+  Serial.println(" b  TESTE DE REENVIO: 60 s de amostras com o Wi-Fi caindo no meio (buffer do robo, #478)");
   Serial.println(" s  status");
   Serial.println(" 0  voltar ao menu principal");
 }
@@ -1390,6 +1514,9 @@ void executarTelemetria(char tecla) {
       break;
     case 'e':
       comandoEncerrarCorrida();
+      break;
+    case 'b':
+      comandoTesteReenvio();
       break;
     case 's':
       comandoStatus();
