@@ -722,7 +722,7 @@ Sem `include/credenciais.h`, o firmware compila, inicia e não envia nada: o log
 | `corrida_criada` (com o `corrida_id`) | O servidor criou a corrida; a coleta começa |
 | `falha_criar_corrida` (com o `codigo`) | Não criou; tenta de novo em 1 s, 2 s, 4 s... até 30 s |
 | `envio` (a cada 10 s) | Contadores: `ocupacao` do buffer, `perdidas` por buffer cheio, `confirmadas`, `existentes` (reenvios que o servidor já tinha), `descartadas`, `tentativas`, `falhas`, `reenvios`, `wifi_quedas` e `pausado` |
-| `envio_pausado` | O servidor respondeu `401`/`403`: a chave ou o token estão errados; o envio para |
+| `envio_pausado` | O servidor respondeu `401`/`403` (a chave ou o token estão errados) ou um código que não se resolve sozinho, como um `3xx` de URL errada; o envio para. O `motivo` sai como `credenciais_recusadas` nos dois casos |
 | `corrida_encerrada` | O servidor confirmou o encerramento |
 
 ### Valores provisórios e memória
@@ -731,7 +731,7 @@ Sem `include/credenciais.h`, o firmware compila, inicia e não envia nada: o log
 |---|---|---|
 | Capacidade do buffer | `ConfiguracaoReenvio.h` | 600 amostras (10 min a 1/s), 24 bytes cada: cerca de 14 KB |
 | Maior lote | `ConfiguracaoReenvio.h` | 100 amostras (o limite do servidor) |
-| Espera entre tentativas de envio | `ConfiguracaoReenvio.h` | 1 s, dobrando até 30 s; volta a 1 s depois de um sucesso |
+| Espera entre tentativas de envio | `ConfiguracaoReenvio.h` | 1 s, dobrando até 30 s, e fica nos 30 s enquanto a rede não volta; volta a 1 s depois de um sucesso, de um lote descartado ou do `retomar()` |
 | Tempo limite do encerramento | `ConfiguracaoReenvio.h` | 10 s (depois disso o robô pode seguir; o envio continua tentando) |
 | Tempo limite de uma chamada HTTPS | `ConfiguracaoRede.h` | 5 s |
 | Ciclo da tarefa de rede | `ConfiguracaoRede.h` | 100 ms (um lote por ciclo, no máximo) |
