@@ -12,7 +12,7 @@ void tearDown() {}
 
 // ─── Auxiliares ──────────────────────────────────────────────────────────────
 
-/// Simula uma leitura do LiDAR a partir do labirinto e atualiza o mapa.
+/// Simula uma leitura dos sensores a partir do labirinto e atualiza o mapa.
 static ResultadoAtualizacao atualizarComSimulacao(Mapa &mapa, const Pose &pose, const ClassificadorParede &classificador) {
   DistanciasLaterais dist;
   bool ok = labirinto.distancias(pose, dist);

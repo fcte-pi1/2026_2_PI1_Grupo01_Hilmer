@@ -16,7 +16,7 @@ namespace micromouse {
 /// MotoresDrv8833 drv(...);
 /// EstimadorDeslocamento estimador;
 /// MotoresComEstimativa motores(drv, estimador);
-/// controle.atualizar(lidar, motores, dtMs);   // o ControleMovimento não sabe da estimativa
+/// controle.atualizar(sensorSimulado, motores, dtMs);   // o ControleMovimento não sabe da estimativa
 /// @endcode
 class MotoresComEstimativa : public IMotores {
  public:

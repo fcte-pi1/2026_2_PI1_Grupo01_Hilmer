@@ -20,7 +20,7 @@ namespace micromouse {
 /// com a partida (0, 0) no canto inferior esquerdo (veja `vizinha()` em `Direcao.h`).
 enum class Direcao : uint8_t { Norte, Leste, Sul, Oeste };
 
-/// Lado relativo ao robô, usado nas leituras do LiDAR.
+/// Lado relativo ao robô, usado nas leituras dos sensores de distância.
 ///
 /// Para converter um lado em direção do labirinto, use `direcaoAbsoluta()`.
 enum class Lado : uint8_t { Frente, Esquerda, Direita };
@@ -51,7 +51,7 @@ struct Pose {
   Direcao direcao;       ///< Direção para a qual a frente do robô aponta.
 };
 
-/// Distâncias medidas pelo LiDAR nas três direções relativas ao robô.
+/// Distâncias medidas pelos sensores nas três direções relativas ao robô.
 ///
 /// Os valores estão em milímetros. É a entrada da classificação `parede`/`livre`
 /// da camada de percepção (HU-02).

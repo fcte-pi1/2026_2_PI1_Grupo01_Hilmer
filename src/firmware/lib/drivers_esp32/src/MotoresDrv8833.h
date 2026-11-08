@@ -47,6 +47,13 @@ class MotoresDrv8833 : public IMotores {
   /// @copydoc IMotores::parar
   void parar() override;
 
+  /// Troca o limite de duty em tempo de execução (milésimos do total; acima de 1000 vale 1000).
+  /// Só para a bancada: o robô usa `LIMITE_DUTY_MOTORES_MILESIMOS` (`ConfiguracaoMotores.h`), que é
+  /// o valor inicial. Vale a partir do próximo `definirPotencia()`.
+  void definirLimiteDuty(uint16_t milesimos) {
+    dutyMaximo_ = dutyMaximoMotores(RESOLUCAO_PWM_MOTORES_BITS, milesimos);
+  }
+
  private:
   /// Escreve o duty no pino `indice` (0: esquerda IN1, 1: esquerda IN2, 2: direita IN1,
   /// 3: direita IN2).
@@ -56,6 +63,7 @@ class MotoresDrv8833 : public IMotores {
   bool inverterEsquerda_;
   bool inverterDireita_;
   bool iniciado_ = false;
+  uint32_t dutyMaximo_ = DUTY_MAXIMO_MOTORES;
 };
 
 }  // namespace micromouse
