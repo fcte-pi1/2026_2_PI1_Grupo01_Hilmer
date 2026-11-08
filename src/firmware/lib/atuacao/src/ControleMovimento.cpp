@@ -107,9 +107,9 @@ PotenciaRodas ControleMovimento::calcularInterno(const DistanciasLaterais* leitu
   return {limitarPotencia(base - correcaoTotal), limitarPotencia(base + correcaoTotal)};
 }
 
-EstadoMovimento ControleMovimento::atualizar(ISensorDistancia& lidar, IMotores& motores, uint32_t dtMs) {
+EstadoMovimento ControleMovimento::atualizar(ISensorDistancia& sensor, IMotores& motores, uint32_t dtMs) {
   DistanciasLaterais leitura = {};
-  const bool valida = lidar.lerDistanciasLaterais(leitura);
+  const bool valida = sensor.lerDistanciasLaterais(leitura);
   const PotenciaRodas potencia = calcular(valida ? &leitura : nullptr, dtMs);
   if (parado()) {
     motores.parar();
@@ -119,10 +119,10 @@ EstadoMovimento ControleMovimento::atualizar(ISensorDistancia& lidar, IMotores& 
   return estado_;
 }
 
-EstadoMovimento ControleMovimento::atualizar(ISensorDistancia& lidar, IMotores& motores, uint32_t dtMs,
+EstadoMovimento ControleMovimento::atualizar(ISensorDistancia& sensor, IMotores& motores, uint32_t dtMs,
                                              int32_t anguloGiroMiligraus) {
   DistanciasLaterais leitura = {};
-  const bool valida = lidar.lerDistanciasLaterais(leitura);
+  const bool valida = sensor.lerDistanciasLaterais(leitura);
   const PotenciaRodas potencia = calcular(valida ? &leitura : nullptr, dtMs, anguloGiroMiligraus);
   if (parado()) {
     motores.parar();
@@ -132,10 +132,10 @@ EstadoMovimento ControleMovimento::atualizar(ISensorDistancia& lidar, IMotores& 
   return estado_;
 }
 
-EstadoMovimento ControleMovimento::atualizar(ISensorDistancia& lidar, IMotores& motores, uint32_t dtMs,
+EstadoMovimento ControleMovimento::atualizar(ISensorDistancia& sensor, IMotores& motores, uint32_t dtMs,
                                              const LeituraGiro& giro) {
   DistanciasLaterais leitura = {};
-  const bool valida = lidar.lerDistanciasLaterais(leitura);
+  const bool valida = sensor.lerDistanciasLaterais(leitura);
   const PotenciaRodas potencia =
       giro.valida ? calcular(valida ? &leitura : nullptr, dtMs, giro.anguloMiligraus)
                   : calcular(valida ? &leitura : nullptr, dtMs);

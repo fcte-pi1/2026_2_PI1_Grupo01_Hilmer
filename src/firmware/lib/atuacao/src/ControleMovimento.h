@@ -21,32 +21,32 @@ enum class EstadoMovimento : uint8_t {
   Cruzeiro,          ///< Caminho livre à frente: potência de cruzeiro, com centralização.
   Desacelerando,     ///< Parede à frente se aproximando: rampa de potência, com centralização.
   ParadoNaParede,    ///< Chegou à distância de parada da parede frontal: motores freados.
-  SemLeitura,        ///< LiDAR sem leitura válida há pouco tempo: segue reto na potência mínima.
-  ParadoSemLeitura   ///< LiDAR sem leitura por `tempoMaximoSemLeituraMs`: motores freados.
+  SemLeitura,        ///< sensor sem leitura válida há pouco tempo: segue reto na potência mínima.
+  ParadoSemLeitura   ///< sensor sem leitura por `tempoMaximoSemLeituraMs`: motores freados.
 };
 
 /// Junta a centralização no corredor (`ControladorCentralizacao`) e a parada frontal
 /// (`PerfilParadaFrontal`) num comando para os dois motores.
 ///
-/// A cada leitura nova do LiDAR: a potência base vem da distância frontal e a correção lateral é
+/// A cada leitura nova dos sensores: a potência base vem da distância frontal e a correção lateral é
 /// somada à roda direita e subtraída da esquerda. A correção nunca passa de
 /// `correcaoMaximaPercentualDaBase` da base, para nenhuma roda girar para trás.
 ///
 /// Os dois estados parados são travados: o robô só volta a andar depois de `reiniciar()`, quando
 /// a navegação decidir o próximo movimento (por exemplo, depois de um giro).
 ///
-/// Uso típico, na tarefa de navegação, a cada leitura nova do LiDAR (cerca de 100 ms):
+/// Uso típico, na tarefa de navegação, a cada leitura nova dos sensores (cerca de 100 ms):
 /// @code
 /// ControleMovimento controle;
-/// EstadoMovimento estado = controle.atualizar(lidar, motores, 100);
+/// EstadoMovimento estado = controle.atualizar(sensor, motores, 100);
 /// if (estado == EstadoMovimento::ParadoNaParede) { /* decidir o próximo passo */ }
 /// @endcode
 class ControleMovimento {
  public:
   explicit ControleMovimento(const ConfiguracaoControle& config = ConfiguracaoControle{});
 
-  /// Calcula a potência das rodas para uma leitura do LiDAR.
-  /// @param leitura Distâncias medidas, ou `nullptr` se o LiDAR não deu leitura válida.
+  /// Calcula a potência das rodas para uma leitura dos sensores.
+  /// @param leitura Distâncias medidas, ou `nullptr` se o sensor não deu leitura válida.
   /// @param dtMs Tempo desde a chamada anterior, em ms.
   /// @return Potência de cada roda. `{0, 0}` nos estados parados.
   PotenciaRodas calcular(const DistanciasLaterais* leitura, uint32_t dtMs);
@@ -57,7 +57,7 @@ class ControleMovimento {
   }
 
   /// Calcula a potência das rodas com correção conjunta de centralização lateral e rumo (#190).
-  /// @param leitura Distâncias medidas, ou `nullptr` se o LiDAR não deu leitura válida.
+  /// @param leitura Distâncias medidas, ou `nullptr` se o sensor não deu leitura válida.
   /// @param dtMs Tempo desde a chamada anterior, em ms.
   /// @param anguloGiroMiligraus Ângulo atual de guinada medido pelo giroscópio, em mili-graus.
   /// @return Potência de cada roda.
@@ -68,26 +68,26 @@ class ControleMovimento {
     return calcular(&leitura, dtMs, anguloGiroMiligraus);
   }
 
-  /// Lê o LiDAR, calcula e aplica nos motores: `parar()` nos estados parados e
+  /// Lê o sensor, calcula e aplica nos motores: `parar()` nos estados parados e
   /// `definirPotencia()` nos demais.
   /// @return O estado depois da atualização.
-  EstadoMovimento atualizar(ISensorDistancia& lidar, IMotores& motores, uint32_t dtMs);
+  EstadoMovimento atualizar(ISensorDistancia& sensor, IMotores& motores, uint32_t dtMs);
 
-  /// Lê o LiDAR, calcula com correção de rumo (#190) e aplica nos motores.
-  /// @param lidar Sensor de distância.
+  /// Lê o sensor, calcula com correção de rumo (#190) e aplica nos motores.
+  /// @param sensor Sensor de distância.
   /// @param motores Interface dos motores.
   /// @param dtMs Tempo decorrido em ms.
   /// @param anguloGiroMiligraus Ângulo atual de guinada do robô.
   /// @return O estado depois da atualização.
-  EstadoMovimento atualizar(ISensorDistancia& lidar, IMotores& motores, uint32_t dtMs, int32_t anguloGiroMiligraus);
+  EstadoMovimento atualizar(ISensorDistancia& sensor, IMotores& motores, uint32_t dtMs, int32_t anguloGiroMiligraus);
 
-  /// Lê o LiDAR, calcula com leitura completa do giroscópio (#190) e aplica nos motores.
-  /// @param lidar Sensor de distância.
+  /// Lê o sensor, calcula com leitura completa do giroscópio (#190) e aplica nos motores.
+  /// @param sensor Sensor de distância.
   /// @param motores Interface dos motores.
   /// @param dtMs Tempo decorrido em ms.
   /// @param giro Estrutura com leitura do giroscópio e indicador de validade.
   /// @return O estado depois da atualização.
-  EstadoMovimento atualizar(ISensorDistancia& lidar, IMotores& motores, uint32_t dtMs, const LeituraGiro& giro);
+  EstadoMovimento atualizar(ISensorDistancia& sensor, IMotores& motores, uint32_t dtMs, const LeituraGiro& giro);
 
   /// Estado depois da última atualização.
   EstadoMovimento estado() const { return estado_; }

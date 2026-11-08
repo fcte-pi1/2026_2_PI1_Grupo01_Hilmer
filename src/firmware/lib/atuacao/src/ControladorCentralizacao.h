@@ -26,7 +26,7 @@ enum class ModoCentralizacao : uint8_t {
 /// somar à direita: positiva faz o robô virar para a esquerda, de volta ao centro.
 ///
 /// A parte derivativa usa a variação do erro entre duas leituras, com um filtro passa-baixa
-/// contra o ruído do LiDAR. Ela recomeça do zero quando o modo muda (por exemplo, quando uma
+/// contra o ruído dos sensores. Ela recomeça do zero quando o modo muda (por exemplo, quando uma
 /// parede lateral acaba), para não reagir ao salto da leitura.
 ///
 /// Sem Arduino e sem alocação dinâmica: testado no ambiente `native`.
@@ -34,9 +34,9 @@ class ControladorCentralizacao {
  public:
   explicit ControladorCentralizacao(const ConfiguracaoControle& config = ConfiguracaoControle{});
 
-  /// Calcula a correção para uma nova leitura do LiDAR.
+  /// Calcula a correção para uma nova leitura dos sensores.
   ///
-  /// Chame uma vez por leitura nova (o LiDAR atualiza a cerca de 10 Hz).
+  /// Chame uma vez por leitura nova dos sensores.
   /// @param leitura Distâncias à frente, à esquerda e à direita, em mm.
   /// @param dtMs Tempo desde a leitura anterior, em ms. Com 0, a derivada não é atualizada.
   /// @return Correção em potência, limitada a `±correcaoMaxima`. 0 quando não há referência.
