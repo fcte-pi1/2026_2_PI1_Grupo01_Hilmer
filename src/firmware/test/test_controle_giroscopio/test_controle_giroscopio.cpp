@@ -506,21 +506,21 @@ void test_reiniciar_zera_historico_de_rumo() {
 /// Chamada com LeituraGiro integrada (com indicador de validade).
 void test_atualizar_com_leitura_giro() {
   ControleMovimento controle;
-  SensorDistanciaSimulado lidar;
-  lidar.definirLeituraFixa(leitura(LONGE, 84, 84));
+  SensorDistanciaSimulado sensorSimulado;
+  sensorSimulado.definirLeituraFixa(leitura(LONGE, 84, 84));
   MotoresSimulados motores;
 
   LeituraGiro giro;
   giro.valida = true;
   giro.anguloMiligraus = -2000;
 
-  controle.atualizar(lidar, motores, 100, giro);
+  controle.atualizar(sensorSimulado, motores, 100, giro);
   TEST_ASSERT_TRUE(controle.temRumoValido());
   TEST_ASSERT_EQUAL_INT32(2000, controle.desvioRumoMiligraus());
 
   // Se a leitura for inválida, não aplica correção de rumo
   giro.valida = false;
-  controle.atualizar(lidar, motores, 100, giro);
+  controle.atualizar(sensorSimulado, motores, 100, giro);
   TEST_ASSERT_FALSE(controle.temRumoValido());
   TEST_ASSERT_EQUAL_INT16(0, controle.correcaoRumo());
 }

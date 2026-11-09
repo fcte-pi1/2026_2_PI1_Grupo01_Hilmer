@@ -55,7 +55,7 @@ jobs:
   build:
     name: Build ESP32-C3
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -70,6 +70,10 @@ jobs:
       - run: pio run -e esp32c3
       # Firmware de bancada: não vai para o robô, mas precisa continuar compilando com o driver.
       - run: pio run -e bancada_tof
+      # Bancada geral (#477), na Super Mini e no ESP32 DevKit V1. O ambiente da DevKit também confere a
+      # pinagem do `Pinos.h` (os `static_assert` de GPIO repetido ou inexistente na placa).
+      - run: pio run -e bancada_geral
+      - run: pio run -e bancada_geral_devkit
 
   scripts:
     name: Scripts de bancada

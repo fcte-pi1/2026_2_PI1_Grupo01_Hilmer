@@ -2,7 +2,7 @@
 
 Firmware do micromouse para o ESP32-C3 (Arduino Core, C++17), organizado nas camadas *sense-think-act* definidas na [arquitetura de software](../../docs/04-projeto-conceitual/software.md). O projeto usa [PlatformIO](https://platformio.org/).
 
-A documentação detalhada do código (camadas, tipos, pinagem, interface do LiDAR, tarefas e testes) está em [Firmware: implementação](../../docs/04-projeto-conceitual/firmware.md). Os arquivos `.h` têm comentários de documentação no formato Doxygen (`///`).
+A documentação detalhada do código (camadas, tipos, pinagem, interface dos sensores de distância, tarefas e testes) está em [Firmware: implementação](../../docs/04-projeto-conceitual/firmware.md). Os arquivos `.h` têm comentários de documentação no formato Doxygen (`///`).
 
 ## Estrutura
 
@@ -28,7 +28,6 @@ src/firmware/
 | `imu` | Sensoriamento | Giroscópio: conversão da leitura do MPU6050, calibração do viés, ângulo de giro (`IntegradorGiro`) e o ciclo da tarefa da IMU (`AcompanhadorGiro`) |
 | `deslocamento` | Sensoriamento | Deslocamento sem encoder: estimativa pela potência dos motores (`EncoderEstimado`, `MotoresComEstimativa`) e correção pelos ToF; todos os ajustes em `ConfiguracaoDeslocamento.h` |
 | `encoders` | Sensoriamento | Decodificação em quadratura (x4) dos canais A e B, conversão de pulsos em milímetros (calibrável) e distância percorrida por cada roda |
-| `lidar` | Drivers / Hardware | Driver de leitura do sensor LiDAR 360° via UART (decodificador LD06) e agregação de leituras por setores |
 | `mapeamento` | Mapeamento | Mapa do labirinto (4 paredes por célula) e armazenamento em memória |
 | `navegacao` | Navegação | Localização (`Odometria`: pose pela odometria diferencial dos encoders), decisão de movimento (`Navegacao`), detecção do objetivo (`DetectorObjetivo`) e as fases do robô na telemetria (`FaseCorrida`, #242) |
 | `atuacao` | Atuação | Controle dos motores, correção de trajetória e rumo pelo giroscópio, giros de 90° e 180° em malha fechada (`ControleGiro`) e trava dos motores (`MotoresComTrava`) (#190, #191) |
@@ -87,11 +86,11 @@ LabirintoSimulado labirinto;
 labirinto.carregar(exemplos::LABIRINTO_4X4);   // ResultadoCarga::Carregado
 labirinto.temParede({0, 0}, Direcao::Leste);   // true
 
-SensorDistanciaSimulado lidar;
-lidar.usarLabirinto(labirinto);                // o labirinto precisa continuar vivo
-lidar.posicionar({{0, 0}, Direcao::Norte});
+SensorDistanciaSimulado sensorSimulado;
+sensorSimulado.usarLabirinto(labirinto);                // o labirinto precisa continuar vivo
+sensorSimulado.posicionar({{0, 0}, Direcao::Norte});
 DistanciasLaterais d;
-lidar.lerDistanciasLaterais(d);                // d = {630, 90, 90} (frente, esquerda, direita, em mm)
+sensorSimulado.lerDistanciasLaterais(d);                // d = {630, 90, 90} (frente, esquerda, direita, em mm)
 ```
 
 **Distâncias.** O robô fica no centro da célula: a parede da própria célula está a 90 mm e cada célula livre no caminho soma 180 mm. Com o robô virado para Norte em (0, 0) do 4×4 há três células livres à frente, ou seja, 90 + 3 × 180 = 630 mm.
@@ -219,7 +218,7 @@ O `ControleMovimento` e o `ControleGiro` (`lib/atuacao`) controlam a trajetória
 // Avanço com centralização lateral e correção de rumo pelo giroscópio:
 ControleMovimento controle;
 controle.definirRumoAlvo(0); // Rumo reto na partida (0 m°)
-EstadoMovimento estado = controle.atualizar(lidar, motores, 100, leituraGiro);
+EstadoMovimento estado = controle.atualizar(sensor, motores, 100, leituraGiro);
 if (estado == EstadoMovimento::ParadoNaParede) {
   // Giro de 90° para a direita em malha fechada:
   ControleGiro giro;
@@ -724,7 +723,7 @@ Sem `include/credenciais.h`, o firmware compila, inicia e não envia nada: o log
 | `corrida_criada` (com o `corrida_id`) | O servidor criou a corrida; a coleta começa |
 | `falha_criar_corrida` (com o `codigo`) | Não criou; tenta de novo em 1 s, 2 s, 4 s... até 30 s |
 | `envio` (a cada 10 s) | Contadores: `ocupacao` do buffer, `perdidas` por buffer cheio, `confirmadas`, `existentes` (reenvios que o servidor já tinha), `descartadas`, `tentativas`, `falhas`, `reenvios`, `wifi_quedas` e `pausado` |
-| `envio_pausado` | O servidor respondeu `401`/`403`: a chave ou o token estão errados; o envio para |
+| `envio_pausado` | O servidor respondeu `401`/`403` (a chave ou o token estão errados) ou um código que não se resolve sozinho, como um `3xx` de URL errada; o envio para. O `motivo` sai como `credenciais_recusadas` nos dois casos |
 | `corrida_encerrada` | O servidor confirmou o encerramento |
 
 ### Valores provisórios e memória
@@ -733,7 +732,7 @@ Sem `include/credenciais.h`, o firmware compila, inicia e não envia nada: o log
 |---|---|---|
 | Capacidade do buffer | `ConfiguracaoReenvio.h` | 600 amostras (10 min a 1/s), 24 bytes cada: cerca de 14 KB |
 | Maior lote | `ConfiguracaoReenvio.h` | 100 amostras (o limite do servidor) |
-| Espera entre tentativas de envio | `ConfiguracaoReenvio.h` | 1 s, dobrando até 30 s; volta a 1 s depois de um sucesso |
+| Espera entre tentativas de envio | `ConfiguracaoReenvio.h` | 1 s, dobrando até 30 s, e fica nos 30 s enquanto a rede não volta; volta a 1 s depois de um sucesso, de um lote descartado ou do `retomar()` |
 | Tempo limite do encerramento | `ConfiguracaoReenvio.h` | 10 s (depois disso o robô pode seguir; o envio continua tentando) |
 | Tempo limite de uma chamada HTTPS | `ConfiguracaoRede.h` | 5 s |
 | Ciclo da tarefa de rede | `ConfiguracaoRede.h` | 100 ms (um lote por ciclo, no máximo) |

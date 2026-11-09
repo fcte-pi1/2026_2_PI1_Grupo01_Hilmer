@@ -18,17 +18,17 @@ static DistanciasLaterais leitura(uint16_t frente, uint16_t esquerda, uint16_t d
 }
 
 void test_sem_leitura_configurada_a_leitura_falha() {
-  SensorDistanciaSimulado lidar;
+  SensorDistanciaSimulado sensorSimulado;
   DistanciasLaterais saida = {};
-  TEST_ASSERT_FALSE(lidar.lerDistanciasLaterais(saida));
+  TEST_ASSERT_FALSE(sensorSimulado.lerDistanciasLaterais(saida));
 }
 
 void test_leitura_fixa_se_repete_a_cada_chamada() {
-  SensorDistanciaSimulado lidar;
-  lidar.definirLeituraFixa(leitura(90, 90, 270));
+  SensorDistanciaSimulado sensorSimulado;
+  sensorSimulado.definirLeituraFixa(leitura(90, 90, 270));
   DistanciasLaterais saida = {};
   for (int i = 0; i < 3; i++) {
-    TEST_ASSERT_TRUE(lidar.lerDistanciasLaterais(saida));
+    TEST_ASSERT_TRUE(sensorSimulado.lerDistanciasLaterais(saida));
     TEST_ASSERT_EQUAL_UINT16(90, saida.frenteMm);
     TEST_ASSERT_EQUAL_UINT16(90, saida.esquerdaMm);
     TEST_ASSERT_EQUAL_UINT16(270, saida.direitaMm);
@@ -36,47 +36,47 @@ void test_leitura_fixa_se_repete_a_cada_chamada() {
 }
 
 void test_fila_entrega_as_leituras_em_ordem_e_depois_volta_para_a_fixa() {
-  SensorDistanciaSimulado lidar;
-  lidar.definirLeituraFixa(leitura(500, 500, 500));
-  TEST_ASSERT_TRUE(lidar.enfileirarLeitura(leitura(100, 0, 0)));
-  TEST_ASSERT_TRUE(lidar.enfileirarLeitura(leitura(200, 0, 0)));
+  SensorDistanciaSimulado sensorSimulado;
+  sensorSimulado.definirLeituraFixa(leitura(500, 500, 500));
+  TEST_ASSERT_TRUE(sensorSimulado.enfileirarLeitura(leitura(100, 0, 0)));
+  TEST_ASSERT_TRUE(sensorSimulado.enfileirarLeitura(leitura(200, 0, 0)));
 
   DistanciasLaterais saida = {};
-  TEST_ASSERT_TRUE(lidar.lerDistanciasLaterais(saida));
+  TEST_ASSERT_TRUE(sensorSimulado.lerDistanciasLaterais(saida));
   TEST_ASSERT_EQUAL_UINT16(100, saida.frenteMm);
-  TEST_ASSERT_TRUE(lidar.lerDistanciasLaterais(saida));
+  TEST_ASSERT_TRUE(sensorSimulado.lerDistanciasLaterais(saida));
   TEST_ASSERT_EQUAL_UINT16(200, saida.frenteMm);
-  TEST_ASSERT_TRUE(lidar.lerDistanciasLaterais(saida));
+  TEST_ASSERT_TRUE(sensorSimulado.lerDistanciasLaterais(saida));
   TEST_ASSERT_EQUAL_UINT16(500, saida.frenteMm);
 }
 
 void test_falha_simulada_retorna_false_e_nao_consome_a_fila() {
-  SensorDistanciaSimulado lidar;
-  lidar.enfileirarLeitura(leitura(100, 100, 100));
+  SensorDistanciaSimulado sensorSimulado;
+  sensorSimulado.enfileirarLeitura(leitura(100, 100, 100));
   DistanciasLaterais saida = {};
 
-  lidar.simularFalha(true);
-  TEST_ASSERT_FALSE(lidar.lerDistanciasLaterais(saida));
+  sensorSimulado.simularFalha(true);
+  TEST_ASSERT_FALSE(sensorSimulado.lerDistanciasLaterais(saida));
 
-  lidar.simularFalha(false);
-  TEST_ASSERT_TRUE(lidar.lerDistanciasLaterais(saida));
+  sensorSimulado.simularFalha(false);
+  TEST_ASSERT_TRUE(sensorSimulado.lerDistanciasLaterais(saida));
   TEST_ASSERT_EQUAL_UINT16(100, saida.frenteMm);
 }
 
 void test_fila_cheia_recusa_novas_leituras() {
-  SensorDistanciaSimulado lidar;
+  SensorDistanciaSimulado sensorSimulado;
   for (uint8_t i = 0; i < SensorDistanciaSimulado::CAPACIDADE_FILA; i++) {
-    TEST_ASSERT_TRUE(lidar.enfileirarLeitura(leitura(i, 0, 0)));
+    TEST_ASSERT_TRUE(sensorSimulado.enfileirarLeitura(leitura(i, 0, 0)));
   }
-  TEST_ASSERT_FALSE(lidar.enfileirarLeitura(leitura(999, 0, 0)));
+  TEST_ASSERT_FALSE(sensorSimulado.enfileirarLeitura(leitura(999, 0, 0)));
 }
 
 void test_pode_ser_usado_pela_interface_ISensorDistancia() {
   SensorDistanciaSimulado simulado;
   simulado.definirLeituraFixa(leitura(180, 180, 180));
-  ISensorDistancia& lidar = simulado;
+  ISensorDistancia& sensorSimulado = simulado;
   DistanciasLaterais saida = {};
-  TEST_ASSERT_TRUE(lidar.lerDistanciasLaterais(saida));
+  TEST_ASSERT_TRUE(sensorSimulado.lerDistanciasLaterais(saida));
   TEST_ASSERT_EQUAL_UINT16(180, saida.frenteMm);
 }
 
