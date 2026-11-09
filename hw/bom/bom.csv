@@ -14,14 +14,14 @@ J4,1,Sensor ToF frontal,Modulo VL53L0X,3.3 V (U5),I2C + XSHUT; ver tabela unica 
 J5,1,Sensor ToF direito,Modulo VL53L0X,3.3 V (U5),I2C + XSHUT; ver tabela unica hardware.md 4.2,../datasheets/vl53l0x_datasheet_st.pdf,Endereco apos boot 0x32; iniciar sequencialmente; conferir pinout fisico
 J6,1,IMU,Modulo MPU6050 (AD0 em GND),3.3 V (U5),I2C 0x68; AD0 em GND,../datasheets/mpu-6000-6050_product-specification.pdf,INT/XDA/XCL nao conectados; pinagem em hardware.md 4.2
 U6,1,Driver de motores,Modulo DRV8833,6 V (U4),IN1 a IN4 conforme Hardware Rev 2.1; ver hardware.md 4.2,../datasheets/drv8833_datasheet_ti.pdf,nSLEEP/EEP via R4 para +3V3_SENS; nunca 6 V; permanece habilitado; validar reset apos mover IN4 para GPIO13
-J1,1,Motor esquerdo,GA12-N20-S0310D-E 6 V (sugerido),6 V via DRV8833 OUT1/OUT2,Conector 6 vias: motor + encoder A/B,-,Encoder em +3V3_SENS; pinagem em hardware.md 4.2; conferir cores e ordem fisica; modelo/reducao/corrente de travamento a confirmar
-J2,1,Motor direito,GA12-N20-S0310D-E 6 V (sugerido),6 V via DRV8833 OUT3/OUT4,Conector 6 vias: motor + encoder A/B,-,Encoder em +3V3_SENS; pinagem em hardware.md 4.2; conferir cores e ordem fisica; modelo/reducao/corrente de travamento a confirmar
+J1,1,Motor esquerdo,GA12-N20-S0310D-E 6 V (sugerido),6 V via DRV8833 OUT1/OUT2,Conector 6 vias: motor + encoder A/B,-,Encoder em +3V3_SENS; pinagem em hardware.md 4.2; conferir cores e ordem fisica; corrente em vazio de 22 mA a 6 V (teste 3.3 de 22/10); modelo/reducao/corrente de travamento a confirmar
+J2,1,Motor direito,GA12-N20-S0310D-E 6 V (sugerido),6 V via DRV8833 OUT3/OUT4,Conector 6 vias: motor + encoder A/B,-,Encoder em +3V3_SENS; pinagem em hardware.md 4.2; conferir cores e ordem fisica; corrente em vazio de 22 mA a 6 V (teste 3.3 de 22/10); modelo/reducao/corrente de travamento a confirmar
 R1,1,Divisor da bateria (alto),100 kOhm,VBAT,-,-,
 R2,1,Divisor da bateria (baixo),33 kOhm,-,BAT_ADC / ADC1_CH6,-,Rev 2.1: ligado ao ADC; R1=100 kOhm; R2=33 kOhm; C5=100 nF
 R4,1,Pull-up do nSLEEP do DRV8833,47 kOhm,3.3 V (U5),DRV_SLEEP / nSLEEP,-,Pull-up para +3V3_SENS; driver habilitado; nao protege contra tranco no boot
 C2,1,Capacitor de saida do buck 5 V,100 uF,5 V,-,-,
 C3,1,Capacitor do buck 6 V,10 uF,6 V,-,-,
-C4,1,Capacitor de saida do buck 6 V,100 uF,6 V,-,-,
+C4,1,Capacitor de saida do buck 6 V,100 uF,6 V,-,-,Valor no esquema Rev 2.1; adequacao pendente ao bulk de 470 uF Low-ESR requerido pela Energia (#216); atualizar KiCad/PDF/figura/BOM em conjunto e validar ruido; substituicao fisica nao confirmada
 C5,1,Filtro do divisor da bateria,100 nF,-,BAT_ADC / ADC1_CH6,-,Rev 2.1: ligado ao ADC; R1=100 kOhm; R2=33 kOhm; C5=100 nF
 C6,1,Capacitor do buck 5 V,10 uF,5 V,-,-,
 C7,1,Capacitor de saida do buck 3.3 V,100 nF,3.3 V,-,-,Valor preservado da Rev 2.0; confirmar desacoplamento do modulo em bancada

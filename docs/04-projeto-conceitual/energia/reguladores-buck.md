@@ -52,6 +52,8 @@ $$L_{\text{mín}} = \frac{(V_{\text{in,max}} - V_{\text{out}}) \cdot (V_{\text{o
   * **Entrada (`C3`):** Capacitor de **$10\ \mu\text{F}$** próximo ao pino `IN+` de `U4` (complementando os capacitores MLCC internos do módulo).
   * **Saída (`C4`):** Capacitor de **$100\ \mu\text{F}$** no barramento `+6V` junto ao pino `VCC` do driver `DRV8833` (`U6`), atuando como reservatório de carga para amortecer os degraus de corrente de comutação das pontes H.
 
+**Pendência de alinhamento do bulk de VM:** os 100 µF de C4 acima descrevem o esquema atual. A [#216](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/216) requer **470 µF Low-ESR**. Adequar C4 a esse requisito, atualizar KiCad, PDF, figura e BOM em conjunto e medir a eficácia contra ruído PWM. A substituição e o ensaio não estão confirmados; ver o [registro da Rev 2.1](../../../hw/REVISAO-2.1.md#pendencia-com-energia--bulk-de-vm).
+
 ### 2.4 Análise Térmica e Diretriz de Proteção contra Stall Prolongado
 1. **Regime Nominal de Corrida ($I_{\text{out}} = 0{,}30\text{ A}$):**
    $$P_{\text{d,nom}} = (6{,}0\text{ V} \cdot 0{,}30\text{ A}) \cdot \left(\frac{1}{0{,}85} - 1\right) \approx \mathbf{0{,}32\text{ W}} \implies \Delta T \approx 16{,}0\text{ °C} \ (R_{\theta JA} \approx 50\text{ °C/W SOIC-8E}) \implies T_j \approx \mathbf{41{,}0\text{ °C}}$$

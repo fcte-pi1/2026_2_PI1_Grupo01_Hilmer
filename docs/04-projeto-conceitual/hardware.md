@@ -62,7 +62,9 @@ O uso de uma fonte recarregável permite a operação móvel e autônoma. A dist
 | :--- | :--- | :---: | :--- | :--- |
 | U5 | MP1584EN | **3,3 V** | Três VL53L0X e MPU6050 | C8 de 10 µF e C7 de 100 nF. |
 | U2 | MP1584EN | **5 V** | Pino `VIN / 5V` da placa ESP32 DevKit V1 | C6 de 10 µF e C2 de 100 µF. |
-| U4 | MP1584EN | **6 V** | Alimentação de potência do DRV8833 | C3 de 10 µF e C4 de 100 µF. |
+| U4 | MP1584EN | **6 V** | Alimentação de potência do DRV8833 | C3 de 10 µF e C4 de 100 µF no esquema atual; adequação ao bulk de 470 µF Low-ESR da #216 pendente (ver abaixo). |
+
+**Alinhamento com Energia:** a [#216](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/216) especifica bulk de **470 µF Low-ESR**. C4 de **100 µF**, ainda representado no KiCad, PDF e figura da Rev 2.1, não corresponde a esse requisito. A BOM registra a adequação pendente de C4 para 470 µF Low-ESR; atualizar todos os artefatos em conjunto e validar a eficácia com Energia. Não há confirmação de substituição física ou ensaio de ruído.
 
 Os capacitores associados aos conversores auxiliam na filtragem e no atendimento às variações de carga. A alimentação dedicada dos motores busca reduzir a influência de suas comutações sobre os sensores e o microcontrolador.
 
@@ -80,7 +82,7 @@ O sensoriamento de paredes utiliza **três módulos VL53L0X**, representados pel
 
 Os sensores utilizam medição por tempo de voo (_Time of Flight_ — ToF), recebem alimentação de **3,3 V** e compartilham o barramento **I²C**. Essa configuração concentra a comunicação em duas linhas: **SDA no GPIO21** e **SCL no GPIO22**.
 
-Os três sensores iniciam no endereço I²C de 7 bits **0x29**. Cada módulo precisa expor XSHUT: **J3 esquerdo → GPIO16**, **J4 frontal → GPIO17** e **J5 direito → GPIO4**. Na inicialização, o firmware deve manter todos em reset (XSHUT baixo), liberar um por vez e atribuir endereços distintos, por exemplo **0x30, 0x31 e 0x32**, antes de liberar o próximo. Essa atribuição deve ser repetida a cada reinicialização; a rotina ainda precisa ser implementada no firmware. A aquisição das três distâncias fornece a referência para detectar paredes e manter o alinhamento nos corredores.
+Os três sensores iniciam no endereço I²C de 7 bits **0x29**. Cada módulo precisa expor XSHUT: **J3 esquerdo → GPIO16**, **J4 frontal → GPIO17** e **J5 direito → GPIO4**. Na inicialização, o firmware deve manter todos em reset (XSHUT baixo), liberar um por vez e atribuir endereços distintos, por exemplo **0x30, 0x31 e 0x32**, antes de liberar o próximo. Essa atribuição deve ser repetida a cada reinicialização; a rotina já está disponível na bancada geral integrada pela #485; a migração do robô para DevKit segue na #489. A aquisição das três distâncias fornece a referência para detectar paredes e manter o alinhamento nos corredores.
 
 ### 3.4 Unidade de medição inercial MPU6050
 
@@ -135,27 +137,29 @@ A folha A3 horizontal reúne quatro blocos: **alimentação e proteção**, **ac
 
 ### 4.2 Pinagem do ESP32 DevKit V1
 
-A pinagem de Hardware da Rev 2.1 está definida no CSV `hw/diagramas/pinagem.csv` e apresentada na tabela abaixo. Os nomes das constantes indicam a interface prevista para o Software. Ao alterar a pinagem, manter esta tabela, o CSV e o esquemático consistentes por conferência manual.
+A pinagem de Hardware da Rev 2.1 está definida no CSV `hw/diagramas/pinagem.csv` e apresentada na tabela abaixo. Os nomes da primeira coluna são as constantes reais do bloco `PLACA_ESP32_DEVKIT` de `Pinos.h` na `main`. Ao alterar a pinagem, manter esta tabela, o CSV e o esquemático consistentes por conferência manual.
 
-**Sincronização com Software pendente:** esta entrega altera apenas documentos e artefatos de Hardware. O `Pinos.h` deste checkout permanece na versão C3 e não contém o bloco `PLACA_ESP32_DEVKIT`. A equipe de Software deve aplicar os 15 sinais abaixo, incluindo IN4 em GPIO13. Após a atualização pelo Software, conferir manualmente os 15 sinais desta tabela, linha a linha, com o bloco `PLACA_ESP32_DEVKIT` de `src/firmware/lib/nucleo/src/Pinos.h`. Não há confirmação de envio externo do aviso.
+**Sincronização com Software:** o bloco `PLACA_ESP32_DEVKIT` de `src/firmware/lib/nucleo/src/Pinos.h` e o ambiente de bancada `bancada_geral_devkit` já estão na `main`, integrados pela [#485](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/485). A comparação dos 15 sinais abaixo com esse bloco encontrou uma única divergência: `MOTOR_DIR_IN4` ainda usa GPIO14 e deve passar para GPIO13. Os demais 14 GPIOs coincidem. Após essa correção, repetir a conferência linha a linha e compilar `bancada_geral_devkit`. A migração do firmware completo do robô para DevKit será tratada na [#489](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/489). Não há confirmação de envio externo do aviso.
 
-| Constante prevista em `Pinos.h` | GPIO | Ligação / função |
+| Constante em `Pinos.h` | GPIO | Ligação / função |
 | :--- | :---: | :--- |
 | `I2C_SDA` | **GPIO21** | Dados I²C — J3/J4/J5/J6 |
 | `I2C_SCL` | **GPIO22** | Clock I²C — J3/J4/J5/J6 |
 | `XSHUT_ESQ` | **GPIO16** | XSHUT — J3 esquerdo |
 | `XSHUT_FRONTAL` | **GPIO17** | XSHUT — J4 frontal |
 | `XSHUT_DIR` | **GPIO4** | XSHUT — J5 direito |
-| `MOTOR_A_IN1` | **GPIO25** | DRV8833 IN1/AIN1 — motor esquerdo |
-| `MOTOR_A_IN2` | **GPIO26** | DRV8833 IN2/AIN2 — motor esquerdo |
-| `MOTOR_B_IN1` | **GPIO27** | DRV8833 IN3/BIN1 — motor direito |
-| `MOTOR_B_IN2` | **GPIO13** | DRV8833 IN4/BIN2 — motor direito; substitui GPIO14 |
+| `MOTOR_ESQ_IN1` | **GPIO25** | DRV8833 IN1/AIN1 — motor esquerdo |
+| `MOTOR_ESQ_IN2` | **GPIO26** | DRV8833 IN2/AIN2 — motor esquerdo |
+| `MOTOR_DIR_IN3` | **GPIO27** | DRV8833 IN3/BIN1 — motor direito |
+| `MOTOR_DIR_IN4` | **GPIO13** | DRV8833 IN4/BIN2 — motor direito; substitui GPIO14 |
 | `ENCODER_ESQ_A` | **GPIO32** | Encoder esquerdo C1/A |
 | `ENCODER_ESQ_B` | **GPIO33** | Encoder esquerdo C2/B |
 | `ENCODER_DIR_A` | **GPIO18** | Encoder direito C1/A |
 | `ENCODER_DIR_B` | **GPIO19** | Encoder direito C2/B |
-| `BTN_START` | **GPIO23** | START — INPUT_PULLUP; botão normalmente aberto para GND |
-| `BAT_ADC` | **GPIO34** | ADC1_CH6 — nó R1 (100 kΩ) / R2 (33 kΩ) / C5 (100 nF); somente entrada |
+| `BOTAO_START` | **GPIO23** | START — INPUT_PULLUP; botão normalmente aberto para GND |
+| `BATERIA_ADC` | **GPIO34** | ADC1_CH6 — nó R1 (100 kΩ) / R2 (33 kΩ) / C5 (100 nF); somente entrada |
+
+As redes `BTN_START` e `BAT_ADC` do esquemático correspondem às constantes `BOTAO_START` e `BATERIA_ADC`, respectivamente. Os nomes de rede são preservados nos diagramas.
 
 ### 4.3 Alimentação, inicialização e restrições
 
@@ -165,9 +169,9 @@ A pinagem de Hardware da Rev 2.1 está definida no CSV `hw/diagramas/pinagem.csv
 
 **Decisão de 03/11/2026: trocar IN4 de GPIO14 para GPIO13.** GPIO13 está livre nesta distribuição, permite PWM e não é strapping. É também MTCK: não usar JTAG nesse terminal. A motivação é o risco relatado de pulso/tranco no reset em GPIO14; a forma de onda ainda deve ser medida na placa real. Não tratar isso como frequência/duração de PWM garantida pelo fabricante. Ver [registro da decisão e aviso ao Software](../../hw/REVISAO-2.1.md) e [GPIOs oficiais da Espressif](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/peripherals/gpio.html).
 
-**Ação de bancada obrigatória:** com alimentação desligada, mover o fio de IN4 de GPIO14 para GPIO13 antes de gravar o firmware DevKit Rev 2.1. GPIO14 fica sem conexão. Testar energização, reset por EN, reinicialização por software e gravação, com rodas suspensas; medir entradas e saídas do driver. A troca não comprova ausência de trancos. R4 mantém nSLEEP habilitado e não é intertravamento de partida.
+**Ação de bancada obrigatória:** com alimentação desligada, mover o fio de IN4 de GPIO14 para GPIO13 e corrigir `MOTOR_DIR_IN4` em `Pinos.h` para GPIO13 antes de compilar e gravar `bancada_geral_devkit` (`pio run -e bancada_geral_devkit -t upload`, em `src/firmware`). GPIO14 fica sem conexão. Testar energização, reset por EN, reinicialização por software e gravação, com rodas suspensas; medir entradas e saídas do driver. A troca não comprova ausência de trancos. R4 mantém nSLEEP habilitado e não é intertravamento de partida.
 
-O log usa UART0 por conversor USB–serial da DevKit; GPIO18/19 pertencem ao encoder direito, sem USB nativa. GPIO16/17 pressupõem módulo ESP32-WROOM, sem PSRAM nesses terminais. GPIO34 é somente entrada e não tem pull-up interno; o divisor fornece sua polarização. START usa INPUT_PULLUP. O firmware local ainda não implementa aquisição ToF/IMU, ADC e lógica de START: definir pinos não equivale a implementar essas funções.
+O log usa UART0 por conversor USB–serial da DevKit; GPIO18/19 pertencem ao encoder direito, sem USB nativa. GPIO16/17 pressupõem módulo ESP32-WROOM, sem PSRAM nesses terminais. GPIO34 é somente entrada e não tem pull-up interno; o divisor fornece sua polarização. START usa INPUT_PULLUP. A bancada `bancada_geral_devkit` integrada na #485 já permite testar ToF/IMU, ADC e botão START; a integração dessas funções ao firmware completo do robô na DevKit pertence à #489.
 
 ## 5. Integração e sequência de montagem
 
@@ -201,7 +205,7 @@ O relatório técnico estabelece a seguinte sequência de montagem e verificaç�
 | Motor GA12-N20-S0310D-E, 6 V (modelo sugerido) | 2 | J1 e J2; fonte: [lista de compras, item 9](../06-orcamento.md#lista-de-componentes). Relação de redução e identificação do fornecedor a confirmar. |
 | Resistores de monitoramento | 2 | R1: 100 kΩ; R2: 33 kΩ. |
 | Resistor de habilitação do driver | 1 | R4: 47 kΩ. |
-| Capacitores de filtragem | 7 | C2 e C4: 100 µF; C3, C6 e C8: 10 µF; C5 e C7: 100 nF. |
+| Capacitores de filtragem | 7 | C2: 100 µF; C4: 100 µF no esquema atual, com adequação a 470 µF Low-ESR pendente (#216); C3, C6 e C8: 10 µF; C5 e C7: 100 nF. |
 
 ### 6.1 Fonte da identificação dos motores
 
@@ -213,3 +217,4 @@ O código **GA12-N20-S0310D-E** e a tensão nominal de **6 V** foram transcritos
 | :---: | :---: | :--- | :--- |
 | 2.0 | 21/10/2026 | Sincronização do esquemático KiCad, PDF e Figura 2: R2 de 33 kΩ, I²C em GPIO9/8, motores em GPIO10/3/20/21, XSHUT em GPIO0/1/2 e divisor em BAT_ADC_TEST. Inclusão da fonte interna do modelo sugerido dos motores. | Eduardo Gaspar |
 | 2.1 | 03/11/2026 | Migração para DevKit V1; tabela conforme o CSV de Hardware, IN4 em GPIO13, encoders e START, BAT_ADC em ADC1_CH6, trilhos 3V3 separados e nSLEEP em 3,3 V. Sincronização pelo Software e validação física pendentes. | Eduardo Gaspar |
+| 2.1 (correção documental) | 09/11/2026 | Referência à #485 e ao ambiente bancada_geral_devkit; nomes reais de Pinos.h; única divergência de GPIO em MOTOR_DIR_IN4; requisito de bulk de 470 µF Low-ESR da #216 registrado como adequação pendente. | Eduardo Gaspar |
