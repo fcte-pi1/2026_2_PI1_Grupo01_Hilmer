@@ -23,7 +23,11 @@ enum class EstadoWifi : uint8_t {
 /// Desconectada, começa uma tentativa (`iniciarConexao()`) e volta na hora. Nos ciclos seguintes,
 /// confere se conectou. Se passar `tempoLimiteConexaoMs` sem conectar, desiste dessa tentativa e
 /// espera antes da próxima: 1 s, 2 s, 4 s... até 30 s (`PoliticaReenvio`). Conectar volta a espera
-/// para 1 s. Se a conexão cair, a próxima tentativa começa no ciclo seguinte.
+/// para 1 s. Se a conexão cair, a próxima tentativa começa no ciclo seguinte, na mesma rede.
+///
+/// Rede reserva (#491): com duas redes (`IRedeWifi::quantidadeRedes()`), a tentativa que esgota passa
+/// para a outra rede e tenta de novo na hora; a espera crescente só entra depois de as duas falharem
+/// seguidas. Conectado na reserva, o robô fica nela: voltar à principal derrubaria uma conexão boa.
 class ReconexaoWifi {
  public:
   /// @param rede Wi-Fi da placa (ou a rede falsa dos testes).
@@ -44,9 +48,15 @@ class ReconexaoWifi {
   uint32_t quedas() const { return quedas_; }
   /// Espera que a próxima falha vai impor, em ms.
   uint32_t proximaEsperaMs() const { return esperas_.proximaEsperaMs(); }
+  /// Rede da tentativa atual ou da conexão: 0 é a principal, 1 a reserva.
+  uint8_t redeAtual() const { return redeAtual_; }
+  /// Vezes em que a reconexão passou de uma rede para a outra.
+  uint32_t trocasDeRede() const { return trocasDeRede_; }
 
  private:
   void comecarTentativa(uint32_t agoraMs);
+  void registrarTentativaEsgotada(uint32_t agoraMs);
+  void registrarConexao();
 
   IRedeWifi& rede_;
   uint32_t tempoLimiteConexaoMs_;
@@ -56,6 +66,9 @@ class ReconexaoWifi {
   bool primeiraVez_ = true;
   uint32_t tentativas_ = 0;
   uint32_t quedas_ = 0;
+  uint8_t redeAtual_ = 0;
+  uint8_t falhasNaRodada_ = 0;  ///< Tentativas esgotadas seguidas desde a última espera.
+  uint32_t trocasDeRede_ = 0;
 };
 
 }  // namespace micromouse

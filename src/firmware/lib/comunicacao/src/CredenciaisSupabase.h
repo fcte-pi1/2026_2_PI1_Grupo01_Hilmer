@@ -15,6 +15,9 @@ namespace micromouse {
 struct CredenciaisSupabase {
   const char* ssidWifi = nullptr;           ///< Rede Wi-Fi.
   const char* senhaWifi = nullptr;          ///< Senha da rede (pode ser vazia numa rede aberta).
+  /// Rede reserva (#491), tentada quando a principal não conecta. Vazia ou nula: só a principal.
+  const char* ssidWifiReserva = nullptr;
+  const char* senhaWifiReserva = nullptr;   ///< Senha da rede reserva.
   const char* urlProjeto = nullptr;         ///< `https://<projeto>.supabase.co`, sem `/` no fim.
   const char* chaveAnon = nullptr;          ///< Chave `anon` (JWT), exigida pelo gateway das Edge Functions.
   const char* tokenDispositivo = nullptr;   ///< `DEVICE_TOKEN`, conferido pelas Edge Functions.

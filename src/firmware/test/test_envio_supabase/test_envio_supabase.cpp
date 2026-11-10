@@ -64,20 +64,35 @@ AmostraTelemetria amostraMaisLonga() {
   return a;
 }
 
-/// Rede Wi-Fi simulada: o teste decide quando ela conecta.
+/// Rede Wi-Fi simulada: o teste decide quando ela conecta. Com `redes = 2`, simula a principal e a
+/// reserva (#491) e guarda em qual rede foi cada tentativa.
 class RedeWifiSimulada : public IRedeWifi {
  public:
+  explicit RedeWifiSimulada(uint8_t redes = 1) : redes_(redes) {}
   bool conectada() override { return conectada_; }
-  void iniciarConexao() override { ++inicios_; }
+  void iniciarConexao() override {
+    if (inicios_ < static_cast<int>(sizeof(redeDoInicio_))) {
+      redeDoInicio_[inicios_] = escolhida_;
+    }
+    ++inicios_;
+  }
   void desconectar() override { ++desconexoes_; conectada_ = false; }
+  uint8_t quantidadeRedes() const override { return redes_; }
+  void escolherRede(uint8_t indice) override { escolhida_ = indice; }
   void definirConectada(bool conectada) { conectada_ = conectada; }
   int inicios() const { return inicios_; }
   int desconexoes() const { return desconexoes_; }
+  uint8_t escolhida() const { return escolhida_; }
+  /// Rede usada na tentativa `n` (0 é a primeira).
+  uint8_t redeDoInicio(int n) const { return redeDoInicio_[n]; }
 
  private:
+  uint8_t redes_;
   bool conectada_ = false;
   int inicios_ = 0;
   int desconexoes_ = 0;
+  uint8_t escolhida_ = 0;
+  uint8_t redeDoInicio_[16] = {};
 };
 
 /// Cliente "HTTP" para o teste de integração: transforma o lote em JSON com `serializarLote`, lê o
@@ -648,6 +663,76 @@ void test_wifi_com_o_relogio_dando_a_volta() {
   TEST_ASSERT_EQUAL_INT(2, rede.inicios());
 }
 
+void test_wifi_com_uma_rede_nunca_troca_de_rede() {
+  RedeWifiSimulada rede;
+  ReconexaoWifi wifi(rede, 1000);
+  wifi.ciclo(0);
+  wifi.ciclo(1000);  // esgotou
+  TEST_ASSERT_EQUAL_UINT8(0, wifi.redeAtual());
+  TEST_ASSERT_EQUAL_UINT32(0, wifi.trocasDeRede());
+  TEST_ASSERT_EQUAL_UINT8(0, rede.escolhida());
+}
+
+void test_wifi_com_a_principal_fora_passa_para_a_reserva_na_hora() {
+  RedeWifiSimulada rede(2);
+  ReconexaoWifi wifi(rede, 1000);
+  wifi.ciclo(0);  // 1ª tentativa, na principal
+  TEST_ASSERT_EQUAL_UINT8(0, rede.redeDoInicio(0));
+  wifi.ciclo(1000);  // principal esgotou: troca para a reserva, sem esperar
+  TEST_ASSERT_EQUAL_UINT8(1, wifi.redeAtual());
+  TEST_ASSERT_EQUAL_UINT32(1, wifi.trocasDeRede());
+  wifi.ciclo(1001);
+  TEST_ASSERT_EQUAL_INT(2, rede.inicios());
+  TEST_ASSERT_EQUAL_UINT8(1, rede.redeDoInicio(1));
+  TEST_ASSERT_EQUAL_UINT32(ESPERA_MINIMA_WIFI_MS, wifi.proximaEsperaMs());  // a espera não cresceu
+
+  rede.definirConectada(true);  // a reserva conectou
+  TEST_ASSERT_TRUE(wifi.ciclo(1100));
+  TEST_ASSERT_EQUAL_UINT8(1, wifi.redeAtual());
+}
+
+void test_wifi_com_as_duas_redes_fora_espera_cada_vez_mais_a_cada_rodada() {
+  RedeWifiSimulada rede(2);
+  ReconexaoWifi wifi(rede, 1000);
+  uint32_t t = 0;
+  wifi.ciclo(t);          // principal
+  wifi.ciclo(t += 1000);  // esgotou: reserva já
+  wifi.ciclo(t += 1);     // reserva
+  wifi.ciclo(t += 1000);  // esgotou: as duas falharam, espera 1 s
+  TEST_ASSERT_TRUE(wifi.estado() == EstadoWifi::Aguardando);
+  wifi.ciclo(t += 900);
+  TEST_ASSERT_EQUAL_INT(2, rede.inicios());
+  wifi.ciclo(t += 100);
+  TEST_ASSERT_EQUAL_INT(3, rede.inicios());
+  TEST_ASSERT_EQUAL_UINT8(0, rede.redeDoInicio(2));  // nova rodada começa na principal
+  wifi.ciclo(t += 1000);  // esgotou: reserva já
+  wifi.ciclo(t += 1);
+  TEST_ASSERT_EQUAL_UINT8(1, rede.redeDoInicio(3));
+  wifi.ciclo(t += 1000);  // esgotou de novo: espera 2 s
+  wifi.ciclo(t += 1900);
+  TEST_ASSERT_EQUAL_INT(4, rede.inicios());
+  wifi.ciclo(t += 100);
+  TEST_ASSERT_EQUAL_INT(5, rede.inicios());
+}
+
+void test_wifi_que_cai_na_reserva_tenta_a_reserva_antes_da_principal() {
+  RedeWifiSimulada rede(2);
+  ReconexaoWifi wifi(rede, 1000);
+  wifi.ciclo(0);
+  wifi.ciclo(1000);  // principal fora: reserva
+  wifi.ciclo(1001);
+  rede.definirConectada(true);
+  wifi.ciclo(1100);  // conectado na reserva
+  rede.definirConectada(false);  // a reserva caiu
+  wifi.ciclo(1200);
+  TEST_ASSERT_EQUAL_UINT32(1, wifi.quedas());
+  TEST_ASSERT_EQUAL_UINT8(1, rede.redeDoInicio(2));  // tenta de novo a mesma rede
+  wifi.ciclo(2200);  // esgotou: volta à principal, na hora (a rodada começou de novo depois de conectar)
+  wifi.ciclo(2201);
+  TEST_ASSERT_EQUAL_UINT8(0, rede.redeDoInicio(3));
+  TEST_ASSERT_EQUAL_UINT32(2, wifi.trocasDeRede());
+}
+
 // ---------------------------------------------------------------- integração: coleta → buffer → JSON → servidor
 
 /// Uma corrida de 120 amostras pelo caminho real do contrato (JSON nos dois sentidos), com a rede fora
@@ -783,6 +868,10 @@ int main(int, char**) {
   RUN_TEST(test_wifi_que_cai_tenta_de_novo_na_hora_e_conta_a_queda);
   RUN_TEST(test_wifi_que_volta_sozinho_durante_a_espera_e_aceito);
   RUN_TEST(test_wifi_com_o_relogio_dando_a_volta);
+  RUN_TEST(test_wifi_com_uma_rede_nunca_troca_de_rede);
+  RUN_TEST(test_wifi_com_a_principal_fora_passa_para_a_reserva_na_hora);
+  RUN_TEST(test_wifi_com_as_duas_redes_fora_espera_cada_vez_mais_a_cada_rodada);
+  RUN_TEST(test_wifi_que_cai_na_reserva_tenta_a_reserva_antes_da_principal);
   RUN_TEST(test_integracao_corrida_pelo_json_com_rede_caindo_no_meio);
   RUN_TEST(test_integracao_servidor_lento_nao_atrasa_a_coleta_nem_duplica);
   return UNITY_END();

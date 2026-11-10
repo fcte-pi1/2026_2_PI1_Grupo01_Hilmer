@@ -443,6 +443,10 @@ static micromouse::CredenciaisSupabase lerCredenciais() {
 #if MICROMOUSE_TEM_CREDENCIAIS
   c.ssidWifi = CREDENCIAL_WIFI_SSID;
   c.senhaWifi = CREDENCIAL_WIFI_SENHA;
+#if defined(CREDENCIAL_WIFI_SSID_RESERVA) && defined(CREDENCIAL_WIFI_SENHA_RESERVA)
+  c.ssidWifiReserva = CREDENCIAL_WIFI_SSID_RESERVA;  // rede reserva (#491), opcional
+  c.senhaWifiReserva = CREDENCIAL_WIFI_SENHA_RESERVA;
+#endif
   c.urlProjeto = CREDENCIAL_SUPABASE_URL;
   c.chaveAnon = CREDENCIAL_SUPABASE_ANON;
   c.tokenDispositivo = CREDENCIAL_DEVICE_TOKEN;
@@ -455,7 +459,8 @@ static const micromouse::CredenciaisSupabase credenciais = lerCredenciais();
 
 /// Wi-Fi, cliente HTTPS e o buffer com reenvio. Só a tarefa de rede faz chamadas de rede; a coleta
 /// (tarefa de telemetria) só chama `controladorEnvio.registrar()`, que nunca usa a rede.
-static micromouse::RedeWifiEsp32 redeWifi(credenciais.ssidWifi, credenciais.senhaWifi);
+static micromouse::RedeWifiEsp32 redeWifi(credenciais.ssidWifi, credenciais.senhaWifi, credenciais.ssidWifiReserva,
+                                           credenciais.senhaWifiReserva);
 static micromouse::ReconexaoWifi reconexaoWifi(redeWifi);
 static micromouse::EnvioHttpSupabase clienteSupabase(credenciais);
 static micromouse::TravaSecaoCritica travaBufferEnvio;
@@ -544,12 +549,14 @@ static void registrarContadoresEnvio() {
   Serial.printf(
       "{\"status\":\"envio\",\"ocupacao\":%u,\"perdidas\":%lu,\"confirmadas\":%lu,\"existentes\":%lu,"
       "\"descartadas\":%lu,\"tentativas\":%lu,\"falhas\":%lu,\"reenvios\":%lu,\"wifi_quedas\":%lu,"
-      "\"pausado\":%s}\n",
+      "\"wifi_rede\":\"%s\",\"wifi_trocas\":%lu,\"rssi\":%d,\"pausado\":%s}\n",
       static_cast<unsigned>(controladorEnvio.ocupacao()), static_cast<unsigned long>(controladorEnvio.amostrasPerdidas()),
       static_cast<unsigned long>(c.amostrasConfirmadas), static_cast<unsigned long>(c.amostrasJaExistentes),
       static_cast<unsigned long>(c.amostrasDescartadas), static_cast<unsigned long>(c.tentativas),
       static_cast<unsigned long>(c.falhas), static_cast<unsigned long>(c.reenvios),
-      static_cast<unsigned long>(reconexaoWifi.quedas()), controladorEnvio.pausado() ? "true" : "false");
+      static_cast<unsigned long>(reconexaoWifi.quedas()), redeWifi.nomeRedeAtual(),
+      static_cast<unsigned long>(reconexaoWifi.trocasDeRede()), redeWifi.conectada() ? static_cast<int>(WiFi.RSSI()) : 0,
+      controladorEnvio.pausado() ? "true" : "false");
 }
 
 /// Tarefa de rede: Wi-Fi, criação da corrida, envio dos lotes e encerramento.
@@ -567,6 +574,7 @@ static void tarefaRede(void*) {
   }
   redeWifi.iniciar();
   clienteSupabase.iniciar();
+  Serial.printf("{\"status\":\"wifi_redes\",\"quantidade\":%u}\n", static_cast<unsigned>(redeWifi.quantidadeRedes()));
 
   micromouse::PoliticaReenvio esperaCriacao;  // 1 s, 2 s, 4 s... até 30 s entre tentativas de criar a corrida
   uint32_t proximaCriacaoMs = millis();
@@ -574,10 +582,21 @@ static void tarefaRede(void*) {
   bool corridaCriada = false;
   bool avisouPausa = false;
   bool avisouEncerrada = false;
+  bool estavaConectado = false;
 
   for (;;) {
     const uint32_t agora = millis();
-    if (reconexaoWifi.ciclo(agora)) {
+    const bool conectado = reconexaoWifi.ciclo(agora);
+    if (conectado != estavaConectado) {  // cada conexão e cada queda saem no log, com a rede e o sinal
+      estavaConectado = conectado;
+      if (conectado) {
+        Serial.printf("{\"status\":\"wifi_conectado\",\"rede\":\"%s\",\"rssi\":%d}\n", redeWifi.nomeRedeAtual(),
+                      static_cast<int>(WiFi.RSSI()));
+      } else {
+        Serial.printf("{\"status\":\"wifi_caiu\",\"rede\":\"%s\"}\n", redeWifi.nomeRedeAtual());
+      }
+    }
+    if (conectado) {
       // A corrida só é criada no servidor depois da calibração (o estado Aguardando Largada, #242).
       portENTER_CRITICAL(&travaCorrida);
       const bool calibrado = faseCorrida.calibrado();
