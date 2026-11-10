@@ -7,6 +7,7 @@
 #include <unity.h>
 
 #include <cstdint>
+#include <cstdio>
 #include <initializer_list>
 
 #include "AmostraTelemetria.h"
@@ -68,6 +69,16 @@ void conferirSequenciasDoServidor(const EnvioSimulado& servidor, uint32_t primei
   for (uint16_t i = 0; i < quantidade; ++i) {
     TEST_ASSERT_EQUAL_UINT32(primeira + i, servidor.armazenada(i).numeroSequencia);
   }
+}
+
+/// Três respostas `503` seguidas, em 0, 1 000 e 3 000 ms: a próxima tentativa fica para 7 000 ms, e a
+/// próxima falha já esperaria 8 s.
+void acumularTresFalhas(Cenario& c) {
+  c.servidor.responderProximasCom(503, 3);
+  TEST_ASSERT_EQUAL(ResultadoCiclo::Falhou, c.controlador.ciclo(0));     // próxima em 1 000
+  TEST_ASSERT_EQUAL(ResultadoCiclo::Falhou, c.controlador.ciclo(1000));  // próxima em 3 000
+  TEST_ASSERT_EQUAL(ResultadoCiclo::Falhou, c.controlador.ciclo(3000));  // próxima em 7 000
+  TEST_ASSERT_EQUAL_UINT32(8000, c.controlador.proximaEsperaMs());
 }
 
 }  // namespace
@@ -229,6 +240,32 @@ void test_espera_vem_da_configuracao() {
   TEST_ASSERT_EQUAL_UINT32(200, politica.registrarFalha());
   TEST_ASSERT_EQUAL_UINT32(500, politica.registrarFalha());  // 600 passa do teto de 500
   TEST_ASSERT_EQUAL_UINT32(500, politica.registrarFalha());
+}
+
+/// Rede fora por muito tempo (#482): 40 falhas seguidas, cerca de 18 min tentando. A espera chega
+/// ao teto e fica nele. Sem o teto em `proximaEsperaMs_`, o dobro passa de 30 s já na 5ª falha e
+/// estoura o `uint32_t` na 29ª: da 30ª em diante, a espera é zero e o robô passa a chamar o
+/// servidor sem parar.
+void test_quarenta_falhas_seguidas_nao_estouram_a_espera() {
+  PoliticaReenvio politica;
+  uint32_t esperada = 1000;
+  char mensagem[24];
+  for (uint32_t falha = 1; falha <= 40; ++falha) {
+    snprintf(mensagem, sizeof(mensagem), "falha %u", static_cast<unsigned>(falha));
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(esperada, politica.registrarFalha(), mensagem);
+    TEST_ASSERT_LESS_OR_EQUAL_UINT32_MESSAGE(30000, politica.proximaEsperaMs(), mensagem);
+    esperada = esperada * 2 > 30000 ? 30000 : esperada * 2;
+  }
+  TEST_ASSERT_EQUAL_UINT32(40, politica.falhasSeguidas());
+  TEST_ASSERT_EQUAL_UINT32(30000, politica.proximaEsperaMs());
+
+  // O teto vale até com um mínimo configurado acima dele.
+  ConfiguracaoReenvio config;
+  config.esperaMinimaMs = 50000;
+  config.esperaMaximaMs = 30000;
+  PoliticaReenvio malConfigurada(config);
+  TEST_ASSERT_EQUAL_UINT32(30000, malConfigurada.registrarFalha());
+  TEST_ASSERT_EQUAL_UINT32(30000, malConfigurada.registrarFalha());
 }
 
 // ---------------------------------------------------------------- ControladorEnvio: coleta
@@ -473,6 +510,73 @@ void test_nao_autorizado_pausa_o_envio_ate_retomar() {
   conferirSequenciasDoServidor(c.servidor, 1, 3);
 }
 
+/// Resposta `300` (#482): o `HTTPClient` do ESP32 não segue redirecionamentos, então um `3xx` quer
+/// dizer URL errada, e isso não se resolve sozinho. O envio pausa, como nos outros códigos fora das
+/// faixas conhecidas, e o lote fica no buffer. Os vizinhos de cada faixa também ficam presos aqui:
+/// `199` e `300` em volta dos `2xx`, `600` depois dos `5xx`.
+void test_resposta_300_pausa_o_envio() {
+  char mensagem[24];
+  for (int codigo : {199, 300, 302, 600, 700}) {
+    snprintf(mensagem, sizeof(mensagem), "codigo %d", codigo);
+    TEST_ASSERT_TRUE_MESSAGE(PoliticaReenvio::classificar(codigo) == ClasseResposta::Pausar, mensagem);
+  }
+
+  Cenario c;
+  c.registrar(3);
+  c.servidor.responderProximasCom(300, 1);
+  TEST_ASSERT_EQUAL(ResultadoCiclo::Pausado, c.controlador.ciclo(0));
+  TEST_ASSERT_TRUE(c.controlador.pausado());
+  TEST_ASSERT_EQUAL_UINT16(3, c.controlador.ocupacao());  // nada sai do buffer
+  TEST_ASSERT_EQUAL_UINT32(0, c.controlador.contadores().respostasInconsistentes);
+
+  TEST_ASSERT_EQUAL(ResultadoCiclo::Pausado, c.controlador.ciclo(60000));
+  TEST_ASSERT_EQUAL_UINT32(1, c.servidor.chamadasLote());  // parado: não insiste
+}
+
+/// Lote descartado (#482): o servidor respondeu, então a rede está boa. A espera acumulada nas falhas
+/// anteriores volta a 1 s, e a próxima falha espera só o mínimo, e não 8 s.
+void test_lote_descartado_volta_a_espera_ao_minimo() {
+  for (int codigo : {400, 404, 413, 422}) {
+    Cenario c;
+    c.registrar(3);
+    acumularTresFalhas(c);
+
+    c.servidor.responderProximasCom(codigo, 1);
+    TEST_ASSERT_EQUAL(ResultadoCiclo::Descartado, c.controlador.ciclo(7000));
+    TEST_ASSERT_EQUAL_UINT32(1000, c.controlador.proximaEsperaMs());
+
+    c.registrar(2);
+    c.servidor.definirOffline(true);
+    TEST_ASSERT_EQUAL(ResultadoCiclo::Falhou, c.controlador.ciclo(7000));  // próxima em 8 000, e não em 15 000
+    TEST_ASSERT_EQUAL(ResultadoCiclo::Aguardando, c.controlador.ciclo(7999));
+    c.servidor.definirOffline(false);
+    TEST_ASSERT_EQUAL(ResultadoCiclo::Enviado, c.controlador.ciclo(8000));
+    conferirSequenciasDoServidor(c.servidor, 4, 2);
+  }
+}
+
+/// `retomar()` depois de uma pausa (#482): quem retoma resolveu o que pausou o envio (a chave ou o
+/// token, por exemplo), então a espera recomeça de 1 s, e não dos 8 s acumulados antes da pausa.
+void test_retomar_volta_a_espera_ao_minimo() {
+  Cenario c;
+  c.registrar(3);
+  acumularTresFalhas(c);
+
+  c.servidor.responderProximasCom(401, 1);
+  TEST_ASSERT_EQUAL(ResultadoCiclo::Pausado, c.controlador.ciclo(7000));
+  TEST_ASSERT_EQUAL_UINT32(8000, c.controlador.proximaEsperaMs());  // pausado com a espera acumulada
+
+  c.controlador.retomar();
+  TEST_ASSERT_EQUAL_UINT32(1000, c.controlador.proximaEsperaMs());
+
+  c.servidor.definirOffline(true);
+  TEST_ASSERT_EQUAL(ResultadoCiclo::Falhou, c.controlador.ciclo(20000));  // próxima em 21 000, e não em 28 000
+  TEST_ASSERT_EQUAL(ResultadoCiclo::Aguardando, c.controlador.ciclo(20999));
+  c.servidor.definirOffline(false);
+  TEST_ASSERT_EQUAL(ResultadoCiclo::Enviado, c.controlador.ciclo(21000));
+  conferirSequenciasDoServidor(c.servidor, 1, 3);
+}
+
 /// Resposta `2xx` cujas contagens não fecham com o tamanho do lote: não dá para saber o que o servidor
 /// guardou, então o lote fica e é reenviado.
 class EnvioInconsistente : public IEnvioTelemetria {
@@ -642,6 +746,7 @@ int main(int, char**) {
   RUN_TEST(test_classificacao_das_respostas);
   RUN_TEST(test_espera_dobra_ate_o_teto_e_volta_ao_minimo_no_sucesso);
   RUN_TEST(test_espera_vem_da_configuracao);
+  RUN_TEST(test_quarenta_falhas_seguidas_nao_estouram_a_espera);
   RUN_TEST(test_registrar_numera_na_coleta_e_nunca_chama_a_rede);
   RUN_TEST(test_sem_corrida_ou_sem_amostras_o_ciclo_fica_ocioso);
   RUN_TEST(test_lote_confirmado_sai_do_buffer_na_ordem);
@@ -657,6 +762,9 @@ int main(int, char**) {
   RUN_TEST(test_lote_recusado_e_descartado_e_a_fila_segue);
   RUN_TEST(test_erro_do_servidor_e_limite_de_requisicoes_sao_tentados_de_novo);
   RUN_TEST(test_nao_autorizado_pausa_o_envio_ate_retomar);
+  RUN_TEST(test_resposta_300_pausa_o_envio);
+  RUN_TEST(test_lote_descartado_volta_a_espera_ao_minimo);
+  RUN_TEST(test_retomar_volta_a_espera_ao_minimo);
   RUN_TEST(test_resposta_que_nao_fecha_com_o_tamanho_do_lote_nao_remove_nada);
   RUN_TEST(test_integracao_encerramento_so_depois_do_ultimo_lote);
   RUN_TEST(test_encerramento_sem_amostras_pendentes_sai_na_hora);
