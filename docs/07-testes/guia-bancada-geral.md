@@ -1,6 +1,6 @@
 # Guia da bancada geral
 
-A **bancada geral** é um programa para a ESP32 (a DevKit V1 da bancada integrada ou a ESP32-C3 Super Mini) que mostra um menu no terminal do computador. Com a placa ligada por um cabo USB, você aperta uma tecla e o programa lê os sensores, aciona os motores, confere os encoders, a bateria e o botão, e testa a telemetria, usando os mesmos drivers do robô. Serve para testar os componentes sem escrever código e para investigar o que deu errado.
+A **bancada geral** é um programa para o ESP32 DevKit V1, a placa do robô, que mostra um menu no terminal do computador. Com a placa ligada por um cabo USB, você aperta uma tecla e o programa lê os sensores, aciona os motores, confere os encoders, a bateria e o botão, e testa a telemetria, usando os mesmos drivers do robô. Serve para testar os componentes sem escrever código e para investigar o que deu errado.
 
 Este guia funciona em **Windows, macOS e Linux** e não exige conhecimento prévio do firmware.
 
@@ -17,16 +17,16 @@ Este guia funciona em **Windows, macOS e Linux** e não exige conhecimento prév
 | Girar um motor, achar a potência em que ele começa a andar, ver a velocidade ao vivo | Tecla `7` (menu de motores) |
 | Conferir se o encoder conta para o lado certo | Tecla `9` e os testes de motor |
 | Ligar os dois motores e ver se os sensores aguentam o ruído e a bateria aguenta a corrente | Tecla `i` (teste integrado) |
-| Ver a tensão da bateria e se o botão de largada funciona (DevKit) | Teclas `a` e `b` |
-| Conferir se a placa conecta no Wi-Fi e grava a telemetria no banco (DevKit) | Tecla `w` |
+| Ver a tensão da bateria e se o botão de largada funciona | Teclas `a` e `b` |
+| Conferir se a placa conecta no Wi-Fi e grava a telemetria no banco | Tecla `w` |
 
-A bancada **não é o firmware do robô**. Ela não faz a corrida, só testa componentes. Para voltar ao robô, grave o ambiente dele (`esp32c3`).
+A bancada **não é o firmware do robô**. Ela não faz a corrida, só testa componentes. Para voltar ao robô, grave o ambiente dele: `pio run -e esp32_devkit -t upload`.
 
 ## 2. O que você precisa
 
 | Item | Detalhe |
 |---|---|
-| Placa | **ESP32 DevKit V1** (bancada integrada, ambiente `bancada_geral_devkit`) ou ESP32-C3 Super Mini (Rev 2.0, ambiente `bancada_geral`). Os comandos abaixo usam a DevKit; a Super Mini tem notas à parte |
+| Placa | **ESP32 DevKit V1**, com a fiação da bancada integrada (ambiente `bancada_geral_devkit`) |
 | Cabo | USB **com dados** (micro-USB ou USB-C, conforme a placa). Cabos só de carga não funcionam: a placa liga, mas o computador não vê a porta |
 | Computador | Windows 10/11, macOS ou Linux |
 | Software | Git, Python 3 e o PlatformIO Core (instalação abaixo) |
@@ -54,7 +54,7 @@ Os comandos abaixo são para o terminal: **PowerShell** no Windows, **Terminal**
 
         Se aparecer "`pio` não é reconhecido", use `py -m platformio` no lugar de `pio` nos comandos deste guia.
 
-    4. **Driver USB:** a DevKit tem um chip conversor USB-serial (leia o nome no chip da placa: **CP2102/CP210x** ou **CH340/CH341**). O Windows 10 e o 11 costumam instalar sozinhos; se a placa aparecer em *Gerenciador de Dispositivos > Outros dispositivos* ou com triângulo amarelo, instale o driver do fabricante do chip (Silicon Labs para o CP210x, WCH para o CH340). Ela aparece em *Portas (COM e LPT)* como `COMn`. A Super Mini usa o driver USB-Serial/JTAG da Espressif.
+    4. **Driver USB:** a DevKit tem um chip conversor USB-serial (leia o nome no chip da placa: **CP2102/CP210x** ou **CH340/CH341**). O Windows 10 e o 11 costumam instalar sozinhos; se a placa aparecer em *Gerenciador de Dispositivos > Outros dispositivos* ou com triângulo amarelo, instale o driver do fabricante do chip (Silicon Labs para o CP210x, WCH para o CH340). Ela aparece em *Portas (COM e LPT)* como `COMn`.
 
 === "macOS"
 
@@ -78,7 +78,7 @@ Os comandos abaixo são para o terminal: **PowerShell** no Windows, **Terminal**
         pio --version
         ```
 
-    4. As versões recentes do macOS reconhecem a maioria das DevKit, que aparecem como `/dev/cu.usbserial-XXXX` (a Super Mini aparece como `/dev/cu.usbmodemXXXX`). Se a porta não aparecer, instale o driver do chip (CP210x da Silicon Labs ou CH340 da WCH).
+    4. As versões recentes do macOS reconhecem a maioria das DevKit, que aparecem como `/dev/cu.usbserial-XXXX` (ou `/dev/cu.wchusbserial-XXXX`, com o CH340). Se a porta não aparecer, instale o driver do chip (CP210x da Silicon Labs ou CH340 da WCH).
 
 === "Linux"
 
@@ -106,7 +106,7 @@ Os comandos abaixo são para o terminal: **PowerShell** no Windows, **Terminal**
 
         Depois, **saia da sessão e entre de novo** (ou reinicie). No Arch e no Manjaro o grupo é `uucp`, em vez de `dialout`.
 
-    4. Confira com `pio --version`. A DevKit aparece como `/dev/ttyUSB0` (a Super Mini, como `/dev/ttyACM0`). Se a porta abrir e sumir, o ModemManager pode estar interferindo: `sudo systemctl stop ModemManager`.
+    4. Confira com `pio --version`. A DevKit aparece como `/dev/ttyUSB0`. Se a porta abrir e sumir, o ModemManager pode estar interferindo: `sudo systemctl stop ModemManager`.
 
 !!! tip "Prefere o VS Code?"
     Instale a extensão **PlatformIO IDE**, abra a pasta `src/firmware`, escolha o ambiente `bancada_geral_devkit` na barra inferior e use os botões **Upload** e **Monitor**. Os comandos de terminal deste guia fazem a mesma coisa.
@@ -122,7 +122,7 @@ Só vale para quem vai usar o menu de motores (tecla `7`). Os sensores e o autot
 | 3 | `GND` da fonte, do driver e da ESP32 ligados juntos | Sem terra comum, o sinal PWM não é entendido |
 | 4 | `nSLEEP` do driver em **3,3 V** | Em nível baixo, o driver fica desligado |
 | 5 | Encoder alimentado em **3,3 V** (nunca nos 5 V da fonte) | Os canais A e B vão direto aos GPIOs, que aceitam no máximo 3,3 V |
-| 6 | **Rodas fora do chão** no primeiro teste | O robô pode sair andando. Na DevKit, o pino do `IN4` (motor direito) dá um pulso no reset do ESP32, e a roda direita pode dar um tranco ao ligar ou reiniciar |
+| 6 | **Rodas fora do chão** no primeiro teste | O robô pode sair andando. O pino do `IN4` (GPIO14, motor direito) dá um pulso no reset do ESP32, e a roda direita pode dar um tranco ao ligar ou reiniciar |
 | 7 | Fonte com limite de corrente em 0,5 A no primeiro teste | A partida do N20 puxa corrente alta |
 | 8 | Resistência entre `VM` e `GND` do driver, **com a fonte desligada**, alta (kΩ). Perto de 0 Ω é curto | Evita ligar a fonte num driver já queimado |
 
@@ -143,21 +143,13 @@ cd 2026_2_PI1_Grupo01_Hilmer/src/firmware
 pio device list
 ```
 
-Procure a entrada da sua placa: na DevKit, algo como `CP2102 USB to UART Bridge` (VID:PID `10C4:EA60`) ou o `USB Serial` do CH340 (`1A86:7523`); na Super Mini, `USB JTAG/serial debug unit` (`303A:1001`). A porta é `COMn` no Windows, `/dev/cu.usbserial-XXXX` (DevKit) ou `/dev/cu.usbmodemXXXX` (Super Mini) no macOS e `/dev/ttyUSB0` (DevKit) ou `/dev/ttyACM0` (Super Mini) no Linux. Se não aparecer, vá para [Problemas comuns](#7-problemas-comuns-e-como-resolver).
+Procure a entrada da placa: algo como `CP2102 USB to UART Bridge` (VID:PID `10C4:EA60`) ou o `USB Serial` do CH340 (`1A86:7523`). A porta é `COMn` no Windows, `/dev/cu.usbserial-XXXX` (ou `/dev/cu.wchusbserial-XXXX`) no macOS e `/dev/ttyUSB0` no Linux. Se não aparecer, vá para [Problemas comuns](#7-problemas-comuns-e-como-resolver).
 
 **3. Grave o programa na placa**
 
-=== "ESP32 DevKit V1"
-
-    ```bash
-    pio run -e bancada_geral_devkit -t upload
-    ```
-
-=== "ESP32-C3 Super Mini"
-
-    ```bash
-    pio run -e bancada_geral -t upload
-    ```
+```bash
+pio run -e bancada_geral_devkit -t upload
+```
 
 A primeira vez baixa a plataforma e o compilador e demora alguns minutos. Termina com `[SUCCESS]`. Se aparecer `Failed to connect`, use o [modo BOOT](#modo-boot-quando-a-gravacao-nao-conecta).
 
@@ -167,7 +159,7 @@ A primeira vez baixa a plataforma e o compilador e demora alguns minutos. Termin
 pio device monitor -e bancada_geral_devkit
 ```
 
-(Na Super Mini, `-e bancada_geral`.) O menu aparece sozinho; na DevKit, abrir o monitor reinicia a placa e o menu sai em cerca de 1 s. Se não aparecer, aperte **Enter**. Se houver mais de uma porta, indique a certa: `pio device monitor -e bancada_geral_devkit --port COM5` (ou `/dev/ttyUSB0`).
+O menu aparece sozinho: abrir o monitor reinicia a placa e o menu sai em cerca de 1 s. Se não aparecer, aperte **Enter**. Se houver mais de uma porta, indique a certa: `pio device monitor -e bancada_geral_devkit --port COM5` (ou `/dev/ttyUSB0`).
 
 **5. Use o menu.** Digite **só a tecla**, sem Enter. Para sair do monitor, `Ctrl+C`.
 
@@ -200,9 +192,9 @@ REGISTRO: autoteste | ok=15 falhas=0 | veredito=OK
 Nao verificado aqui: motores (tecla 7), o sentido dos encoders (gire a roda a mao com a tecla 9) e o aperto do botao (tecla b).
 ```
 
-Os valores são um exemplo. A etapa 5 (bateria e botão) só existe na DevKit; na Super Mini o resultado é `13 OK`. A linha `REGISTRO` é a que se cola no registro de testes.
+Os valores são um exemplo. A linha `REGISTRO` é a que se cola no registro de testes.
 
-**7. Para testar a telemetria** (só na DevKit), copie `include/credenciais.exemplo.h` para `include/credenciais.h` (o Git ignora esse arquivo), preencha o Wi-Fi, a URL do Supabase, a chave `anon` (nunca a `sb_secret`), o `DEVICE_TOKEN` e, na bancada, `CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1`. Grave de novo, tecle `w` e depois `a`. Veja a [tabela da telemetria](#telemetria-tecla-w).
+**7. Para testar a telemetria**, copie `include/credenciais.exemplo.h` para `include/credenciais.h` (o Git ignora esse arquivo), preencha o Wi-Fi, a URL do Supabase, a chave `anon` (nunca a `sb_secret`), o `DEVICE_TOKEN` e, na bancada, `CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1`. Grave de novo, tecle `w` e depois `a`. Veja a [tabela da telemetria](#telemetria-tecla-w).
 
 **8. Registre o resultado** (veja [como registrar](#8-como-registrar-um-teste)).
 
@@ -220,9 +212,9 @@ Os valores são um exemplo. A etapa 5 (bateria e botão) só existe na DevKit; n
 | `7` | Abre o menu de motores |
 | `8` | Mostra a pinagem em uso |
 | `9` / `0` | Encoders: contagem ao vivo (gire a roda à mão) / zerar a contagem |
-| `i` | **Teste integrado**: liga os dois motores por 5 s e lê ToF, MPU6050 e encoders ao mesmo tempo. Diz se os dois giram, se o PWM derruba algum sensor e, na DevKit, quanto a bateria cai. Termina com uma linha `REGISTRO` |
-| `a` / `b` | **DevKit:** tensão da bateria pelo divisor do GPIO34 / botão de largada ao vivo (aperte e solte; qualquer tecla para) |
-| `w` | **DevKit:** abre o submenu de telemetria (Wi-Fi e banco) |
+| `i` | **Teste integrado**: liga os dois motores por 5 s e lê ToF, MPU6050 e encoders ao mesmo tempo. Diz se os dois giram, se o PWM derruba algum sensor e quanto a bateria cai. Termina com uma linha `REGISTRO` |
+| `a` / `b` | Tensão da bateria pelo divisor do GPIO34 / botão de largada ao vivo (aperte e solte; qualquer tecla para) |
+| `w` | Abre o submenu de telemetria (Wi-Fi e banco) |
 | `r` | Reinicia a placa por software |
 | Enter | Mostra o menu de novo |
 
@@ -240,7 +232,7 @@ Os valores são um exemplo. A etapa 5 (bateria e botão) só existe na DevKit; n
 | `l` / `k` | Aumenta / diminui o **limite de duty** (10% a 100%, começa nos 70% do robô). O multímetro no motor lê duty × VM: com VM de 6 V e 70% o máximo é 4,2 V. Acima de 70% é só para teste |
 | `0` | Volta ao menu principal |
 
-Cada teste de motor dura no máximo 2 s e **qualquer tecla freia** os motores. No modo contínuo, na Super Mini, fechar o monitor também freia; na DevKit o programa não percebe o monitor fechar, então ele pede a tecla `m` a cada 10 s e, sem ela, freia sozinho. Ao fim de cada teste, a bancada compara o sinal do encoder com o comando e diz se está coerente.
+Cada teste de motor dura no máximo 2 s e **qualquer tecla freia** os motores. No modo contínuo, o programa não percebe o monitor fechar (a serial é a UART0 da placa), então ele pede a tecla `m` a cada 10 s e, sem ela, freia sozinho. Ao fim de cada teste, a bancada compara o sinal do encoder com o comando e diz se está coerente.
 
 ### Telemetria (tecla `w`)
 
@@ -261,9 +253,9 @@ O submenu grava uma corrida e amostras de teste **de verdade** no banco do `cred
 | Sistema | O que fazer |
 |---|---|
 | Todos | Troque o cabo por um **com dados** e teste outra porta USB do computador, sem hub |
-| Windows | Veja em *Gerenciador de Dispositivos* se aparece em *Portas (COM)*. Se aparecer em "Outros dispositivos" ou com triângulo amarelo, instale o driver do chip da placa (CP210x ou CH340 na DevKit; USB-Serial/JTAG da Espressif na Super Mini) |
+| Windows | Veja em *Gerenciador de Dispositivos* se aparece em *Portas (COM)*. Se aparecer em "Outros dispositivos" ou com triângulo amarelo, instale o driver do chip da placa (CP210x ou CH340) |
 | macOS | `ls /dev/cu.usb*`. Se não listar, o cabo é só de carga ou falta o driver do chip |
-| Linux | `ls /dev/ttyUSB* /dev/ttyACM*` e `dmesg \| tail`. Se aparecer e sumir, pare o ModemManager |
+| Linux | `ls /dev/ttyUSB*` e `dmesg \| tail`. Se aparecer e sumir, pare o ModemManager |
 
 ### `Permission denied` ao abrir a porta (Linux)
 
@@ -283,36 +275,26 @@ Sintoma:
 
 ```text
 Connecting......................................
-A fatal error occurred: Failed to connect to ESP32-C3: No serial data received.
+A fatal error occurred: Failed to connect to ESP32: No serial data received.
 ```
 
 A placa não entrou no modo de gravação sozinha. Faça isso à mão:
 
-=== "ESP32 DevKit V1"
-
-    1. Rode `pio run -e bancada_geral_devkit -t upload`.
-    2. Quando aparecer `Connecting....`, **segure o botão BOOT** da placa e solte quando a gravação começar (aparecem os percentuais).
-    3. Ao terminar, aperte o botão **EN** (reset) para a placa rodar o programa.
-    4. Se a gravação nunca começa, troque o cabo por um com dados e confira o driver do chip (seção 3).
-
-=== "ESP32-C3 Super Mini"
-
-    1. Desconecte o cabo USB da placa.
-    2. **Segure o botão BOOT** da Super Mini.
-    3. Ligue o cabo USB **com o BOOT pressionado** e solte depois de 1 ou 2 s.
-    4. Rode de novo `pio run -e bancada_geral -t upload`. A porta pode mudar de nome; o `pio` detecta sozinho.
-    5. Ao terminar, aperte o botão **RESET** (ou desligue e ligue o cabo) para a placa rodar o programa.
+1. Rode `pio run -e bancada_geral_devkit -t upload`.
+2. Quando aparecer `Connecting....`, **segure o botão BOOT** da placa e solte quando a gravação começar (aparecem os percentuais).
+3. Ao terminar, aperte o botão **EN** (reset) para a placa rodar o programa.
+4. Se a gravação nunca começa, troque o cabo por um com dados e confira o driver do chip (seção 3).
 
 ### O menu não aparece
 
 - Aperte **Enter**.
-- Abra o monitor de novo (`pio device monitor -e bancada_geral_devkit`; `bancada_geral` na Super Mini). O menu aparece quando o monitor conecta.
+- Abra o monitor de novo (`pio device monitor -e bancada_geral_devkit`). Abrir o monitor reinicia a placa, e o menu aparece em cerca de 1 s.
 - Aperte `r` para reiniciar a placa por software.
-- Confira se está no ambiente certo (`bancada_geral_devkit` ou `bancada_geral`) e se a gravação terminou em `[SUCCESS]`.
+- Confira se gravou o ambiente certo (`bancada_geral_devkit`) e se a gravação terminou em `[SUCCESS]`.
 
 ### Aparecem caracteres estranhos ou o terminal não mostra o que você digita
 
-É esperado: a bancada não escreve acentos de propósito e não repete as teclas digitadas. A velocidade (baud) não importa, porque é USB direto.
+É esperado: a bancada não escreve acentos de propósito e não repete as teclas digitadas. A velocidade é de 115200 baud: o `pio device monitor -e bancada_geral_devkit` já usa esse valor (`monitor_speed` no `platformio.ini`); em outro programa de terminal, escolha 115200.
 
 ### A fonte desarma ao ligar o driver
 
@@ -330,10 +312,10 @@ Quase sempre é **polaridade invertida** ou **curto** no driver. Desconecte tudo
 ```
 
 1. Aperte `1` (varredura). Se faltar o `0x30`, o sensor esquerdo não está respondendo no barramento.
-2. Confira a fiação de `SDA`, `SCL`, `3,3 V` e `GND` do módulo e o fio do `XSHUT` esquerdo (GPIO16 na DevKit, GPIO0 na Super Mini; a tecla `8` mostra a pinagem em uso).
+2. Confira a fiação de `SDA`, `SCL`, `3,3 V` e `GND` do módulo e o fio do `XSHUT` esquerdo (GPIO16; a tecla `8` mostra a pinagem em uso).
 3. Aperte `2` para reiniciar os sensores e rode `t` de novo.
 
-Endereços esperados: esquerdo `0x30`, frontal `0x31`, direito `0x32` e MPU6050 `0x68`. Os pinos de `XSHUT` são GPIO16, 17 e 4 na DevKit (GPIO0, 1 e 2 na Super Mini).
+Endereços esperados: esquerdo `0x30`, frontal `0x31`, direito `0x32` e MPU6050 `0x68`. Os pinos de `XSHUT` são GPIO16, 17 e 4.
 
 **Sensor no endereço de fábrica**
 
@@ -370,7 +352,7 @@ Deixe o robô imóvel sobre a bancada e rode `t` de novo. Se persistir, o viés 
   encoder esquerdo: 0 pulsos (0 mm) -> SEM PULSOS: confira VCC, GND, A e B do encoder e se a roda girou.
 ```
 
-- **Sem pulsos e a roda girou:** o problema é o encoder. Meça `VCC` (3,3 V) e `GND` na plaquinha e confira os fios `A` e `B` (GPIO32 e 33 no esquerdo e GPIO18 e 19 no direito na DevKit; GPIO4 e 5, e 6 e 7, na Super Mini). Gire a roda à mão com a tecla `9`: a contagem tem que mudar.
+- **Sem pulsos e a roda girou:** o problema é o encoder. Meça `VCC` (3,3 V) e `GND` na plaquinha e confira os fios `A` e `B` (GPIO32 e 33 no esquerdo e GPIO18 e 19 no direito). Gire a roda à mão com a tecla `9`: a contagem tem que mudar.
 - **Sem pulsos e a roda não girou:** veja a rampa abaixo.
 - **Sinal oposto ao comando:** se a roda andou para trás, o **motor** está invertido (inverta os dois fios `OUT` do motor ou a flag no código). Se andou para o lado certo, o **encoder** está com `A` e `B` trocados.
 - **Muitas transições inválidas:** ruído. Afaste os fios do encoder dos fios do motor e confira o `GND`.
@@ -396,7 +378,7 @@ Neste exemplo, a potência padrão de 300 não bastava: o N20 tem uma zona morta
   Se gira e o encoder nao conta: o problema esta no encoder (VCC, GND, A, B).
 ```
 
-Meça o `VM` com o motor acionado (deve ficar entre 5 e 6 V), o `nSLEEP` (cerca de 3,3 V) e a tensão média no `IN1` (GPIO25 na DevKit, GPIO10 na Super Mini): com o limite de duty de 70% e VM de 6 V, cerca de 4,2 V na potência 1000. O multímetro lê a média do PWM, então marca duty × VM, e não os 6 V do pulso.
+Meça o `VM` com o motor acionado (deve ficar entre 5 e 6 V), o `nSLEEP` (cerca de 3,3 V) e a tensão média no `IN1` (GPIO25): com o limite de duty de 70% e VM de 6 V, cerca de 4,2 V na potência 1000. O multímetro lê a média do PWM, então marca duty × VM, e não os 6 V do pulso.
 
 **Telemetria: erros comuns (tecla `w`, depois `a`)**
 
@@ -433,4 +415,4 @@ O menu mostra a linha `Build: <data> <hora>`, que identifica a versão gravada. 
 
 A bancada é de toda a equipe. Ao mudar um driver, um pino ou a arquitetura de um componente, atualize também o menu. Os passos para acrescentar um componente (reuso dos drivers do robô, limites de segurança, item no autoteste) estão no [README do firmware](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/main/src/firmware/README.md#como-acrescentar-um-componente-ao-menu).
 
-Código: `src/firmware/src/bancada/bancada_geral.cpp`. Ambientes do PlatformIO: `bancada_geral_devkit` (ESP32 DevKit V1, com bateria, botão e telemetria) e `bancada_geral` (Super Mini).
+Código: `src/firmware/src/bancada/bancada_geral.cpp`. Ambiente do PlatformIO: `bancada_geral_devkit` (ESP32 DevKit V1).

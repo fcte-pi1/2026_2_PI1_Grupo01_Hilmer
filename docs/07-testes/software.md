@@ -7,7 +7,7 @@ Este documento reúne a evidência dos testes de _software_ da ED1: resultado, c
 
 A ED1 avalia testes isolados de _software_, com simuladores. Os testes automatizados cobrem as três camadas sem hardware real:
 
-- **Firmware** (C++ no ESP32-C3): PlatformIO e Unity, rodando no computador, com sensores, motores, Wi-Fi e labirinto simulados.
+- **Firmware** (C++ para o ESP32 DevKit V1): PlatformIO e Unity, rodando no computador, com sensores, motores, Wi-Fi e labirinto simulados.
 - **Backend** (Supabase): `node:test` sobre as Edge Functions e as funções SQL, com um PostgreSQL de verdade em WebAssembly (PGlite).
 - **Frontend** (React): Vitest e Testing Library, com um cliente Supabase simulado.
 
@@ -34,7 +34,8 @@ O critério é de pelo menos 80% do código-fonte. No firmware e no backend o CI
 
 | Outra verificação | Comando | Resultado |
 |---|---|---|
-| Compilação para a ESP32-C3 | `pio run -e esp32c3` | Sucesso. RAM 26,9% (88 292 de 327 680 bytes), Flash 74,0% (969 906 de 1 310 720 bytes) |
+| Compilação para a placa da época (ESP32-C3), em 26/10 | `pio run -e esp32c3` | Sucesso. RAM 26,9% (88 292 de 327 680 bytes), Flash 74,0% (969 906 de 1 310 720 bytes) |
+| Compilação para o ESP32 DevKit V1, em 10/11 (commit `f20485b`) | `pio run -e esp32_devkit` | Sucesso. RAM 29,2% (95 720 de 327 680 bytes), Flash 76,2% (999 301 de 1 310 720 bytes) |
 | Tipagem e _build_ do frontend | `npm run build` | Sucesso |
 | Tipagem das Edge Functions | `deno check` (CI do backend) | Sucesso |
 
