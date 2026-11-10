@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Script de calibração dos encoders e teste de deslocamento de 18 cm (Issue #186).
 
-Conecta à porta Serial do ESP32-C3, recebe as leituras em formato JSON,
+Conecta à porta Serial do ESP32 DevKit, recebe as leituras em formato JSON,
 registra o deslocamento percorrido pelo robô em bancada ao longo de 180 mm (18 cm),
 calcula o erro percentual/absoluto frente à tolerância de ±3% e sugere a nova
 constante de calibração em micrômetros por pulso.

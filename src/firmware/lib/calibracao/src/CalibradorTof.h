@@ -37,7 +37,7 @@ struct DesviosTof {
 ///    `SEM_REFERENCIA_TOF_MM` fica fora da conta e mantém desvio zero.
 /// 2. **Aplicação:** `corrigir(bruta)` devolve `bruta − desvio` por lado, saturado em `uint16_t`.
 ///
-/// Só usa inteiros (ESP32-C3 sem FPU). Não depende do driver: quem chama alimenta as amostras
+/// Só usa inteiros: as contas dão o mesmo resultado no computador (testes `native`) e na placa. Não depende do driver: quem chama alimenta as amostras
 /// (pela `ISensorDistancia` / `ILidar` ou por leituras simuladas nos testes).
 ///
 /// Exemplo:

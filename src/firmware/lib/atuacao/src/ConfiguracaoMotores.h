@@ -41,7 +41,7 @@ constexpr uint32_t DUTY_TOTAL_MOTORES = dutyTotalPwm(RESOLUCAO_PWM_MOTORES_BITS)
 constexpr uint32_t DUTY_MAXIMO_MOTORES = dutyMaximoMotores(RESOLUCAO_PWM_MOTORES_BITS, LIMITE_DUTY_MOTORES_MILESIMOS);
 
 static_assert(LIMITE_DUTY_MOTORES_MILESIMOS <= 1000, "o duty máximo não pode passar de 100%");
-// O LEDC do ESP32-C3 precisa de frequência × 2^bits até 80 MHz (o relógio APB).
+// O LEDC do ESP32 precisa de frequência × 2^bits até 80 MHz (o relógio APB).
 static_assert(static_cast<uint64_t>(FREQUENCIA_PWM_MOTORES_HZ) << RESOLUCAO_PWM_MOTORES_BITS <= 80000000ULL,
               "frequência e resolução do PWM fora do alcance do LEDC");
 

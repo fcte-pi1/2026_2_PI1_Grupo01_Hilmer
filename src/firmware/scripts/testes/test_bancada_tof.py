@@ -139,7 +139,7 @@ class TestComando(unittest.TestCase):
         self.assertEqual(b"LER\n", bancada.serial.escrito)
 
     def test_ignora_log_e_json_quebrado_ate_a_resposta(self):
-        resposta, _ = self.comando(["ESP-ROM:esp32c3", "{quebrado", '{"tipo":"leitura","valida":true}'])
+        resposta, _ = self.comando(["ets Jun  8 2016 00:22:57", "{quebrado", '{"tipo":"leitura","valida":true}'])
         self.assertEqual({"tipo": "leitura", "valida": True}, resposta)
 
     def test_repassa_as_outras_linhas_json_enquanto_espera(self):

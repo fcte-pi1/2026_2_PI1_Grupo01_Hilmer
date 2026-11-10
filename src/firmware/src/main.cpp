@@ -3,7 +3,7 @@
 ///
 /// Navegação e telemetria rodam em tarefas separadas e concorrentes, como no
 /// diagrama de atividades. Os encoders físicos de quadratura são decodificados por
-/// interrupção de hardware no ESP32-C3, alimentam a odometria (pose na malha) e são reportados na
+/// interrupção de hardware no ESP32, alimentam a odometria (pose na malha) e são reportados na
 /// telemetria. Os 3 sensores de distância VL53L0X são lidos pelo I²C na tarefa de navegação, e o
 /// giroscópio do MPU6050 por uma tarefa própria, em intervalo fixo, no mesmo barramento (com mutex).
 /// Enquanto os encoders não são instalados (`ENCODERS_INSTALADOS` em `ConfiguracaoDeslocamento.h`),
@@ -19,12 +19,6 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-
-// O log (`Serial`) tem que sair pela USB nativa: GPIO20/21, a UART0, são entradas do driver dos
-// motores. Se esta opção faltar no `platformio.ini`, o log iria para os pinos do motor direito.
-#if !defined(ARDUINO_USB_CDC_ON_BOOT) || !ARDUINO_USB_CDC_ON_BOOT
-#error "Serial pela USB nativa: defina ARDUINO_USB_MODE=1 e ARDUINO_USB_CDC_ON_BOOT=1 no platformio.ini (Pinos.h)"
-#endif
 
 #include "AcompanhadorGiro.h"
 #include "ArmazenamentoMapa.h"
@@ -961,13 +955,12 @@ static void tarefaTelemetria(void*) {
 /// depois a IMU (#378) e as tarefas de navegação, telemetria e rede. As tarefas sobem mesmo com
 /// falha, para a telemetria continuar informando o que falhou.
 void setup() {
-  // Primeira linha: freia os motores antes de qualquer outra coisa, porque o GPIO20/21 (IN3/IN4)
-  // recebe um tranco da ROM durante o reset (ver README, "Tranco no boot").
+  // Primeira linha: freia os motores antes de qualquer outra coisa, porque o GPIO14 (IN4) emite um
+  // pulso PWM curto durante o reset (ver README, "Tranco no boot").
   motores.iniciar();
+  // O log sai pela UART0 (conversor USB da placa): sem computador conectado, a UART transmite do
+  // mesmo jeito e não trava a telemetria.
   Serial.begin(115200);
-  // Sem um computador conectado, a escrita na USB CDC esperaria o tempo limite a cada chamada e
-  // atrasaria a telemetria. Com tempo zero, o dado é descartado se ninguém estiver lendo.
-  Serial.setTxTimeoutMs(0);
   Serial.println("micromouse: iniciando");
 
   // Configuração provisória para bancada (#189): fixa Labirinto4x4.

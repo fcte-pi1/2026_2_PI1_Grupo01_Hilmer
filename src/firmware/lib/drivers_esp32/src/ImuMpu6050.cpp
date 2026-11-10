@@ -8,7 +8,7 @@ namespace micromouse {
 namespace {
 
 /// Registradores do MPU6050 usados pelo driver (mapa de registradores RM-MPU-6000A, rev. 4.2).
-/// Ficam só aqui, no ambiente `esp32c3`.
+/// Ficam só aqui, nos ambientes da placa (`esp32_devkit` e as bancadas).
 constexpr uint8_t REG_SMPLRT_DIV = 0x19;    ///< Divisor da taxa de amostragem.
 constexpr uint8_t REG_CONFIG = 0x1A;        ///< Filtro passa-baixa (DLPF_CFG).
 constexpr uint8_t REG_GYRO_CONFIG = 0x1B;   ///< Faixa do giroscópio (FS_SEL).

@@ -11,7 +11,7 @@ namespace micromouse {
 
 /// Converte pulsos em distância usando uma constante de calibração, em micrômetros por pulso.
 ///
-/// Só usa aritmética de inteiros (o ESP32-C3 não tem unidade de ponto flutuante). Os resultados
+/// Só usa aritmética de inteiros: as contas dão o mesmo resultado no computador (testes `native`) e na placa. Os resultados
 /// são saturados nos limites de `int32_t`, então uma contagem muito grande nunca estoura.
 class ConversorDeslocamento {
  public:

@@ -4,8 +4,8 @@
 /// @brief Uma amostra da telemetria, como o robô a guarda e a envia ao Supabase (#238, #236).
 ///
 /// Os campos correspondem, um a um, às colunas da tabela `telemetria` (veja o contrato do lote em
-/// `src/backend/tests/fixtures/lote-telemetria.json`). Os números ficam em inteiros porque o ESP32-C3 não
-/// tem unidade de ponto flutuante; a conversão para as unidades do banco (m/s, V, A e s) acontece
+/// `src/backend/tests/fixtures/lote-telemetria.json`). Os números ficam em inteiros, como no resto do
+/// firmware; a conversão para as unidades do banco (m/s, V, A e s) acontece
 /// ao montar o JSON do lote.
 
 #include <stdint.h>
