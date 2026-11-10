@@ -42,6 +42,16 @@ void ReconexaoWifi::registrarTentativaEsgotada(uint32_t agoraMs) {
   }
 }
 
+void ReconexaoWifi::reiniciar() {
+  rede_.desconectar();
+  redeAtual_ = 0;
+  rede_.escolherRede(0);
+  falhasNaRodada_ = 0;
+  esperas_.registrarSucesso();
+  estado_ = EstadoWifi::Aguardando;
+  primeiraVez_ = true;
+}
+
 bool ReconexaoWifi::ciclo(uint32_t agoraMs) {
   switch (estado_) {
     case EstadoWifi::Conectado:

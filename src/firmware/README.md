@@ -532,11 +532,13 @@ Ao abrir o monitor, a placa reinicia e o menu aparece sozinho. Além das teclas 
 
 ##### Telemetria na bancada (tecla `w`)
 
-O firmware do robô só cria a corrida depois da calibração, que exige o autoteste dos sensores. A tecla `w` abre um submenu que testa o Wi-Fi e a gravação no banco sem depender dos sensores, com o mesmo cliente HTTP (`EnvioHttpSupabase`) do robô. Antes de gravar, copie `include/credenciais.exemplo.h` para `include/credenciais.h` (o Git ignora o arquivo), preencha os campos e, na bancada, use `CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1`. Sem o arquivo, o firmware compila e o submenu explica o que fazer.
+O firmware do robô só cria a corrida depois da calibração, que exige o autoteste dos sensores. A tecla `w` abre um submenu que testa o Wi-Fi e a gravação no banco sem depender dos sensores, com o mesmo cliente HTTP (`EnvioHttpSupabase`) do robô. Antes de gravar, copie `include/credenciais.exemplo.h` para `include/credenciais.h` (o Git ignora o arquivo), preencha os campos e, na bancada, use `CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1`. Sem o arquivo, o firmware compila e o Wi-Fi funciona pela tecla `p` (escolher a rede pela serial), mas as teclas que falam com o banco explicam o que falta.
 
 | Tecla | O que faz |
 |---|---|
 | `a` | Fluxo completo: Wi-Fi, DNS, criar corrida, enviar lote, reenviar o lote (confere que não duplica) e encerrar. Termina com `RESULTADO` |
+| `p` | **Escolher a rede pela serial:** varre as redes, mostra as 20 de sinal mais forte numeradas e pede o número (ou o nome exato) e a senha, que aparece como `*`. Conectando, pergunta se salva a rede na flash da placa (NVS): salva, ela é a principal da bancada a cada boot, no lugar da principal do `credenciais.h`; a reserva do `credenciais.h` continua valendo. Não precisa regravar a placa. O firmware do robô não lê essa rede |
+| `f` | Esquece a rede salva pela tecla `p` e volta à principal do `credenciais.h` |
 | `w` / `d` | Conecta no Wi-Fi (mostra a rede, principal ou reserva, o IP e o sinal) / resolve o nome do Supabase |
 | `c` / `l` / `r` / `e` | Cria a corrida / envia 5 amostras de teste / reenvia o último lote / encerra como `nao_concluida` |
 | `b` | **Teste de reenvio com queda de Wi-Fi (#478):** amostras (1 por segundo) pelo `ControladorEnvio` do robô até o Wi-Fi cair e voltar: quando quiser, desligue os hotspots (a principal e a reserva) por cerca de 30 s e religue. O teste termina 15 s depois de o Wi-Fi voltar (pelo menos 60 s, no máximo 5 min). No fim, confere as quedas e o tempo sem conexão deste teste, as contagens (confirmadas, existentes, descartadas, perdidas, reenvios), dá a consulta SQL para conferir o banco e a linha `REGISTRO` |
@@ -737,7 +739,7 @@ As redes institucionais não servem: o portal cativo pede login no navegador e o
 2. No computador da bancada, abra `src/firmware/include/credenciais.h` e troque `CREDENCIAL_WIFI_SSID` e `CREDENCIAL_WIFI_SENHA` (ou os campos da reserva). Não mexa nos outros campos.
 3. Conecte o robô pela USB e grave: `pio run -e esp32c3 -t upload` (cerca de 1 minuto).
 4. Abra o monitor (`pio device monitor -e esp32c3`) e espere `{"status":"wifi_conectado","rede":"principal",...}` com `rssi` acima de -75; depois, `corrida_criada`.
-5. Se não conectar em 30 s: confira os 2,4 GHz e a senha no celular e repita o passo 3. Para diagnosticar sem o robô, grave a bancada (`pio run -e bancada_geral_devkit -t upload`), tecle `w` e depois `v`: a varredura mostra o nome exato de cada rede visível (o SSID diferencia maiúsculas) e se a principal e a reserva aparecem.
+5. Se não conectar em 30 s: confira os 2,4 GHz e a senha no celular e repita o passo 3. Para diagnosticar sem o robô, grave a bancada (`pio run -e bancada_geral_devkit -t upload`), tecle `w` e depois `v`: a varredura mostra o nome exato de cada rede visível (o SSID diferencia maiúsculas) e se a principal e a reserva aparecem. Na bancada, `p` conecta numa rede visível sem regravar; no robô, a rede vem só do `credenciais.h`.
 
 Se a principal cair durante a corrida, não é preciso fazer nada: o robô passa para a reserva sozinho, e o que ficou no buffer vai junto.
 

@@ -733,6 +733,23 @@ void test_wifi_que_cai_na_reserva_tenta_a_reserva_antes_da_principal() {
   TEST_ASSERT_EQUAL_UINT32(2, wifi.trocasDeRede());
 }
 
+void test_wifi_reiniciar_volta_para_a_principal_e_tenta_na_hora() {
+  RedeWifiSimulada rede(2);
+  ReconexaoWifi wifi(rede, 1000);
+  wifi.ciclo(0);
+  wifi.ciclo(1000);  // principal esgotou: reserva
+  wifi.ciclo(1001);
+  wifi.ciclo(2001);  // reserva esgotou: espera 1 s
+  TEST_ASSERT_TRUE(wifi.estado() == EstadoWifi::Aguardando);
+  wifi.reiniciar();  // a bancada trocou a rede principal
+  TEST_ASSERT_EQUAL_UINT8(0, wifi.redeAtual());
+  TEST_ASSERT_EQUAL_UINT8(0, rede.escolhida());
+  wifi.ciclo(2002);  // não espera o 1 s que faltava
+  TEST_ASSERT_EQUAL_INT(3, rede.inicios());
+  TEST_ASSERT_EQUAL_UINT8(0, rede.redeDoInicio(2));
+  TEST_ASSERT_EQUAL_UINT32(ESPERA_MINIMA_WIFI_MS, wifi.proximaEsperaMs());
+}
+
 // ---------------------------------------------------------------- integração: coleta → buffer → JSON → servidor
 
 /// Uma corrida de 120 amostras pelo caminho real do contrato (JSON nos dois sentidos), com a rede fora
@@ -872,6 +889,7 @@ int main(int, char**) {
   RUN_TEST(test_wifi_com_a_principal_fora_passa_para_a_reserva_na_hora);
   RUN_TEST(test_wifi_com_as_duas_redes_fora_espera_cada_vez_mais_a_cada_rodada);
   RUN_TEST(test_wifi_que_cai_na_reserva_tenta_a_reserva_antes_da_principal);
+  RUN_TEST(test_wifi_reiniciar_volta_para_a_principal_e_tenta_na_hora);
   RUN_TEST(test_integracao_corrida_pelo_json_com_rede_caindo_no_meio);
   RUN_TEST(test_integracao_servidor_lento_nao_atrasa_a_coleta_nem_duplica);
   return UNITY_END();

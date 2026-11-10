@@ -38,6 +38,7 @@
 // firmware compila e o menu de telemetria explica o que fazer.
 #if defined(BANCADA_COM_TELEMETRIA)
 #include <HTTPClient.h>
+#include <Preferences.h>
 #include <WiFi.h>
 #include <string.h>
 #include <strings.h>
@@ -990,6 +991,12 @@ constexpr int SINAL_BOM_DBM = -67;
 constexpr int SINAL_ACEITAVEL_DBM = -75;
 constexpr int SINAL_FRACO_DBM = -80;
 
+/// Escolha de rede pela serial (`p`): espaço em flash (NVS) da rede salva, tempo máximo para digitar
+/// e quantas redes da varredura entram na lista numerada.
+constexpr const char* NVS_REDE_BANCADA = "bancada_wifi";
+constexpr uint32_t ESPERA_DIGITACAO_MS = 120000;
+constexpr int16_t REDES_NA_LISTA = 20;
+
 /// Corrida sem rede (#491, #478): amostras a mais que a capacidade do buffer no teste do buffer cheio,
 /// e de quantas em quantas amostras geradas a bancada mostra o andamento.
 constexpr uint16_t SEM_REDE_EXCESSO = 50;
@@ -1038,6 +1045,12 @@ TravaSecaoCritica travaBufferEnvio;
 ControladorEnvio controladorEnvio(clienteSupabase, travaBufferEnvio);
 
 bool wifiIniciado = false;
+
+/// Rede escolhida pela serial (`p`), que substitui a principal do `credenciais.h` só na bancada. Fica
+/// salva na flash (NVS) se quem testa pedir; o firmware do robô não lê esse espaço.
+char ssidEscolhido[33] = "";
+char senhaEscolhida[65] = "";
+bool redeEscolhidaSalva = false;
 uint32_t corridaId = 0;
 bool corridaCriada = false;
 bool corridaEncerrada = false;
@@ -1051,17 +1064,21 @@ uint16_t chamadasComFalha = 0;
 
 // ---------------------------------------------------------------- utilidades
 
-/// `true` se as credenciais existem e estão completas; senão, diz o que fazer.
+/// `true` se as credenciais do Supabase existem e estão completas; senão, diz o que fazer. O Wi-Fi não
+/// entra aqui: a rede pode vir do `credenciais.h` ou da escolha pela serial (`p`).
 bool credenciaisOk() {
   if (!BANCADA_TEM_CREDENCIAIS) {
-    Serial.println("  [FALHA] sem include/credenciais.h.");
+    Serial.println("  [FALHA] sem include/credenciais.h: o Wi-Fi funciona (tecla p), mas o banco precisa do arquivo.");
     Serial.println("          dica: copie include/credenciais.exemplo.h para include/credenciais.h,");
     Serial.println("          preencha os campos, use CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1 na bancada e grave de novo.");
     return false;
   }
-  if (!credenciaisValidas(credenciais)) {
-    Serial.println("  [FALHA] credenciais incompletas em include/credenciais.h.");
-    Serial.println("          dica: confira SSID, URL (https://...), chave anon, device token e o certificado");
+  CredenciaisSupabase supabase = credenciais;
+  supabase.ssidWifi = "rede";  // a rede é conferida no Wi-Fi; aqui, só a URL, a chave, o token e o certificado
+  supabase.senhaWifi = "";
+  if (!credenciaisValidas(supabase)) {
+    Serial.println("  [FALHA] credenciais do Supabase incompletas em include/credenciais.h.");
+    Serial.println("          dica: confira a URL (https://...), a chave anon, o device token e o certificado");
     Serial.println("          (ou CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1). Os valores do exemplo contam como preenchidos:");
     Serial.println("          troque todos pelos reais.");
     return false;
@@ -1086,7 +1103,9 @@ const char* explicarStatusWifi(wl_status_t status) {
   }
 }
 
-/// Liga o Wi-Fi na primeira vez que for preciso.
+void imprimirRedes();
+
+/// Liga o Wi-Fi na primeira vez que for preciso e carrega a rede salva pela tecla `p`, se houver.
 void iniciarWifiSeNecessario() {
   if (wifiIniciado) {
     return;
@@ -1094,11 +1113,33 @@ void iniciarWifiSeNecessario() {
   redeWifi.iniciar();
   clienteSupabase.iniciar();
   wifiIniciado = true;
-  if (redeWifi.quantidadeRedes() > 1) {
-    Serial.printf("  redes: principal \"%s\" e reserva \"%s\"\n", credenciais.ssidWifi, credenciais.ssidWifiReserva);
-  } else {
-    Serial.printf("  rede: \"%s\" (sem reserva no credenciais.h)\n", credenciais.ssidWifi);
+  Preferences nvs;
+  if (nvs.begin(NVS_REDE_BANCADA, true)) {
+    if (nvs.getString("ssid", ssidEscolhido, sizeof(ssidEscolhido)) > 0) {
+      nvs.getString("senha", senhaEscolhida, sizeof(senhaEscolhida));
+      redeWifi.definirRede(0, ssidEscolhido, senhaEscolhida);
+      redeEscolhidaSalva = true;
+    }
+    nvs.end();
   }
+  imprimirRedes();
+}
+
+/// Uma linha com as redes conhecidas e de onde vem cada uma.
+void imprimirRedes() {
+  const char* principal = redeWifi.ssid(0);
+  if (principal[0] == '\0') {
+    Serial.println("  nenhuma rede configurada. Tecle p para escolher uma das redes visiveis.");
+    return;
+  }
+  Serial.printf("  rede principal: \"%s\" (%s)", principal,
+                redeEscolhidaSalva ? "salva na placa pela tecla p; f esquece"
+                : ssidEscolhido[0] != '\0' ? "escolhida pela tecla p, so ate reiniciar"
+                                           : "do credenciais.h");
+  if (redeWifi.quantidadeRedes() > 1) {
+    Serial.printf("; reserva: \"%s\" (do credenciais.h)", redeWifi.ssid(1));
+  }
+  Serial.println();
 }
 
 /// `"principal \"nome\""` ou `"reserva \"nome\""` da rede atual, para as mensagens.
@@ -1124,10 +1165,12 @@ const char* avaliarSinal(int rssi) {
 
 /// Espera o Wi-Fi conectar (uma tentativa por rede, mais a folga), mostrando um ponto por segundo.
 bool conectarWifi() {
-  if (!credenciaisOk()) {
+  iniciarWifiSeNecessario();
+  if (redeWifi.ssid(0)[0] == '\0') {
+    Serial.println("  [FALHA] nenhuma rede Wi-Fi configurada.");
+    Serial.println("          dica: tecle p para escolher uma rede visivel e digitar a senha (ou preencha o credenciais.h).");
     return false;
   }
-  iniciarWifiSeNecessario();
   const uint32_t espera = TEMPO_LIMITE_CONEXAO_WIFI_MS * redeWifi.quantidadeRedes() + FOLGA_ESPERA_WIFI_MS;
   const uint32_t inicio = millis();
   uint32_t ultimoPonto = inicio;
@@ -1150,6 +1193,7 @@ bool conectarWifi() {
       Serial.println();
       Serial.printf("  [FALHA] Wi-Fi nao conectou em %lu s.\n", static_cast<unsigned long>(espera / 1000));
       Serial.printf("          dica: %s\n", explicarStatusWifi(WiFi.status()));
+      Serial.println("          Tecle v para ver as redes visiveis, ou p para escolher outra rede e digitar a senha.");
       return false;
     }
     delay(50);
@@ -1159,6 +1203,9 @@ bool conectarWifi() {
   }
   return true;
 }
+
+/// Antes de falar com o banco: credenciais do Supabase completas e Wi-Fi conectado.
+bool conectarParaBanco() { return credenciaisOk() && conectarWifi(); }
 
 /// Host da URL do projeto (`https://abc.supabase.co/` -> `abc.supabase.co`).
 bool extrairHost(char* saida, size_t capacidade) {
@@ -1241,7 +1288,7 @@ bool comandoWifi() {
 /// `d`: resolve o nome do servidor, o primeiro passo antes do HTTPS.
 bool comandoDns() {
   Serial.println("--- DNS ---");
-  if (!conectarWifi()) {
+  if (!conectarParaBanco()) {
     return false;
   }
   char host[96];
@@ -1266,7 +1313,7 @@ bool comandoDns() {
 /// `c`: `POST /corridas`, que cria a corrida no banco.
 bool comandoCriarCorrida() {
   Serial.println("--- Criar corrida (POST /functions/v1/corridas) ---");
-  if (!conectarWifi()) {
+  if (!conectarParaBanco()) {
     return false;
   }
   uint32_t id = 0;
@@ -1331,7 +1378,7 @@ bool comandoEnviarLote() {
     Serial.println("  [FALHA] nao ha corrida aberta. dica: tecle c para criar uma.");
     return false;
   }
-  if (!conectarWifi()) {
+  if (!conectarParaBanco()) {
     return false;
   }
   montarLoteDeTeste();
@@ -1351,7 +1398,7 @@ bool comandoReenviarLote() {
     Serial.println("  [FALHA] nao ha lote para reenviar. dica: tecle c e depois l.");
     return false;
   }
-  if (!conectarWifi()) {
+  if (!conectarParaBanco()) {
     return false;
   }
   if (!enviarUltimoLote("reenviar lote", 0)) {
@@ -1368,7 +1415,7 @@ bool comandoEncerrarCorrida() {
     Serial.println("  [FALHA] nao ha corrida criada. dica: tecle c.");
     return false;
   }
-  if (!conectarWifi()) {
+  if (!conectarParaBanco()) {
     return false;
   }
   clienteSupabase.definirResultadoCorrida(false);
@@ -1384,6 +1431,9 @@ bool comandoEncerrarCorrida() {
 /// `a`: o fluxo inteiro, na ordem em que o robô o faz.
 void comandoFluxoCompleto() {
   Serial.println("=== FLUXO COMPLETO: Wi-Fi, DNS, corrida, lote, reenvio e encerramento ===");
+  if (!credenciaisOk()) {
+    return;
+  }
   corridaCriada = false;
   const uint16_t okAntes = chamadasOk;
   const uint16_t falhasAntes = chamadasComFalha;
@@ -1409,7 +1459,7 @@ bool comandoTesteReenvio() {
                 "  no maximo %lu s). Qualquer tecla cancela.\n",
                 static_cast<unsigned long>(REENVIO_DEPOIS_DA_VOLTA_MS / 1000), static_cast<unsigned long>(REENVIO_DURACAO_MS / 1000),
                 static_cast<unsigned long>(REENVIO_DURACAO_MAXIMA_MS / 1000));
-  if (!conectarWifi()) {
+  if (!conectarParaBanco()) {
     return false;
   }
   uint32_t id = 0;
@@ -1626,7 +1676,7 @@ bool comandoCorridaSemRede(uint16_t amostras) {
     Serial.printf("  O buffer estoura: as %lu amostras mais antigas devem ser descartadas.\n",
                   static_cast<unsigned long>(perdasEsperadas));
   }
-  if (!conectarWifi()) {
+  if (!conectarParaBanco()) {
     return false;
   }
   uint32_t id = 0;
@@ -1751,8 +1801,8 @@ bool comandoVarrerRedes() {
   bool viuReserva = false;
   for (int16_t i = 0; i < encontradas; ++i) {
     const String ssid = WiFi.SSID(i);
-    const char* principal = compararSsid(ssid.c_str(), credenciais.ssidWifi);
-    const char* reserva = compararSsid(ssid.c_str(), credenciais.ssidWifiReserva);
+    const char* principal = compararSsid(ssid.c_str(), redeWifi.ssid(0));
+    const char* reserva = compararSsid(ssid.c_str(), redeWifi.ssid(1));
     viuPrincipal = viuPrincipal || (principal != nullptr && strcmp(principal, "igual") == 0);
     viuReserva = viuReserva || (reserva != nullptr && strcmp(reserva, "igual") == 0);
     char marca[40] = "";
@@ -1765,17 +1815,207 @@ bool comandoVarrerRedes() {
                   static_cast<int>(WiFi.channel(i)), WiFi.encryptionType(i) == WIFI_AUTH_OPEN ? "aberta " : "senha  ", marca);
   }
   WiFi.scanDelete();
-  Serial.printf("  %d rede(s). Principal \"%s\": %s.", encontradas, credenciais.ssidWifi,
+  Serial.printf("  %d rede(s). Principal \"%s\": %s.", encontradas, redeWifi.ssid(0),
                 viuPrincipal ? "visivel" : "NAO VISTA");
   if (redeWifi.quantidadeRedes() > 1) {
-    Serial.printf(" Reserva \"%s\": %s.", credenciais.ssidWifiReserva, viuReserva ? "visivel" : "NAO VISTA");
+    Serial.printf(" Reserva \"%s\": %s.", redeWifi.ssid(1), viuReserva ? "visivel" : "NAO VISTA");
   }
   Serial.println();
   if (!viuPrincipal || (redeWifi.quantidadeRedes() > 1 && !viuReserva)) {
     Serial.println("  dica: rede nao vista = desligada, em 5 GHz ou com outro nome. No iPhone, ative Maximizar");
     Serial.println("        Compatibilidade e deixe a tela do Acesso Pessoal aberta (sem cliente, o iOS esconde a rede).");
+    Serial.println("        Para usar uma das redes acima, tecle p.");
   }
   return viuPrincipal && (redeWifi.quantidadeRedes() == 1 || viuReserva);
+}
+
+/// Lê uma linha digitada no monitor serial, com eco (`*` em `oculto`), Backspace e Enter. Esc ou
+/// `ESPERA_DIGITACAO_MS` sem terminar cancelam.
+/// @return `true` se a pessoa terminou com Enter (a linha pode ser vazia).
+bool lerLinha(char* saida, size_t capacidade, bool oculto) {
+  size_t tamanho = 0;
+  saida[0] = '\0';
+  delay(50);
+  while (Serial.available() > 0) {  // descarta o resto da tecla anterior (o LF do CRLF)
+    Serial.read();
+  }
+  const uint32_t inicio = millis();
+  while (millis() - inicio < ESPERA_DIGITACAO_MS) {
+    if (Serial.available() == 0) {
+      delay(5);
+      continue;
+    }
+    const char c = static_cast<char>(Serial.read());
+    if (c == '\r' || c == '\n') {
+      Serial.println();
+      delay(20);
+      while (Serial.available() > 0 && (Serial.peek() == '\n' || Serial.peek() == '\r')) {
+        Serial.read();
+      }
+      return true;
+    }
+    if (c == 27) {  // Esc
+      Serial.println(" (cancelado)");
+      return false;
+    }
+    if (c == 8 || c == 127) {  // Backspace
+      if (tamanho > 0) {
+        --tamanho;
+        saida[tamanho] = '\0';
+        Serial.print("\b \b");
+      }
+      continue;
+    }
+    if (c >= 32 && c < 127 && tamanho + 1 < capacidade) {
+      saida[tamanho++] = c;
+      saida[tamanho] = '\0';
+      Serial.print(oculto ? '*' : c);
+    }
+  }
+  Serial.println(" (tempo esgotado)");
+  return false;
+}
+
+/// `true` se `texto` é um número inteiro positivo; o valor vai para `numero`.
+bool lerNumero(const char* texto, int& numero) {
+  if (texto[0] == '\0') {
+    return false;
+  }
+  numero = 0;
+  for (const char* c = texto; *c != '\0'; ++c) {
+    if (*c < '0' || *c > '9' || numero > 1000) {
+      return false;
+    }
+    numero = numero * 10 + (*c - '0');
+  }
+  return numero > 0;
+}
+
+/// `p`: escolhe a rede pela serial, sem regravar a placa (#491). Varre as redes, mostra as 20 de sinal
+/// mais forte numeradas, e quem testa digita o número (ou o nome exato) e a senha. Conectando, pergunta
+/// se salva a rede na flash: salva, ela volta a ser a principal da bancada a cada boot, até a tecla `f`.
+/// A reserva do `credenciais.h` continua valendo. O firmware do robô não usa esta rede.
+bool comandoEscolherRede() {
+  Serial.println("--- Escolher a rede Wi-Fi pela serial ---");
+  iniciarWifiSeNecessario();
+  redeWifi.desconectar();
+  delay(100);
+  Serial.println("  procurando redes de 2,4 GHz...");
+  const int16_t encontradas = WiFi.scanNetworks();
+  if (encontradas < 0) {
+    Serial.printf("  [FALHA] a varredura falhou (%d).\n", encontradas);
+    return false;
+  }
+  // Índices da varredura em ordem de sinal, sem nomes repetidos (vários pontos da mesma rede) e sem ocultas.
+  int16_t lista[REDES_NA_LISTA];
+  int16_t naLista = 0;
+  bool usado[64] = {};
+  while (naLista < REDES_NA_LISTA) {
+    int16_t melhor = -1;
+    for (int16_t i = 0; i < encontradas && i < 64; ++i) {
+      if (!usado[i] && WiFi.SSID(i).length() > 0 && (melhor < 0 || WiFi.RSSI(i) > WiFi.RSSI(melhor))) {
+        melhor = i;
+      }
+    }
+    if (melhor < 0) {
+      break;
+    }
+    for (int16_t i = 0; i < encontradas && i < 64; ++i) {
+      if (WiFi.SSID(i) == WiFi.SSID(melhor)) {
+        usado[i] = true;
+      }
+    }
+    lista[naLista++] = melhor;
+  }
+  for (int16_t n = 0; n < naLista; ++n) {
+    const int16_t i = lista[n];
+    Serial.printf("  %2d  %-32s %4d dBm  %s\n", n + 1, WiFi.SSID(i).c_str(), static_cast<int>(WiFi.RSSI(i)),
+                  WiFi.encryptionType(i) == WIFI_AUTH_OPEN ? "aberta" : "senha");
+  }
+  if (naLista == 0) {
+    Serial.println("  nenhuma rede visivel. Ligue o hotspot em 2,4 GHz e tecle p de novo, ou digite o nome abaixo.");
+  }
+  Serial.println("  Redes de universidade (UNB Wireless, eduroam) nao funcionam: pedem login. Use um hotspot de celular.");
+  Serial.print("  Numero da rede, ou o nome exato, e Enter (Esc cancela): ");
+  char entrada[33];
+  if (!lerLinha(entrada, sizeof(entrada), false) || entrada[0] == '\0') {
+    WiFi.scanDelete();
+    Serial.println("  nada mudou.");
+    return false;
+  }
+  int numero = 0;
+  bool aberta = false;
+  char ssid[33];
+  if (lerNumero(entrada, numero) && numero <= naLista) {
+    const int16_t i = lista[numero - 1];
+    snprintf(ssid, sizeof(ssid), "%s", WiFi.SSID(i).c_str());
+    aberta = WiFi.encryptionType(i) == WIFI_AUTH_OPEN;
+  } else {
+    snprintf(ssid, sizeof(ssid), "%s", entrada);
+  }
+  WiFi.scanDelete();
+
+  char senha[65] = "";
+  if (aberta) {
+    Serial.printf("  \"%s\" e aberta: sem senha.\n", ssid);
+  } else {
+    Serial.printf("  Senha de \"%s\" e Enter (vazia se for aberta; Esc cancela): ", ssid);
+    if (!lerLinha(senha, sizeof(senha), true)) {
+      Serial.println("  nada mudou.");
+      return false;
+    }
+    const size_t tamanho = strlen(senha);
+    if (tamanho > 0 && tamanho < 8) {
+      Serial.println("  [FALHA] senha de Wi-Fi (WPA2) tem pelo menos 8 caracteres. Nada mudou.");
+      return false;
+    }
+  }
+
+  snprintf(ssidEscolhido, sizeof(ssidEscolhido), "%s", ssid);
+  snprintf(senhaEscolhida, sizeof(senhaEscolhida), "%s", senha);
+  redeEscolhidaSalva = false;
+  redeWifi.definirRede(0, ssidEscolhido, senhaEscolhida);
+  reconexaoWifi.reiniciar();
+  if (!comandoWifi()) {
+    Serial.println("  A rede fica escolhida ate reiniciar a placa; tecle p para tentar de novo (confira a senha).");
+    return false;
+  }
+  Serial.print("  Salvar esta rede na placa para os proximos boots da bancada? (s/n): ");
+  char resposta[4];
+  if (lerLinha(resposta, sizeof(resposta), false) && (resposta[0] == 's' || resposta[0] == 'S')) {
+    Preferences nvs;
+    if (nvs.begin(NVS_REDE_BANCADA, false)) {
+      nvs.putString("ssid", ssidEscolhido);
+      nvs.putString("senha", senhaEscolhida);
+      nvs.end();
+      redeEscolhidaSalva = true;
+      Serial.println("  [OK]    salva. Tecle f para esquecer. O firmware do robo continua usando o credenciais.h.");
+    } else {
+      Serial.println("  [FALHA] nao consegui gravar na flash; a rede vale ate reiniciar.");
+    }
+  } else {
+    Serial.println("  nao salva: vale ate reiniciar a placa.");
+  }
+  return true;
+}
+
+/// `f`: esquece a rede salva pela tecla `p` e volta para a principal do `credenciais.h`.
+void comandoEsquecerRede() {
+  Serial.println("--- Esquecer a rede escolhida ---");
+  iniciarWifiSeNecessario();
+  Preferences nvs;
+  if (nvs.begin(NVS_REDE_BANCADA, false)) {
+    nvs.clear();
+    nvs.end();
+  }
+  const bool havia = ssidEscolhido[0] != '\0';
+  ssidEscolhido[0] = '\0';
+  senhaEscolhida[0] = '\0';
+  redeEscolhidaSalva = false;
+  redeWifi.definirRede(0, credenciais.ssidWifi, credenciais.senhaWifi);
+  reconexaoWifi.reiniciar();
+  Serial.println(havia ? "  [OK]    rede escolhida esquecida." : "  nao havia rede escolhida pela tecla p.");
+  imprimirRedes();
 }
 
 /// `s`: o que a bancada sabe agora.
@@ -1786,7 +2026,8 @@ void comandoStatus() {
     Serial.printf(" (%s, %s, %d dBm)", descreverRedeAtual(), WiFi.localIP().toString().c_str(), WiFi.RSSI());
   }
   Serial.println();
-  Serial.printf("  Redes no credenciais.h: %u. Quedas do Wi-Fi: %lu, tentativas de conexao: %lu, trocas de rede: %lu\n",
+  imprimirRedes();
+  Serial.printf("  Redes conhecidas: %u. Quedas do Wi-Fi: %lu, tentativas de conexao: %lu, trocas de rede: %lu\n",
                 static_cast<unsigned>(redeWifi.quantidadeRedes()), static_cast<unsigned long>(reconexaoWifi.quedas()),
                 static_cast<unsigned long>(reconexaoWifi.tentativas()), static_cast<unsigned long>(reconexaoWifi.trocasDeRede()));
   if (corridaCriada) {
@@ -1804,6 +2045,8 @@ void imprimirMenuTelemetria() {
   Serial.println(" ATENCAO: a, c e l gravam uma corrida e amostras de teste DE VERDADE no banco do credenciais.h.");
   Serial.println("          Use o projeto Supabase de testes ou apague a corrida depois, para nao encher o historico.");
   Serial.println(" a  FLUXO COMPLETO: faz tudo abaixo e diz se a placa fala com o banco");
+  Serial.println(" p  ESCOLHER A REDE: lista as redes visiveis, voce digita o numero e a senha (sem regravar)");
+  Serial.println(" f  esquecer a rede escolhida pela tecla p (volta ao credenciais.h)");
   Serial.println(" w  conectar no Wi-Fi");
   Serial.println(" d  resolver o nome do Supabase (DNS)");
   Serial.println(" c  criar uma corrida no banco");
@@ -1850,6 +2093,12 @@ void executarTelemetria(char tecla) {
       break;
     case 'v':
       comandoVarrerRedes();
+      break;
+    case 'p':
+      comandoEscolherRede();
+      break;
+    case 'f':
+      comandoEsquecerRede();
       break;
     case 'n':
       comandoCorridaSemRede(CAPACIDADE_BUFFER_AMOSTRAS);

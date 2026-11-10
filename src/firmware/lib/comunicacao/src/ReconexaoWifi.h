@@ -41,6 +41,10 @@ class ReconexaoWifi {
   /// @return `true` se está conectado.
   bool ciclo(uint32_t agoraMs);
 
+  /// Recomeça do zero, pela rede principal: usado quando a rede muda em tempo de execução (a escolha
+  /// de rede da bancada). Desfaz a conexão atual e zera a espera; os contadores continuam.
+  void reiniciar();
+
   EstadoWifi estado() const { return estado_; }
   /// Tentativas de conexão começadas.
   uint32_t tentativas() const { return tentativas_; }
