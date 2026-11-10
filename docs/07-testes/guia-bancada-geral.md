@@ -249,9 +249,13 @@ O submenu grava uma corrida e amostras de teste **de verdade** no banco do `cred
 | Tecla | O que faz |
 |:-:|---|
 | `a` | **Fluxo completo**: Wi-Fi, DNS, criar corrida, enviar um lote, reenviar o lote (confere que não duplica) e encerrar. Termina com `RESULTADO` |
-| `w` / `d` | Conecta no Wi-Fi (mostra IP e sinal) / resolve o nome do Supabase |
+| `w` / `d` | Conecta no Wi-Fi (mostra a rede, principal ou reserva, o IP e o sinal) / resolve o nome do Supabase |
+| `v` | **Varredura:** lista as redes de 2,4 GHz que a placa enxerga e marca a principal e a reserva do `credenciais.h`. Avisa quando o nome bate só sem diferenciar maiúsculas (`iPhone` não é `Iphone`) |
 | `c` / `l` / `r` / `e` | Cria a corrida / envia 5 amostras / reenvia o último lote / encerra a corrida |
-| `b` | **Teste de reenvio com queda de Wi-Fi:** 60 s de amostras (1 por segundo) pelo mesmo buffer do robô. Desligue o hotspot por cerca de 30 s no meio e religue; no fim, ele confere se nenhuma amostra se perdeu ou duplicou e dá a consulta SQL para conferir no banco |
+| `b` | **Teste de reenvio com queda de Wi-Fi:** amostras (1 por segundo) pelo mesmo buffer do robô até o Wi-Fi cair e voltar. Quando quiser, desligue os hotspots (principal e reserva) por cerca de 30 s e religue; o teste termina 15 s depois de o Wi-Fi voltar (pelo menos 60 s, no máximo 5 min), confere se nenhuma amostra se perdeu ou duplicou e dá a consulta SQL para conferir no banco |
+| `m` | **Sinal ao vivo:** a cada 0,5 s mostra a rede e o RSSI (bom a partir de -67 dBm, aceitável até -75, fraco até -80, crítico abaixo), com mínimo, média e máximo. Use andando com o robô pela pista. Desligando a principal, a troca para a reserva aparece na tela |
+| `n` | **Corrida sem rede:** desliga o Wi-Fi, põe 600 amostras (10 min) no buffer, religa e confere que todas chegaram ao banco |
+| `x` | **Buffer cheio:** o mesmo, com 650 amostras; as 50 mais antigas têm de ser descartadas e o banco fica com as sequências 51 a 650 |
 | `s` / `0` | Status / volta ao menu principal |
 
 ## 7. Problemas comuns e como resolver
@@ -404,7 +408,7 @@ A bancada mostra o código HTTP, a resposta do servidor e uma dica. Os casos mai
 
 | O que aparece | Causa provável | O que fazer |
 |---|---|---|
-| `Wi-Fi nao conectou` | Rede de 5 GHz, senha errada ou rede com login por portal | Use um hotspot de celular em 2,4 GHz e confira `CREDENCIAL_WIFI_SSID` e a senha |
+| `Wi-Fi nao conectou` | Rede de 5 GHz, senha errada, nome com maiúsculas diferentes ou rede com login por portal | Use um hotspot de celular em 2,4 GHz (no iPhone, **Maximizar Compatibilidade** e a tela do Acesso Pessoal aberta). Tecle `v` para ver o nome exato da rede e confira `CREDENCIAL_WIFI_SSID` e a senha |
 | `sem include/credenciais.h` | O arquivo não existe | Copie o `credenciais.exemplo.h` e preencha (seção 5, passo 7) |
 | `HTTP 401` ou `403` | Chave `anon` ou `DEVICE_TOKEN` errados | O token precisa ser igual ao segredo `DEVICE_TOKEN` das Edge Functions. Use a chave `anon` ou `publishable`, **nunca** a `sb_secret` |
 | `HTTP 404` com `Requested function was not found` | A Edge Function não foi publicada | `supabase functions deploy corridas` e `telemetria` |
