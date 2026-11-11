@@ -1,7 +1,8 @@
 /// @file bancada_deslocamento.cpp
-/// @brief Firmware de bancada do deslocamento sem encoder (#380) e da execução dos movimentos
-/// (#184): aciona os motores por um tempo ou executa os comandos "avançar uma célula", "girar 90°" e
-/// "girar 180°" com o mesmo `DeslocamentoEstimado` e o mesmo `ExecutorMovimentos` do robô, e manda
+/// @brief Firmware de bancada do deslocamento (#380, #475) e da execução dos movimentos (#184):
+/// aciona os motores por um tempo ou executa os comandos "avançar uma célula", "girar 90°" e
+/// "girar 180°" com os encoders (`ENCODERS_INSTALADOS`, o padrão) ou com o `DeslocamentoEstimado` (modo
+/// sem encoder, ambiente `bancada_deslocamento_sem_encoder`) e o mesmo `ExecutorMovimentos` do robô, e manda
 /// pela serial o log de cada ciclo, para a equipe comparar com a régua e o transferidor. Também mede
 /// o desvio lateral pelas paredes, realinha o robô ao centro do corredor e executa um percurso de
 /// vários movimentos com a correção pelas paredes, para conferir a célula estimada no fim (#188).
@@ -20,7 +21,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-#if !defined(ARDUINO_USB_CDC_ON_BOOT) || !ARDUINO_USB_CDC_ON_BOOT
+#if !defined(PLACA_ESP32_DEVKIT) && (!defined(ARDUINO_USB_CDC_ON_BOOT) || !ARDUINO_USB_CDC_ON_BOOT)
 #error "Serial pela USB nativa: defina ARDUINO_USB_MODE=1 e ARDUINO_USB_CDC_ON_BOOT=1 no platformio.ini (Pinos.h)"
 #endif
 
@@ -31,12 +32,14 @@
 #include "CorrecaoPelasParedes.h"
 #include "CorretorDeslocamentoTof.h"
 #include "DeslocamentoEstimado.h"
+#include "EncoderEsp32.h"
 #include "ExecutorMovimentos.h"
 #include "ImuMpu6050.h"
 #include "MotoresDrv8833.h"
 #include "Movimento.h"
 #include "Odometria.h"
 #include "Pinos.h"
+#include "RegistradorPotencia.h"
 #include "TofVl53l0x.h"
 
 using namespace micromouse;
@@ -56,6 +59,46 @@ MotoresDrv8833 motoresDrv(pinos::MOTOR_ESQ_IN1, pinos::MOTOR_ESQ_IN2, pinos::MOT
                           pinos::MOTOR_DIR_IN4, false, true);
 DeslocamentoEstimado deslocamento(motoresDrv);
 Odometria odometria;
+
+/// Encoders reais, com a mesma inversão do `main.cpp` (a roda direita é espelhada). Só são iniciados
+/// no modo com encoder.
+EncoderEsp32 encoderEsq(pinos::ENCODER_ESQ_A, pinos::ENCODER_ESQ_B, false);
+EncoderEsp32 encoderDir(pinos::ENCODER_DIR_A, pinos::ENCODER_DIR_B, true);
+/// No modo com encoder, guarda a última potência comandada, para o log (a estimativa já a guarda).
+RegistradorPotencia registradorPotencia(motoresDrv);
+
+/// Motores e rodas da bancada: os reais (driver e encoders) ou os da estimativa, como no `main.cpp`.
+IMotores& motoresBancada =
+    ENCODERS_INSTALADOS ? static_cast<IMotores&>(registradorPotencia) : motoresBancada;
+IEncoder& rodaEsq = ENCODERS_INSTALADOS ? static_cast<IEncoder&>(encoderEsq) : deslocamento.encoderEsquerdo();
+IEncoder& rodaDir = ENCODERS_INSTALADOS ? static_cast<IEncoder&>(encoderDir) : deslocamento.encoderDireito();
+
+/// Um ciclo da odometria: soma o que os encoders contaram ou o que a estimativa calculou, e corrige
+/// pelos ToF no modo estimado (no modo com encoder, a correção pelas paredes é feita à parte).
+ResultadoCorrecao cicloDeslocamento(uint32_t dtMs, const DistanciasLaterais* referencia) {
+  if (ENCODERS_INSTALADOS) {
+    odometria.atualizar(rodaEsq, rodaDir);
+    return ResultadoCorrecao::SemReferencia;
+  }
+  return deslocamento.ciclo(dtMs, odometria, referencia);
+}
+
+/// Põe o robô na `pose`, com os contadores em zero.
+void reiniciarDeslocamento(const Pose& pose) {
+  if (ENCODERS_INSTALADOS) {
+    encoderEsq.zerar();
+    encoderDir.zerar();
+    odometria.reiniciar(pose, 0, 0);
+  } else {
+    deslocamento.reiniciar(odometria, pose);
+  }
+}
+
+bool poseConfiavel() { return ENCODERS_INSTALADOS || deslocamento.poseConfiavel(); }
+uint32_t distanciaSemCorrecaoMm() { return ENCODERS_INSTALADOS ? 0 : deslocamento.distanciaSemCorrecaoMm(); }
+PotenciaRodas potenciaComandada() {
+  return ENCODERS_INSTALADOS ? registradorPotencia.ultimaPotencia() : deslocamento.estimador().potencia();
+}
 TofVl53l0x tof(Wire, {pinos::XSHUT_FRONTAL, pinos::ENDERECO_TOF_FRONTAL},
                {pinos::XSHUT_ESQ, pinos::ENDERECO_TOF_ESQ}, {pinos::XSHUT_DIR, pinos::ENDERECO_TOF_DIR});
 
@@ -117,7 +160,8 @@ bool interrompido() {
 }
 
 void imprimirAjuda() {
-  Serial.println("# Bancada do deslocamento sem encoder (#380). Comandos (um por linha):");
+  Serial.printf("# Bancada do deslocamento (#380, #475), modo %s. Comandos (um por linha):\n",
+                ENCODERS_INSTALADOS ? "COM ENCODER" : "SEM ENCODER (estimado)");
   Serial.println("#   INFO            configuracao em uso (tabela, limites, encoders)");
   Serial.println("#   VEL p           velocidade que a tabela supoe para a potencia p, em mm/s");
   Serial.println("#   ZERAR           robo no centro de (0, 0) virado para o Norte, pose confiavel");
@@ -214,19 +258,18 @@ const DistanciasLaterais* lerTofNovo() {
 
 /// Uma linha de estado: potência, pulsos, posição, pose, confiança e ToF.
 void imprimirEstado(const char* tipo, uint32_t tMs) {
-  const PotenciaRodas p = deslocamento.estimador().potencia();
+  const PotenciaRodas p = potenciaComandada();
   const Pose pose = odometria.pose();
   Serial.printf("{\"tipo\":\"%s\",\"t_ms\":%lu,\"pot_esq\":%d,\"pot_dir\":%d,\"pulsos_esq\":%ld,"
                 "\"pulsos_dir\":%ld,\"norte_mm\":%.1f,\"leste_mm\":%.1f,\"linha\":%u,\"coluna\":%u,"
                 "\"orientacao\":\"%c\",\"pose_valida\":%s,\"sem_correcao_mm\":%lu,"
                 "\"tof_frente_mm\":%u,\"tof_esq_mm\":%u,\"tof_dir_mm\":%u,\"tof_valida\":%s}\n",
                 tipo, static_cast<unsigned long>(tMs), p.esquerda, p.direita,
-                static_cast<long>(deslocamento.encoderEsquerdo().lerContagem()),
-                static_cast<long>(deslocamento.encoderDireito().lerContagem()),
+                static_cast<long>(rodaEsq.lerContagem()), static_cast<long>(rodaDir.lerContagem()),
                 odometria.posicaoNorteMicrometros() / 1000.0, odometria.posicaoLesteMicrometros() / 1000.0,
                 pose.celula.linha, pose.celula.coluna, letraDaDirecao(pose.direcao),
-                odometria.posicaoValida() && deslocamento.poseConfiavel() ? "true" : "false",
-                static_cast<unsigned long>(deslocamento.distanciaSemCorrecaoMm()), ultimaLeitura.frenteMm,
+                odometria.posicaoValida() && poseConfiavel() ? "true" : "false",
+                static_cast<unsigned long>(distanciaSemCorrecaoMm()), ultimaLeitura.frenteMm,
                 ultimaLeitura.esquerdaMm, ultimaLeitura.direitaMm, ultimaLeituraValida ? "true" : "false");
 }
 
@@ -239,7 +282,7 @@ void mover(const PotenciaRodas& potencia, long duracaoMs, const char* nome) {
   const double inicioLesteMm = odometria.posicaoLesteMicrometros() / 1000.0;
   bool parou = false;
 
-  deslocamento.motores().definirPotencia(potencia);
+  motoresBancada.definirPotencia(potencia);
   const uint32_t inicioMs = millis();
   uint32_t ultimoCicloMs = inicioMs;
   uint32_t ultimoLogMs = 0;
@@ -255,7 +298,11 @@ void mover(const PotenciaRodas& potencia, long duracaoMs, const char* nome) {
     }
     const uint32_t dtMs = agoraMs - ultimoCicloMs;
     ultimoCicloMs = agoraMs;
-    const ResultadoCorrecao r = deslocamento.ciclo(dtMs, odometria, lerTofNovo());
+    const DistanciasLaterais* referencia = lerTofNovo();
+    const ResultadoCorrecao r = cicloDeslocamento(dtMs, referencia);
+    if (ENCODERS_INSTALADOS && ultimaLeituraNova && correcaoLigada) {
+      correcaoParedes.aplicar(odometria, ultimaLeitura, MovimentoRobo::Avancando, true);
+    }
     if (r == ResultadoCorrecao::PelaFrente || r == ResultadoCorrecao::PelaLateral ||
         r == ResultadoCorrecao::Descartada) {
       const Correcao& c = deslocamento.ultimaCorrecao();
@@ -278,10 +325,10 @@ void mover(const PotenciaRodas& potencia, long duracaoMs, const char* nome) {
       imprimirEstado("log", agoraMs - inicioMs);
     }
   }
-  deslocamento.motores().parar();
+  motoresBancada.parar();
   const uint32_t duracaoReal = millis() - inicioMs;
   // Um último ciclo, já parado, para a estimativa terminar no instante da parada.
-  deslocamento.ciclo(0, odometria, nullptr);
+  cicloDeslocamento(0, nullptr);
 
   Serial.printf("{\"tipo\":\"fim_movimento\",\"movimento\":\"%s\",\"interrompido\":%s,"
                 "\"duracao_ms\":%lu,\"avanco_norte_mm\":%.1f,\"avanco_leste_mm\":%.1f,"
@@ -318,7 +365,7 @@ bool executarMovimento(Movimento movimento, const PlanoRealinhamento* plano = nu
   uint32_t ultimoLogMs = 0;
   while (executor.ocupado()) {
     if (interrompido()) {
-      executor.cancelar(deslocamento.motores());
+      executor.cancelar(motoresBancada);
       parou = true;
       break;
     }
@@ -337,10 +384,12 @@ bool executarMovimento(Movimento movimento, const PlanoRealinhamento* plano = nu
     // Nas manobras, as leituras não servem de referência de posição (#188).
     const DistanciasLaterais* referencia = lerTofNovo();
     if (manobra) {
-      deslocamento.esquecerLaterais();
+      if (!ENCODERS_INSTALADOS) {
+        deslocamento.esquecerLaterais();
+      }
       referencia = nullptr;
     }
-    deslocamento.ciclo(dtMs, odometria, referencia);
+    cicloDeslocamento(dtMs, referencia);
     if (ultimaLeituraNova && correcaoLigada) {
       correcaoParedes.aplicar(odometria, ultimaLeitura, manobra ? MovimentoRobo::Manobrando : MovimentoRobo::Avancando,
                               ENCODERS_INSTALADOS);
@@ -351,14 +400,14 @@ bool executarMovimento(Movimento movimento, const PlanoRealinhamento* plano = nu
     entrada.giro = giro.ultima();
     entrada.posicaoAvancoUm = posicaoAoLongoDoAvancoUm(odometria);
     entrada.dtMs = dtMs;
-    executor.atualizar(entrada, deslocamento.motores());
+    executor.atualizar(entrada, motoresBancada);
     if (agoraMs - ultimoLogMs >= PERIODO_LOG_MS) {
       ultimoLogMs = agoraMs;
       imprimirEstado("log", agoraMs - inicioMs);
     }
   }
-  deslocamento.motores().parar();
-  deslocamento.ciclo(0, odometria, nullptr);
+  motoresBancada.parar();
+  cicloDeslocamento(0, nullptr);
   const bool concluido = executor.estado() == EstadoExecucao::Concluido;
   if (concluido && ehGiro(movimento)) {
     direcaoAtual = direcaoDepois(direcaoAtual, movimento);
@@ -497,8 +546,8 @@ void executar(String linha) {
     Serial.printf("{\"tipo\":\"vel\",\"potencia\":%d,\"mm_por_s\":%ld}\n", potencia,
                   static_cast<long>(deslocamento.estimador().velocidadeMmPorS(potencia)));
   } else if (comando == "ZERAR") {
-    deslocamento.motores().parar();
-    deslocamento.reiniciar(odometria, {{0, 0}, Direcao::Norte});
+    motoresBancada.parar();
+    reiniciarDeslocamento({{0, 0}, Direcao::Norte});
     correcaoParedes.reiniciar();
     direcaoAtual = Direcao::Norte;
     executor.definirRumoAlvo(giro.ultima().anguloMiligraus);
@@ -556,9 +605,11 @@ void executar(String linha) {
 
 void setup() {
   Serial.begin(115200);
-  Serial.setTxTimeoutMs(0);
+#if ARDUINO_USB_CDC_ON_BOOT
+  Serial.setTxTimeoutMs(0);  // a USB nativa não trava a escrita se o monitor fechar
+#endif
   motoresDrv.iniciar();  // começa freado
-  deslocamento.motores().parar();
+  motoresBancada.parar();
   barramento.iniciar(pinos::I2C_SDA, pinos::I2C_SCL);  // inicia o `Wire`
   const bool tofOk = tof.iniciar();
   imuOk = imu.iniciar();
@@ -570,8 +621,12 @@ void setup() {
   if (!imuOk) {
     Serial.println("# ATENCAO: o MPU6050 nao respondeu; os comandos GIRO* nao vao funcionar.");
   }
+  if (ENCODERS_INSTALADOS) {
+    encoderEsq.iniciar();
+    encoderDir.iniciar();
+  }
   calibrarGiro();  // robô parado na mesa
-  deslocamento.reiniciar(odometria, {{0, 0}, Direcao::Norte});
+  reiniciarDeslocamento({{0, 0}, Direcao::Norte});
   Serial.println("{\"tipo\":\"pronto\",\"programa\":\"bancada_deslocamento\"}");
 }
 

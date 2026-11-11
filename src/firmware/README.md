@@ -8,7 +8,7 @@ A documentação detalhada do código (camadas, tipos, pinagem, interface dos se
 
 ```
 src/firmware/
-├── platformio.ini     # ambientes esp32c3 (placa), native (testes no computador), native_cobertura (testes com cobertura, usado no CI), bancada_geral, bancada_tof e bancada_deslocamento (firmwares de bancada)
+├── platformio.ini     # ambientes esp32c3 (placa), native (testes no computador), native_cobertura (testes com cobertura, usado no CI), bancada_geral, bancada_tof, bancada_deslocamento (e suas variantes `_sem_encoder` e `_devkit`) (firmwares de bancada)
 ├── src/main.cpp       # ponto de entrada: cria as tarefas FreeRTOS (navegação e telemetria)
 ├── src/bancada/       # programas de bancada, fora do firmware do robô
 ├── lib/               # uma biblioteca por camada
@@ -26,7 +26,7 @@ src/firmware/
 | `falhas` | Robustez | Falha do I²C durante a corrida (#241): tentativas, reinício e recuperação dos 4 dispositivos (`SupervisorI2c`), leitura de cada ToF pelas amostras (`VigiaTof`) e motores parados enquanto durar a falha (`TravaFalhaI2c`), com os parâmetros em `ConfiguracaoFalhasI2c.h` |
 | `tof` | Sensoriamento | Regra de validade das leituras dos 3 VL53L0X (`CombinadorTof`) e seus parâmetros provisórios (`ConfiguracaoTof.h`), sem Arduino |
 | `imu` | Sensoriamento | Giroscópio: conversão da leitura do MPU6050, calibração do viés, ângulo de giro (`IntegradorGiro`) e o ciclo da tarefa da IMU (`AcompanhadorGiro`) |
-| `deslocamento` | Sensoriamento | Deslocamento sem encoder: estimativa pela potência dos motores (`EncoderEstimado`, `MotoresComEstimativa`) e correção pelos ToF; todos os ajustes em `ConfiguracaoDeslocamento.h` |
+| `deslocamento` | Sensoriamento | Deslocamento sem encoder (plano B; o padrão são os encoders, #475): estimativa pela potência dos motores (`EncoderEstimado`, `MotoresComEstimativa`) e correção pelos ToF; todos os ajustes em `ConfiguracaoDeslocamento.h` |
 | `encoders` | Sensoriamento | Decodificação em quadratura (x4) dos canais A e B, conversão de pulsos em milímetros (calibrável) e distância percorrida por cada roda |
 | `mapeamento` | Mapeamento | Mapa do labirinto (4 paredes por célula) e armazenamento em memória |
 | `navegacao` | Navegação | Localização (`Odometria`: pose pela odometria diferencial dos encoders), decisão de movimento (`Navegacao`), detecção do objetivo (`DetectorObjetivo`) e as fases do robô na telemetria (`FaseCorrida`, #242) |
@@ -301,7 +301,9 @@ A eletrônica ainda não informou a tensão do VM (bateria 2S ou 5 V) nem a tens
 
 ## Deslocamento sem encoder
 
-Na Rev 2.0 os encoders ainda não estão instalados. Enquanto isso, o deslocamento é **estimado pela potência comandada vezes o tempo** e **corrigido pelos ToF** ([#380](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380)). O `EncoderEstimado` implementa o `IEncoder`, então a `Odometria` não muda; o `MotoresComEstimativa` implementa o `IMotores`, então quem aciona as rodas também não.
+**Desde a [#475](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/475), o padrão do robô são os encoders** (`ENCODERS_INSTALADOS` é `true`). Este modo é o plano B e a referência de comparação da bancada: compile com `-DENCODERS_INSTALADOS_VALOR=0` (ambiente `bancada_deslocamento_sem_encoder`) para usá-lo.
+
+Quando os encoders não estavam instalados, o deslocamento era **estimado pela potência comandada vezes o tempo** e **corrigido pelos ToF** ([#380](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380)). O `EncoderEstimado` implementa o `IEncoder`, então a `Odometria` não muda; o `MotoresComEstimativa` implementa o `IMotores`, então quem aciona as rodas também não.
 
 ```cpp
 DeslocamentoEstimado deslocamento(motoresDrv8833);
@@ -321,7 +323,7 @@ bool poseValida = odometria.posicaoValida() && deslocamento.poseConfiavel();
 | `pose_valida` | Fica `false` depois de 360 mm sem nenhuma correção, até a próxima |
 | Telemetria | Campos `deslocamento` (`"estimado"` ou `"encoder"`) e `sem_correcao_mm`. O comando `Z` reposiciona o robô no centro da célula atual e reinicia o `DetectorObjetivo` |
 | Objetivo | O `DetectorObjetivo` freia por `deslocamento.motores()`, para o estimador saber que o robô parou, e só declara a chegada com `poseConfiavel()` |
-| Troca para o encoder real | `ENCODERS_INSTALADOS = true` em `ConfiguracaoDeslocamento.h`; nada mais muda |
+| Escolha do modo | `ENCODERS_INSTALADOS` em `ConfiguracaoDeslocamento.h` é `true` por padrão; para o modo estimado, compile com `-DENCODERS_INSTALADOS_VALOR=0`. A `Odometria` e o `ControleMovimento` não mudam |
 
 ### Limites deste modo
 
@@ -345,9 +347,9 @@ Todos ficam em **`lib/deslocamento/src/ConfiguracaoDeslocamento.h`**, e cada um 
 | `CORRECAO_MAXIMA_MM` | 70 | Maior que a deriva entre duas referências, menor que meia célula |
 | `DISTANCIA_MAXIMA_SEM_CORRECAO_MM` | 360 | Quanto o robô anda antes de errar a célula; aumentar com a tabela calibrada |
 
-### Bancada do deslocamento sem encoder
+### Bancada do deslocamento
 
-Para conferir a estimativa com o robô montado (motores e ToF), use o menu de bancada (precisa de `pip install pyserial`):
+Para conferir o deslocamento com o robô montado (motores, encoders e ToF), use o menu de bancada. O padrão grava o modo **com encoder**; para o modo estimado, passe `--ambiente bancada_deslocamento_sem_encoder`. Na ESP32 DevKit, use os ambientes com o sufixo `_devkit` (`bancada_deslocamento_devkit` e `bancada_deslocamento_devkit_sem_encoder`). Para medir o erro dos encoders (#475), rode o roteiro nos dois modos, com as mesmas distâncias de 1, 2 e 3 células, e compare os dois `relatorio.md` (precisa de `pip install pyserial`):
 
 ```bash
 ./scripts/bancada_deslocamento.py          # escolhe a porta; ou --porta /dev/ttyACM0 (COM5 no Windows)
@@ -355,7 +357,7 @@ Para conferir a estimativa com o robô montado (motores e ToF), use o menu de ba
 
 **ATENÇÃO:** as etapas acionam os motores. Robô no chão, com espaço livre. **Ctrl+C freia na hora**, e cada movimento dura no máximo 10 s.
 
-1. **Opção 1:** grava o firmware de bancada (`pio run -e bancada_deslocamento -t upload`).
+1. **Opção 1:** grava o firmware de bancada (`pio run -e bancada_deslocamento -t upload`, ou `bancada_deslocamento_sem_encoder` com `--ambiente`).
 2. **Opção 3:** roteiro completo. Em cada etapa o menu explica o que montar, aciona o robô e mostra o log ao vivo (posição estimada, célula, `pose_valida`, distância sem correção, ToF e cada correção aplicada), pede a medida da régua e dá APROVADO, REPROVADO ou OBSERVADO.
 3. **Logs:** cada movimento vira um CSV numa pasta `bancada_deslocamento_<data>/`, junto com o `relatorio.md`, para registrar em `docs/07-testes/software.md`.
 4. Ao terminar, grave de volta o firmware do robô: `pio run -e esp32c3 -t upload`.
@@ -791,7 +793,8 @@ Execute os comandos dentro de `src/firmware`:
 | Gravar na placa | `pio run -e esp32c3 -t upload` |
 | Gravar a bancada geral (menu de sensores e motores) | `pio run -e bancada_geral -t upload && pio device monitor -e bancada_geral` |
 | Gravar o firmware de bancada dos VL53L0X | `pio run -e bancada_tof -t upload` (ou pelo `scripts/bancada_tof.py`) |
-| Gravar o firmware de bancada do deslocamento | `pio run -e bancada_deslocamento -t upload` (ou pelo `scripts/bancada_deslocamento.py`) |
+| Gravar o firmware de bancada do deslocamento (com encoder) | `pio run -e bancada_deslocamento -t upload` (ou pelo `scripts/bancada_deslocamento.py`) |
+| Gravar o mesmo firmware no modo sem encoder, para comparar | `pio run -e bancada_deslocamento_sem_encoder -t upload` (ou `scripts/bancada_deslocamento.py --ambiente bancada_deslocamento_sem_encoder`) |
 | Abrir o monitor serial | `pio device monitor` (`B` repete o relatório do boot; `Z` zera os encoders) |
 | Rodar os testes no computador | `pio test -e native` |
 | Rodar um teste específico | `pio test -e native -f test_nucleo` |
