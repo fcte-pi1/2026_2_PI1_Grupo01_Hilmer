@@ -31,9 +31,9 @@ Esta nota contém o aviso preparado para encaminhamento; **não há confirmaçã
 
 A manutenção dos artefatos é manual: editar o esquema no KiCad, manter a tabela de `hardware.md` e o CSV `diagramas/pinagem.csv` consistentes, exportar o PDF e atualizar a figura da documentação. A tabela e o CSV usam os nomes reais das constantes do firmware; as redes `BTN_START` e `BAT_ADC` do esquema correspondem a `BOTAO_START` e `BATERIA_ADC`. Repetir a conferência dos 15 sinais, linha a linha, com o bloco DevKit existente após corrigir IN4.
 
-### Pendência com Energia — bulk de VM
+### Alinhamento com Energia — C4 no VM
 
-O esquema, o PDF e a figura da Rev 2.1 representam **C4 de 100 µF** no barramento de 6 V/VM. A [#216 de Energia](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/216) especifica **bulk de 470 µF Low-ESR**; portanto, o C4 atual não corresponde a esse requisito. A adequação de C4 para 470 µF Low-ESR deve ser refletida conjuntamente no KiCad, PDF, figura e BOM, com verificação do componente e ensaio de ruído pela Energia. O requisito de 470 µF está registrado na BOM como adequação pendente; não há confirmação de substituição física nem de eficácia medida.
+**Confirmado com Energia em 10/11/2026:** manter **C4 de 100 µF** no barramento de 6 V/VM, conforme informado pelo responsável. O valor permanece consistente entre esquema, PDF, figura e BOM. A referência a 470 µF na [#216](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/216) não implica substituição de C4 nesta revisão. A confirmação do valor não constitui evidência de ensaio de ruído.
 
 Os scripts auxiliares de geração e verificação foram removidos a pedido do responsável. O KiCad, o PDF, a figura, a BOM e o CSV já produzidos foram preservados. As verificações de conectividade registradas abaixo correspondem às verificações realizadas antes dessa remoção; não há geração ou verificação automática disponível nesta entrega.
 
@@ -54,7 +54,7 @@ A verificação estrutural e de conectividade não substitui ERC: abertura/ERC n
 - [x] Trilhos 3V3 separados, VIN por U2 e restrição de USB documentados.
 - [ ] Software avisado no mesmo dia e `Pinos.h` sincronizado linha a linha.
 - [ ] Troca física de IN4, abertura/ERC no KiCad e ensaios de reset/partida realizados.
-- [ ] C4 adequado ao bulk de 470 µF Low-ESR da #216, artefatos sincronizados e eficácia validada com Energia.
+- [x] C4 mantido em 100 µF, conforme confirmação com Energia informada pelo responsável em 10/11/2026.
 - [ ] Artefatos publicados no repositório remoto.
 
-A pinagem está definida para Hardware; a integração com o firmware e a bancada permanece pendente. Nesta correção documental, o requisito de bulk também foi registrado em Energia. O firmware, o orçamento, a CI e as configurações da raiz não foram alterados.
+A pinagem está definida para Hardware; a integração com o firmware e a bancada permanece pendente. Nesta correção documental, a confirmação de C4 em 100 µF também foi registrada em Energia. O firmware, o orçamento, a CI e as configurações da raiz não foram alterados.

@@ -4,7 +4,7 @@ A revisão vigente é a **2.1 de 03/11/2026**, com ESP32 DevKit V1. Consulte o [
 
 O esquema usa folha A3 horizontal, blocos por subsistema, símbolos elétricos, fios e rótulos de rede, com moldura e carimbo. A apresentação mantém todas as conexões da Rev 2.1.
 
-**Bulk de VM pendente de adequação com Energia:** os artefatos abaixo mostram C4 de 100 µF; a [#216](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/216) requer 470 µF Low-ESR. Atualizar KiCad, PDF, figura e BOM em conjunto ao adequar C4 e validar o ruído em bancada; a publicação atual não comprova atendimento a esse requisito.
+**C4 confirmado com Energia — 10/11/2026:** manter **100 µF** no barramento de 6 V/VM, conforme informado pelo responsável. Esquema, PDF, figura e BOM preservam esse valor; não há pendência de troca de C4 para 470 µF nesta revisão. Essa confirmação não substitui ensaio de ruído.
 
 [![Esquemático Rev 2.1](../figs/hardware-esquematico.png)](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/Micromouse.pdf)
 

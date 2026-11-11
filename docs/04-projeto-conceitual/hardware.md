@@ -62,9 +62,9 @@ O uso de uma fonte recarregável permite a operação móvel e autônoma. A dist
 | :--- | :--- | :---: | :--- | :--- |
 | U5 | MP1584EN | **3,3 V** | Três VL53L0X e MPU6050 | C8 de 10 µF e C7 de 100 nF. |
 | U2 | MP1584EN | **5 V** | Pino `VIN / 5V` da placa ESP32 DevKit V1 | C6 de 10 µF e C2 de 100 µF. |
-| U4 | MP1584EN | **6 V** | Alimentação de potência do DRV8833 | C3 de 10 µF e C4 de 100 µF no esquema atual; adequação ao bulk de 470 µF Low-ESR da #216 pendente (ver abaixo). |
+| U4 | MP1584EN | **6 V** | Alimentação de potência do DRV8833 | C3 de 10 µF e C4 de 100 µF, mantido conforme confirmação com Energia em 10/11/2026. |
 
-**Alinhamento com Energia:** a [#216](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/216) especifica bulk de **470 µF Low-ESR**. C4 de **100 µF**, ainda representado no KiCad, PDF e figura da Rev 2.1, não corresponde a esse requisito. A BOM registra a adequação pendente de C4 para 470 µF Low-ESR; atualizar todos os artefatos em conjunto e validar a eficácia com Energia. Não há confirmação de substituição física ou ensaio de ruído.
+**Alinhamento com Energia — 10/11/2026:** o responsável confirmou com Energia que **C4 deve permanecer em 100 µF**, conforme KiCad, PDF, figura e BOM da Rev 2.1. A referência a 470 µF na [#216](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/216) não implica substituição de C4 nesta revisão. A confirmação do valor não comprova a eficácia da filtragem em ensaio de ruído.
 
 Os capacitores associados aos conversores auxiliam na filtragem e no atendimento às variações de carga. A alimentação dedicada dos motores busca reduzir a influência de suas comutações sobre os sensores e o microcontrolador.
 
@@ -205,7 +205,7 @@ O relatório técnico estabelece a seguinte sequência de montagem e verificaç�
 | Motor GA12-N20-S0310D-E, 6 V (modelo sugerido) | 2 | J1 e J2; fonte: [lista de compras, item 9](../06-orcamento.md#lista-de-componentes). Relação de redução e identificação do fornecedor a confirmar. |
 | Resistores de monitoramento | 2 | R1: 100 kΩ; R2: 33 kΩ. |
 | Resistor de habilitação do driver | 1 | R4: 47 kΩ. |
-| Capacitores de filtragem | 7 | C2: 100 µF; C4: 100 µF no esquema atual, com adequação a 470 µF Low-ESR pendente (#216); C3, C6 e C8: 10 µF; C5 e C7: 100 nF. |
+| Capacitores de filtragem | 7 | C2 e C4: 100 µF; C3, C6 e C8: 10 µF; C5 e C7: 100 nF. C4 mantido conforme confirmação com Energia em 10/11/2026. |
 
 ### 6.1 Fonte da identificação dos motores
 
@@ -218,3 +218,4 @@ O código **GA12-N20-S0310D-E** e a tensão nominal de **6 V** foram transcritos
 | 2.0 | 21/10/2026 | Sincronização do esquemático KiCad, PDF e Figura 2: R2 de 33 kΩ, I²C em GPIO9/8, motores em GPIO10/3/20/21, XSHUT em GPIO0/1/2 e divisor em BAT_ADC_TEST. Inclusão da fonte interna do modelo sugerido dos motores. | Eduardo Gaspar |
 | 2.1 | 03/11/2026 | Migração para DevKit V1; tabela conforme o CSV de Hardware, IN4 em GPIO13, encoders e START, BAT_ADC em ADC1_CH6, trilhos 3V3 separados e nSLEEP em 3,3 V. Sincronização pelo Software e validação física pendentes. | Eduardo Gaspar |
 | 2.1 (correção documental) | 09/11/2026 | Referência à #485 e ao ambiente bancada_geral_devkit; nomes reais de Pinos.h; única divergência de GPIO em MOTOR_DIR_IN4; requisito de bulk de 470 µF Low-ESR da #216 registrado como adequação pendente. | Eduardo Gaspar |
+| 2.1 (confirmação de C4) | 10/11/2026 | C4 mantido em 100 µF conforme confirmação com Energia informada pelo responsável; removida a pendência de troca para 470 µF. | Eduardo Gaspar |

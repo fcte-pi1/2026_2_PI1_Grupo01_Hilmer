@@ -21,7 +21,7 @@ R2,1,Divisor da bateria (baixo),33 kOhm,-,BAT_ADC / ADC1_CH6,-,Rev 2.1: ligado a
 R4,1,Pull-up do nSLEEP do DRV8833,47 kOhm,3.3 V (U5),DRV_SLEEP / nSLEEP,-,Pull-up para +3V3_SENS; driver habilitado; nao protege contra tranco no boot
 C2,1,Capacitor de saida do buck 5 V,100 uF,5 V,-,-,
 C3,1,Capacitor do buck 6 V,10 uF,6 V,-,-,
-C4,1,Capacitor de saida do buck 6 V,100 uF,6 V,-,-,Valor no esquema Rev 2.1; adequacao pendente ao bulk de 470 uF Low-ESR requerido pela Energia (#216); atualizar KiCad/PDF/figura/BOM em conjunto e validar ruido; substituicao fisica nao confirmada
+C4,1,Capacitor de saida do buck 6 V,100 uF,6 V,-,-,Manter 100 uF conforme confirmacao com Energia informada pelo responsavel em 10/11/2026; ensaio de ruido nao comprovado por esta confirmacao
 C5,1,Filtro do divisor da bateria,100 nF,-,BAT_ADC / ADC1_CH6,-,Rev 2.1: ligado ao ADC; R1=100 kOhm; R2=33 kOhm; C5=100 nF
 C6,1,Capacitor do buck 5 V,10 uF,5 V,-,-,
 C7,1,Capacitor de saida do buck 3.3 V,100 nF,3.3 V,-,-,Valor preservado da Rev 2.0; confirmar desacoplamento do modulo em bancada
