@@ -1355,6 +1355,8 @@
       
         
       
+        
+      
     
     
     
@@ -1969,6 +1971,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integracao/telemetria-wifi-rede-reserva/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5.2 Telemetria por Wi-Fi e rede reserva
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2373,7 +2403,7 @@
 </tr>
 <tr>
 <td>Para a telemetria (tecla <code>w</code>)</td>
-<td>Rede Wi-Fi de <strong>2,4 GHz</strong> (um hotspot de celular serve) e o arquivo <code>include/credenciais.h</code> preenchido (seção 5)</td>
+<td>Rede Wi-Fi de <strong>2,4 GHz</strong> (um hotspot de celular serve). Só o Wi-Fi (teclas <code>p</code>, <code>v</code>, <code>w</code> e <code>m</code>) funciona sem nenhum arquivo; para gravar no banco, o <code>include/credenciais.h</code> preenchido (seção 5)</td>
 </tr>
 </tbody>
 </table>
@@ -2693,8 +2723,20 @@
 <td><strong>Fluxo completo</strong>: Wi-Fi, DNS, criar corrida, enviar um lote, reenviar o lote (confere que não duplica) e encerrar. Termina com <code>RESULTADO</code></td>
 </tr>
 <tr>
+<td style="text-align: center;"><code>p</code></td>
+<td><strong>Escolher a rede sem regravar a placa:</strong> lista as redes visíveis numeradas; digite o número (ou o nome exato) e Enter, depois a senha e Enter (aparece como <code>*</code>; Esc cancela). Se conectar, a bancada pergunta se salva a rede na placa: salva, ela volta a cada boot até a tecla <code>f</code>. Serve para qualquer pessoa testar com o próprio hotspot, sem mexer no <code>credenciais.h</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>f</code></td>
+<td>Esquece a rede salva pela tecla <code>p</code> e volta à rede do <code>credenciais.h</code></td>
+</tr>
+<tr>
 <td style="text-align: center;"><code>w</code> / <code>d</code></td>
-<td>Conecta no Wi-Fi (mostra IP e sinal) / resolve o nome do Supabase</td>
+<td>Conecta no Wi-Fi (mostra a rede, principal ou reserva, o IP e o sinal) / resolve o nome do Supabase</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>v</code></td>
+<td><strong>Varredura:</strong> lista as redes de 2,4 GHz que a placa enxerga e marca a principal e a reserva do <code>credenciais.h</code>. Avisa quando o nome bate só sem diferenciar maiúsculas (<code>iPhone</code> não é <code>Iphone</code>)</td>
 </tr>
 <tr>
 <td style="text-align: center;"><code>c</code> / <code>l</code> / <code>r</code> / <code>e</code></td>
@@ -2702,7 +2744,19 @@
 </tr>
 <tr>
 <td style="text-align: center;"><code>b</code></td>
-<td><strong>Teste de reenvio com queda de Wi-Fi:</strong> 60 s de amostras (1 por segundo) pelo mesmo buffer do robô. Desligue o hotspot por cerca de 30 s no meio e religue; no fim, ele confere se nenhuma amostra se perdeu ou duplicou e dá a consulta SQL para conferir no banco</td>
+<td><strong>Teste de reenvio com queda de Wi-Fi:</strong> amostras (1 por segundo) pelo mesmo buffer do robô até o Wi-Fi cair e voltar. Quando quiser, desligue os hotspots (principal e reserva) por cerca de 30 s e religue; o teste termina 15 s depois de o Wi-Fi voltar (pelo menos 60 s, no máximo 5 min), confere se nenhuma amostra se perdeu ou duplicou e dá a consulta SQL para conferir no banco</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>m</code></td>
+<td><strong>Sinal ao vivo:</strong> a cada 0,5 s mostra a rede e o RSSI (bom a partir de -67 dBm, aceitável até -75, fraco até -80, crítico abaixo), com mínimo, média e máximo. Use andando com o robô pela pista. Desligando a principal, a troca para a reserva aparece na tela</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>n</code></td>
+<td><strong>Corrida sem rede:</strong> desliga o Wi-Fi, põe 600 amostras (10 min) no buffer, religa e confere que todas chegaram ao banco</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>x</code></td>
+<td><strong>Buffer cheio:</strong> o mesmo, com 650 amostras; as 50 mais antigas têm de ser descartadas e o banco fica com as sequências 51 a 650</td>
 </tr>
 <tr>
 <td style="text-align: center;"><code>s</code> / <code>0</code></td>
@@ -2847,9 +2901,9 @@
 </thead>
 <tbody>
 <tr>
-<td><code>Wi-Fi nao conectou</code></td>
-<td>Rede de 5 GHz, senha errada ou rede com login por portal</td>
-<td>Use um hotspot de celular em 2,4 GHz e confira <code>CREDENCIAL_WIFI_SSID</code> e a senha</td>
+<td><code>Wi-Fi nao conectou</code> ou <code>nenhuma rede Wi-Fi configurada</code></td>
+<td>Rede de 5 GHz, senha errada, nome com maiúsculas diferentes, rede com login por portal, ou nenhuma rede no <code>credenciais.h</code></td>
+<td>Use um hotspot de celular em 2,4 GHz (no iPhone, <strong>Maximizar Compatibilidade</strong> e a tela do Acesso Pessoal aberta). Tecle <code>p</code>, escolha a rede pelo número e digite a senha; ou tecle <code>v</code> para ver o nome exato e confira <code>CREDENCIAL_WIFI_SSID</code> e a senha</td>
 </tr>
 <tr>
 <td><code>sem include/credenciais.h</code></td>

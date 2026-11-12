@@ -1355,6 +1355,8 @@
       
         
       
+        
+      
     
     
     
@@ -1722,6 +1724,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="telemetria-wifi-rede-reserva/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5.2 Telemetria por Wi-Fi e rede reserva
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1860,16 +1890,16 @@
 </tr>
 <tr>
 <td style="text-align: center;">5.2</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
+<td><a href="telemetria-wifi-rede-reserva/">Telemetria por Wi-Fi: rede da demonstração, rede reserva e reenvio</a></td>
+<td>10/11/2026</td>
+<td>10/11/2026</td>
+<td>Software</td>
+<td>Cláudio Henrique</td>
+<td>Rede principal e reserva em 2,4 GHz definidas e testadas; troca automática entre elas; com o Wi-Fi caindo ou sem rede, a telemetria fica no buffer (600 amostras) e chega toda ao banco ao reconectar, sem perda e sem duplicata; com o buffer cheio, as amostras mais antigas são descartadas</td>
+<td>Principal: hotspot Android; reserva: iPhone. Troca para a reserva em 11 s e de volta à principal em 12 s; queda real de 39 s com 239 amostras gravadas sem perda e sem duplicata; corrida inteira sem rede (600 amostras) enviada em 6 s; com 650 amostras, as 50 mais antigas descartadas. Contagens conferidas no banco</td>
+<td style="text-align: center;">S</td>
+<td style="text-align: center;">—</td>
+<td>Ensaio em bancada numa ESP32-S3 avulsa. Detalhes, varredura das redes do laboratório e conferência no banco em <a href="telemetria-wifi-rede-reserva/">7.5.2</a></td>
 </tr>
 <tr>
 <td style="text-align: center;">5.3</td>
