@@ -31,7 +31,7 @@ A bancada **não é o firmware do robô**. Ela não faz a corrida, só testa com
 | Computador | Windows 10/11, macOS ou Linux |
 | Software | Git, Python 3 e o PlatformIO Core (instalação abaixo) |
 | Para motores | Fonte ou bateria de 5 a 6 V no driver, com limite de corrente (de 0,5 A para cima), e o robô montado ou o motor ligado ao driver |
-| Para a telemetria (tecla `w`) | Rede Wi-Fi de **2,4 GHz** (um hotspot de celular serve) e o arquivo `include/credenciais.h` preenchido (seção 5) |
+| Para a telemetria (tecla `w`) | Rede Wi-Fi de **2,4 GHz** (um hotspot de celular serve). Só o Wi-Fi (teclas `p`, `v`, `w` e `m`) funciona sem nenhum arquivo; para gravar no banco, o `include/credenciais.h` preenchido (seção 5) |
 
 ## 3. Instalação (uma vez só)
 
@@ -249,9 +249,15 @@ O submenu grava uma corrida e amostras de teste **de verdade** no banco do `cred
 | Tecla | O que faz |
 |:-:|---|
 | `a` | **Fluxo completo**: Wi-Fi, DNS, criar corrida, enviar um lote, reenviar o lote (confere que não duplica) e encerrar. Termina com `RESULTADO` |
-| `w` / `d` | Conecta no Wi-Fi (mostra IP e sinal) / resolve o nome do Supabase |
+| `p` | **Escolher a rede sem regravar a placa:** lista as redes visíveis numeradas; digite o número (ou o nome exato) e Enter, depois a senha e Enter (aparece como `*`; Esc cancela). Se conectar, a bancada pergunta se salva a rede na placa: salva, ela volta a cada boot até a tecla `f`. Serve para qualquer pessoa testar com o próprio hotspot, sem mexer no `credenciais.h` |
+| `f` | Esquece a rede salva pela tecla `p` e volta à rede do `credenciais.h` |
+| `w` / `d` | Conecta no Wi-Fi (mostra a rede, principal ou reserva, o IP e o sinal) / resolve o nome do Supabase |
+| `v` | **Varredura:** lista as redes de 2,4 GHz que a placa enxerga e marca a principal e a reserva do `credenciais.h`. Avisa quando o nome bate só sem diferenciar maiúsculas (`iPhone` não é `Iphone`) |
 | `c` / `l` / `r` / `e` | Cria a corrida / envia 5 amostras / reenvia o último lote / encerra a corrida |
-| `b` | **Teste de reenvio com queda de Wi-Fi:** 60 s de amostras (1 por segundo) pelo mesmo buffer do robô. Desligue o hotspot por cerca de 30 s no meio e religue; no fim, ele confere se nenhuma amostra se perdeu ou duplicou e dá a consulta SQL para conferir no banco |
+| `b` | **Teste de reenvio com queda de Wi-Fi:** amostras (1 por segundo) pelo mesmo buffer do robô até o Wi-Fi cair e voltar. Quando quiser, desligue os hotspots (principal e reserva) por cerca de 30 s e religue; o teste termina 15 s depois de o Wi-Fi voltar (pelo menos 60 s, no máximo 5 min), confere se nenhuma amostra se perdeu ou duplicou e dá a consulta SQL para conferir no banco |
+| `m` | **Sinal ao vivo:** a cada 0,5 s mostra a rede e o RSSI (bom a partir de -67 dBm, aceitável até -75, fraco até -80, crítico abaixo), com mínimo, média e máximo. Use andando com o robô pela pista. Desligando a principal, a troca para a reserva aparece na tela |
+| `n` | **Corrida sem rede:** desliga o Wi-Fi, põe 600 amostras (10 min) no buffer, religa e confere que todas chegaram ao banco |
+| `x` | **Buffer cheio:** o mesmo, com 650 amostras; as 50 mais antigas têm de ser descartadas e o banco fica com as sequências 51 a 650 |
 | `s` / `0` | Status / volta ao menu principal |
 
 ## 7. Problemas comuns e como resolver
@@ -404,7 +410,7 @@ A bancada mostra o código HTTP, a resposta do servidor e uma dica. Os casos mai
 
 | O que aparece | Causa provável | O que fazer |
 |---|---|---|
-| `Wi-Fi nao conectou` | Rede de 5 GHz, senha errada ou rede com login por portal | Use um hotspot de celular em 2,4 GHz e confira `CREDENCIAL_WIFI_SSID` e a senha |
+| `Wi-Fi nao conectou` ou `nenhuma rede Wi-Fi configurada` | Rede de 5 GHz, senha errada, nome com maiúsculas diferentes, rede com login por portal, ou nenhuma rede no `credenciais.h` | Use um hotspot de celular em 2,4 GHz (no iPhone, **Maximizar Compatibilidade** e a tela do Acesso Pessoal aberta). Tecle `p`, escolha a rede pelo número e digite a senha; ou tecle `v` para ver o nome exato e confira `CREDENCIAL_WIFI_SSID` e a senha |
 | `sem include/credenciais.h` | O arquivo não existe | Copie o `credenciais.exemplo.h` e preencha (seção 5, passo 7) |
 | `HTTP 401` ou `403` | Chave `anon` ou `DEVICE_TOKEN` errados | O token precisa ser igual ao segredo `DEVICE_TOKEN` das Edge Functions. Use a chave `anon` ou `publishable`, **nunca** a `sb_secret` |
 | `HTTP 404` com `Requested function was not found` | A Edge Function não foi publicada | `supabase functions deploy corridas` e `telemetria` |
