@@ -907,7 +907,7 @@ Todo PR para a `main` (e todo push nela) roda o workflow **CI Firmware** (`.gith
 | Check | O que faz | Reprova quando |
 |---|---|---|
 | **Testes nativos** | Roda `pio test -e native_cobertura` (os testes do `native` com medição de cobertura) e gera o relatório com o `gcovr` | Algum teste falha ou a cobertura das linhas de `lib/` fica abaixo de 80% |
-| **Build ESP32 DevKit** | Roda `pio run` no robô (`esp32_devkit`) e nas bancadas (`bancada_tof_devkit`, `bancada_geral_devkit` e `bancada_deslocamento_devkit`) | Algum firmware não compila para a placa |
+| **Build ESP32-C3** (nome mantido por causa da proteção da `main`; o job compila o ESP32 DevKit V1) | Roda `pio run` no robô (`esp32_devkit`) e nas bancadas (`bancada_tof_devkit`, `bancada_geral_devkit` e `bancada_deslocamento_devkit`) | Algum firmware não compila para a placa |
 
 A cobertura mede só o código compilado nos testes nativos (`lib/`, sem `drivers_esp32`); `src/main.cpp` fica de fora. Código novo em `lib/` sem teste derruba a cobertura e reprova o PR.
 

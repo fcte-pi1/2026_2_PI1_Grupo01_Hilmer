@@ -53,7 +53,9 @@ jobs:
           retention-days: 14
 
   build:
-    name: Build ESP32 DevKit
+    # O nome continua "Build ESP32-C3" só porque a proteção da `main` exige o check com esse nome. O job
+    # compila o ESP32 DevKit V1. Quando o administrador trocar o check exigido para o nome novo, renomeie.
+    name: Build ESP32-C3
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
