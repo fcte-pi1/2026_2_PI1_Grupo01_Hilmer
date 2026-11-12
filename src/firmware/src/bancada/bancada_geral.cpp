@@ -38,8 +38,10 @@
 // firmware compila e o menu de telemetria explica o que fazer.
 #if defined(BANCADA_COM_TELEMETRIA)
 #include <HTTPClient.h>
+#include <Preferences.h>
 #include <WiFi.h>
 #include <string.h>
+#include <strings.h>
 
 #if __has_include("credenciais.h")
 #include "credenciais.h"
@@ -979,13 +981,34 @@ void executarMotores(char tecla) {
 #if defined(BANCADA_COM_TELEMETRIA)
 // ---------------------------------------------------------------- telemetria
 
-/// Tempo máximo esperando o Wi-Fi conectar nos comandos que precisam dele, em ms.
-constexpr uint32_t ESPERA_WIFI_MS = 20000;
+/// Tempo máximo esperando o Wi-Fi conectar nos comandos que precisam dele, em ms: uma tentativa
+/// (`TEMPO_LIMITE_CONEXAO_WIFI_MS`) por rede conhecida, mais esta folga.
+constexpr uint32_t FOLGA_ESPERA_WIFI_MS = 10000;
 
-/// Teste de reenvio (#478): quanto tempo gera amostras, quanto espera o buffer esvaziar no fim e de
-/// quanto em quanto tempo mostra o andamento.
+/// Medição do sinal (#491): intervalo entre leituras do RSSI e as faixas da avaliação, em dBm.
+constexpr uint32_t SINAL_PERIODO_MS = 500;
+constexpr int SINAL_BOM_DBM = -67;
+constexpr int SINAL_ACEITAVEL_DBM = -75;
+constexpr int SINAL_FRACO_DBM = -80;
+
+/// Escolha de rede pela serial (`p`): espaço em flash (NVS) da rede salva, tempo máximo para digitar
+/// e quantas redes da varredura entram na lista numerada.
+constexpr const char* NVS_REDE_BANCADA = "bancada_wifi";
+constexpr uint32_t ESPERA_DIGITACAO_MS = 120000;
+constexpr int16_t REDES_NA_LISTA = 20;
+
+/// Corrida sem rede (#491, #478): amostras a mais que a capacidade do buffer no teste do buffer cheio,
+/// e de quantas em quantas amostras geradas a bancada mostra o andamento.
+constexpr uint16_t SEM_REDE_EXCESSO = 50;
+constexpr uint16_t SEM_REDE_PERIODO_LOG = 100;
+
+/// Teste de reenvio (#478): gera amostras por pelo menos `REENVIO_DURACAO_MS` e até o Wi-Fi cair e
+/// voltar (mais `REENVIO_DEPOIS_DA_VOLTA_MS`), no máximo `REENVIO_DURACAO_MAXIMA_MS`; depois espera o
+/// buffer esvaziar por até `REENVIO_ESPERA_FINAL_MS`. `REENVIO_PERIODO_LOG_MS` é o intervalo do andamento.
 constexpr uint32_t REENVIO_DURACAO_MS = 60000;
-constexpr uint32_t REENVIO_ESPERA_FINAL_MS = 60000;
+constexpr uint32_t REENVIO_DEPOIS_DA_VOLTA_MS = 15000;
+constexpr uint32_t REENVIO_DURACAO_MAXIMA_MS = 300000;
+constexpr uint32_t REENVIO_ESPERA_FINAL_MS = 120000;
 constexpr uint32_t REENVIO_PERIODO_LOG_MS = 5000;
 
 /// Quantas amostras de teste o comando de lote envia.
@@ -999,6 +1022,10 @@ CredenciaisSupabase lerCredenciais() {
 #if BANCADA_TEM_CREDENCIAIS
   c.ssidWifi = CREDENCIAL_WIFI_SSID;
   c.senhaWifi = CREDENCIAL_WIFI_SENHA;
+#if defined(CREDENCIAL_WIFI_SSID_RESERVA) && defined(CREDENCIAL_WIFI_SENHA_RESERVA)
+  c.ssidWifiReserva = CREDENCIAL_WIFI_SSID_RESERVA;  // rede reserva (#491), opcional
+  c.senhaWifiReserva = CREDENCIAL_WIFI_SENHA_RESERVA;
+#endif
   c.urlProjeto = CREDENCIAL_SUPABASE_URL;
   c.chaveAnon = CREDENCIAL_SUPABASE_ANON;
   c.tokenDispositivo = CREDENCIAL_DEVICE_TOKEN;
@@ -1009,7 +1036,8 @@ CredenciaisSupabase lerCredenciais() {
 }
 
 const CredenciaisSupabase credenciais = lerCredenciais();
-RedeWifiEsp32 redeWifi(credenciais.ssidWifi, credenciais.senhaWifi);
+RedeWifiEsp32 redeWifi(credenciais.ssidWifi, credenciais.senhaWifi, credenciais.ssidWifiReserva,
+                       credenciais.senhaWifiReserva);
 ReconexaoWifi reconexaoWifi(redeWifi);
 EnvioHttpSupabase clienteSupabase(credenciais);
 TravaSecaoCritica travaBufferEnvio;
@@ -1017,6 +1045,12 @@ TravaSecaoCritica travaBufferEnvio;
 ControladorEnvio controladorEnvio(clienteSupabase, travaBufferEnvio);
 
 bool wifiIniciado = false;
+
+/// Rede escolhida pela serial (`p`), que substitui a principal do `credenciais.h` só na bancada. Fica
+/// salva na flash (NVS) se quem testa pedir; o firmware do robô não lê esse espaço.
+char ssidEscolhido[33] = "";
+char senhaEscolhida[65] = "";
+bool redeEscolhidaSalva = false;
 uint32_t corridaId = 0;
 bool corridaCriada = false;
 bool corridaEncerrada = false;
@@ -1030,17 +1064,21 @@ uint16_t chamadasComFalha = 0;
 
 // ---------------------------------------------------------------- utilidades
 
-/// `true` se as credenciais existem e estão completas; senão, diz o que fazer.
+/// `true` se as credenciais do Supabase existem e estão completas; senão, diz o que fazer. O Wi-Fi não
+/// entra aqui: a rede pode vir do `credenciais.h` ou da escolha pela serial (`p`).
 bool credenciaisOk() {
   if (!BANCADA_TEM_CREDENCIAIS) {
-    Serial.println("  [FALHA] sem include/credenciais.h.");
+    Serial.println("  [FALHA] sem include/credenciais.h: o Wi-Fi funciona (tecla p), mas o banco precisa do arquivo.");
     Serial.println("          dica: copie include/credenciais.exemplo.h para include/credenciais.h,");
     Serial.println("          preencha os campos, use CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1 na bancada e grave de novo.");
     return false;
   }
-  if (!credenciaisValidas(credenciais)) {
-    Serial.println("  [FALHA] credenciais incompletas em include/credenciais.h.");
-    Serial.println("          dica: confira SSID, URL (https://...), chave anon, device token e o certificado");
+  CredenciaisSupabase supabase = credenciais;
+  supabase.ssidWifi = "rede";  // a rede é conferida no Wi-Fi; aqui, só a URL, a chave, o token e o certificado
+  supabase.senhaWifi = "";
+  if (!credenciaisValidas(supabase)) {
+    Serial.println("  [FALHA] credenciais do Supabase incompletas em include/credenciais.h.");
+    Serial.println("          dica: confira a URL (https://...), a chave anon, o device token e o certificado");
     Serial.println("          (ou CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1). Os valores do exemplo contam como preenchidos:");
     Serial.println("          troque todos pelos reais.");
     return false;
@@ -1052,7 +1090,8 @@ bool credenciaisOk() {
 const char* explicarStatusWifi(wl_status_t status) {
   switch (status) {
     case WL_NO_SSID_AVAIL:
-      return "rede nao encontrada. Confira o nome e se ela e 2,4 GHz (o ESP32-C3 nao enxerga 5 GHz).";
+      return "rede nao encontrada. Confira o nome e se ela e 2,4 GHz (o ESP32 nao enxerga 5 GHz; no iPhone,"
+             " ative Maximizar Compatibilidade no Acesso Pessoal).";
     case WL_CONNECT_FAILED:
       return "a rede recusou a conexao. Confira a senha.";
     case WL_CONNECTION_LOST:
@@ -1064,7 +1103,9 @@ const char* explicarStatusWifi(wl_status_t status) {
   }
 }
 
-/// Liga o Wi-Fi na primeira vez que for preciso.
+void imprimirRedes();
+
+/// Liga o Wi-Fi na primeira vez que for preciso e carrega a rede salva pela tecla `p`, se houver.
 void iniciarWifiSeNecessario() {
   if (wifiIniciado) {
     return;
@@ -1072,30 +1113,87 @@ void iniciarWifiSeNecessario() {
   redeWifi.iniciar();
   clienteSupabase.iniciar();
   wifiIniciado = true;
+  Preferences nvs;
+  if (nvs.begin(NVS_REDE_BANCADA, true)) {
+    if (nvs.getString("ssid", ssidEscolhido, sizeof(ssidEscolhido)) > 0) {
+      nvs.getString("senha", senhaEscolhida, sizeof(senhaEscolhida));
+      redeWifi.definirRede(0, ssidEscolhido, senhaEscolhida);
+      redeEscolhidaSalva = true;
+    }
+    nvs.end();
+  }
+  imprimirRedes();
 }
 
-/// Espera o Wi-Fi conectar por até `ESPERA_WIFI_MS`, mostrando um ponto por segundo.
+/// Uma linha com as redes conhecidas e de onde vem cada uma.
+void imprimirRedes() {
+  const char* principal = redeWifi.ssid(0);
+  if (principal[0] == '\0') {
+    Serial.println("  nenhuma rede configurada. Tecle p para escolher uma das redes visiveis.");
+    return;
+  }
+  Serial.printf("  rede principal: \"%s\" (%s)", principal,
+                redeEscolhidaSalva ? "salva na placa pela tecla p; f esquece"
+                : ssidEscolhido[0] != '\0' ? "escolhida pela tecla p, so ate reiniciar"
+                                           : "do credenciais.h");
+  if (redeWifi.quantidadeRedes() > 1) {
+    Serial.printf("; reserva: \"%s\" (do credenciais.h)", redeWifi.ssid(1));
+  }
+  Serial.println();
+}
+
+/// `"principal \"nome\""` ou `"reserva \"nome\""` da rede atual, para as mensagens.
+const char* descreverRedeAtual() {
+  static char texto[48];
+  snprintf(texto, sizeof(texto), "%s \"%s\"", redeWifi.nomeRedeAtual(), redeWifi.ssidAtual());
+  return texto;
+}
+
+/// Avaliação de um RSSI, pelas faixas da medição do sinal.
+const char* avaliarSinal(int rssi) {
+  if (rssi >= SINAL_BOM_DBM) {
+    return "bom";
+  }
+  if (rssi >= SINAL_ACEITAVEL_DBM) {
+    return "aceitavel";
+  }
+  if (rssi >= SINAL_FRACO_DBM) {
+    return "fraco";
+  }
+  return "CRITICO";
+}
+
+/// Espera o Wi-Fi conectar (uma tentativa por rede, mais a folga), mostrando um ponto por segundo.
 bool conectarWifi() {
-  if (!credenciaisOk()) {
+  iniciarWifiSeNecessario();
+  if (redeWifi.ssid(0)[0] == '\0') {
+    Serial.println("  [FALHA] nenhuma rede Wi-Fi configurada.");
+    Serial.println("          dica: tecle p para escolher uma rede visivel e digitar a senha (ou preencha o credenciais.h).");
     return false;
   }
-  iniciarWifiSeNecessario();
+  const uint32_t espera = TEMPO_LIMITE_CONEXAO_WIFI_MS * redeWifi.quantidadeRedes() + FOLGA_ESPERA_WIFI_MS;
   const uint32_t inicio = millis();
   uint32_t ultimoPonto = inicio;
   bool avisou = false;
+  uint8_t redeAvisada = reconexaoWifi.redeAtual();
   while (!reconexaoWifi.ciclo(millis())) {
     if (!avisou) {
-      Serial.printf("  conectando em \"%s\" ", credenciais.ssidWifi);
+      Serial.printf("  conectando na %s ", descreverRedeAtual());
       avisou = true;
+    }
+    if (reconexaoWifi.redeAtual() != redeAvisada) {
+      redeAvisada = reconexaoWifi.redeAtual();
+      Serial.printf("\n  nao conectou; tentando a %s ", descreverRedeAtual());
     }
     if (millis() - ultimoPonto >= 1000) {
       Serial.print('.');
       ultimoPonto = millis();
     }
-    if (millis() - inicio >= ESPERA_WIFI_MS) {
+    if (millis() - inicio >= espera) {
       Serial.println();
-      Serial.printf("  [FALHA] Wi-Fi nao conectou em %lu s.\n", static_cast<unsigned long>(ESPERA_WIFI_MS / 1000));
+      Serial.printf("  [FALHA] Wi-Fi nao conectou em %lu s.\n", static_cast<unsigned long>(espera / 1000));
       Serial.printf("          dica: %s\n", explicarStatusWifi(WiFi.status()));
+      Serial.println("          Tecle v para ver as redes visiveis, ou p para escolher outra rede e digitar a senha.");
       return false;
     }
     delay(50);
@@ -1105,6 +1203,9 @@ bool conectarWifi() {
   }
   return true;
 }
+
+/// Antes de falar com o banco: credenciais do Supabase completas e Wi-Fi conectado.
+bool conectarParaBanco() { return credenciaisOk() && conectarWifi(); }
 
 /// Host da URL do projeto (`https://abc.supabase.co/` -> `abc.supabase.co`).
 bool extrairHost(char* saida, size_t capacidade) {
@@ -1176,8 +1277,8 @@ bool comandoWifi() {
   if (!conectarWifi()) {
     return false;
   }
-  Serial.printf("  [OK]    conectado em \"%s\", IP %s, sinal %d dBm\n", credenciais.ssidWifi,
-                WiFi.localIP().toString().c_str(), WiFi.RSSI());
+  Serial.printf("  [OK]    conectado na %s, IP %s, sinal %d dBm (%s)\n", descreverRedeAtual(),
+                WiFi.localIP().toString().c_str(), WiFi.RSSI(), avaliarSinal(WiFi.RSSI()));
   if (WiFi.RSSI() < -80) {
     Serial.println("          aviso: sinal fraco (abaixo de -80 dBm). Pode falhar HTTPS; aproxime do roteador.");
   }
@@ -1187,7 +1288,7 @@ bool comandoWifi() {
 /// `d`: resolve o nome do servidor, o primeiro passo antes do HTTPS.
 bool comandoDns() {
   Serial.println("--- DNS ---");
-  if (!conectarWifi()) {
+  if (!conectarParaBanco()) {
     return false;
   }
   char host[96];
@@ -1212,7 +1313,7 @@ bool comandoDns() {
 /// `c`: `POST /corridas`, que cria a corrida no banco.
 bool comandoCriarCorrida() {
   Serial.println("--- Criar corrida (POST /functions/v1/corridas) ---");
-  if (!conectarWifi()) {
+  if (!conectarParaBanco()) {
     return false;
   }
   uint32_t id = 0;
@@ -1277,7 +1378,7 @@ bool comandoEnviarLote() {
     Serial.println("  [FALHA] nao ha corrida aberta. dica: tecle c para criar uma.");
     return false;
   }
-  if (!conectarWifi()) {
+  if (!conectarParaBanco()) {
     return false;
   }
   montarLoteDeTeste();
@@ -1297,7 +1398,7 @@ bool comandoReenviarLote() {
     Serial.println("  [FALHA] nao ha lote para reenviar. dica: tecle c e depois l.");
     return false;
   }
-  if (!conectarWifi()) {
+  if (!conectarParaBanco()) {
     return false;
   }
   if (!enviarUltimoLote("reenviar lote", 0)) {
@@ -1314,7 +1415,7 @@ bool comandoEncerrarCorrida() {
     Serial.println("  [FALHA] nao ha corrida criada. dica: tecle c.");
     return false;
   }
-  if (!conectarWifi()) {
+  if (!conectarParaBanco()) {
     return false;
   }
   clienteSupabase.definirResultadoCorrida(false);
@@ -1330,6 +1431,9 @@ bool comandoEncerrarCorrida() {
 /// `a`: o fluxo inteiro, na ordem em que o robô o faz.
 void comandoFluxoCompleto() {
   Serial.println("=== FLUXO COMPLETO: Wi-Fi, DNS, corrida, lote, reenvio e encerramento ===");
+  if (!credenciaisOk()) {
+    return;
+  }
   corridaCriada = false;
   const uint16_t okAntes = chamadasOk;
   const uint16_t falhasAntes = chamadasComFalha;
@@ -1350,10 +1454,12 @@ void comandoFluxoCompleto() {
 /// a consulta para conferir no banco.
 bool comandoTesteReenvio() {
   Serial.println("--- Teste de reenvio com queda de Wi-Fi (#478) ---");
-  Serial.printf("  Durante %lu s a bancada gera 1 amostra por segundo. Desligue o Wi-Fi (hotspot) por cerca de\n"
-                "  30 s a partir de 15 s e religue. Qualquer tecla cancela.\n",
-                static_cast<unsigned long>(REENVIO_DURACAO_MS / 1000));
-  if (!conectarWifi()) {
+  Serial.printf("  A bancada gera 1 amostra por segundo. Quando quiser, desligue os hotspots (principal e reserva)\n"
+                "  por cerca de 30 s e religue: o teste termina %lu s depois de o Wi-Fi voltar (pelo menos %lu s,\n"
+                "  no maximo %lu s). Qualquer tecla cancela.\n",
+                static_cast<unsigned long>(REENVIO_DEPOIS_DA_VOLTA_MS / 1000), static_cast<unsigned long>(REENVIO_DURACAO_MS / 1000),
+                static_cast<unsigned long>(REENVIO_DURACAO_MAXIMA_MS / 1000));
+  if (!conectarParaBanco()) {
     return false;
   }
   uint32_t id = 0;
@@ -1368,8 +1474,15 @@ bool comandoTesteReenvio() {
   }
   controladorEnvio.iniciarCorrida(id);
   clienteSupabase.definirResultadoCorrida(false);
+  // Quedas e trocas só deste teste: os contadores da `ReconexaoWifi` valem para a sessão inteira.
+  const uint32_t quedasAntes = reconexaoWifi.quedas();
+  const uint32_t trocasAntes = reconexaoWifi.trocasDeRede();
+  uint32_t msSemConexao = 0;
+  uint32_t voltouMs = 0;  // quando o Wi-Fi voltou depois da última queda deste teste
+  bool estavaConectado = true;
 
   const uint32_t inicioMs = millis();
+  uint32_t cicloAnteriorMs = inicioMs;
   uint32_t proximaAmostraMs = inicioMs;
   uint32_t proximoLogMs = inicioMs + REENVIO_PERIODO_LOG_MS;
   uint32_t geradas = 0;
@@ -1383,7 +1496,25 @@ bool comandoTesteReenvio() {
       break;
     }
     const bool conectado = reconexaoWifi.ciclo(agoraMs);
-    if (!encerramentoPedido && agoraMs - inicioMs >= REENVIO_DURACAO_MS) {
+    if (!conectado) {
+      msSemConexao += agoraMs - cicloAnteriorMs;
+    }
+    cicloAnteriorMs = agoraMs;
+    if (conectado != estavaConectado) {
+      estavaConectado = conectado;
+      if (conectado) {
+        voltouMs = agoraMs;
+        Serial.printf("  >>> Wi-Fi voltou na %s depois de %lu s sem conexao no total\n", descreverRedeAtual(),
+                      static_cast<unsigned long>(msSemConexao / 1000));
+      } else {
+        Serial.println("  >>> Wi-Fi caiu; as amostras ficam no buffer");
+      }
+    }
+    const uint32_t decorridoMs = agoraMs - inicioMs;
+    const bool caiuEVoltou = reconexaoWifi.quedas() > quedasAntes && conectado &&
+                             agoraMs - voltouMs >= REENVIO_DEPOIS_DA_VOLTA_MS;
+    if (!encerramentoPedido &&
+        ((decorridoMs >= REENVIO_DURACAO_MS && caiuEVoltou) || decorridoMs >= REENVIO_DURACAO_MAXIMA_MS)) {
       controladorEnvio.solicitarEncerramento(agoraMs);
       encerramentoPedido = true;
       fimGeracaoMs = agoraMs;
@@ -1408,8 +1539,14 @@ bool comandoTesteReenvio() {
     if (static_cast<int32_t>(agoraMs - proximoLogMs) >= 0) {
       proximoLogMs = agoraMs + REENVIO_PERIODO_LOG_MS;
       const ContadoresEnvio& c = controladorEnvio.contadores();
-      Serial.printf("  t=%3lu s | wifi %-12s | geradas %3lu | no buffer %3u | confirmadas %3lu | falhas %lu | reenvios %lu\n",
-                    static_cast<unsigned long>((agoraMs - inicioMs) / 1000), conectado ? "conectado" : "SEM CONEXAO",
+      char wifi[32];
+      if (conectado) {
+        snprintf(wifi, sizeof(wifi), "%s %d dBm", redeWifi.nomeRedeAtual(), static_cast<int>(WiFi.RSSI()));
+      } else {
+        snprintf(wifi, sizeof(wifi), "SEM CONEXAO");
+      }
+      Serial.printf("  t=%3lu s | wifi %-17s | geradas %3lu | no buffer %3u | confirmadas %3lu | falhas %lu | reenvios %lu\n",
+                    static_cast<unsigned long>((agoraMs - inicioMs) / 1000), wifi,
                     static_cast<unsigned long>(geradas), controladorEnvio.ocupacao(),
                     static_cast<unsigned long>(c.amostrasConfirmadas), static_cast<unsigned long>(c.falhas),
                     static_cast<unsigned long>(c.reenvios));
@@ -1425,19 +1562,23 @@ bool comandoTesteReenvio() {
   }
 
   const ContadoresEnvio& c = controladorEnvio.contadores();
+  const uint32_t quedas = reconexaoWifi.quedas() - quedasAntes;
+  const uint32_t trocas = reconexaoWifi.trocasDeRede() - trocasAntes;
   const bool tudoGravado = c.amostrasConfirmadas + c.amostrasJaExistentes == geradas;
   Serial.printf("  geradas %lu | confirmadas %lu | ja existentes %lu | descartadas %lu | perdidas no buffer %lu | no buffer %u\n",
                 static_cast<unsigned long>(geradas), static_cast<unsigned long>(c.amostrasConfirmadas),
                 static_cast<unsigned long>(c.amostrasJaExistentes), static_cast<unsigned long>(c.amostrasDescartadas),
                 static_cast<unsigned long>(controladorEnvio.amostrasPerdidas()), controladorEnvio.ocupacao());
-  Serial.printf("  tentativas %lu | falhas %lu | reenvios %lu | quedas do Wi-Fi %lu | corrida encerrada: %s\n",
+  Serial.printf("  tentativas %lu | falhas %lu | reenvios %lu | quedas do Wi-Fi %lu | trocas de rede %lu | corrida encerrada: %s\n",
                 static_cast<unsigned long>(c.tentativas), static_cast<unsigned long>(c.falhas),
-                static_cast<unsigned long>(c.reenvios), static_cast<unsigned long>(reconexaoWifi.quedas()),
-                controladorEnvio.encerrada() ? "sim" : "nao");
+                static_cast<unsigned long>(c.reenvios), static_cast<unsigned long>(quedas),
+                static_cast<unsigned long>(trocas), controladorEnvio.encerrada() ? "sim" : "nao");
   ResumoAutoteste resumo;
-  registrar(resumo, reconexaoWifi.quedas() > 0,
-            "o Wi-Fi nao caiu durante o teste: desligue o hotspot por 30 s no meio e rode de novo",
-            "o Wi-Fi caiu %lu vez(es) durante o teste", static_cast<unsigned long>(reconexaoWifi.quedas()));
+  const uint32_t segundosSemConexao = msSemConexao / 1000;
+  registrar(resumo, quedas > 0,
+            "o Wi-Fi nao caiu durante o teste: desligue os hotspots por 30 s no meio e rode de novo",
+            "o Wi-Fi caiu %lu vez(es) durante o teste, %lu s sem conexao", static_cast<unsigned long>(quedas),
+            static_cast<unsigned long>(segundosSemConexao));
   registrar(resumo, tudoGravado && c.amostrasDescartadas == 0 && controladorEnvio.amostrasPerdidas() == 0,
             "amostras perdidas ou descartadas: veja 'descartadas' (o servidor recusou) e 'perdidas no buffer' (encheu)",
             "todas as %lu amostras foram gravadas, sem perda", static_cast<unsigned long>(geradas));
@@ -1448,12 +1589,433 @@ bool comandoTesteReenvio() {
                 "max(numero_sequencia) from telemetria where corrida_id = %lu;  esperado: %lu, %lu, 1, %lu\n",
                 static_cast<unsigned long>(id), static_cast<unsigned long>(geradas), static_cast<unsigned long>(geradas),
                 static_cast<unsigned long>(geradas));
-  Serial.printf("REGISTRO: reenvio | corrida=%lu geradas=%lu confirmadas=%lu existentes=%lu descartadas=%lu perdidas=%lu reenvios=%lu quedas=%lu | veredito=%s\n",
+  Serial.printf("REGISTRO: reenvio | corrida=%lu geradas=%lu confirmadas=%lu existentes=%lu descartadas=%lu perdidas=%lu reenvios=%lu quedas=%lu trocas=%lu rede_final=%s | veredito=%s\n",
                 static_cast<unsigned long>(id), static_cast<unsigned long>(geradas), static_cast<unsigned long>(c.amostrasConfirmadas),
                 static_cast<unsigned long>(c.amostrasJaExistentes), static_cast<unsigned long>(c.amostrasDescartadas),
                 static_cast<unsigned long>(controladorEnvio.amostrasPerdidas()), static_cast<unsigned long>(c.reenvios),
-                static_cast<unsigned long>(reconexaoWifi.quedas()), resumo.falhas == 0 ? "OK" : "FALHA");
+                static_cast<unsigned long>(quedas), static_cast<unsigned long>(trocas), redeWifi.nomeRedeAtual(),
+                resumo.falhas == 0 ? "OK" : "FALHA");
   return resumo.falhas == 0;
+}
+
+/// `m`: sinal ao vivo, para medir o RSSI no ponto mais distante da pista (#491). A cada 0,5 s mostra a
+/// rede, o RSSI e o mínimo, a média e o máximo desde o início. Segue reconectando como o robô: se a
+/// principal cair, passa para a reserva, e a troca aparece na tela. Qualquer tecla para.
+bool comandoMedirSinal() {
+  Serial.println("--- Medir o sinal do Wi-Fi (#491) ---");
+  if (!conectarWifi()) {
+    return false;
+  }
+  Serial.println("  Leve o robo (bateria ligada) ao ponto mais distante da pista e ande com ele. Qualquer tecla para.");
+  const uint32_t quedasAntes = reconexaoWifi.quedas();
+  const uint32_t trocasAntes = reconexaoWifi.trocasDeRede();
+  int minimo = 0;
+  int maximo = -127;
+  int32_t soma = 0;
+  uint32_t leituras = 0;
+  uint32_t abaixoDoFraco = 0;
+  uint32_t semConexao = 0;
+  const uint32_t inicioMs = millis();
+  uint32_t proximaMs = inicioMs;
+  while (!teclaPressionada()) {
+    const uint32_t agoraMs = millis();
+    const bool conectado = reconexaoWifi.ciclo(agoraMs);
+    if (static_cast<int32_t>(agoraMs - proximaMs) >= 0) {
+      proximaMs += SINAL_PERIODO_MS;
+      const unsigned long segundos = static_cast<unsigned long>((agoraMs - inicioMs) / 1000);
+      if (conectado) {
+        const int rssi = WiFi.RSSI();
+        if (leituras == 0 || rssi < minimo) {
+          minimo = rssi;
+        }
+        if (rssi > maximo) {
+          maximo = rssi;
+        }
+        soma += rssi;
+        ++leituras;
+        if (rssi < SINAL_FRACO_DBM) {
+          ++abaixoDoFraco;
+        }
+        Serial.printf("  t=%3lu s | %-28s | %4d dBm %-9s | min %4d | media %4ld | max %4d\n", segundos,
+                      descreverRedeAtual(), rssi, avaliarSinal(rssi), minimo, static_cast<long>(soma / static_cast<int32_t>(leituras)),
+                      maximo);
+      } else {
+        ++semConexao;
+        Serial.printf("  t=%3lu s | SEM CONEXAO, tentando a %s\n", segundos, descreverRedeAtual());
+      }
+    }
+    delay(20);
+  }
+  if (leituras == 0) {
+    Serial.println("  [FALHA] nenhuma leitura com o Wi-Fi conectado.");
+    return false;
+  }
+  const long media = static_cast<long>(soma / static_cast<int32_t>(leituras));
+  Serial.printf("  leituras %lu | min %d dBm | media %ld dBm | max %d dBm | abaixo de %d dBm: %lu | sem conexao: %lu\n",
+                static_cast<unsigned long>(leituras), minimo, media, maximo, SINAL_FRACO_DBM,
+                static_cast<unsigned long>(abaixoDoFraco), static_cast<unsigned long>(semConexao));
+  Serial.printf("REGISTRO: sinal | rede_final=%s leituras=%lu min=%d media=%ld max=%d abaixo_de_%d=%lu sem_conexao=%lu quedas=%lu trocas=%lu | avaliacao_pior=%s\n",
+                redeWifi.nomeRedeAtual(), static_cast<unsigned long>(leituras), minimo, media, maximo, SINAL_FRACO_DBM,
+                static_cast<unsigned long>(abaixoDoFraco), static_cast<unsigned long>(semConexao),
+                static_cast<unsigned long>(reconexaoWifi.quedas() - quedasAntes),
+                static_cast<unsigned long>(reconexaoWifi.trocasDeRede() - trocasAntes), avaliarSinal(minimo));
+  return minimo >= SINAL_FRACO_DBM;
+}
+
+/// `n` e `x`: corrida inteira sem rede (#491, #478). Cria a corrida com o Wi-Fi ligado, desliga o Wi-Fi,
+/// gera `amostras` amostras no buffer do robô (o tempo de cada uma simula 1 por segundo, mas a bancada
+/// as gera em poucos segundos), religa o Wi-Fi e espera o buffer esvaziar e a corrida encerrar.
+/// `n` gera a capacidade do buffer (600 = 10 min): nada pode se perder. `x` gera 50 a mais: as 50 mais
+/// antigas têm de ser descartadas, e o banco fica com as sequências 51 a 650.
+bool comandoCorridaSemRede(uint16_t amostras) {
+  const uint32_t perdasEsperadas = amostras > CAPACIDADE_BUFFER_AMOSTRAS ? amostras - CAPACIDADE_BUFFER_AMOSTRAS : 0;
+  const uint32_t gravacoesEsperadas = amostras - perdasEsperadas;
+  Serial.printf("--- Corrida sem rede: %u amostras com o Wi-Fi desligado (buffer de %u) ---\n", amostras,
+                CAPACIDADE_BUFFER_AMOSTRAS);
+  if (perdasEsperadas > 0) {
+    Serial.printf("  O buffer estoura: as %lu amostras mais antigas devem ser descartadas.\n",
+                  static_cast<unsigned long>(perdasEsperadas));
+  }
+  if (!conectarParaBanco()) {
+    return false;
+  }
+  uint32_t id = 0;
+  const uint32_t inicioCriacao = millis();
+  const ResultadoEnvio criada = clienteSupabase.criarCorrida(LABIRINTO_CORRIDA_PADRAO, id);
+  char detalhe[40] = "";
+  if (criada.codigoHttp >= 200 && criada.codigoHttp < 300) {
+    snprintf(detalhe, sizeof(detalhe), "corrida_id %lu", static_cast<unsigned long>(id));
+  }
+  if (!relatarChamada("criar corrida", criada.codigoHttp, millis() - inicioCriacao, detalhe)) {
+    return false;
+  }
+  controladorEnvio.iniciarCorrida(id);
+  clienteSupabase.definirResultadoCorrida(false);
+  const uint32_t quedasAntes = reconexaoWifi.quedas();
+
+  redeWifi.desconectar();
+  Serial.println("  Wi-Fi desligado pela bancada; gerando as amostras no buffer. Qualquer tecla cancela.");
+  for (uint16_t i = 0; i < amostras; ++i) {
+    if (teclaPressionada()) {
+      Serial.println("  [FALHA] cancelado por tecla; a corrida ficou aberta no banco.");
+      return false;
+    }
+    AmostraTelemetria a;
+    a.tempoDecorridoMs = static_cast<uint32_t>(i) * PERIODO_TELEMETRIA_MS;
+    a.velocidadeMmPorS = 100;
+    a.posicaoLinha = static_cast<uint8_t>((i / 4) % 4);
+    a.posicaoColuna = static_cast<uint8_t>(i % 4);
+    a.orientacao = 'N';
+    a.estado = EstadoCorrida::Explorando;
+    controladorEnvio.registrar(a);
+    if ((i + 1) % SEM_REDE_PERIODO_LOG == 0 || i + 1 == amostras) {
+      Serial.printf("  sem rede | geradas %3u | no buffer %3u | descartadas por buffer cheio %lu\n", i + 1,
+                    controladorEnvio.ocupacao(), static_cast<unsigned long>(controladorEnvio.amostrasPerdidas()));
+    }
+    delay(2);
+  }
+  Serial.println("  fim da corrida; religando o Wi-Fi e esvaziando o buffer");
+  const uint32_t inicioEnvioMs = millis();
+  controladorEnvio.solicitarEncerramento(inicioEnvioMs);
+  uint32_t proximoLogMs = inicioEnvioMs;
+  while (!controladorEnvio.encerrada() && millis() - inicioEnvioMs < 2 * REENVIO_ESPERA_FINAL_MS) {
+    if (teclaPressionada()) {
+      Serial.println("  [FALHA] cancelado por tecla; a corrida ficou aberta no banco.");
+      return false;
+    }
+    const uint32_t agoraMs = millis();
+    const bool conectado = reconexaoWifi.ciclo(agoraMs);
+    if (conectado) {
+      controladorEnvio.ciclo(agoraMs);
+    }
+    if (static_cast<int32_t>(agoraMs - proximoLogMs) >= 0) {
+      proximoLogMs = agoraMs + REENVIO_PERIODO_LOG_MS;
+      Serial.printf("  t=%3lu s | wifi %-12s | no buffer %3u | confirmadas %3lu | falhas %lu\n",
+                    static_cast<unsigned long>((agoraMs - inicioEnvioMs) / 1000), conectado ? redeWifi.nomeRedeAtual() : "SEM CONEXAO",
+                    controladorEnvio.ocupacao(), static_cast<unsigned long>(controladorEnvio.contadores().amostrasConfirmadas),
+                    static_cast<unsigned long>(controladorEnvio.contadores().falhas));
+    }
+    delay(20);
+  }
+  const uint32_t duracaoEnvioS = (millis() - inicioEnvioMs) / 1000;
+
+  const ContadoresEnvio& c = controladorEnvio.contadores();
+  Serial.printf("  geradas %u | confirmadas %lu | ja existentes %lu | descartadas pelo servidor %lu | perdidas no buffer %lu"
+                " | no buffer %u | envio em %lu s\n",
+                amostras, static_cast<unsigned long>(c.amostrasConfirmadas), static_cast<unsigned long>(c.amostrasJaExistentes),
+                static_cast<unsigned long>(c.amostrasDescartadas), static_cast<unsigned long>(controladorEnvio.amostrasPerdidas()),
+                controladorEnvio.ocupacao(), static_cast<unsigned long>(duracaoEnvioS));
+  ResumoAutoteste resumo;
+  registrar(resumo, controladorEnvio.amostrasPerdidas() == perdasEsperadas,
+            "o buffer nao descartou o esperado: veja 'perdidas no buffer' acima",
+            "buffer: %lu amostra(s) mais antiga(s) descartada(s), como esperado",
+            static_cast<unsigned long>(controladorEnvio.amostrasPerdidas()));
+  registrar(resumo, c.amostrasConfirmadas + c.amostrasJaExistentes == gravacoesEsperadas && c.amostrasDescartadas == 0,
+            "o servidor nao gravou todas as amostras do buffer: veja 'descartadas pelo servidor' e as falhas",
+            "as %lu amostras do buffer foram gravadas depois de religar o Wi-Fi", static_cast<unsigned long>(gravacoesEsperadas));
+  registrar(resumo, controladorEnvio.encerrada(), "a corrida nao foi encerrada a tempo; veja as falhas acima",
+            "corrida encerrada no servidor");
+  Serial.printf("RESULTADO: %u OK, %u FALHA(S).\n", resumo.ok, resumo.falhas);
+  Serial.printf("  Confira no banco (SQL Editor): select count(*), count(distinct numero_sequencia), min(numero_sequencia), "
+                "max(numero_sequencia) from telemetria where corrida_id = %lu;  esperado: %lu, %lu, %lu, %u\n",
+                static_cast<unsigned long>(id), static_cast<unsigned long>(gravacoesEsperadas),
+                static_cast<unsigned long>(gravacoesEsperadas), static_cast<unsigned long>(perdasEsperadas + 1), amostras);
+  Serial.printf("REGISTRO: sem_rede | corrida=%lu geradas=%u confirmadas=%lu existentes=%lu descartadas=%lu perdidas=%lu"
+                " esperado_perdidas=%lu quedas=%lu rede_final=%s envio_s=%lu | veredito=%s\n",
+                static_cast<unsigned long>(id), amostras, static_cast<unsigned long>(c.amostrasConfirmadas),
+                static_cast<unsigned long>(c.amostrasJaExistentes), static_cast<unsigned long>(c.amostrasDescartadas),
+                static_cast<unsigned long>(controladorEnvio.amostrasPerdidas()), static_cast<unsigned long>(perdasEsperadas),
+                static_cast<unsigned long>(reconexaoWifi.quedas() - quedasAntes), redeWifi.nomeRedeAtual(),
+                static_cast<unsigned long>(duracaoEnvioS), resumo.falhas == 0 ? "OK" : "FALHA");
+  return resumo.falhas == 0;
+}
+
+/// Como uma rede da varredura bate com a do `credenciais.h`: igual, só na caixa das letras, ou não.
+const char* compararSsid(const char* visto, const char* configurado) {
+  if (configurado == nullptr || configurado[0] == '\0') {
+    return nullptr;
+  }
+  if (strcmp(visto, configurado) == 0) {
+    return "igual";
+  }
+  if (strcasecmp(visto, configurado) == 0) {
+    return "CAIXA DIFERENTE";
+  }
+  return nullptr;
+}
+
+/// `v`: varre as redes de 2,4 GHz que a placa enxerga (#491) e marca a principal e a reserva do
+/// `credenciais.h`. Mostra se uma delas não aparece ou aparece com maiúsculas diferentes (o SSID
+/// diferencia maiúsculas: "iPhone" não é "Iphone").
+bool comandoVarrerRedes() {
+  Serial.println("--- Redes Wi-Fi visiveis (2,4 GHz) ---");
+  iniciarWifiSeNecessario();
+  redeWifi.desconectar();  // a varredura nao convive com uma tentativa em andamento; a reconexao volta depois
+  delay(100);
+  const int16_t encontradas = WiFi.scanNetworks();
+  if (encontradas < 0) {
+    Serial.printf("  [FALHA] a varredura falhou (%d).\n", encontradas);
+    return false;
+  }
+  bool viuPrincipal = false;
+  bool viuReserva = false;
+  for (int16_t i = 0; i < encontradas; ++i) {
+    const String ssid = WiFi.SSID(i);
+    const char* principal = compararSsid(ssid.c_str(), redeWifi.ssid(0));
+    const char* reserva = compararSsid(ssid.c_str(), redeWifi.ssid(1));
+    viuPrincipal = viuPrincipal || (principal != nullptr && strcmp(principal, "igual") == 0);
+    viuReserva = viuReserva || (reserva != nullptr && strcmp(reserva, "igual") == 0);
+    char marca[40] = "";
+    if (principal != nullptr) {
+      snprintf(marca, sizeof(marca), "<- principal (%s)", principal);
+    } else if (reserva != nullptr) {
+      snprintf(marca, sizeof(marca), "<- reserva (%s)", reserva);
+    }
+    Serial.printf("  %2d  %-32s %4d dBm  canal %2d  %s  %s\n", i + 1, ssid.c_str(), static_cast<int>(WiFi.RSSI(i)),
+                  static_cast<int>(WiFi.channel(i)), WiFi.encryptionType(i) == WIFI_AUTH_OPEN ? "aberta " : "senha  ", marca);
+  }
+  WiFi.scanDelete();
+  Serial.printf("  %d rede(s). Principal \"%s\": %s.", encontradas, redeWifi.ssid(0),
+                viuPrincipal ? "visivel" : "NAO VISTA");
+  if (redeWifi.quantidadeRedes() > 1) {
+    Serial.printf(" Reserva \"%s\": %s.", redeWifi.ssid(1), viuReserva ? "visivel" : "NAO VISTA");
+  }
+  Serial.println();
+  if (!viuPrincipal || (redeWifi.quantidadeRedes() > 1 && !viuReserva)) {
+    Serial.println("  dica: rede nao vista = desligada, em 5 GHz ou com outro nome. No iPhone, ative Maximizar");
+    Serial.println("        Compatibilidade e deixe a tela do Acesso Pessoal aberta (sem cliente, o iOS esconde a rede).");
+    Serial.println("        Para usar uma das redes acima, tecle p.");
+  }
+  return viuPrincipal && (redeWifi.quantidadeRedes() == 1 || viuReserva);
+}
+
+/// Lê uma linha digitada no monitor serial, com eco (`*` em `oculto`), Backspace e Enter. Esc ou
+/// `ESPERA_DIGITACAO_MS` sem terminar cancelam.
+/// @return `true` se a pessoa terminou com Enter (a linha pode ser vazia).
+bool lerLinha(char* saida, size_t capacidade, bool oculto) {
+  size_t tamanho = 0;
+  saida[0] = '\0';
+  delay(50);
+  while (Serial.available() > 0) {  // descarta o resto da tecla anterior (o LF do CRLF)
+    Serial.read();
+  }
+  const uint32_t inicio = millis();
+  while (millis() - inicio < ESPERA_DIGITACAO_MS) {
+    if (Serial.available() == 0) {
+      delay(5);
+      continue;
+    }
+    const char c = static_cast<char>(Serial.read());
+    if (c == '\r' || c == '\n') {
+      Serial.println();
+      delay(20);
+      while (Serial.available() > 0 && (Serial.peek() == '\n' || Serial.peek() == '\r')) {
+        Serial.read();
+      }
+      return true;
+    }
+    if (c == 27) {  // Esc
+      Serial.println(" (cancelado)");
+      return false;
+    }
+    if (c == 8 || c == 127) {  // Backspace
+      if (tamanho > 0) {
+        --tamanho;
+        saida[tamanho] = '\0';
+        Serial.print("\b \b");
+      }
+      continue;
+    }
+    if (c >= 32 && c < 127 && tamanho + 1 < capacidade) {
+      saida[tamanho++] = c;
+      saida[tamanho] = '\0';
+      Serial.print(oculto ? '*' : c);
+    }
+  }
+  Serial.println(" (tempo esgotado)");
+  return false;
+}
+
+/// `true` se `texto` é um número inteiro positivo; o valor vai para `numero`.
+bool lerNumero(const char* texto, int& numero) {
+  if (texto[0] == '\0') {
+    return false;
+  }
+  numero = 0;
+  for (const char* c = texto; *c != '\0'; ++c) {
+    if (*c < '0' || *c > '9' || numero > 1000) {
+      return false;
+    }
+    numero = numero * 10 + (*c - '0');
+  }
+  return numero > 0;
+}
+
+/// `p`: escolhe a rede pela serial, sem regravar a placa (#491). Varre as redes, mostra as 20 de sinal
+/// mais forte numeradas, e quem testa digita o número (ou o nome exato) e a senha. Conectando, pergunta
+/// se salva a rede na flash: salva, ela volta a ser a principal da bancada a cada boot, até a tecla `f`.
+/// A reserva do `credenciais.h` continua valendo. O firmware do robô não usa esta rede.
+bool comandoEscolherRede() {
+  Serial.println("--- Escolher a rede Wi-Fi pela serial ---");
+  iniciarWifiSeNecessario();
+  redeWifi.desconectar();
+  delay(100);
+  Serial.println("  procurando redes de 2,4 GHz...");
+  const int16_t encontradas = WiFi.scanNetworks();
+  if (encontradas < 0) {
+    Serial.printf("  [FALHA] a varredura falhou (%d).\n", encontradas);
+    return false;
+  }
+  // Índices da varredura em ordem de sinal, sem nomes repetidos (vários pontos da mesma rede) e sem ocultas.
+  int16_t lista[REDES_NA_LISTA];
+  int16_t naLista = 0;
+  bool usado[64] = {};
+  while (naLista < REDES_NA_LISTA) {
+    int16_t melhor = -1;
+    for (int16_t i = 0; i < encontradas && i < 64; ++i) {
+      if (!usado[i] && WiFi.SSID(i).length() > 0 && (melhor < 0 || WiFi.RSSI(i) > WiFi.RSSI(melhor))) {
+        melhor = i;
+      }
+    }
+    if (melhor < 0) {
+      break;
+    }
+    for (int16_t i = 0; i < encontradas && i < 64; ++i) {
+      if (WiFi.SSID(i) == WiFi.SSID(melhor)) {
+        usado[i] = true;
+      }
+    }
+    lista[naLista++] = melhor;
+  }
+  for (int16_t n = 0; n < naLista; ++n) {
+    const int16_t i = lista[n];
+    Serial.printf("  %2d  %-32s %4d dBm  %s\n", n + 1, WiFi.SSID(i).c_str(), static_cast<int>(WiFi.RSSI(i)),
+                  WiFi.encryptionType(i) == WIFI_AUTH_OPEN ? "aberta" : "senha");
+  }
+  if (naLista == 0) {
+    Serial.println("  nenhuma rede visivel. Ligue o hotspot em 2,4 GHz e tecle p de novo, ou digite o nome abaixo.");
+  }
+  Serial.println("  Redes de universidade (UNB Wireless, eduroam) nao funcionam: pedem login. Use um hotspot de celular.");
+  Serial.print("  Numero da rede, ou o nome exato, e Enter (Esc cancela): ");
+  char entrada[33];
+  if (!lerLinha(entrada, sizeof(entrada), false) || entrada[0] == '\0') {
+    WiFi.scanDelete();
+    Serial.println("  nada mudou.");
+    return false;
+  }
+  int numero = 0;
+  bool aberta = false;
+  char ssid[33];
+  if (lerNumero(entrada, numero) && numero <= naLista) {
+    const int16_t i = lista[numero - 1];
+    snprintf(ssid, sizeof(ssid), "%s", WiFi.SSID(i).c_str());
+    aberta = WiFi.encryptionType(i) == WIFI_AUTH_OPEN;
+  } else {
+    snprintf(ssid, sizeof(ssid), "%s", entrada);
+  }
+  WiFi.scanDelete();
+
+  char senha[65] = "";
+  if (aberta) {
+    Serial.printf("  \"%s\" e aberta: sem senha.\n", ssid);
+  } else {
+    Serial.printf("  Senha de \"%s\" e Enter (vazia se for aberta; Esc cancela): ", ssid);
+    if (!lerLinha(senha, sizeof(senha), true)) {
+      Serial.println("  nada mudou.");
+      return false;
+    }
+    const size_t tamanho = strlen(senha);
+    if (tamanho > 0 && tamanho < 8) {
+      Serial.println("  [FALHA] senha de Wi-Fi (WPA2) tem pelo menos 8 caracteres. Nada mudou.");
+      return false;
+    }
+  }
+
+  snprintf(ssidEscolhido, sizeof(ssidEscolhido), "%s", ssid);
+  snprintf(senhaEscolhida, sizeof(senhaEscolhida), "%s", senha);
+  redeEscolhidaSalva = false;
+  redeWifi.definirRede(0, ssidEscolhido, senhaEscolhida);
+  reconexaoWifi.reiniciar();
+  if (!comandoWifi()) {
+    Serial.println("  A rede fica escolhida ate reiniciar a placa; tecle p para tentar de novo (confira a senha).");
+    return false;
+  }
+  Serial.print("  Salvar esta rede na placa para os proximos boots da bancada? (s/n): ");
+  char resposta[4];
+  if (lerLinha(resposta, sizeof(resposta), false) && (resposta[0] == 's' || resposta[0] == 'S')) {
+    Preferences nvs;
+    if (nvs.begin(NVS_REDE_BANCADA, false)) {
+      nvs.putString("ssid", ssidEscolhido);
+      nvs.putString("senha", senhaEscolhida);
+      nvs.end();
+      redeEscolhidaSalva = true;
+      Serial.println("  [OK]    salva. Tecle f para esquecer. O firmware do robo continua usando o credenciais.h.");
+    } else {
+      Serial.println("  [FALHA] nao consegui gravar na flash; a rede vale ate reiniciar.");
+    }
+  } else {
+    Serial.println("  nao salva: vale ate reiniciar a placa.");
+  }
+  return true;
+}
+
+/// `f`: esquece a rede salva pela tecla `p` e volta para a principal do `credenciais.h`.
+void comandoEsquecerRede() {
+  Serial.println("--- Esquecer a rede escolhida ---");
+  iniciarWifiSeNecessario();
+  Preferences nvs;
+  if (nvs.begin(NVS_REDE_BANCADA, false)) {
+    nvs.clear();
+    nvs.end();
+  }
+  const bool havia = ssidEscolhido[0] != '\0';
+  ssidEscolhido[0] = '\0';
+  senhaEscolhida[0] = '\0';
+  redeEscolhidaSalva = false;
+  redeWifi.definirRede(0, credenciais.ssidWifi, credenciais.senhaWifi);
+  reconexaoWifi.reiniciar();
+  Serial.println(havia ? "  [OK]    rede escolhida esquecida." : "  nao havia rede escolhida pela tecla p.");
+  imprimirRedes();
 }
 
 /// `s`: o que a bancada sabe agora.
@@ -1461,11 +2023,13 @@ void comandoStatus() {
   Serial.println("--- Status ---");
   Serial.printf("  Wi-Fi: %s", WiFi.status() == WL_CONNECTED ? "conectado" : "desconectado");
   if (WiFi.status() == WL_CONNECTED) {
-    Serial.printf(" (\"%s\", %s, %d dBm)", credenciais.ssidWifi, WiFi.localIP().toString().c_str(), WiFi.RSSI());
+    Serial.printf(" (%s, %s, %d dBm)", descreverRedeAtual(), WiFi.localIP().toString().c_str(), WiFi.RSSI());
   }
   Serial.println();
-  Serial.printf("  Quedas do Wi-Fi: %lu, tentativas de conexao: %lu\n", static_cast<unsigned long>(reconexaoWifi.quedas()),
-                static_cast<unsigned long>(reconexaoWifi.tentativas()));
+  imprimirRedes();
+  Serial.printf("  Redes conhecidas: %u. Quedas do Wi-Fi: %lu, tentativas de conexao: %lu, trocas de rede: %lu\n",
+                static_cast<unsigned>(redeWifi.quantidadeRedes()), static_cast<unsigned long>(reconexaoWifi.quedas()),
+                static_cast<unsigned long>(reconexaoWifi.tentativas()), static_cast<unsigned long>(reconexaoWifi.trocasDeRede()));
   if (corridaCriada) {
     Serial.printf("  Corrida: id %lu, %s, proxima sequencia %lu\n", static_cast<unsigned long>(corridaId),
                   corridaEncerrada ? "encerrada" : "aberta", static_cast<unsigned long>(proximaSequencia));
@@ -1481,13 +2045,19 @@ void imprimirMenuTelemetria() {
   Serial.println(" ATENCAO: a, c e l gravam uma corrida e amostras de teste DE VERDADE no banco do credenciais.h.");
   Serial.println("          Use o projeto Supabase de testes ou apague a corrida depois, para nao encher o historico.");
   Serial.println(" a  FLUXO COMPLETO: faz tudo abaixo e diz se a placa fala com o banco");
+  Serial.println(" p  ESCOLHER A REDE: lista as redes visiveis, voce digita o numero e a senha (sem regravar)");
+  Serial.println(" f  esquecer a rede escolhida pela tecla p (volta ao credenciais.h)");
   Serial.println(" w  conectar no Wi-Fi");
   Serial.println(" d  resolver o nome do Supabase (DNS)");
   Serial.println(" c  criar uma corrida no banco");
   Serial.println(" l  enviar um lote de 5 amostras de teste");
   Serial.println(" r  reenviar o ultimo lote (confere que nao duplica)");
   Serial.println(" e  encerrar a corrida");
-  Serial.println(" b  TESTE DE REENVIO: 60 s de amostras com o Wi-Fi caindo no meio (buffer do robo, #478)");
+  Serial.println(" b  TESTE DE REENVIO: amostras ate o Wi-Fi cair e voltar (buffer do robo, #478)");
+  Serial.println(" v  varrer as redes visiveis e conferir a principal e a reserva do credenciais.h (#491)");
+  Serial.println(" m  medir o sinal ao vivo (RSSI, rede principal ou reserva) andando pela pista (#491)");
+  Serial.println(" n  CORRIDA SEM REDE: 600 amostras (10 min) com o Wi-Fi desligado, depois envia tudo (#491)");
+  Serial.println(" x  BUFFER CHEIO: 650 amostras sem rede; as 50 mais antigas devem ser descartadas (#478)");
   Serial.println(" s  status");
   Serial.println(" 0  voltar ao menu principal");
 }
@@ -1517,6 +2087,24 @@ void executarTelemetria(char tecla) {
       break;
     case 'b':
       comandoTesteReenvio();
+      break;
+    case 'm':
+      comandoMedirSinal();
+      break;
+    case 'v':
+      comandoVarrerRedes();
+      break;
+    case 'p':
+      comandoEscolherRede();
+      break;
+    case 'f':
+      comandoEsquecerRede();
+      break;
+    case 'n':
+      comandoCorridaSemRede(CAPACIDADE_BUFFER_AMOSTRAS);
+      break;
+    case 'x':
+      comandoCorridaSemRede(CAPACIDADE_BUFFER_AMOSTRAS + SEM_REDE_EXCESSO);
       break;
     case 's':
       comandoStatus();

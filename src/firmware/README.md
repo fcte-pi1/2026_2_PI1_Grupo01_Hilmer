@@ -532,17 +532,25 @@ Ao abrir o monitor, a placa reinicia e o menu aparece sozinho. Além das teclas 
 
 ##### Telemetria na bancada (tecla `w`)
 
-O firmware do robô só cria a corrida depois da calibração, que exige o autoteste dos sensores. A tecla `w` abre um submenu que testa o Wi-Fi e a gravação no banco sem depender dos sensores, com o mesmo cliente HTTP (`EnvioHttpSupabase`) do robô. Antes de gravar, copie `include/credenciais.exemplo.h` para `include/credenciais.h` (o Git ignora o arquivo), preencha os campos e, na bancada, use `CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1`. Sem o arquivo, o firmware compila e o submenu explica o que fazer.
+O firmware do robô só cria a corrida depois da calibração, que exige o autoteste dos sensores. A tecla `w` abre um submenu que testa o Wi-Fi e a gravação no banco sem depender dos sensores, com o mesmo cliente HTTP (`EnvioHttpSupabase`) do robô. Antes de gravar, copie `include/credenciais.exemplo.h` para `include/credenciais.h` (o Git ignora o arquivo), preencha os campos e, na bancada, use `CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1`. Sem o arquivo, o firmware compila e o Wi-Fi funciona pela tecla `p` (escolher a rede pela serial), mas as teclas que falam com o banco explicam o que falta.
 
 | Tecla | O que faz |
 |---|---|
 | `a` | Fluxo completo: Wi-Fi, DNS, criar corrida, enviar lote, reenviar o lote (confere que não duplica) e encerrar. Termina com `RESULTADO` |
-| `w` / `d` | Conecta no Wi-Fi (mostra IP e sinal) / resolve o nome do Supabase |
+| `p` | **Escolher a rede pela serial:** varre as redes, mostra as 20 de sinal mais forte numeradas e pede o número (ou o nome exato) e a senha, que aparece como `*`. Conectando, pergunta se salva a rede na flash da placa (NVS): salva, ela é a principal da bancada a cada boot, no lugar da principal do `credenciais.h`; a reserva do `credenciais.h` continua valendo. Não precisa regravar a placa. O firmware do robô não lê essa rede |
+| `f` | Esquece a rede salva pela tecla `p` e volta à principal do `credenciais.h` |
+| `w` / `d` | Conecta no Wi-Fi (mostra a rede, principal ou reserva, o IP e o sinal) / resolve o nome do Supabase |
 | `c` / `l` / `r` / `e` | Cria a corrida / envia 5 amostras de teste / reenvia o último lote / encerra como `nao_concluida` |
-| `b` | **Teste de reenvio com queda de Wi-Fi (#478):** 60 s de amostras (1 por segundo) pelo `ControladorEnvio` do robô; desligue o hotspot por cerca de 30 s no meio e religue. No fim, confere as contagens (confirmadas, existentes, descartadas, perdidas, reenvios), dá a consulta SQL para conferir o banco e a linha `REGISTRO` |
-| `s` / `0` | Status / volta ao menu principal |
+| `b` | **Teste de reenvio com queda de Wi-Fi (#478):** amostras (1 por segundo) pelo `ControladorEnvio` do robô até o Wi-Fi cair e voltar: quando quiser, desligue os hotspots (a principal e a reserva) por cerca de 30 s e religue. O teste termina 15 s depois de o Wi-Fi voltar (pelo menos 60 s, no máximo 5 min). No fim, confere as quedas e o tempo sem conexão deste teste, as contagens (confirmadas, existentes, descartadas, perdidas, reenvios), dá a consulta SQL para conferir o banco e a linha `REGISTRO` |
+| `v` | **Varredura (#491):** lista as redes de 2,4 GHz que a placa enxerga e marca a principal e a reserva do `credenciais.h`. Avisa quando o nome só bate sem diferenciar maiúsculas (o hotspot do iPhone se chama `iPhone`, e `Iphone` não conecta) |
+| `m` | **Sinal ao vivo (#491):** a cada 0,5 s mostra a rede, o RSSI (bom a partir de -67 dBm, aceitável até -75, fraco até -80, crítico abaixo) e o mínimo, a média e o máximo. Segue reconectando como o robô: desligue o hotspot principal e a troca para a reserva aparece na tela. Qualquer tecla para e imprime a linha `REGISTRO: sinal` |
+| `n` | **Corrida sem rede (#491):** cria a corrida, desliga o Wi-Fi, põe 600 amostras (10 min a 1 por segundo) no buffer do robô, religa o Wi-Fi e espera tudo chegar e a corrida encerrar. Nada pode se perder. Termina com a consulta SQL e a linha `REGISTRO: sem_rede` |
+| `x` | **Buffer cheio (#478):** o mesmo, com 650 amostras. As 50 mais antigas têm de ser descartadas (`perdidas no buffer 50`) e o banco fica com as sequências 51 a 650 |
+| `s` / `0` | Status (com as redes do `credenciais.h` e as trocas de rede) / volta ao menu principal |
 
 Cada etapa sai como `[OK]` ou `[FALHA]`, com o código HTTP, a resposta do servidor e a dica do que conferir (senha, 2,4 GHz, token, função não publicada, migração não aplicada). **Grava linhas reais no banco do `credenciais.h`**: use o projeto de testes ou apague a corrida depois. O ESP32-C3 não enxerga redes de 5 GHz; o hotspot do celular precisa estar em 2,4 GHz.
+
+Em `n` e `x`, as amostras são geradas em poucos segundos (o `tempo_decorrido_ms` de cada uma simula 1 por segundo): o buffer conta amostras, não tempo, e o teste não precisa durar 10 minutos. Para uma corrida em tempo real sem rede, use `b` com os dois hotspots desligados.
 
 #### Como acrescentar um componente ao menu
 
@@ -694,7 +702,7 @@ flowchart LR
 |---|---|---|
 | `ControladorEnvio`, `BufferCircular`, `PoliticaReenvio` | `lib/comunicacao` | Guardam as amostras até o servidor confirmar, reenviam em ordem com espera crescente e classificam as respostas |
 | `ContratoTelemetria` | `lib/comunicacao` | JSON do lote, da criação e do encerramento da corrida, e a leitura das respostas |
-| `ReconexaoWifi` | `lib/comunicacao` | Conecta e reconecta o Wi-Fi com espera crescente (1 s até 30 s), sem travar a tarefa |
+| `ReconexaoWifi` | `lib/comunicacao` | Conecta e reconecta o Wi-Fi com espera crescente (1 s até 30 s), sem travar a tarefa, e passa para a rede reserva quando a principal não conecta (#491) |
 | `CredenciaisSupabase` | `lib/comunicacao` | Confere as credenciais e monta as URLs das funções |
 | `EnvioHttpSupabase` | `lib/drivers_esp32` | `IEnvioTelemetria` real: `HTTPClient` com `WiFiClientSecure`, cabeçalhos `apikey`, `Authorization` e `x-device-token` |
 | `RedeWifiEsp32`, `TravaSecaoCritica` | `lib/drivers_esp32` | O Wi-Fi do ESP32 e a `ITrava` real (seção crítica do FreeRTOS) |
@@ -708,7 +716,8 @@ As credenciais **não vão para o Git**. Copie `include/credenciais.exemplo.h` p
 
 | Campo | De onde vem |
 |---|---|
-| `CREDENCIAL_WIFI_SSID` e `CREDENCIAL_WIFI_SENHA` | Rede de 2,4 GHz do laboratório |
+| `CREDENCIAL_WIFI_SSID` e `CREDENCIAL_WIFI_SENHA` | Rede principal, em 2,4 GHz: na demonstração, o hotspot do celular principal |
+| `CREDENCIAL_WIFI_SSID_RESERVA` e `CREDENCIAL_WIFI_SENHA_RESERVA` | Rede reserva, também em 2,4 GHz (o segundo celular). Vazias, ou ausentes num `credenciais.h` antigo: só a principal |
 | `CREDENCIAL_SUPABASE_URL` | Supabase → Settings → API → Project URL |
 | `CREDENCIAL_SUPABASE_ANON` | Supabase → Settings → API → chave `anon` |
 | `CREDENCIAL_DEVICE_TOKEN` | O mesmo `DEVICE_TOKEN` dos segredos das Edge Functions (peça a quem administra o Supabase) |
@@ -716,13 +725,34 @@ As credenciais **não vão para o Git**. Copie `include/credenciais.exemplo.h` p
 
 Sem `include/credenciais.h`, o firmware compila, inicia e não envia nada: o log mostra `{"status":"envio_desligado","motivo":"sem_credenciais"}`. `CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1` aceita qualquer servidor (`setInsecure`): **só na bancada**, nunca na versão da competição (o log avisa com `https_sem_validar_certificado`).
 
+### Rede da demonstração e plano B (#491)
+
+As redes institucionais não servem: o portal cativo pede login no navegador e o WPA2 corporativo pede usuário, e o ESP32 não faz nenhum dos dois. Por isso a telemetria usa o hotspot de um celular, com um segundo celular de reserva. O resultado dos testes (qual celular é a principal e o sinal medido na pista) fica em `docs/07-testes/integracao.md`.
+
+**Como o robô escolhe a rede.** Começa pela principal. Uma tentativa que não conecta em 10 s passa para a reserva na hora; só depois de as duas falharem seguidas o robô espera 1 s, 2 s, 4 s... até 30 s e recomeça pela principal. Se a conexão cair, ele tenta primeiro a mesma rede e, se ela não voltar em 10 s, a outra. Conectado na reserva, ele fica nela, mesmo que a principal volte. Sem nenhuma rede, a corrida segue: as amostras ficam no buffer (600, 10 minutos) e vão todas, em ordem, quando a rede volta.
+
+**Hotspot.** Precisa estar em 2,4 GHz: no iPhone, ative **Maximizar Compatibilidade** no Acesso Pessoal; no Android, escolha a banda de 2,4 GHz nas opções do ponto de acesso. Deixe o celular desbloqueado e na tomada ou com bateria cheia (alguns desligam o hotspot sem clientes ou com a tela bloqueada), com dados móveis ligados e longe de outros hotspots na mesma sala.
+
+**Roteiro de troca de rede no dia (menos de 5 minutos).**
+
+1. Ligue o hotspot do celular que vai entrar, em 2,4 GHz, e confira nele o nome e a senha.
+2. No computador da bancada, abra `src/firmware/include/credenciais.h` e troque `CREDENCIAL_WIFI_SSID` e `CREDENCIAL_WIFI_SENHA` (ou os campos da reserva). Não mexa nos outros campos.
+3. Conecte o robô pela USB e grave: `pio run -e esp32c3 -t upload` (cerca de 1 minuto).
+4. Abra o monitor (`pio device monitor -e esp32c3`) e espere `{"status":"wifi_conectado","rede":"principal",...}` com `rssi` acima de -75; depois, `corrida_criada`.
+5. Se não conectar em 30 s: confira os 2,4 GHz e a senha no celular e repita o passo 3. Para diagnosticar sem o robô, grave a bancada (`pio run -e bancada_geral_devkit -t upload`), tecle `w` e depois `v`: a varredura mostra o nome exato de cada rede visível (o SSID diferencia maiúsculas) e se a principal e a reserva aparecem. Na bancada, `p` conecta numa rede visível sem regravar; no robô, a rede vem só do `credenciais.h`.
+
+Se a principal cair durante a corrida, não é preciso fazer nada: o robô passa para a reserva sozinho, e o que ficou no buffer vai junto.
+
 ### Log
 
 | Mensagem | Quando |
 |---|---|
+| `wifi_redes` (com a `quantidade`) | Na partida da tarefa de rede: 1 (só a principal) ou 2 (com a reserva) |
+| `wifi_conectado` (com a `rede` e o `rssi`) | O Wi-Fi conectou, na `principal` ou na `reserva` |
+| `wifi_caiu` (com a `rede`) | A conexão caiu; o robô tenta de novo a mesma rede e depois a outra |
 | `corrida_criada` (com o `corrida_id`) | O servidor criou a corrida; a coleta começa |
 | `falha_criar_corrida` (com o `codigo`) | Não criou; tenta de novo em 1 s, 2 s, 4 s... até 30 s |
-| `envio` (a cada 10 s) | Contadores: `ocupacao` do buffer, `perdidas` por buffer cheio, `confirmadas`, `existentes` (reenvios que o servidor já tinha), `descartadas`, `tentativas`, `falhas`, `reenvios`, `wifi_quedas` e `pausado` |
+| `envio` (a cada 10 s) | Contadores: `ocupacao` do buffer, `perdidas` por buffer cheio, `confirmadas`, `existentes` (reenvios que o servidor já tinha), `descartadas`, `tentativas`, `falhas`, `reenvios`, `wifi_quedas`, `wifi_rede` (`principal` ou `reserva`), `wifi_trocas` (passagens de uma rede para a outra), `rssi` (0 sem conexão) e `pausado` |
 | `envio_pausado` | O servidor respondeu `401`/`403` (a chave ou o token estão errados) ou um código que não se resolve sozinho, como um `3xx` de URL errada; o envio para. O `motivo` sai como `credenciais_recusadas` nos dois casos |
 | `corrida_encerrada` | O servidor confirmou o encerramento |
 
@@ -736,7 +766,7 @@ Sem `include/credenciais.h`, o firmware compila, inicia e não envia nada: o log
 | Tempo limite do encerramento | `ConfiguracaoReenvio.h` | 10 s (depois disso o robô pode seguir; o envio continua tentando) |
 | Tempo limite de uma chamada HTTPS | `ConfiguracaoRede.h` | 5 s |
 | Ciclo da tarefa de rede | `ConfiguracaoRede.h` | 100 ms (um lote por ciclo, no máximo) |
-| Tempo para o Wi-Fi conectar e esperas entre tentativas | `ConfiguracaoRede.h` | 10 s; 1 s dobrando até 30 s |
+| Tempo para o Wi-Fi conectar e esperas entre tentativas | `ConfiguracaoRede.h` | 10 s por rede; com a reserva, a espera (1 s dobrando até 30 s) só entra depois de as duas falharem |
 | Espaço do JSON do lote | `ConfiguracaoRede.h` | 280 bytes por amostra, cerca de 28 KB reservados no cliente HTTP |
 
 O envio ocupa cerca de 45 KB de RAM fixa (buffer, cópia do lote e JSON), de 320 KB do ESP32-C3.
