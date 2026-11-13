@@ -558,6 +558,17 @@ void lerBotao() {
 // em imprimirMenuPrincipal(): Serial.println(" b  botao de largada");
 ```
 
+### Bancada geral sem cabo: telnet e gravação pelo Wi-Fi
+
+Com uma rede salva (tecla `p`) ou no `credenciais.h`, a bancada geral liga o Wi-Fi já no boot e, ao conectar, abre dois serviços e imprime o IP no monitor:
+
+| Serviço | Como usar |
+| :--- | :--- |
+| **Telnet** (porta 23) | Espelha tudo que a serial mostra e aceita as mesmas teclas do menu. `pio device monitor --port socket://IP:23` (manda cada tecla na hora) ou `nc IP 23` (precisa de Enter depois da tecla). Um cliente por vez. |
+| **OTA** (gravação sem cabo) | Depois de gravar uma vez por cabo, grave de novo pelo Wi-Fi: `pio run -e bancada_geral_devkit_ota -t upload --upload-port IP` (ou `micromouse-bancada.local`). Senha padrão `micromouse` (`BANCADA_SENHA_OTA`). |
+
+O computador precisa estar na mesma rede da placa; alguns hotspots isolam os aparelhos entre si (nesse caso, use o notebook no mesmo hotspot). A tecla `s` do submenu de telemetria mostra o IP e se há cliente conectado. O telnet não tem senha: use só na rede do laboratório e com as rodas fora do chão. Os motores são freados no começo da gravação OTA. Esses serviços existem só no `bancada_geral_devkit`; o firmware do robô não tem telnet nem OTA.
+
 ### Bancada dos VL53L0X
 
 Para conferir o driver no hardware montado, junto com a eletrônica, use o menu de bancada (precisa de `pip install pyserial`):
