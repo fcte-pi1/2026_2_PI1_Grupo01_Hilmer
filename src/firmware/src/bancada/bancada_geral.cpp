@@ -2,27 +2,21 @@
 /// @brief Firmware de bancada geral: menu de uma tecla pela serial para conferir, no hardware
 /// montado, os 3 VL53L0X, o MPU6050, os dois motores e os encoders, com os mesmos drivers do robô.
 ///
-/// Não é o firmware do robô: só entra no ambiente `bancada_geral` do `platformio.ini`. Grave e abra
-/// o monitor com `pio run -e bancada_geral -t upload && pio device monitor -e bancada_geral`.
+/// Não é o firmware do robô: só entra no ambiente `bancada_geral_devkit` do `platformio.ini`. Grave e
+/// abra o monitor com `pio run -e bancada_geral_devkit -t upload && pio device monitor -e bancada_geral_devkit`.
 /// Digite só a tecla do menu (não precisa de Enter; Enter mostra o menu de novo).
 ///
 /// SEGURANÇA: os motores ficam freados no boot e só giram dentro do submenu de motores, por
 /// `DURACAO_TESTE_MOTOR_MS` no máximo. Qualquer tecla (menos Enter) freia os motores na hora.
 /// Para o primeiro teste, deixe as rodas fora do chão.
 ///
-/// Placas: o ambiente `bancada_geral` é a Super Mini (ESP32-C3, serial pela USB nativa); o
-/// `bancada_geral_devkit` é o ESP32 DevKit V1 (`-DPLACA_ESP32_DEVKIT`, serial pelo conversor USB da
-/// placa), que também confere o botão de largada e a tensão da bateria. A pinagem de cada placa
-/// está em `Pinos.h`.
+/// Placa: ESP32 DevKit V1, com a serial pelo conversor USB da placa (UART0). Além dos sensores e dos
+/// motores, confere o botão de largada, a tensão da bateria e a telemetria. A pinagem está em `Pinos.h`.
 
 #include <Arduino.h>
 #include <Wire.h>
 #include <stdarg.h>
 #include <stdlib.h>
-
-#if !defined(PLACA_ESP32_DEVKIT) && (!defined(ARDUINO_USB_CDC_ON_BOOT) || !ARDUINO_USB_CDC_ON_BOOT)
-#error "Serial pela USB nativa: defina ARDUINO_USB_MODE=1 e ARDUINO_USB_CDC_ON_BOOT=1 no platformio.ini (Pinos.h)"
-#endif
 
 #include "BarramentoI2c.h"
 #include "ConfiguracaoMotores.h"
@@ -88,7 +82,6 @@ constexpr uint32_t AUTOTESTE_ESPERA_ENCODER_MS = 1000;
 constexpr uint8_t AUTOTESTE_LEITURAS_GIRO = 50;
 constexpr int32_t AUTOTESTE_GIRO_PARADO_MAX_DECIMOS = 50;
 
-#if defined(PLACA_ESP32_DEVKIT)
 /// Divisor da bateria (R1 de 100 kohm no positivo, R2 de 33 kohm no GND) e faixa da LiPo 2S. A
 /// tensão no pino é a da bateria vezes R2 / (R1 + R2), e só vale com a chave geral ligada.
 constexpr uint32_t BATERIA_R1_OHMS = 100000;
@@ -97,7 +90,6 @@ constexpr uint32_t BATERIA_LEITURAS = 16;
 constexpr uint32_t BATERIA_CORTE_MV = 6600;   ///< Abaixo disso a LiPo 2S está descarregada.
 constexpr uint32_t BATERIA_PLENA_MV = 8400;   ///< Carga plena da LiPo 2S.
 constexpr uint32_t BATERIA_MAXIMA_VALIDA_MV = 8700;
-#endif
 
 /// Tensão nominal do VM (buck U4) e passo do limite de duty. O multímetro, no motor, lê a tensão
 /// média do PWM: duty × VM. Com o limite do robô (70%) e VM de 6 V, o máximo é 4,2 V.
@@ -125,11 +117,9 @@ constexpr int32_t RAMPA_PULSOS_PARA_GIRAR = 3;
 /// Duração máxima do modo contínuo, em ms. Passado esse tempo, os motores freiam sozinhos.
 constexpr uint32_t TEMPO_MAXIMO_CONTINUO_MS = 60000;
 
-#if !ARDUINO_USB_CDC_ON_BOOT
 /// Na UART do DevKit, `if (!Serial)` não percebe o monitor fechar (ele só confere se a UART está
 /// instalada). Por isso o modo contínuo exige uma tecla (`m` mantém) a cada `PRAZO_SEM_TECLA_MS`.
 constexpr uint32_t PRAZO_SEM_TECLA_MS = 10000;
-#endif
 
 /// Duty efetivo, em %, de uma potência (o driver limita o duty a `LIMITE_DUTY_MOTORES_MILESIMOS`).
 /// Limite de duty da bancada, em milésimos. Começa no do robô; as teclas `l` e `k` o mudam.
@@ -209,10 +199,8 @@ void imprimirMenuPrincipal() {
   Serial.println(" 8  pinagem (GPIO de cada sinal)");
   Serial.println(" 9  encoders: contagem continua, gire a roda a mao (qualquer tecla para)");
   Serial.println(" 0  zerar a contagem dos encoders");
-#if defined(PLACA_ESP32_DEVKIT)
   Serial.println(" a  bateria: tensao pelo divisor no GPIO34");
   Serial.println(" b  botao de largada: mostra quando aperta e solta (qualquer tecla para)");
-#endif
 #if defined(BANCADA_COM_TELEMETRIA)
   Serial.println(" w  telemetria: Wi-Fi, HTTPS e banco (submenu; grava corrida de verdade no banco do credenciais.h)");
 #endif
@@ -385,7 +373,6 @@ void zerarEncoders() {
   Serial.println("Encoders zerados.");
 }
 
-#if defined(PLACA_ESP32_DEVKIT)
 /// Tensão da bateria em mV, pela média de `BATERIA_LEITURAS` leituras do ADC no divisor R1/R2.
 uint32_t lerBateriaMv() {
   uint32_t somaPinoMv = 0;
@@ -432,7 +419,6 @@ void lerBotaoContinuo() {
   }
   Serial.println("Fim da leitura do botao.");
 }
-#endif
 
 /// Soma dos itens do autoteste.
 struct ResumoAutoteste {
@@ -548,7 +534,6 @@ void autoteste() {
             "encoder direito estavel (%ld pulsos, %lu transicoes invalidas)", static_cast<long>(pulsosDir),
             static_cast<unsigned long>(novasDir));
 
-#if defined(PLACA_ESP32_DEVKIT)
   Serial.println("5) Bateria e botao");
   const uint32_t bateriaMv = lerBateriaMv();
   registrar(resumo, bateriaMv >= BATERIA_CORTE_MV && bateriaMv <= BATERIA_MAXIMA_VALIDA_MV,
@@ -559,24 +544,15 @@ void autoteste() {
   registrar(resumo, digitalRead(pinos::BOTAO_START) == HIGH,
             "o pino esta em LOW sem apertar: botao pressionado, em curto ou terminal ligado ao GND errado",
             "botao BTN_START solto (nivel alto)");
-#endif
 
   Serial.printf("RESULTADO: %u OK, %u FALHA(S).\n", resumo.ok, resumo.falhas);
   Serial.printf("REGISTRO: autoteste | ok=%u falhas=%u | veredito=%s\n", resumo.ok, resumo.falhas,
                 resumo.falhas == 0 ? "OK" : "FALHA");
-#if defined(PLACA_ESP32_DEVKIT)
   Serial.println("Nao verificado aqui: motores (tecla 7), o sentido dos encoders (gire a roda a mao com a tecla 9) e o aperto do botao (tecla b).");
-#else
-  Serial.println("Nao verificado aqui: motores (tecla 7) e o sentido dos encoders (gire a roda a mao com a tecla 9).");
-#endif
 }
 
 void imprimirPinagem() {
-#if defined(PLACA_ESP32_DEVKIT)
   Serial.println("Pinagem (Pinos.h, ESP32 DevKit V1):");
-#else
-  Serial.println("Pinagem (Pinos.h, Rev 2.0):");
-#endif
   Serial.printf("  I2C: SDA=GPIO%d, SCL=GPIO%d\n", pinos::I2C_SDA, pinos::I2C_SCL);
   Serial.printf("  XSHUT: frente=GPIO%d, esquerda=GPIO%d, direita=GPIO%d\n", pinos::XSHUT_FRONTAL,
                 pinos::XSHUT_ESQ, pinos::XSHUT_DIR);
@@ -584,9 +560,7 @@ void imprimirPinagem() {
   Serial.printf("  Motor direito: IN3=GPIO%d, IN4=GPIO%d\n", pinos::MOTOR_DIR_IN3, pinos::MOTOR_DIR_IN4);
   Serial.printf("  Encoders: esq A=GPIO%d B=GPIO%d, dir A=GPIO%d B=GPIO%d (entradas com pull-up, no maximo 3,3 V)\n",
                 pinos::ENCODER_ESQ_A, pinos::ENCODER_ESQ_B, pinos::ENCODER_DIR_A, pinos::ENCODER_DIR_B);
-#if defined(PLACA_ESP32_DEVKIT)
   Serial.printf("  Botao BTN_START: GPIO%d (pull-up). Bateria (ADC): GPIO%d\n", pinos::BOTAO_START, pinos::BATERIA_ADC);
-#endif
 }
 
 /// Muda o limite de duty dos motores em `delta` milésimos e avisa o que isso significa.
@@ -634,10 +608,8 @@ void acionar(const char* descricao, int16_t esquerda, int16_t direita) {
                 esquerda, direita, dutyPercentual(esquerda != 0 ? esquerda : direita));
   encoderEsq.zerar();
   encoderDir.zerar();
-#if defined(PLACA_ESP32_DEVKIT)
   const uint32_t bateriaAntesMv = lerBateriaMv();
   uint32_t bateriaMinimaMv = bateriaAntesMv;
-#endif
   motores.definirPotencia({esquerda, direita});
   const uint32_t inicioMs = millis();
   bool interrompido = false;
@@ -646,20 +618,16 @@ void acionar(const char* descricao, int16_t esquerda, int16_t direita) {
       interrompido = true;
       break;
     }
-#if defined(PLACA_ESP32_DEVKIT)
     const uint32_t bateriaMv = lerBateriaRapidaMv();
     if (bateriaMv > 1000 && bateriaMv < bateriaMinimaMv) {
       bateriaMinimaMv = bateriaMv;
     }
-#endif
     delay(5);
   }
   motores.parar();
   Serial.println(interrompido ? "> freado por tecla." : "> tempo esgotado, motores freados.");
-#if defined(PLACA_ESP32_DEVKIT)
   Serial.printf("  bateria: %.2f V parado, %.2f V no minimo com o motor ligado (queda de %.2f V)\n",
                 bateriaAntesMv / 1000.0f, bateriaMinimaMv / 1000.0f, (bateriaAntesMv - bateriaMinimaMv) / 1000.0f);
-#endif
   avaliarEncoder("esquerdo", encoderEsq.lerContagem(), esquerda);
   avaliarEncoder("direito", encoderDir.lerContagem(), direita);
 }
@@ -681,10 +649,8 @@ void testeIntegrado() {
   uint16_t maiorMm[3] = {0, 0, 0};
   const uint32_t invalidasEsqAntes = encoderEsq.transicoesInvalidas();
   const uint32_t invalidasDirAntes = encoderDir.transicoesInvalidas();
-#if defined(PLACA_ESP32_DEVKIT)
   const uint32_t bateriaAntesMv = lerBateriaMv();
   uint32_t bateriaMinimaMv = bateriaAntesMv;
-#endif
 
   encoderEsq.zerar();
   encoderDir.zerar();
@@ -713,12 +679,10 @@ void testeIntegrado() {
     if (!imu.lerTaxaGiroZ(giro)) {
       falhasImu++;
     }
-#if defined(PLACA_ESP32_DEVKIT)
     const uint32_t bateriaMv = lerBateriaRapidaMv();
     if (bateriaMv > 1000 && bateriaMv < bateriaMinimaMv) {
       bateriaMinimaMv = bateriaMv;
     }
-#endif
     delay(PERIODO_LEITURA_TOF_MS);
   }
   motores.parar();
@@ -744,12 +708,10 @@ void testeIntegrado() {
   registrar(resumo, falhasImu == 0,
             "o MPU6050 falhou com o motor ligado: ruido no I2C; afaste os fios do motor e confira os pull-ups",
             "MPU6050 sem falhas (%lu leituras)", static_cast<unsigned long>(leiturasImu));
-#if defined(PLACA_ESP32_DEVKIT)
   registrar(resumo, bateriaAntesMv - bateriaMinimaMv <= QUEDA_MAXIMA_BATERIA_MV,
             "a bateria cai demais com os motores ligados: a fonte nao aguenta a corrente; veja o buck do VM e o capacitor de bulk",
             "bateria %.2f V parado, %.2f V no minimo (queda de %.2f V, limite %.2f V)", bateriaAntesMv / 1000.0f,
             bateriaMinimaMv / 1000.0f, (bateriaAntesMv - bateriaMinimaMv) / 1000.0f, QUEDA_MAXIMA_BATERIA_MV / 1000.0f);
-#endif
   for (uint8_t i = 0; i < 3; i++) {
     if (maiorMm[i] > 0) {
       Serial.printf("  ToF %s variou de %u a %u mm durante o teste\n", NOMES[i], menorMm[i], maiorMm[i]);
@@ -802,16 +764,14 @@ void rampa(bool esquerdo) {
 
 /// Modo contínuo: aciona o motor sem o limite de 2 s, mostra os pulsos e a velocidade dos encoders
 /// a cada `PERIODO_FLUXO_MS` e deixa trocar motor, sentido e potência sem parar. Para ao receber
-/// qualquer outra tecla, ao fechar o monitor (só na USB nativa; na UART do DevKit, passados
-/// `PRAZO_SEM_TECLA_MS` sem tecla) ou depois de `TEMPO_MAXIMO_CONTINUO_MS`.
+/// qualquer outra tecla, depois de `PRAZO_SEM_TECLA_MS` sem tecla (na UART, o programa não percebe o
+/// monitor fechar) ou depois de `TEMPO_MAXIMO_CONTINUO_MS`.
 void modoContinuo() {
   Alvo alvo = Alvo::Esquerdo;
   bool re = false;
   Serial.println("> MODO CONTINUO. Teclas: e = motor esquerdo, d = motor direito, b = os dois,");
   Serial.println(">   r = inverte o sentido, + e - = potencia, l e k = limite de duty. Qualquer outra tecla (espaco) freia.");
-#if !ARDUINO_USB_CDC_ON_BOOT
   Serial.println(">   Neste modo o programa nao percebe o monitor fechar: tecle m a cada 10 s para manter, senao os motores freiam.");
-#endif
   encoderEsq.zerar();
   encoderDir.zerar();
   const uint32_t inicioMs = millis();
@@ -819,18 +779,14 @@ void modoContinuo() {
   int32_t anteriorEsq = 0;
   int32_t anteriorDir = 0;
   const char* motivo = "tempo maximo atingido";
-#if !ARDUINO_USB_CDC_ON_BOOT
   uint32_t ultimaTeclaMs = inicioMs;
-#endif
   while (millis() - inicioMs < TEMPO_MAXIMO_CONTINUO_MS) {
     bool parar = false;
     while (Serial.available() > 0 && !parar) {
       const char tecla = static_cast<char>(Serial.read());
-#if !ARDUINO_USB_CDC_ON_BOOT
       if (tecla != '\r' && tecla != '\n') {
         ultimaTeclaMs = millis();
       }
-#endif
       switch (tecla) {
         case '\r':
         case '\n':
@@ -881,12 +837,10 @@ void modoContinuo() {
       motivo = "monitor serial fechado";
       break;
     }
-#if !ARDUINO_USB_CDC_ON_BOOT
     if (millis() - ultimaTeclaMs >= PRAZO_SEM_TECLA_MS) {
       motivo = "10 s sem tecla (o monitor pode ter fechado)";
       break;
     }
-#endif
     const int16_t comando = re ? -potencia : potencia;
     motores.definirPotencia({alvo == Alvo::Direito ? int16_t{0} : comando,
                              alvo == Alvo::Esquerdo ? int16_t{0} : comando});
@@ -2168,7 +2122,6 @@ void executarPrincipal(char tecla) {
       imprimirMenuTelemetria();
       break;
 #endif
-#if defined(PLACA_ESP32_DEVKIT)
     case 'a':
     case 'A':
       imprimirBateria();
@@ -2177,7 +2130,6 @@ void executarPrincipal(char tecla) {
     case 'B':
       lerBotaoContinuo();
       break;
-#endif
     case 'r':
     case 'R':
       Serial.println("Reiniciando a placa... (se o monitor fechar, abra de novo)");
@@ -2230,14 +2182,9 @@ void executarTecla(char tecla) {
 
 void setup() {
   Serial.begin(115200);
-#if ARDUINO_USB_CDC_ON_BOOT
-  Serial.setTxTimeoutMs(0);  // a USB nativa não trava a escrita se o monitor fechar
-#endif
   motores.iniciar();  // freados durante toda a bancada, até o submenu de motores
-#if defined(PLACA_ESP32_DEVKIT)
   pinMode(pinos::BOTAO_START, INPUT_PULLUP);
   analogSetPinAttenuation(pinos::BATERIA_ADC, ADC_11db);  // faixa até cerca de 3,1 V no pino
-#endif
   barramento.iniciar(pinos::I2C_SDA, pinos::I2C_SCL);  // inicia o `Wire`
   encoderEsq.iniciar();
   encoderDir.iniciar();
@@ -2254,18 +2201,7 @@ void loop() {
   }
 #endif
   static char anterior = 0;
-  static bool monitorAberto = false;
-  // Mostra o menu sozinho quando o monitor serial abre, sem precisar digitar nada. Só na USB nativa:
-  // na UART do DevKit o `Serial` é sempre verdadeiro, e abrir o monitor reinicia a placa (o menu sai no `setup()`).
-#if ARDUINO_USB_CDC_ON_BOOT
-  if (static_cast<bool>(Serial) != monitorAberto) {
-    monitorAberto = static_cast<bool>(Serial);
-    if (monitorAberto) {
-      delay(300);
-      imprimirMenuAtual();
-    }
-  }
-#endif
+  // Abrir o monitor reinicia a placa (DTR/RTS do conversor USB), então o menu sai no `setup()`.
   while (Serial.available() > 0) {
     const char tecla = static_cast<char>(Serial.read());
     const bool fimDeLinha = tecla == '\r' || tecla == '\n';

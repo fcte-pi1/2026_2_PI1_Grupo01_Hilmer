@@ -8,7 +8,7 @@
 /// 1. Copie este arquivo para `include/credenciais.h` (o Git ignora esse nome).
 /// 2. Preencha os campos abaixo. Peça a chave `anon`, a URL e o `DEVICE_TOKEN` a quem administra o
 ///    Supabase do grupo; nunca cole esses valores em issue, PR ou conversa.
-/// 3. Grave a placa: `pio run -e esp32c3 -t upload`.
+/// 3. Grave a placa: `pio run -e esp32_devkit -t upload`.
 ///
 /// Sem `include/credenciais.h`, o firmware compila, inicia e não envia nada (o log mostra
 /// `envio_desligado`).

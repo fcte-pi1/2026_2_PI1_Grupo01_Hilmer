@@ -12,10 +12,6 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-#if !defined(ARDUINO_USB_CDC_ON_BOOT) || !ARDUINO_USB_CDC_ON_BOOT
-#error "Serial pela USB nativa: defina ARDUINO_USB_MODE=1 e ARDUINO_USB_CDC_ON_BOOT=1 no platformio.ini (Pinos.h)"
-#endif
-
 #include "MotoresDrv8833.h"
 #include "Pinos.h"
 #include "TofVl53l0x.h"
@@ -321,10 +317,9 @@ void executar(String linha) {
 
 void setup() {
   Serial.begin(115200);
-  Serial.setTxTimeoutMs(0);
   motores.iniciar();  // freados durante toda a bancada
   Wire.begin(pinos::I2C_SDA, pinos::I2C_SCL);
-  delay(500);  // tempo para o monitor serial abrir a porta USB
+  delay(500);  // tempo para o monitor serial, que reinicia a placa ao abrir, começar a ler
   imprimirAjuda();
   iniciarSensores();
   Serial.println("{\"tipo\":\"pronto\",\"programa\":\"bancada_tof\"}");

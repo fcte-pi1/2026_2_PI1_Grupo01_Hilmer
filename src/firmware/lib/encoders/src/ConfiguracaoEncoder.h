@@ -22,8 +22,8 @@ constexpr uint32_t PULSOS_POR_VOLTA_DA_RODA = 400;
 constexpr uint32_t DIAMETRO_DA_RODA_MM = 32;
 
 /// Distância percorrida pela roda por pulso contado (decodificação x4), em micrômetros:
-/// π × 32 mm / 400 pulsos = 251,3 µm. Em inteiros, para não depender de ponto flutuante no
-/// ESP32-C3, que não tem unidade de ponto flutuante.
+/// π × 32 mm / 400 pulsos = 251,3 µm. Em inteiros, como o resto da odometria: as contas dão o
+/// mesmo resultado no computador (testes `native`) e na placa.
 constexpr uint32_t MICROMETROS_POR_PULSO_PROVISORIO = 251;
 
 }  // namespace micromouse

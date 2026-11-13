@@ -26,7 +26,7 @@ void MotoresDrv8833::iniciar() {
     // Arduino-ESP32 3.x: o canal do LEDC é escolhido automaticamente para cada pino.
     ledcAttach(pinos_[i], FREQUENCIA_PWM_MOTORES_HZ, RESOLUCAO_PWM_MOTORES_BITS);
 #else
-    // Arduino-ESP32 2.x: um canal do LEDC por pino (o ESP32-C3 tem os canais 0 a 5).
+    // Arduino-ESP32 2.x: um canal do LEDC por pino (o ESP32 tem os canais 0 a 15).
     ledcSetup(i, FREQUENCIA_PWM_MOTORES_HZ, RESOLUCAO_PWM_MOTORES_BITS);
     ledcAttachPin(pinos_[i], i);
 #endif
