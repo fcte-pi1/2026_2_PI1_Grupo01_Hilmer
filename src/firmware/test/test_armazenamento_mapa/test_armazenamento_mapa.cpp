@@ -222,7 +222,7 @@ void test_nova_corrida_pode_trocar_o_tamanho() {
 }
 
 void test_armazenamento_ocupa_pouca_memoria() {
-  // Dois mapas (195 bytes cada) mais os indicadores: bem abaixo dos 320 KB de RAM do ESP32-C3.
+  // Dois mapas (195 bytes cada) mais os indicadores: bem abaixo dos cerca de 320 KB de RAM de dados do ESP32.
   TEST_ASSERT_LESS_OR_EQUAL_UINT32(512, sizeof(ArmazenamentoMapa));
 }
 

@@ -1,7 +1,7 @@
 #pragma once
 
 /// @file EncoderEsp32.h
-/// @brief Driver de leitura de encoder em quadratura para ESP32-C3 via interrupções de GPIO.
+/// @brief Driver de leitura de encoder em quadratura para ESP32 via interrupções de GPIO.
 ///
 /// Implementa `IEncoder` (camada `hal`) conectando as interrupções nos pinos A e B
 /// à máquina de estados do `DecodificadorQuadratura` (camada `encoders`).
@@ -13,7 +13,7 @@
 
 namespace micromouse {
 
-/// Driver de encoder físico no ESP32-C3.
+/// Driver de encoder físico no ESP32.
 ///
 /// Configura interrupções em ambos os pinos (CHANGE) para decodificação em quadratura x4.
 /// As rotinas de interrupção executam a partir da IRAM e utilizam seções críticas do FreeRTOS

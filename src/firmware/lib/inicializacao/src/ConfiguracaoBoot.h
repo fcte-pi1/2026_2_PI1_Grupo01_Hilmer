@@ -15,7 +15,7 @@ namespace micromouse {
 /// Passar do prazo **não** trava os motores: só gera um aviso no relatório do boot.
 ///
 /// O firmware mede com o `millis()` no fim do `setup()`, que conta desde o início do programa; a ROM
-/// e o bootloader do ESP32-C3 rodam antes e não entram na conta. Para o tempo desde o ligar, meça
+/// e o bootloader do ESP32 rodam antes e não entram na conta. Para o tempo desde o ligar, meça
 /// na bancada (cronômetro ou osciloscópio) e registre a diferença em `docs/07-testes/software.md`.
 constexpr uint32_t TEMPO_MAXIMO_BOOT_MS = 2000;
 

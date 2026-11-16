@@ -20,10 +20,6 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-#if !defined(ARDUINO_USB_CDC_ON_BOOT) || !ARDUINO_USB_CDC_ON_BOOT
-#error "Serial pela USB nativa: defina ARDUINO_USB_MODE=1 e ARDUINO_USB_CDC_ON_BOOT=1 no platformio.ini (Pinos.h)"
-#endif
-
 #include "AcompanhadorGiro.h"
 #include "BarramentoI2c.h"
 #include "ConfiguracaoDeslocamento.h"
@@ -556,13 +552,12 @@ void executar(String linha) {
 
 void setup() {
   Serial.begin(115200);
-  Serial.setTxTimeoutMs(0);
   motoresDrv.iniciar();  // começa freado
   deslocamento.motores().parar();
   barramento.iniciar(pinos::I2C_SDA, pinos::I2C_SCL);  // inicia o `Wire`
   const bool tofOk = tof.iniciar();
   imuOk = imu.iniciar();
-  delay(500);  // tempo para o monitor serial abrir a porta USB
+  delay(500);  // tempo para o monitor serial, que reinicia a placa ao abrir, começar a ler
   imprimirAjuda();
   if (!tofOk) {
     Serial.println("# ATENCAO: algum ToF nao iniciou; as correcoes nao vao acontecer.");

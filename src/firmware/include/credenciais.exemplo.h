@@ -8,14 +8,21 @@
 /// 1. Copie este arquivo para `include/credenciais.h` (o Git ignora esse nome).
 /// 2. Preencha os campos abaixo. Peça a chave `anon`, a URL e o `DEVICE_TOKEN` a quem administra o
 ///    Supabase do grupo; nunca cole esses valores em issue, PR ou conversa.
-/// 3. Grave a placa: `pio run -e esp32c3 -t upload`.
+/// 3. Grave a placa: `pio run -e esp32_devkit -t upload`.
 ///
 /// Sem `include/credenciais.h`, o firmware compila, inicia e não envia nada (o log mostra
 /// `envio_desligado`).
 
-/// Rede Wi-Fi (2,4 GHz: o ESP32-C3 não conecta em 5 GHz).
+/// Rede Wi-Fi principal (2,4 GHz: o ESP32 não conecta em 5 GHz). Na demonstração, o hotspot do
+/// celular principal (roteiro de troca no README do firmware, seção "Rede da demonstração").
 #define CREDENCIAL_WIFI_SSID "nome-da-rede"
 #define CREDENCIAL_WIFI_SENHA "senha-da-rede"
+
+/// Rede reserva (#491), também em 2,4 GHz: o robô passa para ela quando a principal não conecta em
+/// 10 s, e volta a tentar a principal só se a reserva cair. Deixe as duas vazias para usar só a
+/// principal. Arquivos `credenciais.h` antigos, sem estas linhas, continuam valendo (sem reserva).
+#define CREDENCIAL_WIFI_SSID_RESERVA ""
+#define CREDENCIAL_WIFI_SENHA_RESERVA ""
 
 /// Projeto do Supabase: Settings → API → Project URL (sem `/` no fim).
 #define CREDENCIAL_SUPABASE_URL "https://SEU-PROJETO.supabase.co"

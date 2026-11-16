@@ -33,7 +33,7 @@ enum class EstadoCalibracao : uint8_t {
 /// controlar giros de 90° e 180°. `anguloNormalizadoMiligraus()` devolve o mesmo ângulo entre
 /// −180° (exclusive) e 180°. Positivo é giro para a esquerda, como em `IImu`.
 ///
-/// Só usa inteiros, porque o ESP32-C3 não tem unidade de ponto flutuante.
+/// Só usa inteiros: as contas dão o mesmo resultado no computador (testes `native`) e na placa.
 ///
 /// Uso típico:
 /// @code

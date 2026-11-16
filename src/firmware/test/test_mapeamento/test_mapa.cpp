@@ -288,7 +288,7 @@ void test_consistencia_se_mantem_apos_registros_pseudoaleatorios() {
 }
 
 void test_mapa_ocupa_pouca_memoria() {
-  // 12 colunas x 4 linhas de 4 bytes, mais o cabeçalho: bem abaixo dos 320 KB de RAM do ESP32-C3.
+  // 12 colunas x 4 linhas de 4 bytes, mais o cabeçalho: bem abaixo dos cerca de 320 KB de RAM de dados do ESP32.
   TEST_ASSERT_LESS_OR_EQUAL_UINT32(256, sizeof(Mapa));
 }
 

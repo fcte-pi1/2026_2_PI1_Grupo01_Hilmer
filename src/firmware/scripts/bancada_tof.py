@@ -2,14 +2,14 @@
 """Menu de bancada dos 3 sensores VL53L0X (issues #344 e #175).
 
 Conduz, junto com a eletrônica, a verificação do driver `TofVl53l0x` no hardware montado:
-grava o firmware de bancada (ambiente `bancada_tof`), confere a fiação de cada XSHUT, a
+grava o firmware de bancada (ambiente `bancada_tof_devkit`), confere a fiação de cada XSHUT, a
 atribuição dos endereços, a taxa de medição, o tempo da leitura, o erro contra a régua e o
 comportamento fora da faixa. Cada etapa sai como APROVADO/REPROVADO/OBSERVADO e pode ser salva
 num relatório em Markdown para registrar em `docs/07-testes/software.md`.
 
 Uso (a partir de `src/firmware`):
     ./scripts/bancada_tof.py              # escolhe a porta no menu
-    ./scripts/bancada_tof.py --porta /dev/ttyACM0
+    ./scripts/bancada_tof.py --porta /dev/ttyUSB0
 
 Requer `pyserial` (pip install pyserial) e, para gravar, o PlatformIO (`pio`).
 """
@@ -166,7 +166,7 @@ def gravar_firmware(bancada):
         print(f"{VERMELHO}PlatformIO (pio) não encontrado. Instale com: pipx install platformio{NORMAL}")
         return
     bancada.fechar()
-    comando = [pio, "run", "-e", "bancada_tof", "-t", "upload", "--upload-port", bancada.porta]
+    comando = [pio, "run", "-e", "bancada_tof_devkit", "-t", "upload", "--upload-port", bancada.porta]
     print("Executando:", " ".join(comando))
     resultado = subprocess.run(comando, cwd=PASTA_FIRMWARE)
     if resultado.returncode != 0:
@@ -421,7 +421,7 @@ def salvar_relatorio(bancada):
     linhas = [
         f"# Bancada dos VL53L0X ({agora.strftime('%d/%m/%Y %H:%M')})",
         "",
-        f"- Commit do firmware: `{commit}` (ambiente `bancada_tof`)",
+        f"- Commit do firmware: `{commit}` (ambiente `bancada_tof_devkit`)",
         f"- Porta: `{bancada.porta}`",
     ]
     nomes = {"responsaveis": "Responsáveis", "cor_parede": "Cor da parede",
@@ -489,7 +489,7 @@ MENU = (
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    parser.add_argument("--porta", help="porta serial da placa (ex.: /dev/ttyACM0, COM5)")
+    parser.add_argument("--porta", help="porta serial da placa (ex.: /dev/ttyUSB0, COM5)")
     args = parser.parse_args()
 
     print("=" * 66)
