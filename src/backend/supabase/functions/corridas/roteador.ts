@@ -11,7 +11,8 @@ export type CodigoErro =
   | "corrida_ja_encerrada"
   | "status_invalido"
   | "celulas_invalidas"
-  | "mapa_grande_demais";
+  | "mapa_grande_demais"
+  | "telemetria_fora_do_labirinto";
 
 /** Erro de regra de negócio vindo do banco (por exemplo, encerrar uma corrida já encerrada com outro status). */
 export class ErroDeNegocio extends Error {
@@ -26,6 +27,8 @@ export class ErroDeNegocio extends Error {
 export interface Repositorio {
   criarCorrida(tipo: TipoLabirinto): Promise<Corrida>;
   encerrarCorrida(id: number, dados: DadosEncerramento): Promise<Corrida>;
+  /** Troca o labirinto da corrida pelo que o robô descobriu e renumera a tentativa nele. */
+  definirLabirinto(id: number, tipo: TipoLabirinto): Promise<Corrida>;
   /** Grava o mapa final; devolve `{ novas, atualizadas }`. */
   registrarMapa(id: number, celulas: unknown[]): Promise<{ novas: number; atualizadas: number }>;
 }
@@ -62,6 +65,10 @@ const STATUS_POR_ERRO: Record<CodigoErro, { status: number; mensagem: string }> 
   status_invalido: { status: 400, mensagem: "status inválido" },
   celulas_invalidas: { status: 400, mensagem: "alguma célula do mapa é inválida" },
   mapa_grande_demais: { status: 413, mensagem: "o mapa tem mais células do que o labirinto da corrida" },
+  telemetria_fora_do_labirinto: {
+    status: 409,
+    mensagem: "a corrida já tem telemetria ou mapa fora da malha do labirinto novo",
+  },
 };
 
 /** Segmentos do caminho depois de `corridas`: `/functions/v1/corridas/12/encerrar` vira `["12", "encerrar"]`. */
@@ -113,6 +120,25 @@ export async function tratarRequisicao(req: Requisicao, deps: Dependencias): Pro
         return erro(400, "corpo_invalido", validacao.mensagem);
       }
       const corrida = await deps.repositorio.encerrarCorrida(id, validacao.valor);
+      return { status: 200, corpo: corrida };
+    }
+
+    if (segmentos.length === 2 && segmentos[1] === "labirinto") {
+      if (req.metodo !== "POST") {
+        return erro(405, "metodo_nao_permitido", "use POST em /corridas/{id}/labirinto");
+      }
+      const id = analisarId(segmentos[0]);
+      if (id === null) {
+        return erro(400, "id_invalido", "o identificador da corrida deve ser um inteiro positivo");
+      }
+      if (req.corpo === CORPO_INVALIDO) {
+        return erro(400, "corpo_invalido", "o corpo não é um JSON válido");
+      }
+      const validacao = validarCriacao(req.corpo);
+      if (!validacao.ok) {
+        return erro(400, "corpo_invalido", validacao.mensagem);
+      }
+      const corrida = await deps.repositorio.definirLabirinto(id, validacao.valor.tipo);
       return { status: 200, corpo: corrida };
     }
 
