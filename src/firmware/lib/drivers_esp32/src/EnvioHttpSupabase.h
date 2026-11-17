@@ -8,6 +8,7 @@
 #include <WiFiClientSecure.h>
 
 #include "ConfiguracaoRede.h"
+#include "ContratoTelemetria.h"
 #include "CredenciaisSupabase.h"
 #include "IEnvioTelemetria.h"
 
@@ -36,6 +37,21 @@ class EnvioHttpSupabase : public IEnvioTelemetria {
   /// @return O código HTTP; `2xx` sem `id` legível volta com `codigoHttp` 0 (sem resposta útil).
   ResultadoEnvio criarCorrida(const char* labirinto, uint32_t& corridaId);
 
+  /// `POST /functions/v1/corridas/{id}/labirinto`: informa o tamanho do labirinto que o robô descobriu
+  /// (`4x4`, `8x4` ou `12x4`; a corrida nasce como 4x4). Repetir o mesmo tamanho é inofensivo.
+  /// @return O código HTTP: `2xx` informado; `409` a corrida já tem posições fora da malha nova ou já
+  ///         foi encerrada (não adianta repetir); outro código ou negativo, tente de novo.
+  ResultadoEnvio definirLabirintoCorrida(uint32_t corridaId, const char* labirinto);
+
+  /// `POST /functions/v1/robo/comandos/proximo`: busca o próximo comando que o painel mandou ao robô.
+  /// @param[out] comando O comando, ou `Nenhum` se não há (só vale com resposta `2xx`).
+  /// @return O código HTTP; `2xx` com corpo ilegível volta com `codigoHttp` 0 (sem resposta útil).
+  ResultadoEnvio buscarComando(ComandoRobo& comando);
+
+  /// `POST /functions/v1/robo/logs`: envia linhas de log ao painel. `corridaId` 0 envia sem corrida.
+  /// Até `LINHAS_POR_LOTE_DE_LOGS` linhas por chamada.
+  ResultadoEnvio enviarLogs(uint32_t corridaId, const char* const* linhas, size_t quantidade);
+
   /// Status mandado no encerramento: `concluida` se o robô chegou ao objetivo, senão `nao_concluida`.
   void definirResultadoCorrida(bool concluida) { concluida_ = concluida; }
 
@@ -61,6 +77,8 @@ class EnvioHttpSupabase : public IEnvioTelemetria {
   WiFiClientSecure cliente_;
   HTTPClient http_;
   char lote_[TAMANHO_MAXIMO_LOTE_JSON];
+  /// Corpo do lote de logs: até 10 linhas de 200 caracteres, com as aspas escapadas.
+  char logs_[LINHAS_POR_LOTE_DE_LOGS * TAMANHO_MAX_LINHA_DE_LOG * 2 + 64];
 };
 
 }  // namespace micromouse

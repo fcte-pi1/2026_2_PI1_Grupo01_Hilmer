@@ -20,6 +20,8 @@ Navegacao::Navegacao(const Mapa& mapa)
       posicao_atual_({0, 0}),
       direcao_atual_(Direcao::Norte),
       detector_(mapa.obterLinhas(), mapa.obterColunas()) {
+  objetivos_[0] = detector_.celulaObjetivo();
+  quantidadeObjetivos_ = 1;
   recalcularDistancias();
 }
 
@@ -28,6 +30,8 @@ Navegacao::Navegacao(const Mapa& mapa, PosicaoCelula objetivo, Pose poseInicial)
       posicao_atual_(mapa.posValida(poseInicial.celula) ? poseInicial.celula : PosicaoCelula{0, 0}),
       direcao_atual_(poseInicial.direcao),
       detector_(objetivo) {
+  objetivos_[0] = objetivo;
+  quantidadeObjetivos_ = 1;
   recalcularDistancias();
 }
 
@@ -46,34 +50,54 @@ bool Navegacao::moverPara(uint8_t linha, uint8_t coluna, Direcao direcao) {
 }
 
 void Navegacao::definirObjetivo(PosicaoCelula objetivo) {
-  detector_.definirObjetivo(objetivo);
+  definirObjetivos(&objetivo, 1);
+}
+
+void Navegacao::definirObjetivos(const PosicaoCelula* objetivos, uint16_t quantidade) {
+  if (objetivos == nullptr) {
+    quantidade = 0;
+  }
+  quantidadeObjetivos_ = quantidade > CAPACIDADE ? CAPACIDADE : quantidade;
+  for (uint16_t i = 0; i < quantidadeObjetivos_; ++i) {
+    objetivos_[i] = objetivos[i];
+  }
+  if (quantidadeObjetivos_ > 0) {
+    detector_.definirObjetivo(objetivos_[0]);
+  }
   recalcularDistancias();
 }
 
 bool Navegacao::atingiuObjetivo() const {
-  return detector_.alcancouObjetivo(posicao_atual_);
+  for (uint16_t i = 0; i < quantidadeObjetivos_; ++i) {
+    if (mesmaCelula(objetivos_[i], posicao_atual_)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 void Navegacao::recalcularDistancias() {
-  for (uint8_t l = 0; l < MAX_LINHAS_LABIRINTO; ++l) {
-    for (uint8_t c = 0; c < MAX_COLUNAS_LABIRINTO; ++c) {
+  for (uint8_t l = 0; l < MAX_LINHAS_EXPLORACAO; ++l) {
+    for (uint8_t c = 0; c < MAX_COLUNAS_EXPLORACAO; ++c) {
       distancias_[l][c] = DISTANCIA_INFINITA;
     }
   }
 
-  const PosicaoCelula objetivo = detector_.celulaObjetivo();
-  if (!mapa_.posValida(objetivo)) {
-    return;
-  }
-
-  // Fila estática para BFS
-  constexpr size_t TAMANHO_FILA = MAX_LINHAS_LABIRINTO * MAX_COLUNAS_LABIRINTO;
+  // Fila estática para BFS; cada célula entra no máximo uma vez.
+  constexpr size_t TAMANHO_FILA = CAPACIDADE;
   PosicaoCelula fila[TAMANHO_FILA];
   size_t inicio = 0;
   size_t fim = 0;
 
-  distancias_[objetivo.linha][objetivo.coluna] = 0;
-  fila[fim++] = objetivo;
+  // Vários objetivos: BFS com várias origens, cada célula fica com a distância ao mais próximo.
+  for (uint16_t i = 0; i < quantidadeObjetivos_; ++i) {
+    const PosicaoCelula objetivo = objetivos_[i];
+    if (!mapa_.posValida(objetivo) || distancias_[objetivo.linha][objetivo.coluna] == 0) {
+      continue;
+    }
+    distancias_[objetivo.linha][objetivo.coluna] = 0;
+    fila[fim++] = objetivo;
+  }
 
   const Direcao direcoes[4] = {Direcao::Norte, Direcao::Leste, Direcao::Sul, Direcao::Oeste};
 

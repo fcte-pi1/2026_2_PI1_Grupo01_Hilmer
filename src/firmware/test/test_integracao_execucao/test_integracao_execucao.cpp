@@ -233,6 +233,108 @@ void test_corrida_replaneja_e_nao_repete_celulas_sem_fim() {
   TEST_ASSERT_LESS_THAN_UINT32(96, sim.ciclo().celulasAvancadas());
 }
 
+// ---- Largada em qualquer célula (o robô não sabe onde está nem o tamanho do labirinto)
+
+/// Larga o robô em cada célula do labirinto, virado para o Norte, sem dizer onde: ele tem de se
+/// localizar e parar no objetivo real. Registra cada largada que falhou e devolve quantas foram.
+///
+/// O tamanho adotado pode ficar ambíguo sem atrapalhar a chegada: largar em (0, 1) de um 4×4 e em
+/// (0, 5) de um 8×4 leva ao mesmo canto, e o robô para lá sem precisar decidir entre os dois (adota o
+/// menor). Por isso a localização certa (tamanho e pose convertida) só é exigida no 4×4
+/// (`exigirHipoteseExata`), o único labirinto montado; nos outros, a hipótese verdadeira só não pode ter
+/// sido descartada. Quando a localização certa vale, o mapa real tem de conferir com o labirinto.
+uint32_t correrDeTodasAsCelulas(const char* texto, const char* nome, OpcoesSimulacao base, bool exigirHipoteseExata) {
+  uint32_t pior = 0;
+  uint32_t soma = 0;
+  uint32_t corridas = 0;
+  uint32_t falhas = 0;
+  uint32_t contatos = 0;
+  LabirintoSimulado referencia;
+  TEST_ASSERT_EQUAL(ResultadoCarga::Carregado, referencia.carregar(texto));
+  for (uint8_t l = 0; l < referencia.obterLinhas(); ++l) {
+    for (uint8_t c = 0; c < referencia.obterColunas(); ++c) {
+      base.inicial = Pose{{l, c}, Direcao::Norte};
+      Simulacao sim(texto, base);
+      sim.correr();
+      const PosicaoCelula real = sim.robo().celula();
+      const Pose noLabirinto = sim.poseNoLabirinto();
+      const HipoteseLargada h = sim.ciclo().hipoteseAdotada();
+      const LocalizadorLargada& loc = sim.ciclo().localizador();
+      bool verdadeiraViva = false;
+      for (uint8_t i = 0; i < loc.quantidade(); ++i) {
+        const HipoteseLargada v = loc.hipotese(i);
+        verdadeiraViva = verdadeiraViva || (v.linha == l && v.coluna == c && v.colunas == referencia.obterColunas());
+      }
+      const bool chegou = sim.ciclo().estado() == EstadoCiclo::ObjetivoAlcancado && sim.ciclo().localizado() &&
+                          real.linha == referencia.obterLinhas() - 1 && real.coluna == referencia.obterColunas() - 1;
+      // Depois de recomeçar a exploração, a hipótese fala da célula do recomeço, não da largada: o que
+      // vale é a pose convertida bater com a célula real.
+      const bool localizadoCerto = h.colunas == referencia.obterColunas() && noLabirinto.celula.linha == real.linha &&
+                                   noLabirinto.celula.coluna == real.coluna;
+      const bool ok = chegou && (!exigirHipoteseExata || localizadoCerto) &&
+                      (sim.ciclo().relargadas() > 0 || verdadeiraViva);
+      char msg[240];
+      std::snprintf(msg, sizeof(msg),
+                    "%s largando de (%u,%u): %s; estado %s em %.1f s, %u celulas, %u giros; real (%u,%u); "
+                    "hipotese (%u,%u) com %u colunas, %u vivas, %u relargadas",
+                    nome, l, c, ok ? "ok" : "FALHOU", nomeDoEstadoCiclo(sim.ciclo().estado()), sim.agoraMs() / 1000.0,
+                    static_cast<unsigned>(sim.ciclo().celulasAvancadas()),
+                    static_cast<unsigned>(sim.ciclo().girosFeitos()), real.linha, real.coluna, h.linha, h.coluna,
+                    h.colunas, static_cast<unsigned>(loc.quantidade()),
+                    static_cast<unsigned>(sim.ciclo().relargadas()));
+      if (!ok) {
+        registrar(msg);
+        ++falhas;
+        continue;
+      }
+      if (localizadoCerto) {
+        // Mapa real igual ao labirinto em tudo o que foi visto.
+        uint32_t conhecidas = 0;
+        conferirMapaComOLabirinto(sim.mapa(), sim.labirinto(), conhecidas);
+      }
+      contatos += sim.robo().colidiu() ? 1 : 0;
+      const uint32_t segundos = sim.agoraMs() / 1000;
+      soma += segundos;
+      pior = segundos > pior ? segundos : pior;
+      ++corridas;
+    }
+  }
+  char resumo[200];
+  std::snprintf(resumo, sizeof(resumo),
+                "%s, largada em cada celula: %u de %u chegaram, media %u s, pior %u s, %u com contato na parede", nome,
+                static_cast<unsigned>(corridas), static_cast<unsigned>(corridas + falhas),
+                static_cast<unsigned>(corridas > 0 ? soma / corridas : 0), static_cast<unsigned>(pior),
+                static_cast<unsigned>(contatos));
+  registrar(resumo);
+  return falhas;
+}
+
+void test_largada_em_qualquer_celula_no_4x4() {
+  OpcoesSimulacao o = opcoes();
+  o.largadaEmQualquerCelula = true;
+  TEST_ASSERT_EQUAL_UINT32(0, correrDeTodasAsCelulas(exemplos::LABIRINTO_4X4, "4x4", o, true));
+}
+
+void test_largada_em_qualquer_celula_no_8x4() {
+  OpcoesSimulacao o = opcoes();
+  o.largadaEmQualquerCelula = true;
+  TEST_ASSERT_EQUAL_UINT32(0, correrDeTodasAsCelulas(exemplos::LABIRINTO_8X4, "8x4", o, false));
+}
+
+void test_largada_em_qualquer_celula_no_12x4() {
+  OpcoesSimulacao o = opcoes();
+  o.largadaEmQualquerCelula = true;
+  TEST_ASSERT_EQUAL_UINT32(0, correrDeTodasAsCelulas(exemplos::LABIRINTO_12X4, "12x4", o, false));
+}
+
+/// Robô imperfeito (rodas desiguais) e com a detecção de colisão, largando de qualquer célula do 4x4.
+void test_largada_em_qualquer_celula_e_robo_imperfeito() {
+  OpcoesSimulacao o = opcoes(roboImperfeito());
+  o.detectarColisao = true;
+  o.largadaEmQualquerCelula = true;
+  TEST_ASSERT_EQUAL_UINT32(0, correrDeTodasAsCelulas(exemplos::LABIRINTO_4X4, "4x4 imperfeito", o, true));
+}
+
 // ---- Folga do giro no lugar
 
 /// O chassi de 120 × 100 mm gira no lugar num corredor de 168 mm: a quina passa a 78,1 mm do
@@ -276,6 +378,10 @@ int main(int, char**) {
   RUN_TEST(test_corrida_com_robo_imperfeito_e_largada_torta);
   RUN_TEST(test_corrida_com_robo_imperfeito_no_12x4);
   RUN_TEST(test_corrida_replaneja_e_nao_repete_celulas_sem_fim);
+  RUN_TEST(test_largada_em_qualquer_celula_no_4x4);
+  RUN_TEST(test_largada_em_qualquer_celula_no_8x4);
+  RUN_TEST(test_largada_em_qualquer_celula_no_12x4);
+  RUN_TEST(test_largada_em_qualquer_celula_e_robo_imperfeito);
   RUN_TEST(test_folga_do_giro_no_lugar);
   return UNITY_END();
 }

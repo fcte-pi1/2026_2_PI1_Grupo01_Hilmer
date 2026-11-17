@@ -17,6 +17,7 @@
 #include "CorrecaoPelasParedes.h"
 #include "ExecutorMovimentos.h"
 #include "IMotores.h"
+#include "LocalizadorLargada.h"
 #include "Mapa.h"
 #include "Movimento.h"
 #include "Navegacao.h"
@@ -81,6 +82,20 @@ struct EntradaCiclo {
 /// chamar `Odometria::definirDirecao(direcao())` a cada ciclo, antes de atualizar a odometria: além
 /// de fixar a direção, isso zera a diferença entre as rodas, que nos giros pequenos do
 /// realinhamento chegaria a virar a direção estimada.
+///
+/// **Largada em qualquer célula** (`ConfiguracaoExecucao::largadaEmQualquerCelula`): o robô não sabe
+/// em que célula foi colocado nem o tamanho do labirinto, só que está virado para o Norte. O
+/// `reiniciar()` troca o mapa pelo de exploração (7 × 23) e põe o robô no meio dele
+/// (`poseInicialOdometria()`, que quem chama também dá à odometria). A cada percepção, a célula
+/// entra como visitada no `LocalizadorLargada`, que descarta as hipóteses de posição e tamanho que
+/// contradizem o que foi visto, e o Flood Fill vai para o objetivo mais próximo entre os das
+/// hipóteses vivas (menos a célula atual). Quando sobra uma hipótese, ou quando o robô está na célula
+/// que é o objetivo de todas, o ciclo **se localiza**: monta o mapa real com as paredes já vistas,
+/// passa a navegação para ele e, dali em diante, converte a pose da odometria (que continua no
+/// referencial da exploração) para o labirinto (`poseNoLabirinto()`). O resto da corrida é a normal.
+/// Se o mapa da exploração deixar de fazer sentido (nenhuma hipótese sobra, ou nenhum objetivo
+/// possível é alcançável), a exploração **recomeça** da célula atual, com o mapa limpo, até
+/// `relargadasMaximas` vezes: a direção continua valendo, porque vem do giroscópio desde a largada.
 ///
 /// **Colisão (#192).** Se `EntradaCiclo::colisao` chega com o robô em movimento (avançando, girando
 /// ou realinhando), o ciclo cancela o movimento, freia, esquece o passo planejado e vai para
@@ -173,11 +188,49 @@ class CicloNavegacao {
   /// Giros concluídos desde a largada.
   uint32_t girosFeitos() const { return girosFeitos_; }
 
+  /// Pose que a odometria deve adotar depois do `reiniciar()`: a pose dada nele ou, com a largada em
+  /// qualquer célula, o meio do mapa de exploração, na mesma direção.
+  Pose poseInicialOdometria() const { return poseInicialOdometria_; }
+
+  /// `false` enquanto o robô, largado numa célula desconhecida, ainda não descobriu onde está. Na
+  /// largada fixa, sempre `true`.
+  bool localizado() const { return !explorando_; }
+
+  /// Pose da odometria convertida para o labirinto real (igual, na largada fixa). Antes de o robô se
+  /// localizar, devolve a própria pose da exploração.
+  Pose poseNoLabirinto(const Pose& poseOdometria) const;
+
+  /// `false` se a pose da odometria cai fora do labirinto real depois da conversão.
+  bool poseDentroDoLabirinto(const Pose& poseOdometria) const;
+
+  /// Hipóteses de largada da exploração (veja `LocalizadorLargada`).
+  const LocalizadorLargada& localizador() const { return localizador_; }
+
+  /// Quantas vezes a exploração recomeçou da célula atual (veja a classe).
+  uint8_t relargadas() const { return relargadas_; }
+
+  /// Hipótese adotada ao se localizar (só vale com `localizado()` na largada em qualquer célula).
+  HipoteseLargada hipoteseAdotada() const { return hipotese_; }
+
   const Navegacao& navegacao() const { return navegacao_; }
   const ExecutorMovimentos& executor() const { return executor_; }
 
  private:
   void entrarEmPercepcao();
+
+  /// Exploração: registra a célula, atualiza as hipóteses e, se der, se localiza; senão, mira o
+  /// objetivo mais próximo entre os das hipóteses vivas.
+  void atualizarExploracao();
+
+  /// Adota a hipótese `h`: mapa real, navegação no labirinto e conversão da odometria.
+  void localizar(const HipoteseLargada& h);
+
+  /// Recomeça a exploração da célula atual, com o mapa limpo e todas as hipóteses, gravando de novo
+  /// as paredes da última percepção. `false` se já usou as `relargadasMaximas`.
+  bool relargar();
+
+  /// Entrada com a pose convertida para o referencial do mapa atual.
+  EntradaCiclo paraOMapa(const EntradaCiclo& entrada) const;
   void decidir(IMotores& motores);
   void iniciarGiro(Movimento giro);
 
@@ -214,6 +267,13 @@ class CicloNavegacao {
   ResultadoConfirmacao ultimaConfirmacao_ = ResultadoConfirmacao::Confirmada;
   uint32_t celulasAvancadas_ = 0;
   uint32_t girosFeitos_ = 0;
+  LocalizadorLargada localizador_;
+  bool explorando_ = false;           ///< Largada em qualquer célula, ainda sem se localizar.
+  HipoteseLargada hipotese_ = {0, 0, 4};
+  int16_t deslocamentoLinhas_ = 0;    ///< Odometria → mapa atual: linhas a subtrair.
+  int16_t deslocamentoColunas_ = 0;   ///< Odometria → mapa atual: colunas a subtrair.
+  uint8_t relargadas_ = 0;
+  Pose poseInicialOdometria_ = {{0, 0}, Direcao::Norte};
   uint32_t realinhamentos_ = 0;
   uint32_t colisoes_ = 0;
   uint32_t recuperacoes_ = 0;

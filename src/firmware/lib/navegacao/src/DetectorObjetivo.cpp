@@ -20,6 +20,7 @@ PosicaoCelula DetectorObjetivo::calcularObjetivo(DimensaoMapa dimensao) {
       return PosicaoCelula{3, 7};
     case DimensaoMapa::Labirinto12x4:
       return PosicaoCelula{3, 11};
+    case DimensaoMapa::Exploracao:  // sem objetivo único: quem explora define os candidatos
     default:
       return PosicaoCelula{3, 3};
   }

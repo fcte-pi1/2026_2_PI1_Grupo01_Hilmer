@@ -37,6 +37,12 @@ Mapa::Mapa(DimensaoMapa dimensao) : dimensao(dimensao), linhas(0), colunas(0) {
       linhas = 4;
       colunas = 12;
       break;
+    case DimensaoMapa::Exploracao:
+      // A borda do mapa de exploração fica fora de qualquer labirinto possível, então marcá-la
+      // como parede é sempre verdade.
+      linhas = MAX_LINHAS_EXPLORACAO;
+      colunas = MAX_COLUNAS_EXPLORACAO;
+      break;
   }
   preencherPerimetro();
 }

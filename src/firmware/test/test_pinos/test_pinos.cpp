@@ -42,7 +42,6 @@ void test_pinagem_confere_com_a_fiacao_da_bancada_integrada() {
   TEST_ASSERT_EQUAL_INT(33, pinos::ENCODER_ESQ_B);
   TEST_ASSERT_EQUAL_INT(18, pinos::ENCODER_DIR_A);
   TEST_ASSERT_EQUAL_INT(19, pinos::ENCODER_DIR_B);
-  TEST_ASSERT_EQUAL_INT(23, pinos::BOTAO_START);
   TEST_ASSERT_EQUAL_INT(34, pinos::BATERIA_ADC);
 }
 
@@ -54,7 +53,7 @@ void test_nenhum_gpio_e_usado_duas_vezes() {
 }
 
 void test_todos_os_gpios_existem_no_devkit() {
-  TEST_ASSERT_EQUAL_UINT32(15, static_cast<uint32_t>(pinos::QUANTIDADE_DE_PINOS));
+  TEST_ASSERT_EQUAL_UINT32(14, static_cast<uint32_t>(pinos::QUANTIDADE_DE_PINOS));
   TEST_ASSERT_TRUE(pinos::pinosExistemNoEsp32DevKit());
 }
 

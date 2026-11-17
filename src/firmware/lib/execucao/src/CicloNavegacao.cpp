@@ -41,9 +41,21 @@ CicloNavegacao::CicloNavegacao(Mapa& mapa, const ConfiguracaoExecucao& config, c
   }
 }
 
-void CicloNavegacao::reiniciar(const Pose& inicial, IMotores& motores) {
+void CicloNavegacao::reiniciar(const Pose& inicialDada, IMotores& motores) {
   executor_.cancelar(motores);
   motores.parar();
+  Pose inicial = inicialDada;
+  deslocamentoLinhas_ = 0;
+  deslocamentoColunas_ = 0;
+  relargadas_ = 0;
+  explorando_ = config_.largadaEmQualquerCelula;
+  if (explorando_) {
+    // Sem saber onde está: começa no meio do mapa de exploração, com todas as hipóteses.
+    mapa_ = Mapa(DimensaoMapa::Exploracao);
+    localizador_.reiniciar();
+    inicial.celula = LocalizadorLargada::LARGADA_NA_EXPLORACAO;
+  }
+  poseInicialOdometria_ = inicial;
   navegacao_.definirObjetivo(DetectorObjetivo::calcularObjetivo(mapa_.obterLinhas(), mapa_.obterColunas()));
   navegacao_.definirPose(inicial);
   direcao_ = inicial.direcao;
@@ -93,7 +105,119 @@ void CicloNavegacao::entrarEmPercepcao() {
   estado_ = EstadoCiclo::Percebendo;
 }
 
-EstadoCiclo CicloNavegacao::atualizar(const EntradaCiclo& entrada, IMotores& motores) {
+namespace {
+
+/// `true` se a célula da odometria, menos o deslocamento, cabe em `uint8_t` nos dois eixos.
+bool conversaoCabe(PosicaoCelula celula, int16_t linhas, int16_t colunas) {
+  const int16_t l = static_cast<int16_t>(celula.linha - linhas);
+  const int16_t c = static_cast<int16_t>(celula.coluna - colunas);
+  return l >= 0 && l <= UINT8_MAX && c >= 0 && c <= UINT8_MAX;
+}
+
+}  // namespace
+
+Pose CicloNavegacao::poseNoLabirinto(const Pose& poseOdometria) const {
+  Pose pose = poseOdometria;
+  pose.celula.linha = static_cast<uint8_t>(pose.celula.linha - deslocamentoLinhas_);
+  pose.celula.coluna = static_cast<uint8_t>(pose.celula.coluna - deslocamentoColunas_);
+  return pose;
+}
+
+bool CicloNavegacao::poseDentroDoLabirinto(const Pose& poseOdometria) const {
+  return conversaoCabe(poseOdometria.celula, deslocamentoLinhas_, deslocamentoColunas_) &&
+         mapa_.posValida(poseNoLabirinto(poseOdometria).celula);
+}
+
+EntradaCiclo CicloNavegacao::paraOMapa(const EntradaCiclo& entrada) const {
+  EntradaCiclo convertida = entrada;
+  convertida.pose = poseNoLabirinto(entrada.pose);
+  // Só a conversão pode invalidar a pose aqui (célula a Oeste ou ao Sul do labirinto); fora dele pelo
+  // outro lado, quem trata é a `Navegacao` (`confirmarPose` devolve `Invalida`), como na largada fixa.
+  convertida.poseValida =
+      entrada.poseValida && conversaoCabe(entrada.pose.celula, deslocamentoLinhas_, deslocamentoColunas_);
+  return convertida;
+}
+
+void CicloNavegacao::atualizarExploracao() {
+  const PosicaoCelula aqui = navegacao_.obterPosicao();
+  localizador_.visitar(aqui);
+  localizador_.atualizar(mapa_);
+  if (localizador_.quantidade() == 0) {
+    // Nenhuma posição explica o que foi gravado: alguma parede foi para o lugar errado.
+    relargar();
+    return;
+  }
+  if (localizador_.resolvido()) {
+    localizar(localizador_.hipotese(0));
+    return;
+  }
+  if (localizador_.objetivoDeTodas(aqui)) {
+    // Na célula que é o objetivo de todas as hipóteses: chegou, mesmo sem saber o tamanho exato.
+    // Fica com a de menos colunas (o mapa real só serve para a telemetria daqui em diante).
+    HipoteseLargada escolhida = localizador_.hipotese(0);
+    for (uint8_t i = 1; i < localizador_.quantidade(); ++i) {
+      if (localizador_.hipotese(i).colunas < escolhida.colunas) {
+        escolhida = localizador_.hipotese(i);
+      }
+    }
+    localizar(escolhida);
+    return;
+  }
+  // Ainda sem saber: vai ao objetivo ainda não visitado mais próximo entre os das hipóteses vivas.
+  // Um objetivo visitado já deu o que tinha a dar (estar nele não decide entre as hipóteses) e sai da
+  // lista de vez; tirá-lo só enquanto o robô está nele faria o robô ir e voltar. Os caminhos até os
+  // outros passam pelas paredes desconhecidas do perímetro, e vê-las descarta as hipóteses erradas.
+  PosicaoCelula objetivos[LocalizadorLargada::MAX_HIPOTESES];
+  const uint16_t n = localizador_.objetivos(objetivos, LocalizadorLargada::MAX_HIPOTESES);
+  uint16_t m = 0;
+  for (uint16_t i = 0; i < n; ++i) {
+    if (!localizador_.visitada(objetivos[i])) {
+      objetivos[m++] = objetivos[i];
+    }
+  }
+  // Todos visitados: sobra um só objetivo (visitar dois descarta um deles), comum às hipóteses vivas.
+  // Volta para ele; lá, `objetivoDeTodas` encerra a exploração.
+  navegacao_.definirObjetivos(objetivos, m > 0 ? m : n);
+}
+
+void CicloNavegacao::localizar(const HipoteseLargada& h) {
+  const PosicaoCelula aqui = navegacao_.obterPosicao();
+  hipotese_ = h;
+  const uint8_t dl = LocalizadorLargada::deslocamentoLinhas(h);
+  const uint8_t dc = LocalizadorLargada::deslocamentoColunas(h);
+  // O deslocamento acumula: a exploração pode já estar deslocada da odometria (depois de relargar).
+  deslocamentoLinhas_ = static_cast<int16_t>(deslocamentoLinhas_ + dl);
+  deslocamentoColunas_ = static_cast<int16_t>(deslocamentoColunas_ + dc);
+  mapa_ = LocalizadorLargada::mapaReal(mapa_, h);
+  explorando_ = false;
+  navegacao_.definirObjetivo(DetectorObjetivo::calcularObjetivo(mapa_.obterLinhas(), mapa_.obterColunas()));
+  navegacao_.definirPose(Pose{{static_cast<uint8_t>(aqui.linha - dl), static_cast<uint8_t>(aqui.coluna - dc)}, direcao_});
+}
+
+bool CicloNavegacao::relargar() {
+  if (relargadas_ >= config_.relargadasMaximas) {
+    navegacao_.definirObjetivos(nullptr, 0);  // sem objetivo: o ciclo para em `SemCaminho`
+    return false;
+  }
+  ++relargadas_;
+  const PosicaoCelula aqui = navegacao_.obterPosicao();
+  const PosicaoCelula largada = LocalizadorLargada::LARGADA_NA_EXPLORACAO;
+  // A célula atual vira a largada da nova exploração; a odometria continua onde estava.
+  deslocamentoLinhas_ = static_cast<int16_t>(deslocamentoLinhas_ + aqui.linha - largada.linha);
+  deslocamentoColunas_ = static_cast<int16_t>(deslocamentoColunas_ + aqui.coluna - largada.coluna);
+  mapa_ = Mapa(DimensaoMapa::Exploracao);
+  localizador_.reiniciar();
+  navegacao_.definirPose(Pose{largada, direcao_});
+  if (quantidadeAmostras_ > 0) {
+    AtualizadorMapa::atualizar(mapa_, navegacao_.obterPose(), classificador_, amostras_, quantidadeAmostras_);
+  }
+  atualizarExploracao();
+  return true;
+}
+
+EstadoCiclo CicloNavegacao::atualizar(const EntradaCiclo& entradaOdometria, IMotores& motores) {
+  // A odometria fica no referencial da exploração; o ciclo trabalha no do mapa atual.
+  const EntradaCiclo entrada = paraOMapa(entradaOdometria);
   const bool parado = estado_ == EstadoCiclo::ObjetivoAlcancado || estado_ == EstadoCiclo::SemCaminho ||
                       estado_ == EstadoCiclo::Falha;
   if (parado) {
@@ -141,6 +265,9 @@ EstadoCiclo CicloNavegacao::atualizar(const EntradaCiclo& entrada, IMotores& mot
         if (quantidadeAmostras_ >= config_.amostrasPercepcao) {
           AtualizadorMapa::atualizar(mapa_, navegacao_.obterPose(), classificador_, amostras_,
                                      quantidadeAmostras_);
+          if (explorando_) {
+            atualizarExploracao();
+          }
           decidir(motores);
         }
       }
@@ -337,8 +464,13 @@ void CicloNavegacao::decidir(IMotores& motores) {
     return;
   }
   Direcao proxima = direcao_;
-  if (!navegacao_.darPasso(proxima)) {
-    parar(EstadoCiclo::SemCaminho, motores);
+  bool temPasso = navegacao_.darPasso(proxima);
+  if (!temPasso && explorando_ && relargar()) {
+    // Explorando, sem caminho para nenhum objetivo possível: o mapa gravado não fecha com o labirinto.
+    temPasso = !navegacao_.atingiuObjetivo() && navegacao_.darPasso(proxima);
+  }
+  if (!temPasso) {
+    parar(navegacao_.atingiuObjetivo() ? EstadoCiclo::ObjetivoAlcancado : EstadoCiclo::SemCaminho, motores);
     return;
   }
   direcaoPasso_ = proxima;
