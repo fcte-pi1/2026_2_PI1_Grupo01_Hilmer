@@ -222,8 +222,9 @@ void test_nova_corrida_pode_trocar_o_tamanho() {
 }
 
 void test_armazenamento_ocupa_pouca_memoria() {
-  // Dois mapas (195 bytes cada) mais os indicadores: bem abaixo dos cerca de 320 KB de RAM de dados do ESP32.
-  TEST_ASSERT_LESS_OR_EQUAL_UINT32(512, sizeof(ArmazenamentoMapa));
+  // Dois mapas (cerca de 650 bytes cada, com a capacidade do mapa de exploração da largada em qualquer
+  // célula) mais os indicadores: bem abaixo dos cerca de 320 KB de RAM de dados do ESP32.
+  TEST_ASSERT_LESS_OR_EQUAL_UINT32(1400, sizeof(ArmazenamentoMapa));
 }
 
 /// Valida o ciclo de vida do congelamento do mapa (Issue #180, HU-04):

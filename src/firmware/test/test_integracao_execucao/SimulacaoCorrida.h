@@ -57,7 +57,17 @@ struct OpcoesSimulacao {
   /// ao `CicloNavegacao`. Sem isto, o ciclo nunca recebe colisão (como antes da #192).
   bool detectarColisao = false;
   ConfiguracaoColisao colisao = ConfiguracaoColisao{};
+  /// `true`: o robô é posto em `inicial` (virado para o Norte), mas o firmware não sabe a célula nem o
+  /// tamanho do labirinto e explora até se localizar.
+  bool largadaEmQualquerCelula = false;
 };
+
+/// Configuração da execução para as opções.
+inline ConfiguracaoExecucao configuracaoExecucao(const OpcoesSimulacao& opcoes) {
+  ConfiguracaoExecucao c;
+  c.largadaEmQualquerCelula = opcoes.largadaEmQualquerCelula;
+  return c;
+}
 
 /// O robô, os sensores e o firmware, ligados como no `main.cpp`.
 class Simulacao {
@@ -68,7 +78,7 @@ class Simulacao {
         deslocamento_(robo_),
         registrador_(opcoes.encoders ? static_cast<IMotores&>(robo_) : deslocamento_.motores()),
         detector_(opcoes.colisao),
-        ciclo_(armazenamento_.mapa(), ConfiguracaoExecucao{}, ConfiguracaoControle{}, ConfiguracaoGiro{},
+        ciclo_(armazenamento_.mapa(), configuracaoExecucao(opcoes), ConfiguracaoControle{}, ConfiguracaoGiro{},
                opcoes.realinhamento, opcoes.colisao),
         executor_(ConfiguracaoExecucao{}, ConfiguracaoControle{}, ConfiguracaoGiro{}, opcoes.realinhamento) {
     TEST_ASSERT_EQUAL(ResultadoCarga::Carregado, labirinto_.carregar(texto));
@@ -85,7 +95,13 @@ class Simulacao {
     // Depois da calibração, o viés muda: é a deriva que a calibração não vê.
     imu_.definirVies(static_cast<int16_t>(12 + opcoes.derivaGiroDecimosDps));
     ciclo_.reiniciar(opcoes.inicial, motores());
+    // Como no `main.cpp`: a odometria parte da pose que o ciclo pede (o meio do mapa de exploração,
+    // na largada em qualquer célula).
+    deslocamento_.reiniciar(odometria_, ciclo_.poseInicialOdometria());
   }
+
+  /// Pose da odometria no labirinto real (convertida depois de o robô se localizar).
+  Pose poseNoLabirinto() const { return ciclo_.poseNoLabirinto(odometria_.pose()); }
 
   /// Motores que o firmware aciona: pelo estimador no modo sem encoder, direto no robô com encoders,
   /// sempre pelo registrador da última potência comandada (a camada de fora, como no `main.cpp`).

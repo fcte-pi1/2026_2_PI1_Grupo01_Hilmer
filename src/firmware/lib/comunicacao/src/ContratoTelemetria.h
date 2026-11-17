@@ -10,8 +10,11 @@
 /// | Chamada | Corpo enviado | Resposta lida |
 /// |---|---|---|
 /// | `POST /functions/v1/corridas` | `{"labirinto":"4x4"}` | `id` da corrida criada |
+/// | `POST /functions/v1/corridas/{id}/labirinto` | `{"labirinto":"8x4"}` | só o código HTTP |
 /// | `POST /functions/v1/telemetria` | `{"corrida_id":7,"amostras":[...]}` | `gravadas` e `existentes` |
 /// | `POST /functions/v1/corridas/{id}/encerrar` | `{"status":"concluida"}` | só o código HTTP |
+/// | `POST /functions/v1/robo/comandos/proximo` | vazio | `comando` do painel (`iniciar`, `parar`, `zerar`) ou nulo |
+/// | `POST /functions/v1/robo/logs` | `{"corrida_id":7,"linhas":["..."]}` | só o código HTTP |
 
 #include <stddef.h>
 #include <stdint.h>
@@ -43,8 +46,38 @@ size_t serializarCriacaoCorrida(const char* labirinto, char* saida, size_t capac
 /// @return Bytes escritos, ou 0 se não couber.
 size_t serializarEncerramento(bool concluida, char* saida, size_t capacidade);
 
+/// Nome do labirinto no banco (`labirintos.tipo`): `4x4`, `8x4` ou `12x4`; vazio para o mapa de exploração,
+/// que não é um labirinto.
+const char* nomeDoLabirinto(DimensaoMapa dimensao);
+
+/// Comando que o painel mandou ao robô.
+enum class ComandoRobo : uint8_t {
+  Nenhum,   ///< Nenhum comando pendente.
+  Iniciar,  ///< Larga o robô (o mesmo que o `L`).
+  Parar,    ///< Para na hora e volta a esperar a largada (o mesmo que o `X`).
+  Zerar     ///< Zera a estimativa e volta a aguardar a largada (o mesmo que o `Z`).
+};
+
+/// Lê a resposta de `POST /robo/comandos/proximo`: `{"id": 7, "comando": "iniciar"}`, ou os dois
+/// nulos quando não há comando.
+/// @param[out] comando O comando, ou `Nenhum` se a resposta traz `"comando": null`.
+/// @return `false` se o corpo não é um JSON com `comando` nulo ou um dos três textos conhecidos.
+bool lerComandoRobo(const char* corpo, ComandoRobo& comando);
+
+/// Linhas de log por lote enviado ao painel e o maior tamanho de cada uma, com o `\0`: os mesmos
+/// limites da função `registrar_logs_robo` no banco (50 linhas de 300 caracteres), com folga para o
+/// JSON caber no buffer do cliente.
+constexpr size_t LINHAS_POR_LOTE_DE_LOGS = 10;
+constexpr size_t TAMANHO_MAX_LINHA_DE_LOG = 200;
+
+/// Corpo de `POST /robo/logs`: `{"corrida_id":7,"linhas":["...", ...]}`. As aspas e as barras das linhas
+/// saem escapadas. `corridaId` 0 deixa o campo de fora (o robô ainda não tem corrida).
+/// @return Bytes escritos (sem o `\0`), ou 0 se não couber ou se alguma linha for vazia.
+size_t serializarLogs(uint32_t corridaId, const char* const* linhas, size_t quantidade, char* saida, size_t capacidade);
+
 /// Monta a amostra da coleta a partir da pose do robô. O `numeroSequencia` fica em zero: quem o dá é
-/// o `ControladorEnvio::registrar()`. Tensão e corrente vão zeradas (a Rev 2.0 não mede a bateria).
+/// o `ControladorEnvio::registrar()`. Tensão e corrente vão zeradas: quem coleta preenche `tensaoBateriaMv`
+/// com a leitura da bateria (`BateriaAdc`), e a corrente fica em 0 (a Rev 2.0 não tem sensor de corrente).
 /// @param pose Célula e direção do robô.
 /// @param tempoDecorridoMs Tempo desde a criação da corrida.
 /// @param velocidadeMmPorS Velocidade estimada (sem encoder, #380).

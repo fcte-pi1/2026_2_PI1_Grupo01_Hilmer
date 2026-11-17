@@ -16,6 +16,15 @@
 /// Uma terceira tarefa, a de rede, envia a telemetria ao Supabase sem nunca fazer a navegação
 /// esperar (#238).
 /// Durante a corrida, uma falha no I²C para os motores e reinicia o dispositivo que falhou (#241).
+/// O computador acompanha e ativa o robô à distância pelo `ConsoleRemoto`: a serial USB e, com o Wi-Fi,
+/// um telnet (porta 23) com os mesmos comandos (`L` larga, `X` para, `Z`, `B`, `E`), enquanto a tarefa de
+/// rede segue enviando a telemetria ao banco. A bateria é lida no GPIO34 e vai na telemetria. Não há
+/// botão de largada (a chave geral liga a energia direto da bateria): a largada vem do painel.
+/// Com a largada em qualquer célula (`LARGADA_EM_QUALQUER_CELULA`), o robô é posto numa célula qualquer,
+/// virado para o Norte do labirinto, sem saber qual nem o tamanho do labirinto: a odometria fica no
+/// referencial do mapa de exploração, e o `CicloNavegacao` diz quando ele se localizou e converte a pose
+/// para o labirinto (`poseNoLabirinto`), que é o que a telemetria e a chegada usam. O tamanho que ele
+/// descobriu vai ao banco (`corridas/{id}/labirinto`), e só então a telemetria passa a sair.
 
 #include <Arduino.h>
 #include <Wire.h>
@@ -23,6 +32,8 @@
 #include "AcompanhadorGiro.h"
 #include "ArmazenamentoMapa.h"
 #include "AutotesteBoot.h"
+#include "Bateria.h"
+#include "BateriaAdc.h"
 #include "BarramentoI2c.h"
 #include "BarramentoI2cEsp32.h"
 #include "CicloNavegacao.h"
@@ -30,6 +41,7 @@
 #include "ConfiguracaoDeslocamento.h"
 #include "ConfiguracaoImu.h"
 #include "ConfiguracaoRede.h"
+#include "ConsoleRemoto.h"
 #include "ContratoTelemetria.h"
 #include "ControladorEnvio.h"
 #include "ConversorDeslocamento.h"
@@ -44,6 +56,7 @@
 #include "FaseCorrida.h"
 #include "GatilhoLargada.h"
 #include "ImuMpu6050.h"
+#include "LocalizadorLargada.h"
 #include "MedidorDeslocamento.h"
 #include "MotoresComProtecao.h"
 #include "MotoresComTrava.h"
@@ -152,6 +165,30 @@ static micromouse::Odometria odometria;
 static micromouse::DetectorObjetivo detectorObjetivo(micromouse::DimensaoMapa::Labirinto4x4);
 static portMUX_TYPE travaOdometria = portMUX_INITIALIZER_UNLOCKED;
 
+/// Console do robô: a serial USB e o telnet. Toda a saída do log passa por ele (veja `ConsoleRemoto`).
+static micromouse::ConsoleRemoto console;
+
+/// Pose no labirinto real, para a telemetria: a da odometria convertida pelo `CicloNavegacao` (na
+/// largada em qualquer célula, a odometria fica no referencial da exploração). `poseNoLabirintoValida`
+/// é `false` enquanto o robô não se localizou. A navegação escreve, a telemetria lê; sob `travaOdometria`.
+static micromouse::Pose poseNoLabirinto = {{0, 0}, micromouse::Direcao::Norte};
+static volatile bool poseNoLabirintoValida = true;
+
+/// Tamanho do labirinto que o robô descobriu (`DimensaoMapa`), para a tarefa de rede informá-lo ao banco,
+/// e se o banco já o recebeu. A navegação escreve o tamanho (um byte); a tarefa de rede escreve o resto.
+/// Sem a largada em qualquer célula, o tamanho é o 4x4 da criação da corrida e já conta como informado.
+static volatile uint8_t dimensaoDescoberta = static_cast<uint8_t>(micromouse::DimensaoMapa::Labirinto4x4);
+static volatile bool labirintoInformado = !micromouse::LARGADA_EM_QUALQUER_CELULA;
+
+/// Bateria (GPIO34): a telemetria a mede a cada ciclo e a guarda aqui, para o comando `E` e a coleta.
+/// Valor de 32 bits, então a leitura sem trava só pode pegar a medida anterior.
+static micromouse::BateriaAdc bateria;
+static micromouse::MonitorBateria monitorBateria;
+static volatile uint32_t ultimaBateriaMv = 0;
+
+/// Intervalo da tarefa do console, em ms: o atraso máximo de um comando (`X`, `L`) e do log no telnet.
+static constexpr uint32_t PERIODO_CICLO_CONSOLE_MS = 20;
+
 /// Resultado do autoteste do boot, para a telemetria repetir em todo pacote. Só o `setup()` escreve,
 /// antes de criar as tarefas; depois é só lido, então não precisa de seção crítica.
 struct EstadoBoot {
@@ -168,7 +205,7 @@ static void imprimirRelatorioBoot() {
   char relatorio[micromouse::TAMANHO_MAX_JSON_RELATORIO_BOOT];
   if (micromouse::RelatorioBoot::serializar(estadoBoot.resultado, autoteste, estadoBoot.duracaoMs, relatorio,
                                             sizeof(relatorio)) > 0) {
-    Serial.println(relatorio);
+    console.println(relatorio);
   }
 }
 
@@ -247,7 +284,7 @@ static micromouse::DecisaoI2c registrarLeituraI2c(micromouse::Dispositivo dispos
   const micromouse::DecisaoI2c decisao = supervisorI2c.registrarLeitura(dispositivo, leitura, agoraMs);
   portEXIT_CRITICAL(&travaFalhasI2c);
   if (decisao.mudou()) {
-    Serial.printf("{\"status\":\"i2c\",\"dispositivo\":\"%s\",\"situacao\":\"%s\"}\n",
+    console.printf("{\"status\":\"i2c\",\"dispositivo\":\"%s\",\"situacao\":\"%s\"}\n",
                   micromouse::nomeDispositivo(dispositivo), micromouse::nomeSituacao(decisao.depois));
   }
   return decisao;
@@ -259,7 +296,7 @@ static void registrarReinicioI2c(micromouse::Dispositivo dispositivo, bool suces
   portENTER_CRITICAL(&travaFalhasI2c);
   supervisorI2c.registrarReinicio(dispositivo, sucesso);
   portEXIT_CRITICAL(&travaFalhasI2c);
-  Serial.printf("{\"status\":\"reinicio_i2c\",\"dispositivo\":\"%s\",\"sucesso\":%s}\n",
+  console.printf("{\"status\":\"reinicio_i2c\",\"dispositivo\":\"%s\",\"sucesso\":%s}\n",
                 micromouse::nomeDispositivo(dispositivo), sucesso ? "true" : "false");
 }
 
@@ -275,9 +312,9 @@ static bool aplicarTravaFalhaI2c() {
   const micromouse::MudancaTrava mudanca = travaFalhaI2c.aplicar(deveParar, motoresComTrava);
   portEXIT_CRITICAL(&travaOdometria);
   if (mudanca == micromouse::MudancaTrava::Travou) {
-    Serial.println("{\"status\":\"motores_travados_i2c\"}");
+    console.println("{\"status\":\"motores_travados_i2c\"}");
   } else if (mudanca == micromouse::MudancaTrava::Soltou) {
-    Serial.println("{\"status\":\"motores_liberados_i2c\"}");
+    console.println("{\"status\":\"motores_liberados_i2c\"}");
   }
   return deveParar;
 }
@@ -339,6 +376,9 @@ static micromouse::CorrecaoPelasParedes correcaoParedes;
 /// de navegação o usa.
 static micromouse::GatilhoLargada gatilhoLargada;
 
+/// `true` se a largada foi liberada: pelo gesto da mão ou pelo comando `L` (painel, telnet ou serial).
+static bool largadaLiberada() { return gatilhoLargada.disparado(); }
+
 /// Detecção de colisão (#192): o pico de aceleração da IMU e a frente parada pelo ToF. Só a tarefa de
 /// navegação a usa. `colisoesPendentes` são as colisões que a telemetria ainda não enviou como evento
 /// `colisao`, protegidas por `travaOdometria`.
@@ -349,6 +389,23 @@ static uint32_t colisoesPendentes = 0;
 /// `travaOdometria`: `Z` recoloca o robô na largada e `L` libera a largada sem o gesto.
 static bool pedidoReinicioNavegacao = false;
 static bool pedidoLargada = false;
+static bool pedidoParada = false;  ///< `X`: para na hora e volta a esperar a largada.
+
+/// Cópias para o comando `E` (estado), escritas pela navegação e lidas pelo console. Valores simples,
+/// então a leitura sem trava só pode pegar o ciclo anterior.
+static volatile uint8_t estadoCicloAtual = 0;
+
+/// Corrida em andamento no banco (0 antes de ela existir), para os logs do painel. A tarefa de rede
+/// escreve; ela mesma lê, então não precisa de trava.
+static uint32_t corridaIdAtual = 0;
+
+/// Logs de evento que o envio ao painel perdeu (a chamada falhou), só para o comando `E`.
+static volatile uint32_t logsPerdidosNoEnvio = 0;
+
+/// Tempo que um comando de largada (`L` ou o `iniciar` do painel) espera o robô ficar pronto, em ms.
+/// Passado isso, ele expira: um `iniciar` dado cedo demais não larga o robô minutos depois.
+static constexpr uint32_t LARGADA_PENDENTE_MAXIMA_MS = 30000;
+static volatile bool largadaLiberadaAtual = false;
 
 /// Calibração do boot (#240, RNF-08): desvio de cada ToF e viés do giroscópio, em até 1 s, com o robô
 /// parado na célula de partida. O `corrigirTof` é aplicado a toda leitura dos ToF (navegação) e o viés
@@ -360,7 +417,10 @@ static micromouse::RotinaCalibracao rotinaCalibracao;
 /// 1 s). Só pode ser chamada no `setup()`, antes de criar as tarefas, porque usa o ToF e a IMU sem
 /// outra tarefa disputando o I²C. Conta como amostra de ToF só a leitura com medida nova.
 static micromouse::EstadoRotinaCalibracao calibrarSensores() {
-  rotinaCalibracao.iniciar(micromouse::REFERENCIAS_TOF_NA_LARGADA);
+  // Largado numa célula qualquer, o robô não tem parede a uma distância conhecida: calibra só o
+  // giroscópio, e os ToF ficam sem correção de desvio.
+  rotinaCalibracao.iniciar(micromouse::LARGADA_EM_QUALQUER_CELULA ? micromouse::REFERENCIAS_TOF_SEM_PAREDE
+                                                                  : micromouse::REFERENCIAS_TOF_NA_LARGADA);
   uint32_t anteriorMs = millis();
   uint32_t instanteUltimaLeituraTof = 0;
   bool leuTof = false;
@@ -423,7 +483,7 @@ static void tarefaImu(void*) {
 
     if (!calibradoAnunciado && leitura.calibracao == micromouse::EstadoCalibracao::Calibrado) {
       calibradoAnunciado = true;
-      Serial.printf("{\"status\":\"giroscopio_calibrado\",\"recusadas\":%lu}\n",
+      console.printf("{\"status\":\"giroscopio_calibrado\",\"recusadas\":%lu}\n",
                     static_cast<unsigned long>(leitura.calibracoesRecusadas));
     }
   }
@@ -506,15 +566,26 @@ static void coletarAmostra(const micromouse::Pose& pose, bool chegouAoObjetivo, 
   portEXIT_CRITICAL(&travaCorrida);
 
   if (decisao.largouAgora) {
-    Serial.println("{\"status\":\"largada\"}");
+    console.println("{\"status\":\"largada\"}");
   }
   if (!decisao.registrar) {
     return;
   }
-  const micromouse::AmostraTelemetria amostra = micromouse::montarAmostra(
+  // Antes de o robô se localizar e o banco saber o tamanho do labirinto, a posição não existe ou cairia
+  // fora da malha da corrida (e o banco recusaria o lote inteiro): a amostra não sai. A fase e o
+  // cronômetro seguem (a `decidir` acima), e a numeração começa na primeira amostra que sai.
+  if (!poseNoLabirintoValida || !labirintoInformado) {
+    return;
+  }
+  micromouse::AmostraTelemetria amostra = micromouse::montarAmostra(
       pose, decisao.tempoDecorridoMs, 0,  // velocidade: 0 até a estimativa sem encoder (#380) entrar na telemetria
       decisao.estado,
       chegouAoObjetivo ? micromouse::EventoTelemetria::ObjetivoAlcancado : micromouse::EventoTelemetria::Nenhum);
+  // A bateria vai na telemetria; sem medida (chave geral desligada), 0, que o banco ignora.
+  const uint32_t bateriaMv = ultimaBateriaMv;
+  amostra.tensaoBateriaMv = bateriaMv < micromouse::BATERIA_MINIMA_MEDIDA_MV
+                                ? 0
+                                : static_cast<uint16_t>(bateriaMv > UINT16_MAX ? UINT16_MAX : bateriaMv);
   controladorEnvio.registrar(amostra);
 }
 
@@ -534,13 +605,13 @@ static void atualizarFaseDaCalibracao() {
   portENTER_CRITICAL(&travaCorrida);
   faseCorrida.calibracaoConcluida();
   portEXIT_CRITICAL(&travaCorrida);
-  Serial.println("{\"status\":\"aguardando_largada\",\"calibracao\":\"giroscopio\"}");
+  console.println("{\"status\":\"aguardando_largada\",\"calibracao\":\"giroscopio\"}");
 }
 
 /// Uma linha de log com os contadores do envio, para a bancada e o dashboard.
 static void registrarContadoresEnvio() {
   const micromouse::ContadoresEnvio& c = controladorEnvio.contadores();
-  Serial.printf(
+  console.printf(
       "{\"status\":\"envio\",\"ocupacao\":%u,\"perdidas\":%lu,\"confirmadas\":%lu,\"existentes\":%lu,"
       "\"descartadas\":%lu,\"tentativas\":%lu,\"falhas\":%lu,\"reenvios\":%lu,\"wifi_quedas\":%lu,"
       "\"wifi_rede\":\"%s\",\"wifi_trocas\":%lu,\"rssi\":%d,\"pausado\":%s}\n",
@@ -553,26 +624,71 @@ static void registrarContadoresEnvio() {
       controladorEnvio.pausado() ? "true" : "false");
 }
 
+static void executarComando(char c);  // definida adiante, com os outros comandos
+
+/// Busca o comando que o painel mandou e o executa como se tivesse vindo do telnet. Só a tarefa de rede.
+/// Falha de rede ou resposta ilegível não gera log (o log seria enviado ao painel e falharia de novo).
+static void consultarComandoDoPainel() {
+  micromouse::ComandoRobo comando = micromouse::ComandoRobo::Nenhum;
+  const micromouse::ResultadoEnvio r = clienteSupabase.buscarComando(comando);
+  if (r.codigoHttp < 200 || r.codigoHttp >= 300 || comando == micromouse::ComandoRobo::Nenhum) {
+    return;
+  }
+  const char* nome = comando == micromouse::ComandoRobo::Iniciar ? "iniciar"
+                     : comando == micromouse::ComandoRobo::Parar ? "parar"
+                                                                  : "zerar";
+  console.printf("{\"status\":\"comando_do_painel\",\"comando\":\"%s\"}\n", nome);
+  executarComando(comando == micromouse::ComandoRobo::Iniciar ? 'L' : (comando == micromouse::ComandoRobo::Parar ? 'X' : 'Z'));
+}
+
+/// Envia ao painel as linhas de evento que o robô registrou desde o último envio, até
+/// `LINHAS_POR_LOTE_DE_LOGS` por chamada. Só a tarefa de rede. É de melhor esforço: se a chamada falha,
+/// as linhas se perdem (e contam em `logsPerdidosNoEnvio`), porque o log do robô não pode atrasar a
+/// telemetria nem a corrida.
+static void enviarLogsParaOPainel() {
+  char armazenamento[micromouse::LINHAS_POR_LOTE_DE_LOGS][micromouse::TAMANHO_MAX_LINHA_DE_LOG];
+  const char* linhas[micromouse::LINHAS_POR_LOTE_DE_LOGS];
+  size_t quantidade = 0;
+  while (quantidade < micromouse::LINHAS_POR_LOTE_DE_LOGS &&
+         console.tirarLinhaParaOPainel(armazenamento[quantidade], sizeof(armazenamento[quantidade])) > 0) {
+    linhas[quantidade] = armazenamento[quantidade];
+    ++quantidade;
+  }
+  if (quantidade == 0) {
+    return;
+  }
+  const micromouse::ResultadoEnvio r = clienteSupabase.enviarLogs(corridaIdAtual, linhas, quantidade);
+  if (r.codigoHttp < 200 || r.codigoHttp >= 300) {
+    logsPerdidosNoEnvio = logsPerdidosNoEnvio + static_cast<uint32_t>(quantidade);
+  }
+}
+
 /// Tarefa de rede: Wi-Fi, criação da corrida, envio dos lotes e encerramento.
 ///
 /// Prioridade 1, a menor, com pilha maior por causa do TLS. As chamadas HTTPS bloqueiam esta tarefa
 /// por até `TEMPO_LIMITE_REDE_MS`, nunca a navegação: a coleta só deixa a amostra no buffer.
 static void tarefaRede(void*) {
   if (!micromouse::credenciaisValidas(credenciais)) {
-    Serial.println("{\"status\":\"envio_desligado\",\"motivo\":\"sem_credenciais\"}");
+    console.println("{\"status\":\"envio_desligado\",\"motivo\":\"sem_credenciais\"}");
     vTaskDelete(nullptr);
     return;
   }
   if (credenciais.semValidarCertificado) {
-    Serial.println("{\"status\":\"aviso\",\"motivo\":\"https_sem_validar_certificado\"}");
+    console.println("{\"status\":\"aviso\",\"motivo\":\"https_sem_validar_certificado\"}");
   }
   redeWifi.iniciar();
+  // Sem economia de energia do rádio: com ela, o Wi-Fi dorme entre os beacons e o telnet e o envio da
+  // telemetria ganham latência e perdem pacotes. A bateria aguenta; os motores gastam muito mais.
+  WiFi.setSleep(false);
   clienteSupabase.iniciar();
-  Serial.printf("{\"status\":\"wifi_redes\",\"quantidade\":%u}\n", static_cast<unsigned>(redeWifi.quantidadeRedes()));
+  console.printf("{\"status\":\"wifi_redes\",\"quantidade\":%u}\n", static_cast<unsigned>(redeWifi.quantidadeRedes()));
 
   micromouse::PoliticaReenvio esperaCriacao;  // 1 s, 2 s, 4 s... até 30 s entre tentativas de criar a corrida
   uint32_t proximaCriacaoMs = millis();
   uint32_t proximoLogMs = millis() + micromouse::PERIODO_LOG_ENVIO_MS;
+  uint32_t proximoComandoMs = millis();
+  uint32_t proximoEnvioLogsMs = millis();
+  uint32_t proximaInformacaoMs = millis();
   bool corridaCriada = false;
   bool avisouPausa = false;
   bool avisouEncerrada = false;
@@ -584,10 +700,11 @@ static void tarefaRede(void*) {
     if (conectado != estavaConectado) {  // cada conexão e cada queda saem no log, com a rede e o sinal
       estavaConectado = conectado;
       if (conectado) {
-        Serial.printf("{\"status\":\"wifi_conectado\",\"rede\":\"%s\",\"rssi\":%d}\n", redeWifi.nomeRedeAtual(),
-                      static_cast<int>(WiFi.RSSI()));
+        console.printf("{\"status\":\"wifi_conectado\",\"rede\":\"%s\",\"rssi\":%d,\"ip\":\"%s\",\"telnet\":%u}\n",
+                      redeWifi.nomeRedeAtual(), static_cast<int>(WiFi.RSSI()), WiFi.localIP().toString().c_str(),
+                      static_cast<unsigned>(micromouse::ConsoleRemoto::PORTA_TELNET));
       } else {
-        Serial.printf("{\"status\":\"wifi_caiu\",\"rede\":\"%s\"}\n", redeWifi.nomeRedeAtual());
+        console.printf("{\"status\":\"wifi_caiu\",\"rede\":\"%s\"}\n", redeWifi.nomeRedeAtual());
       }
     }
     if (conectado) {
@@ -602,15 +719,16 @@ static void tarefaRede(void*) {
               clienteSupabase.criarCorrida(micromouse::LABIRINTO_CORRIDA_PADRAO, corridaId);
           if (r.codigoHttp >= 200 && r.codigoHttp < 300) {
             controladorEnvio.iniciarCorrida(corridaId);
+            corridaIdAtual = corridaId;
             corridaCriada = true;
             portENTER_CRITICAL(&travaCorrida);
             estadoCorrida.ativa = true;
             estadoCorrida.inicioMs = agora;
             portEXIT_CRITICAL(&travaCorrida);
-            Serial.printf("{\"status\":\"corrida_criada\",\"corrida_id\":%lu}\n", static_cast<unsigned long>(corridaId));
+            console.printf("{\"status\":\"corrida_criada\",\"corrida_id\":%lu}\n", static_cast<unsigned long>(corridaId));
           } else {
             proximaCriacaoMs = agora + esperaCriacao.registrarFalha();
-            Serial.printf("{\"status\":\"falha_criar_corrida\",\"codigo\":%d}\n", r.codigoHttp);
+            console.printf("{\"status\":\"falha_criar_corrida\",\"codigo\":%d}\n", r.codigoHttp);
           }
         }
       } else {
@@ -619,15 +737,42 @@ static void tarefaRede(void*) {
           clienteSupabase.definirResultadoCorrida(corrida.concluida);
           controladorEnvio.solicitarEncerramento(agora);  // sai só depois de o buffer esvaziar
         }
+        // Largada em qualquer célula: o robô informa o tamanho que descobriu, e só então a telemetria sai
+        // (a posição cairia fora da malha 4x4 com que a corrida nasceu). Tenta de 2 em 2 s.
+        if (!labirintoInformado && poseNoLabirintoValida && chegouAoInstante(agora, proximaInformacaoMs)) {
+          proximaInformacaoMs = agora + 2000;
+          const char* nome = micromouse::nomeDoLabirinto(static_cast<micromouse::DimensaoMapa>(dimensaoDescoberta));
+          const micromouse::ResultadoEnvio r = clienteSupabase.definirLabirintoCorrida(corridaIdAtual, nome);
+          if (r.codigoHttp >= 200 && r.codigoHttp < 300) {
+            labirintoInformado = true;
+            console.printf("{\"status\":\"labirinto_descoberto\",\"labirinto\":\"%s\"}\n", nome);
+          } else if (r.codigoHttp >= 400 && r.codigoHttp < 500) {
+            // O banco recusou de vez (corrida encerrada ou com posições fora da malha): repetir não adianta.
+            labirintoInformado = true;
+            console.printf("{\"status\":\"falha_definir_labirinto\",\"labirinto\":\"%s\",\"codigo\":%d}\n", nome, r.codigoHttp);
+          }
+        }
         const micromouse::ResultadoCiclo r = controladorEnvio.ciclo(agora);
         if (r == micromouse::ResultadoCiclo::Pausado && !avisouPausa) {
           avisouPausa = true;  // 401/403: a chave ou o token estão errados; não adianta insistir
-          Serial.println("{\"status\":\"envio_pausado\",\"motivo\":\"credenciais_recusadas\"}");
+          console.println("{\"status\":\"envio_pausado\",\"motivo\":\"credenciais_recusadas\"}");
         }
         if (controladorEnvio.encerrada() && !avisouEncerrada) {
           avisouEncerrada = true;
-          Serial.println("{\"status\":\"corrida_encerrada\"}");
+          console.println("{\"status\":\"corrida_encerrada\"}");
         }
+      }
+    }
+    if (conectado) {
+      // O painel: busca o comando (largar, parar, zerar) e manda os logs de evento. Cada um tem o seu
+      // ritmo, e as chamadas ficam na mesma tarefa da telemetria, uma depois da outra.
+      if (chegouAoInstante(agora, proximoComandoMs)) {
+        proximoComandoMs = agora + micromouse::PERIODO_CONSULTA_COMANDO_MS;
+        consultarComandoDoPainel();
+      }
+      if (chegouAoInstante(agora, proximoEnvioLogsMs)) {
+        proximoEnvioLogsMs = agora + micromouse::PERIODO_ENVIO_LOGS_MS;
+        enviarLogsParaOPainel();
       }
     }
     if (chegouAoInstante(agora, proximoLogMs)) {
@@ -661,6 +806,7 @@ static void tarefaNavegacao(void*) {
   uint32_t instanteUltimaLeituraUsada = 0;
   // Comando `L` recebido antes de o robô estar pronto: vale quando ele ficar pronto.
   bool largadaPendente = false;
+  uint32_t largadaPendenteMs = 0;  // há quanto tempo o `L` espera o robô ficar pronto
   for (;;) {
     // Sensores de distância: a leitura não espera medida nova, só junta as últimas amostras. Fica
     // antes da detecção do objetivo para a telemetria continuar recebendo o ToF depois da chegada.
@@ -688,7 +834,7 @@ static void tarefaNavegacao(void*) {
     const uint32_t cortesAntes = motoresProtegidos.cortes();
     motoresProtegidos.atualizarProtecao(medidasDaProtecao(leituraTof), PERIODO_NAVEGACAO_MS);
     if (motoresProtegidos.cortes() != cortesAntes) {
-      Serial.println("{\"status\":\"motor_travado\"}");
+      console.println("{\"status\":\"motor_travado\"}");
     }
 
     const uint32_t instanteLeitura = millis() - leituraTof.idadeMs;
@@ -707,8 +853,10 @@ static void tarefaNavegacao(void*) {
     portENTER_CRITICAL(&travaOdometria);
     const bool reiniciarNavegacao = pedidoReinicioNavegacao;
     const bool largarAgora = pedidoLargada;
+    const bool pararAgora = pedidoParada;
     pedidoReinicioNavegacao = false;
     pedidoLargada = false;
+    pedidoParada = false;
     // Fora dos giros, a direção da odometria é a confirmada pelo giroscópio no fim de cada giro, e não
     // a da diferença entre as rodas (#184). A cada ciclo, para a diferença também não se acumular nos
     // giros pequenos do realinhamento (#188).
@@ -728,9 +876,20 @@ static void tarefaNavegacao(void*) {
     if (leituraNova) {
       correcaoParedes.aplicar(odometria, leituraTof.distancias, movimento, micromouse::ENCODERS_INSTALADOS);
     }
-    const micromouse::Pose pose = odometria.pose();
+    // A pose da odometria vai para o ciclo; a chegada e a telemetria usam a convertida para o labirinto.
+    const micromouse::Pose poseOdometria = odometria.pose();
+    const micromouse::Pose pose = cicloNavegacao.poseNoLabirinto(poseOdometria);
+    const bool localizado = cicloNavegacao.localizado() && cicloNavegacao.poseDentroDoLabirinto(poseOdometria);
+    poseNoLabirinto = pose;
+    poseNoLabirintoValida = localizado;
+    if (micromouse::LARGADA_EM_QUALQUER_CELULA && localizado) {
+      // O tamanho do labirinto só é conhecido depois de o robô se localizar.
+      const micromouse::Mapa& mapaReal = armazenamentoMapa.mapa();
+      detectorObjetivo.definirObjetivo(mapaReal.obterLinhas(), mapaReal.obterColunas());
+      dimensaoDescoberta = static_cast<uint8_t>(mapaReal.obterDimensao());
+    }
     // No modo estimado, uma pose sem correção recente não serve para declarar a chegada (#380).
-    const bool poseValida = odometria.posicaoValida() &&
+    const bool poseValida = odometria.posicaoValida() && localizado &&
                             (micromouse::ENCODERS_INSTALADOS || deslocamento.poseConfiavel());
     if (poseValida) {
       // Chegada detectada pela posição na malha: para os motores imediatamente e congela o mapa
@@ -750,7 +909,7 @@ static void tarefaNavegacao(void*) {
       correcaoParedes.reiniciar();
       portEXIT_CRITICAL(&travaOdometria);
       gatilhoLargada.reiniciar();
-      cicloNavegacao.reiniciar(pose, motoresTracao);
+      cicloNavegacao.reiniciar(poseOdometria, motoresTracao);
     }
 
     if (alcancou) {
@@ -765,15 +924,33 @@ static void tarefaNavegacao(void*) {
     // não encerrada pela `FaseCorrida` (#242: o objetivo ou os 10 minutos) e nenhuma falha do I²C
     // (#241). Antes de o robô estar pronto, o gesto não é observado.
     const bool pronto = estadoBoot.ok && giro.calibracao == micromouse::EstadoCalibracao::Calibrado;
+    if (pararAgora) {
+      // Parada remota: tira a largada, cancela o comando pendente e freia. Sem a permissão, o ciclo
+      // cancela o movimento e volta a esperar; larga de novo pelo painel, com `L` ou o gesto.
+      largadaPendente = false;
+      gatilhoLargada.reiniciar();
+      motoresTracao.parar();
+      console.println("{\"status\":\"parada_remota\"}");
+    }
     largadaPendente = largadaPendente || largarAgora;
+    if (largarAgora) {
+      largadaPendenteMs = 0;
+    }
+    if (largadaPendente && !pronto) {
+      largadaPendenteMs += PERIODO_NAVEGACAO_MS;
+      if (largadaPendenteMs >= LARGADA_PENDENTE_MAXIMA_MS) {
+        largadaPendente = false;  // o robô não ficou pronto a tempo: o pedido não vale mais
+        console.println("{\"status\":\"largada_expirada\",\"motivo\":\"robo_nao_ficou_pronto\"}");
+      }
+    }
     if (pronto) {
-      const bool jaLiberado = gatilhoLargada.disparado();
+      const bool jaLiberado = largadaLiberada();
       if (largadaPendente) {
         largadaPendente = false;
         gatilhoLargada.dispararManual();
       }
       if (gatilhoLargada.atualizar(tofNovo, PERIODO_NAVEGACAO_MS) && !jaLiberado) {
-        Serial.println("{\"status\":\"largada_liberada\"}");
+        console.println("{\"status\":\"largada_liberada\"}");
       }
     }
 
@@ -783,8 +960,10 @@ static void tarefaNavegacao(void*) {
     portEXIT_CRITICAL(&travaCorrida);
     // Na falha do I²C (#241), a permissão sai: o ciclo freia, cancela o movimento e espera; quando a
     // falha passa, percebe de novo a partir de onde parou. A trava dos motores segura o freio.
-    entrada.liberado = pronto && gatilhoLargada.disparado() && !corridaEncerrada && !falhaI2c;
-    entrada.pose = pose;
+    const bool largadaLiberadaAgora = largadaLiberada();
+    largadaLiberadaAtual = largadaLiberadaAgora;
+    entrada.liberado = pronto && largadaLiberadaAgora && !corridaEncerrada && !falhaI2c;
+    entrada.pose = poseOdometria;  // o ciclo converte para o mapa em uso
     entrada.poseValida = posicaoNaMalha;
     entrada.posicaoAvancoUm = posicaoAvancoUm;
     entrada.leituraNova = tofNovo;
@@ -807,8 +986,9 @@ static void tarefaNavegacao(void*) {
     const uint32_t colisoesAntes = cicloNavegacao.colisoes();
     const micromouse::EstadoCiclo antes = cicloNavegacao.estado();
     const micromouse::EstadoCiclo depois = cicloNavegacao.atualizar(entrada, motoresTracao);
+    estadoCicloAtual = static_cast<uint8_t>(depois);
     if (cicloNavegacao.colisoes() != colisoesAntes) {
-      Serial.printf("{\"status\":\"colisao\",\"tipo\":\"%s\",\"desvio_mg\":%lu,\"celulas\":%lu}\n",
+      console.printf("{\"status\":\"colisao\",\"tipo\":\"%s\",\"desvio_mg\":%lu,\"celulas\":%lu}\n",
                     micromouse::nomeDoTipoColisao(cicloNavegacao.ultimaColisao()),
                     static_cast<unsigned long>(detectorColisao.desvioMg()),
                     static_cast<unsigned long>(cicloNavegacao.celulasAvancadas()));
@@ -820,7 +1000,7 @@ static void tarefaNavegacao(void*) {
       motoresProtegidos.liberar();
     }
     if (depois != antes) {
-      Serial.printf("{\"status\":\"navegacao\",\"estado\":\"%s\",\"falha\":\"%s\",\"celulas\":%lu}\n",
+      console.printf("{\"status\":\"navegacao\",\"estado\":\"%s\",\"falha\":\"%s\",\"celulas\":%lu}\n",
                     micromouse::nomeDoEstadoCiclo(depois),
                     micromouse::nomeDaFalhaExecucao(cicloNavegacao.falhaExecucao()),
                     static_cast<unsigned long>(cicloNavegacao.celulasAvancadas()));
@@ -829,12 +1009,123 @@ static void tarefaNavegacao(void*) {
   }
 }
 
+/// Mede a bateria e avisa no log quando ela fica fraca ou volta (`{"status":"bateria",...}`). Chamada
+/// a cada ciclo da telemetria (1 s).
+static void medirBateria() {
+  const uint32_t mv = bateria.lerMv();
+  ultimaBateriaMv = mv;
+  if (monitorBateria.atualizar(mv)) {
+    console.printf("{\"status\":\"bateria\",\"situacao\":\"%s\",\"mv\":%lu}\n",
+                   micromouse::nomeDaSituacaoBateria(monitorBateria.situacao()), static_cast<unsigned long>(mv));
+  }
+}
+
+/// Resposta ao comando `E`: o estado do robô numa linha, para quem o acompanha pelo telnet.
+static void imprimirEstado() {
+  char fase[24];
+  portENTER_CRITICAL(&travaCorrida);
+  strncpy(fase, micromouse::nomeDaFase(faseCorrida.fase()), sizeof(fase) - 1);
+  fase[sizeof(fase) - 1] = '\0';
+  const bool corridaAtiva = estadoCorrida.ativa;
+  portEXIT_CRITICAL(&travaCorrida);
+  const bool wifi = WiFi.status() == WL_CONNECTED;
+  const uint32_t bateriaMv = ultimaBateriaMv;
+  console.printf(
+      "{\"status\":\"estado\",\"fase\":\"%s\",\"ciclo\":\"%s\",\"largada_liberada\":%s,\"boot_ok\":%s,"
+      "\"bateria_mv\":%lu,\"bateria_pct\":%u,\"wifi\":%s,\"rssi\":%d,\"ip\":\"%s\",\"telnet\":%s,\"corrida_ativa\":%s,"
+      "\"console_descartados\":%lu,\"logs_painel_descartados\":%lu,\"logs_painel_perdidos\":%lu}\n",
+      fase, micromouse::nomeDoEstadoCiclo(static_cast<micromouse::EstadoCiclo>(estadoCicloAtual)),
+      largadaLiberadaAtual ? "true" : "false", estadoBoot.ok ? "true" : "false", static_cast<unsigned long>(bateriaMv),
+      static_cast<unsigned>(micromouse::bateriaPercentual(bateriaMv)), wifi ? "true" : "false", wifi ? WiFi.RSSI() : 0,
+      wifi ? WiFi.localIP().toString().c_str() : "", console.clienteConectado() ? "true" : "false", corridaAtiva ? "true" : "false",
+      static_cast<unsigned long>(console.descartados()),
+      static_cast<unsigned long>(console.linhasDoPainelDescartadas()), static_cast<unsigned long>(logsPerdidosNoEnvio));
+}
+
+/// Comandos de uma letra, da serial, do telnet e do painel (que manda `iniciar` como `L`, `parar` como
+/// `X` e `zerar` como `Z`, pela tarefa de rede):
+/// - `L`: libera a largada sem o gesto (vale quando o robô estiver pronto, por até
+///   `LARGADA_PENDENTE_MAXIMA_MS`);
+/// - `X`: para na hora e volta a esperar a largada (parada de emergência);
+/// - `Z`: zera os encoders (ou a estimativa), volta ao centro da célula e a aguardar a largada, para o
+///   robô recolocado na partida à mão;
+/// - `B`: repete o relatório do boot (a linha se perde se o monitor abrir depois);
+/// - `E`: mostra o estado (fase, ciclo, bateria, Wi-Fi e telnet).
+/// Chamada pela tarefa do console, a cada poucas dezenas de ms: o comando age quase na hora, mesmo com
+/// a tarefa de telemetria esperando o próximo segundo.
+static void executarComando(char c) {
+  if (c == 'Z' || c == 'z') {
+    // Os encoders voltam a zero: a odometria mantém a pose e passa a contar a partir de zero.
+    // No modo estimado, o robô também volta ao centro da célula e a pose volta a ser confiável
+    // (na bancada, 'Z' é usado com o robô posicionado à mão). Na largada em qualquer célula, o robô foi
+    // recolocado numa célula qualquer: a odometria volta ao meio do mapa de exploração, a navegação
+    // recomeça a se localizar e o tamanho do labirinto precisa ser informado de novo.
+    portENTER_CRITICAL(&travaOdometria);
+    const micromouse::Pose recolocado =
+        micromouse::LARGADA_EM_QUALQUER_CELULA
+            ? micromouse::Pose{micromouse::LocalizadorLargada::LARGADA_NA_EXPLORACAO, micromouse::Direcao::Norte}
+            : odometria.pose();
+    if (micromouse::ENCODERS_INSTALADOS) {
+      medidorDeslocamento.zerar();
+      odometria.reiniciar(recolocado, 0, 0);
+    } else {
+      deslocamento.reiniciar(odometria, recolocado);
+    }
+    labirintoInformado = !micromouse::LARGADA_EM_QUALQUER_CELULA;
+    detectorObjetivo.resetar();
+    pedidoReinicioNavegacao = true;
+    portEXIT_CRITICAL(&travaOdometria);
+    portENTER_CRITICAL(&travaCorrida);
+    faseCorrida.reiniciar();  // recolocado na partida à mão: volta a aguardar a largada
+    const bool corridaEncerrada = faseCorrida.encerrada();
+    portEXIT_CRITICAL(&travaCorrida);
+    console.println("{\"status\":\"encoders_zerados\"}");
+    if (corridaEncerrada) {
+      // A corrida já foi encerrada no servidor: o `Z` zera a odometria, mas não começa outra tentativa.
+      console.println("{\"status\":\"aviso\",\"motivo\":\"corrida_encerrada_reinicie_a_placa_para_nova_tentativa\"}");
+    }
+  } else if (c == 'B' || c == 'b') {
+    imprimirRelatorioBoot();
+  } else if (c == 'L' || c == 'l') {
+    portENTER_CRITICAL(&travaOdometria);
+    pedidoLargada = true;
+    portEXIT_CRITICAL(&travaOdometria);
+    console.println("{\"status\":\"largada_pedida\"}");
+  } else if (c == 'X' || c == 'x') {
+    portENTER_CRITICAL(&travaOdometria);
+    pedidoParada = true;
+    portEXIT_CRITICAL(&travaOdometria);
+  } else if (c == 'E' || c == 'e') {
+    imprimirEstado();
+  }
+}
+
+/// Lê os comandos que chegaram pela serial e pelo telnet e os executa.
+static void tratarComandos() {
+  for (int lido = console.ler(); lido >= 0; lido = console.ler()) {
+    executarComando(static_cast<char>(lido));
+  }
+}
+
+/// Tarefa do console: o telnet (aceitar cliente, ler o que ele digita, esvaziar o log pela rede) e os
+/// comandos, a cada `PERIODO_CICLO_CONSOLE_MS`.
+///
+/// Prioridade 1, como a de rede, e **separada dela**: a tarefa de rede fica até `TEMPO_LIMITE_REDE_MS`
+/// esperando o servidor numa chamada HTTPS, e o comando `X` não pode esperar isso. Só esta tarefa
+/// espera o cliente telnet; a navegação e a telemetria só escrevem na fila do `ConsoleRemoto`.
+static void tarefaConsole(void*) {
+  for (;;) {
+    console.ciclo();
+    tratarComandos();
+    vTaskDelay(pdMS_TO_TICKS(PERIODO_CICLO_CONSOLE_MS));
+  }
+}
+
 /// Tarefa de telemetria: coleta e envia os dados a cada `PERIODO_TELEMETRIA_MS`.
 ///
-/// Prioridade 1. Transmite as leituras dos encoders, pose da odometria e eventos pontuais em formato JSON
-/// estruturado e aceita os comandos 'Z', para zerar os encoders, voltar a odometria à pose atual e
-/// aguardar a largada de novo, 'B', para repetir o relatório do boot (a linha do boot se perde se o
-/// monitor abrir depois), e 'L', para liberar a largada sem o gesto (#184).
+/// Prioridade 1. Mede a bateria e transmite as leituras dos encoders, pose da odometria e eventos
+/// pontuais em formato JSON estruturado. Os comandos (`L`, `X`, `Z`, `B`, `E`) são da tarefa do console
+/// (`tratarComandos`).
 ///
 /// No modo sem encoder, `pose_valida` também fica `false` depois de o robô andar mais que
 /// `DISTANCIA_MAXIMA_SEM_CORRECAO_MM` sem correção pelo ToF, e `deslocamento` diz qual fonte está
@@ -843,6 +1134,8 @@ static void tarefaTelemetria(void*) {
   static uint32_t sequencia = 0;
 
   for (;;) {
+    medirBateria();
+
     // Encoders (reais ou estimados) e pose: uma cópia feita na seção crítica, para tudo ser da
     // mesma atualização.
     portENTER_CRITICAL(&travaOdometria);
@@ -850,9 +1143,10 @@ static void tarefaTelemetria(void*) {
     const int32_t medio = medidorDeslocamento.deslocamentoMedioMm();
     const int32_t pulsosEsq = rodaEsq.lerContagem();
     const int32_t pulsosDir = rodaDir.lerContagem();
-    const micromouse::Pose pose = odometria.pose();
+    const micromouse::Pose pose = poseNoLabirinto;
     const bool poseConfiavel = micromouse::ENCODERS_INSTALADOS || deslocamento.poseConfiavel();
-    const bool poseValida = odometria.posicaoValida() && poseConfiavel;
+    // Antes de o robô se localizar (largada em qualquer célula), a pose não vale para o dashboard.
+    const bool poseValida = odometria.posicaoValida() && poseConfiavel && poseNoLabirintoValida;
     const uint32_t semCorrecaoMm = deslocamento.distanciaSemCorrecaoMm();
     const bool dispararEvento = detectorObjetivo.consumirEventoChegada();
     // Um evento por amostra: a chegada vai primeiro, e cada colisão pendente espera a sua vez.
@@ -882,7 +1176,7 @@ static void tarefaTelemetria(void*) {
     pacote.pose = pose;
     pacote.poseValida = poseValida;
     pacote.velocidade = 0.0f;     // Provisório até inclusão de cálculo de velocidade instantânea
-    pacote.tensaoBateria = 0.0f;  // Provisório até integração de leitura analógica da bateria
+    pacote.tensaoBateria = ultimaBateriaMv / 1000.0f;
     pacote.evento = dispararEvento ? "objetivo_alcancado" : (dispararColisao ? "colisao" : nullptr);
     pacote.tofFrenteMm = leituraTof.distancias.frenteMm;
     pacote.tofEsqMm = leituraTof.distancias.esquerdaMm;
@@ -907,43 +1201,7 @@ static void tarefaTelemetria(void*) {
     // Comporta o pior caso do JSON; com menos, a linha seria descartada em silêncio.
     char buffer[micromouse::TAMANHO_MAX_JSON_TELEMETRIA];
     if (micromouse::TelemetriaJson::serializar(pacote, buffer, sizeof(buffer)) > 0) {
-      Serial.println(buffer);
-    }
-
-    // Comando serial para zerar medição (usado na bancada)
-    while (Serial.available()) {
-      const char c = static_cast<char>(Serial.read());
-      if (c == 'Z' || c == 'z') {
-        // Os encoders voltam a zero: a odometria mantém a pose e passa a contar a partir de zero.
-        // No modo estimado, o robô também volta ao centro da célula e a pose volta a ser confiável
-        // (na bancada, 'Z' é usado com o robô posicionado à mão).
-        portENTER_CRITICAL(&travaOdometria);
-        if (micromouse::ENCODERS_INSTALADOS) {
-          medidorDeslocamento.zerar();
-          odometria.reiniciar(odometria.pose(), 0, 0);
-        } else {
-          deslocamento.reiniciar(odometria, odometria.pose());
-        }
-        detectorObjetivo.resetar();
-        pedidoReinicioNavegacao = true;
-        portEXIT_CRITICAL(&travaOdometria);
-        portENTER_CRITICAL(&travaCorrida);
-        faseCorrida.reiniciar();  // recolocado na partida à mão: volta a aguardar a largada
-        const bool corridaEncerrada = faseCorrida.encerrada();
-        portEXIT_CRITICAL(&travaCorrida);
-        Serial.println("{\"status\":\"encoders_zerados\"}");
-        if (corridaEncerrada) {
-          // A corrida já foi encerrada no servidor: o `Z` zera a odometria, mas não começa outra tentativa.
-          Serial.println("{\"status\":\"aviso\",\"motivo\":\"corrida_encerrada_reinicie_a_placa_para_nova_tentativa\"}");
-        }
-      } else if (c == 'B' || c == 'b') {
-        imprimirRelatorioBoot();
-      } else if (c == 'L' || c == 'l') {
-        portENTER_CRITICAL(&travaOdometria);
-        pedidoLargada = true;
-        portEXIT_CRITICAL(&travaOdometria);
-        Serial.println("{\"status\":\"largada_pedida\"}");
-      }
+      console.println(buffer);
     }
 
     vTaskDelay(pdMS_TO_TICKS(micromouse::PERIODO_TELEMETRIA_MS));
@@ -960,8 +1218,9 @@ void setup() {
   motores.iniciar();
   // O log sai pela UART0 (conversor USB da placa): sem computador conectado, a UART transmite do
   // mesmo jeito e não trava a telemetria.
-  Serial.begin(115200);
-  Serial.println("micromouse: iniciando");
+  console.iniciar(115200);
+  bateria.iniciar();
+  console.println("micromouse: iniciando");
 
   // Configuração provisória para bancada (#189): fixa Labirinto4x4.
   // Em 8x4 e 12x4 a corrida deve receber a dimensão por comando antes de iniciar.
@@ -969,6 +1228,17 @@ void setup() {
   // A navegação refaz o objetivo pelo tamanho do mapa e aguarda a largada na partida.
   cicloNavegacao.reiniciar(micromouse::Pose{{0, 0}, micromouse::Direcao::Norte}, motoresTracao);
   motoresTracao.parar();
+  // A odometria parte de onde o ciclo pede: a célula (0, 0) ou, na largada em qualquer célula, o meio
+  // do mapa de exploração.
+  if (micromouse::ENCODERS_INSTALADOS) {
+    odometria.reiniciar(cicloNavegacao.poseInicialOdometria(), 0, 0);
+  } else {
+    deslocamento.reiniciar(odometria, cicloNavegacao.poseInicialOdometria());
+  }
+  poseNoLabirintoValida = cicloNavegacao.localizado();
+  if (micromouse::LARGADA_EM_QUALQUER_CELULA) {
+    console.println("{\"status\":\"largada_em_qualquer_celula\"}");
+  }
   if (micromouse::ENCODERS_INSTALADOS) {
     encoderEsq.iniciar();
     encoderDir.iniciar();
@@ -978,7 +1248,7 @@ void setup() {
   // `Wire`. O `tof.iniciar()` e o autoteste usam o `Wire` sem o mutex porque rodam aqui, antes dos
   // `xTaskCreate` (inclusive o da IMU). Se falhar, o autoteste aponta os dispositivos sem resposta.
   if (!barramentoI2c.iniciar(micromouse::pinos::I2C_SDA, micromouse::pinos::I2C_SCL)) {
-    Serial.println("{\"status\":\"falha_barramento_i2c\"}");
+    console.println("{\"status\":\"falha_barramento_i2c\"}");
   }
   tof.iniciar();  // o autoteste abaixo diz qual sensor falhou
 
@@ -993,7 +1263,7 @@ void setup() {
     motoresComTrava.liberar();
   } else {
     motoresComTrava.travar();
-    Serial.printf("micromouse: falha no boot (%s): motores travados ate reiniciar\n", estadoBoot.falhas);
+    console.printf("micromouse: falha no boot (%s): motores travados ate reiniciar\n", estadoBoot.falhas);
   }
 
   // Tempo desde o início do programa (RNF-09); a ROM e o bootloader rodam antes e ficam de fora.
@@ -1003,9 +1273,9 @@ void setup() {
   // MPU6050 (#378). Sem a IMU o firmware segue, sem ângulo de giro válido.
   const bool imuIniciada = imu.iniciar();
   if (imuIniciada) {
-    Serial.printf("{\"status\":\"imu_iniciada\",\"who_am_i\":\"0x%02X\"}\n", imu.identificacao());
+    console.printf("{\"status\":\"imu_iniciada\",\"who_am_i\":\"0x%02X\"}\n", imu.identificacao());
   } else {
-    Serial.println("{\"status\":\"falha_imu\"}");
+    console.println("{\"status\":\"falha_imu\"}");
   }
 
   // Calibração dos ToF e do giroscópio (#240, RNF-08), com o robô parado na célula de partida. Só
@@ -1017,18 +1287,21 @@ void setup() {
       // Calibrado e na partida: aguarda a largada (#242). A corrida é criada no servidor e o
       // dashboard passa a mostrar o robô parado na célula de partida.
       faseCorrida.calibracaoConcluida();
-      Serial.println("{\"status\":\"aguardando_largada\"}");
+      console.println("{\"status\":\"aguardando_largada\"}");
     }
-    Serial.printf("{\"status\":\"calibracao\",\"estado\":\"%s\",\"duracao_ms\":%lu,\"no_prazo\":%s}\n",
+    console.printf("{\"status\":\"calibracao\",\"estado\":\"%s\",\"duracao_ms\":%lu,\"no_prazo\":%s}\n",
                   micromouse::nomeEstadoRotina(calibracao),
                   static_cast<unsigned long>(rotinaCalibracao.duracaoMedidaMs()),
                   rotinaCalibracao.dentroDoOrcamento() ? "true" : "false");
   }
 
   xTaskCreate(tarefaImu, "imu", 3072, nullptr, 3, nullptr);
-  xTaskCreate(tarefaNavegacao, "navegacao", 4096, nullptr, 2, nullptr);
-  xTaskCreate(tarefaTelemetria, "telemetria", 4096, nullptr, 1, nullptr);
+  // As pilhas de navegação e telemetria subiram de 4096 para 5120 bytes: o `printf` do console formata
+  // numa linha de até `ConsoleRemoto::TAMANHO_MAX_LINHA` bytes na pilha de quem o chama.
+  xTaskCreate(tarefaNavegacao, "navegacao", 5120, nullptr, 2, nullptr);
+  xTaskCreate(tarefaTelemetria, "telemetria", 5120, nullptr, 1, nullptr);
   xTaskCreate(tarefaRede, "rede", 10240, nullptr, 1, nullptr);
+  xTaskCreate(tarefaConsole, "console", 4096, nullptr, 1, nullptr);
 }
 
 /// Laço principal do Arduino. Fica ocioso: o trabalho acontece nas tarefas.
