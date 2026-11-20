@@ -5,7 +5,7 @@
 /// de nenhum arquivo: com eles o robô e a bancada conectam no Wi-Fi do grupo e aceitam gravação pelo
 /// Wi-Fi (OTA) logo de cara.
 ///
-/// Não há mais segredo para o robô enviar: o `DEVICE_TOKEN` e a chave do Supabase são **opcionais**.
+/// Não há mais segredo nem certificado para o robô enviar: o `DEVICE_TOKEN` e a chave do Supabase são **opcionais**.
 /// As Edge Functions publicadas com `--no-verify-jwt` e sem o segredo `DEVICE_TOKEN` aceitam o robô só
 /// com a URL. Se o seu projeto ainda exige a chave `anon`/publishable ou o token, ponha-os em
 /// `include/credenciais.h` (ignorado pelo Git; modelo em `credenciais.exemplo.h`): eles **nunca** vão

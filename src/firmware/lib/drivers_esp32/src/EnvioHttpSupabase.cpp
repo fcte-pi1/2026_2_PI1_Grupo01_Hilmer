@@ -2,7 +2,6 @@
 
 #include <stdio.h>
 
-#include "CertificadosRaiz.h"
 #include "ContratoTelemetria.h"
 
 namespace micromouse {
@@ -21,13 +20,9 @@ EnvioHttpSupabase::EnvioHttpSupabase(const CredenciaisSupabase& credenciais, uin
     : credenciais_(credenciais), tempoLimiteMs_(tempoLimiteMs) {}
 
 void EnvioHttpSupabase::iniciar() {
-  if (credenciais_.semValidarCertificado) {
-    cliente_.setInsecure();  // só na bancada (ver README): não confere quem é o servidor
-  } else if (credenciais_.certificadoRaiz != nullptr && credenciais_.certificadoRaiz[0] != '\0') {
-    cliente_.setCACert(credenciais_.certificadoRaiz);  // certificado próprio do `credenciais.h`
-  } else {
-    cliente_.setCACert(CERTIFICADOS_RAIZ_PADRAO);  // raízes públicas embutidas: nada para configurar
-  }
+  // Sem certificado para configurar (projeto de faculdade): o HTTPS é cifrado, mas não confere quem é o
+  // servidor. Também evita a falha de validar datas, já que o ESP32 não tem relógio ao ligar.
+  cliente_.setInsecure();
   http_.setReuse(true);  // mantém a conexão TLS entre um lote e outro, quando o servidor deixa
 }
 

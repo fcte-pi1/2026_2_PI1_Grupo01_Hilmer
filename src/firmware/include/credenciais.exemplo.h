@@ -28,9 +28,3 @@
 
 // OPCIONAL: `DEVICE_TOKEN`, só se o segredo existir nas Edge Functions.
 // #define CREDENCIAL_DEVICE_TOKEN "cole-aqui-o-device-token"
-
-// OPCIONAL: o HTTPS é validado com as raízes públicas embutidas (`CertificadosRaiz.h`). Só se o
-// Supabase mudar de autoridade: PEM da nova raiz. `SEM_VALIDAR_CERTIFICADO 1` aceita qualquer
-// servidor (só em bancada; nunca na versão da competição).
-// #define CREDENCIAL_CERTIFICADO_RAIZ "-----BEGIN CERTIFICATE-----\n..."
-// #define CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1

@@ -25,15 +25,10 @@ struct CredenciaisSupabase {
   /// `DEVICE_TOKEN`, opcional: só vai no cabeçalho se existir. As funções só o exigem se o segredo
   /// `DEVICE_TOKEN` estiver configurado no Supabase.
   const char* tokenDispositivo = nullptr;
-  /// Certificado raiz (PEM) próprio, opcional. Nulo ou vazio: vale `CERTIFICADOS_RAIZ_PADRAO`
-  /// (`CertificadosRaiz.h`), embutido no firmware, e ninguém precisa colar certificado.
-  const char* certificadoRaiz = nullptr;
-  /// `true` só na bancada: aceita qualquer certificado (`setInsecure`), sem validar o servidor.
-  bool semValidarCertificado = false;
 };
 
 /// `true` se dá para enviar: SSID e URL `https://` preenchidos. A chave, o token e o certificado são
-/// opcionais (sem certificado próprio, o cliente valida o HTTPS com as raízes embutidas).
+/// opcionais. O certificado do servidor não é validado (decisão do projeto: nada de certificado para configurar).
 bool credenciaisValidas(const CredenciaisSupabase& credenciais);
 
 /// Monta a URL de uma Edge Function: `urlProjeto` + `/functions/v1/` + `caminho` (sem barra dupla

@@ -552,19 +552,14 @@ void test_sem_credenciais_o_envio_fica_desligado() {
   TEST_ASSERT_TRUE(credenciaisValidas(c));
 }
 
-void test_so_https_e_certificado_e_opcional() {
+void test_so_https_e_sem_certificado() {
   CredenciaisSupabase c = credenciaisCompletas();
   c.urlProjeto = "http://abc.supabase.co";
   TEST_ASSERT_FALSE(credenciaisValidas(c));
   c.urlProjeto = "https://";
   TEST_ASSERT_FALSE(credenciaisValidas(c));
   c = credenciaisCompletas();
-  TEST_ASSERT_TRUE(credenciaisValidas(c));  // sem certificado próprio: valem as raízes embutidas
-  c.certificadoRaiz = "-----BEGIN CERTIFICATE-----";  // certificado próprio também vale
-  TEST_ASSERT_TRUE(credenciaisValidas(c));
-  c.certificadoRaiz = "";
-  c.semValidarCertificado = true;  // só na bancada
-  TEST_ASSERT_TRUE(credenciaisValidas(c));
+  TEST_ASSERT_TRUE(credenciaisValidas(c));  // não há certificado para configurar
 }
 
 void test_url_das_funcoes() {
@@ -881,7 +876,7 @@ int main(int, char**) {
   RUN_TEST(test_corpos_da_criacao_e_do_encerramento);
   RUN_TEST(test_amostra_montada_a_partir_da_pose);
   RUN_TEST(test_sem_credenciais_o_envio_fica_desligado);
-  RUN_TEST(test_so_https_e_certificado_e_opcional);
+  RUN_TEST(test_so_https_e_sem_certificado);
   RUN_TEST(test_url_das_funcoes);
   RUN_TEST(test_periodo_da_coleta_e_tempos_da_rede);
   RUN_TEST(test_wifi_conecta_na_primeira_tentativa);
