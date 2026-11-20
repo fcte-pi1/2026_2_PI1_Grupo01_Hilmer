@@ -20,7 +20,7 @@ src/backend/
 │   └── banco.test.ts                             # Migrações, funções SQL e RLS num PostgreSQL (PGlite)
 └── supabase/
     ├── functions/
-    │   ├── _shared/autenticacao.ts               # Confere o x-device-token
+    │   ├── _shared/autenticacao.ts               # Confere o x-device-token (só se o segredo existir)
     │   ├── _shared/                              # Token do dispositivo e validações comuns
     │   ├── corridas/                             # Edge Function: criar e encerrar corridas e gravar o mapa final
     │   └── telemetria/                           # Edge Function: gravar os lotes de telemetria do robô
@@ -99,15 +99,17 @@ Regras:
 - **Mapa:** o banco recusa o mapa inteiro se uma célula for inválida (fora do labirinto da corrida) e responde `413` se houver mais células do que o labirinto tem.
 - **Erros:** `400` (corpo, status, id ou células inválidos), `401` (token), `404` (labirinto ou corrida inexistente), `405` (método), `409` (já encerrada com outro status), `413` (mapa com células demais) e `500` (falha do banco, sem expor a mensagem).
 
-**Autenticação.** O gateway do Supabase exige um JWT (`Authorization: Bearer <SUPABASE_ANON_KEY>`), e a função exige também o cabeçalho `x-device-token`, comparado com o segredo `DEVICE_TOKEN`. Sem o segredo configurado, ninguém é autorizado. A chave `service_role` fica só no servidor.
+**Autenticação.** O token de dispositivo é **opcional**, para o robô enviar sem segredo nenhum (projeto de faculdade, com o endereço do projeto restrito ao grupo). Sem o segredo `DEVICE_TOKEN` configurado, a função aceita qualquer requisição; configurado, ela exige o cabeçalho `x-device-token` igual a ele. Para o robô precisar só da URL, publique as funções sem a verificação de JWT do gateway (`--no-verify-jwt`) e remova o segredo (`supabase secrets unset DEVICE_TOKEN`); sem isso, o gateway ainda pede `Authorization: Bearer <SUPABASE_ANON_KEY>`. A chave `service_role` fica só no servidor, nunca no firmware. Quem quiser proteger de novo basta voltar a definir o segredo.
 
 ```bash
 # Publicação (uma vez por projeto Supabase: teste e produção)
 supabase link --project-ref <ID-DO-PROJETO>
 supabase db push
-supabase secrets set DEVICE_TOKEN="$(openssl rand -hex 24)"
-supabase functions deploy corridas
-supabase functions deploy telemetria
+# Modo aberto (o robô envia só com a URL): sem segredo e sem verificação de JWT no gateway
+supabase secrets unset DEVICE_TOKEN
+supabase functions deploy corridas --no-verify-jwt
+supabase functions deploy telemetria --no-verify-jwt
+# Modo protegido (opcional): supabase secrets set DEVICE_TOKEN="$(openssl rand -hex 24)" e deploy sem --no-verify-jwt
 
 # Exemplo: criar uma corrida no labirinto 8x4 e encerrá-la
 curl -s -X POST "${SUPABASE_URL}/functions/v1/corridas" \
@@ -136,7 +138,7 @@ Regras:
 - **Corrida encerrada:** continua aceitando amostras (o robô pode reenviar depois de a rede voltar), e as métricas da corrida são refeitas (`reconsolidada`).
 - **Erros e o que o firmware faz com cada um:** `400` (corpo ou amostra inválidos), `404` (corrida inexistente) e `413` (lote com mais de 100 amostras) descartam o lote; `401` e `403` pausam o envio; `405` (método) e `5xx` repetem ou pausam conforme a política de reenvio.
 
-A autenticação, os segredos e a publicação são os da função `corridas`: o mesmo `DEVICE_TOKEN`. Para publicar as duas: `supabase functions deploy corridas` e `supabase functions deploy telemetria`.
+A autenticação, os segredos e a publicação são os da função `corridas`: o mesmo `DEVICE_TOKEN` (opcional). Para publicar as duas: `supabase functions deploy corridas` e `supabase functions deploy telemetria`.
 
 ```bash
 curl -s -X POST "${SUPABASE_URL}/functions/v1/telemetria" \

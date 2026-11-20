@@ -55,6 +55,7 @@
 #include "RedeWifiEsp32.h"
 #include "RegistradorPotencia.h"
 #include "RelatorioBoot.h"
+#include "ServicoOta.h"
 #include "RotinaCalibracao.h"
 #include "SupervisorI2c.h"
 #include "TelemetriaJson.h"
@@ -63,14 +64,15 @@
 #include "TravaSecaoCritica.h"
 #include "VigiaTof.h"
 
-// Credenciais do Wi-Fi e do Supabase: ficam em `include/credenciais.h`, que o Git ignora (o modelo é
-// `include/credenciais.exemplo.h`). Sem o arquivo, o firmware compila e funciona sem enviar nada.
+// Wi-Fi e URL do Supabase vêm de `include/credenciais_padrao.h` (versionado). A chave do Supabase e o
+// `DEVICE_TOKEN` ficam só em `include/credenciais.h`, que o Git ignora (o modelo é
+// `include/credenciais.exemplo.h`), e esse arquivo, se existir, vale mais que os padrões. Sem a chave
+// e o token, o firmware compila, conecta no Wi-Fi, aceita OTA e não envia telemetria.
 #if __has_include("credenciais.h")
 #include "credenciais.h"
-#define MICROMOUSE_TEM_CREDENCIAIS 1
-#else
-#define MICROMOUSE_TEM_CREDENCIAIS 0
 #endif
+#include "credenciais_padrao.h"
+#define MICROMOUSE_TEM_CREDENCIAIS 1
 
 /// Dono do mapa da corrida. Fica fora das tarefas para sobreviver ao reinício delas (HU-04).
 /// A navegação recebe `armazenamentoMapa.mapa()` para registrar paredes; a telemetria, a versão
@@ -444,8 +446,12 @@ static micromouse::CredenciaisSupabase lerCredenciais() {
   c.urlProjeto = CREDENCIAL_SUPABASE_URL;
   c.chaveAnon = CREDENCIAL_SUPABASE_ANON;
   c.tokenDispositivo = CREDENCIAL_DEVICE_TOKEN;
-  c.certificadoRaiz = CREDENCIAL_CERTIFICADO_RAIZ;
-  c.semValidarCertificado = CREDENCIAL_SEM_VALIDAR_CERTIFICADO != 0;
+#if defined(CREDENCIAL_CERTIFICADO_RAIZ)
+  c.certificadoRaiz = CREDENCIAL_CERTIFICADO_RAIZ;  // opcional: sem ele, valem as raízes embutidas
+#endif
+#if defined(CREDENCIAL_SEM_VALIDAR_CERTIFICADO)
+  c.semValidarCertificado = CREDENCIAL_SEM_VALIDAR_CERTIFICADO != 0;  // opcional, só na bancada
+#endif
 #endif
   return c;
 }
@@ -457,6 +463,8 @@ static micromouse::RedeWifiEsp32 redeWifi(credenciais.ssidWifi, credenciais.senh
                                            credenciais.senhaWifiReserva);
 static micromouse::ReconexaoWifi reconexaoWifi(redeWifi);
 static micromouse::EnvioHttpSupabase clienteSupabase(credenciais);
+/// Gravação pelo Wi-Fi (OTA): liga quando a rede conecta, mesmo sem credenciais do Supabase.
+static micromouse::ServicoOta servicoOta;
 static micromouse::TravaSecaoCritica travaBufferEnvio;
 static micromouse::ControladorEnvio controladorEnvio(clienteSupabase, travaBufferEnvio);
 
@@ -558,8 +566,13 @@ static void registrarContadoresEnvio() {
 /// Prioridade 1, a menor, com pilha maior por causa do TLS. As chamadas HTTPS bloqueiam esta tarefa
 /// por até `TEMPO_LIMITE_REDE_MS`, nunca a navegação: a coleta só deixa a amostra no buffer.
 static void tarefaRede(void*) {
-  if (!micromouse::credenciaisValidas(credenciais)) {
+  // Sem as credenciais do Supabase o robô não envia telemetria, mas o Wi-Fi e a gravação pelo Wi-Fi
+  // (OTA) continuam valendo. Sem nem rede configurada, não há o que fazer aqui.
+  const bool envioPossivel = micromouse::credenciaisValidas(credenciais);
+  if (!envioPossivel) {
     Serial.println("{\"status\":\"envio_desligado\",\"motivo\":\"sem_credenciais\"}");
+  }
+  if (credenciais.ssidWifi == nullptr || credenciais.ssidWifi[0] == '\0') {
     vTaskDelete(nullptr);
     return;
   }
@@ -591,6 +604,10 @@ static void tarefaRede(void*) {
       }
     }
     if (conectado) {
+      servicoOta.iniciar([]() { motoresComTrava.travar(); });  // gravando: motores freados e travados
+      servicoOta.ciclo();
+    }
+    if (conectado && envioPossivel) {
       // A corrida só é criada no servidor depois da calibração (o estado Aguardando Largada, #242).
       portENTER_CRITICAL(&travaCorrida);
       const bool calibrado = faseCorrida.calibrado();

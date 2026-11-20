@@ -12,14 +12,13 @@ bool preenchido(const char* texto) { return texto != nullptr && texto[0] != '\0'
 }  // namespace
 
 bool credenciaisValidas(const CredenciaisSupabase& c) {
-  if (!preenchido(c.ssidWifi) || c.senhaWifi == nullptr || !preenchido(c.urlProjeto) || !preenchido(c.chaveAnon) ||
-      !preenchido(c.tokenDispositivo)) {
+  if (!preenchido(c.ssidWifi) || c.senhaWifi == nullptr || !preenchido(c.urlProjeto)) {
     return false;
   }
   if (strncmp(c.urlProjeto, "https://", 8) != 0 || c.urlProjeto[8] == '\0') {
-    return false;  // só HTTPS: a chave e o token não podem viajar abertos
+    return false;  // só HTTPS: o que o robô manda não pode viajar aberto
   }
-  return c.semValidarCertificado || preenchido(c.certificadoRaiz);
+  return true;  // sem certificado próprio, o cliente usa os certificados raiz embutidos (CertificadosRaiz.h)
 }
 
 size_t montarUrlFuncao(const char* urlProjeto, const char* caminho, char* saida, size_t capacidade) {

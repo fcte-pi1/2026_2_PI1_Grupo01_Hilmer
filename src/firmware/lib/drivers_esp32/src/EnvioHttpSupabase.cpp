@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 
+#include "CertificadosRaiz.h"
 #include "ContratoTelemetria.h"
 
 namespace micromouse {
@@ -22,8 +23,10 @@ EnvioHttpSupabase::EnvioHttpSupabase(const CredenciaisSupabase& credenciais, uin
 void EnvioHttpSupabase::iniciar() {
   if (credenciais_.semValidarCertificado) {
     cliente_.setInsecure();  // só na bancada (ver README): não confere quem é o servidor
+  } else if (credenciais_.certificadoRaiz != nullptr && credenciais_.certificadoRaiz[0] != '\0') {
+    cliente_.setCACert(credenciais_.certificadoRaiz);  // certificado próprio do `credenciais.h`
   } else {
-    cliente_.setCACert(credenciais_.certificadoRaiz);
+    cliente_.setCACert(CERTIFICADOS_RAIZ_PADRAO);  // raízes públicas embutidas: nada para configurar
   }
   http_.setReuse(true);  // mantém a conexão TLS entre um lote e outro, quando o servidor deixa
 }
@@ -40,9 +43,14 @@ int EnvioHttpSupabase::postar(const char* caminho, const char* corpo, size_t tam
   http_.setConnectTimeout(static_cast<int32_t>(limite));
   http_.setTimeout(limite);
   http_.addHeader("Content-Type", "application/json");
-  http_.addHeader("apikey", credenciais_.chaveAnon);
-  http_.addHeader("Authorization", String("Bearer ") + credenciais_.chaveAnon);
-  http_.addHeader("x-device-token", credenciais_.tokenDispositivo);
+  // Chave e token são opcionais: só viajam se existirem (as funções abertas não os pedem).
+  if (credenciais_.chaveAnon != nullptr && credenciais_.chaveAnon[0] != '\0') {
+    http_.addHeader("apikey", credenciais_.chaveAnon);
+    http_.addHeader("Authorization", String("Bearer ") + credenciais_.chaveAnon);
+  }
+  if (credenciais_.tokenDispositivo != nullptr && credenciais_.tokenDispositivo[0] != '\0') {
+    http_.addHeader("x-device-token", credenciais_.tokenDispositivo);
+  }
 
   const int codigo = http_.POST(reinterpret_cast<uint8_t*>(const_cast<char*>(corpo)), tamanho);
   // O corpo só é lido quando alguém precisa dele: o chamador (`resposta`) ou o registro de um erro.

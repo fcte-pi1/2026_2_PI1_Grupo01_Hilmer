@@ -32,19 +32,20 @@
 // `BANCADA_COM_TELEMETRIA` (o `bancada_geral_devkit`). Precisa de `include/credenciais.h`; sem ele, o
 // firmware compila e o menu de telemetria explica o que fazer.
 #if defined(BANCADA_COM_TELEMETRIA)
-#include <ArduinoOTA.h>
 #include <HTTPClient.h>
 #include <Preferences.h>
 #include <WiFi.h>
 #include <string.h>
 #include <strings.h>
 
+// Wi-Fi e URL: `credenciais_padrao.h` (versionado). Chave do Supabase e token: só no `credenciais.h` local.
 #if __has_include("credenciais.h")
 #include "credenciais.h"
 #define BANCADA_TEM_CREDENCIAIS 1
 #else
 #define BANCADA_TEM_CREDENCIAIS 0
 #endif
+#include "credenciais_padrao.h"
 
 #include "AmostraTelemetria.h"
 #include "ConfiguracaoRede.h"
@@ -53,6 +54,7 @@
 #include "EnvioHttpSupabase.h"
 #include "ReconexaoWifi.h"
 #include "RedeWifiEsp32.h"
+#include "ServicoOta.h"
 #include "TravaSecaoCritica.h"
 #endif
 
@@ -978,7 +980,7 @@ constexpr int SEM_CHAMADA = -1000;
 
 CredenciaisSupabase lerCredenciais() {
   CredenciaisSupabase c;
-#if BANCADA_TEM_CREDENCIAIS
+#if 1  // os padroes versionados sempre existem
   c.ssidWifi = CREDENCIAL_WIFI_SSID;
   c.senhaWifi = CREDENCIAL_WIFI_SENHA;
 #if defined(CREDENCIAL_WIFI_SSID_RESERVA) && defined(CREDENCIAL_WIFI_SENHA_RESERVA)
@@ -988,8 +990,12 @@ CredenciaisSupabase lerCredenciais() {
   c.urlProjeto = CREDENCIAL_SUPABASE_URL;
   c.chaveAnon = CREDENCIAL_SUPABASE_ANON;
   c.tokenDispositivo = CREDENCIAL_DEVICE_TOKEN;
-  c.certificadoRaiz = CREDENCIAL_CERTIFICADO_RAIZ;
-  c.semValidarCertificado = CREDENCIAL_SEM_VALIDAR_CERTIFICADO != 0;
+#if defined(CREDENCIAL_CERTIFICADO_RAIZ)
+  c.certificadoRaiz = CREDENCIAL_CERTIFICADO_RAIZ;  // opcional: sem ele, valem as raízes embutidas
+#endif
+#if defined(CREDENCIAL_SEM_VALIDAR_CERTIFICADO)
+  c.semValidarCertificado = CREDENCIAL_SEM_VALIDAR_CERTIFICADO != 0;  // opcional, só na bancada
+#endif
 #endif
   return c;
 }
@@ -1026,20 +1032,11 @@ uint16_t chamadasComFalha = 0;
 /// `true` se as credenciais do Supabase existem e estão completas; senão, diz o que fazer. O Wi-Fi não
 /// entra aqui: a rede pode vir do `credenciais.h` ou da escolha pela serial (`p`).
 bool credenciaisOk() {
-  if (!BANCADA_TEM_CREDENCIAIS) {
-    console.println("  [FALHA] sem include/credenciais.h: o Wi-Fi funciona (tecla p), mas o banco precisa do arquivo.");
-    console.println("          dica: copie include/credenciais.exemplo.h para include/credenciais.h,");
-    console.println("          preencha os campos, use CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1 na bancada e grave de novo.");
-    return false;
-  }
   CredenciaisSupabase supabase = credenciais;
-  supabase.ssidWifi = "rede";  // a rede é conferida no Wi-Fi; aqui, só a URL, a chave, o token e o certificado
+  supabase.ssidWifi = "rede";  // a rede é conferida no Wi-Fi; aqui, só a URL do projeto
   supabase.senhaWifi = "";
   if (!credenciaisValidas(supabase)) {
-    console.println("  [FALHA] credenciais do Supabase incompletas em include/credenciais.h.");
-    console.println("          dica: confira a URL (https://...), a chave anon, o device token e o certificado");
-    console.println("          (ou CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1). Os valores do exemplo contam como preenchidos:");
-    console.println("          troque todos pelos reais.");
+    console.println("  [FALHA] URL do Supabase ausente ou sem https:// (credenciais_padrao.h ou credenciais.h).");
     return false;
   }
   return true;
@@ -1084,12 +1081,10 @@ void iniciarWifiSeNecessario() {
   imprimirRedes();
 }
 
-/// Nome na rede (mDNS) e senha da gravação sem cabo (OTA). A senha só protege a bancada no laboratório;
-/// pode ser trocada com `-DBANCADA_SENHA_OTA=\"outra\"` no `platformio.ini`.
-constexpr const char* NOME_NA_REDE = "micromouse-bancada";
-#if !defined(BANCADA_SENHA_OTA)
-#define BANCADA_SENHA_OTA "micromouse"
-#endif
+/// Nome na rede (mDNS) da gravação sem cabo (OTA), a mesma do robô (`ServicoOta.h`). A senha padrão
+/// é `MICROMOUSE_SENHA_OTA`.
+constexpr const char* NOME_NA_REDE = ServicoOta::NOME_PADRAO;
+ServicoOta servicoOta;
 
 bool servicosDeRedeAtivos = false;
 
@@ -1100,15 +1095,7 @@ void iniciarServicosDeRede() {
   }
   servicosDeRedeAtivos = true;
   console.iniciarTelnet();
-  ArduinoOTA.setHostname(NOME_NA_REDE);
-  ArduinoOTA.setPassword(BANCADA_SENHA_OTA);
-  ArduinoOTA.onStart([]() {
-    motores.parar();  // gravando, nada de motor girando
-    console.println("\n[OTA] gravando; a placa reinicia no fim.");
-  });
-  ArduinoOTA.onEnd([]() { console.println("[OTA] gravado, reiniciando."); console.flush(); });
-  ArduinoOTA.onError([](ota_error_t erro) { console.printf("[OTA] erro %u\n", static_cast<unsigned>(erro)); });
-  ArduinoOTA.begin();
+  servicoOta.iniciar([]() { motores.parar(); });  // gravando, nada de motor girando
   console.printf("[rede] telnet na porta %u e OTA prontos: %s (nc %s %u)\n", ConsoleBancada::PORTA_TELNET,
                  WiFi.localIP().toString().c_str(), WiFi.localIP().toString().c_str(), ConsoleBancada::PORTA_TELNET);
 }
@@ -1121,7 +1108,7 @@ void cuidarDaRede() {
   reconexaoWifi.ciclo(millis());
   if (WiFi.status() == WL_CONNECTED) {
     iniciarServicosDeRede();
-    ArduinoOTA.handle();
+    servicoOta.ciclo();
   }
 }
 
@@ -1236,7 +1223,7 @@ void explicarCodigoHttp(int codigo) {
   } else if (codigo <= 0) {
     console.printf("          dica: sem resposta do servidor (%s).\n", HTTPClient::errorToString(codigo).c_str());
     console.println("          Se for connection refused ou tempo esgotado: use a tecla d para ver o DNS; se o DNS passa,");
-    console.println("          o problema e o TLS. Na bancada, use CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1.");
+    console.println("          o problema e o TLS (certificado ou hora da placa).");
   } else if (codigo == 401 || codigo == 403) {
     console.println("          dica: chave anon ou device token recusados. Confira CREDENCIAL_SUPABASE_ANON e CREDENCIAL_DEVICE_TOKEN");
     console.println("          (o token precisa ser igual ao segredo DEVICE_TOKEN das Edge Functions).");
