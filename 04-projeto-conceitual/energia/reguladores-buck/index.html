@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
     
     
       
@@ -2531,6 +2531,7 @@ Considerando o ciclo de trabalho máximo do controlador PWM interno e a resistê
 <li><strong>Entrada (<code>C3</code>):</strong> Capacitor de <strong><span class="arithmatex">\(10\ \mu\text{F}\)</span></strong> próximo ao pino <code>IN+</code> de <code>U4</code> (complementando os capacitores MLCC internos do módulo).</li>
 <li><strong>Saída (<code>C4</code>):</strong> Capacitor de <strong><span class="arithmatex">\(100\ \mu\text{F}\)</span></strong> no barramento <code>+6V</code> junto ao pino <code>VCC</code> do driver <code>DRV8833</code> (<code>U6</code>), atuando como reservatório de carga para amortecer os degraus de corrente de comutação das pontes H.</li>
 </ul>
+<p><strong>Alinhamento de C4 com Energia — 10/11/2026:</strong> o responsável confirmou com Energia que <strong>C4 permanece em 100 µF</strong>, consistente com o esquema, PDF, figura e BOM da Rev 2.1. A menção a 470 µF na <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/216">#216</a> não implica substituição de C4 nesta revisão. A confirmação do valor não comprova resultado de ensaio de ruído; ver o <a href="../../../hw/REVISAO-2.1.md#alinhamento-com-energia--c4-no-vm">registro da Rev 2.1</a>.</p>
 <h3 id="24-analise-termica-e-diretriz-de-protecao-contra-stall-prolongado">2.4 Análise Térmica e Diretriz de Proteção contra Stall Prolongado<a class="headerlink" href="#24-analise-termica-e-diretriz-de-protecao-contra-stall-prolongado" title="Permanent link">&para;</a></h3>
 <ol>
 <li><strong>Regime Nominal de Corrida (<span class="arithmatex">\(I_{\text{out}} = 0{,}30\text{ A}\)</span>):</strong>

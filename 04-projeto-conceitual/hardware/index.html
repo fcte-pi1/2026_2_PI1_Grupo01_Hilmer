@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
     
     
       
@@ -1314,10 +1314,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#42-pinagem-do-esp32-c3" class="md-nav__link">
+  <a href="#42-pinagem-do-esp32-devkit-v1" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4.2 Pinagem do ESP32-C3
+        4.2 Pinagem do ESP32 DevKit V1
       
     </span>
   </a>
@@ -1325,10 +1325,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#43-inicializacao-e-restricoes" class="md-nav__link">
+  <a href="#43-alimentacao-inicializacao-e-restricoes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4.3 Inicialização e restrições
+        4.3 Alimentação, inicialização e restrições
       
     </span>
   </a>
@@ -2210,10 +2210,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#42-pinagem-do-esp32-c3" class="md-nav__link">
+  <a href="#42-pinagem-do-esp32-devkit-v1" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4.2 Pinagem do ESP32-C3
+        4.2 Pinagem do ESP32 DevKit V1
       
     </span>
   </a>
@@ -2221,10 +2221,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#43-inicializacao-e-restricoes" class="md-nav__link">
+  <a href="#43-alimentacao-inicializacao-e-restricoes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4.3 Inicialização e restrições
+        4.3 Alimentação, inicialização e restrições
       
     </span>
   </a>
@@ -2313,7 +2313,7 @@
 
 <h1 id="projeto-conceitual-de-hardware">Projeto Conceitual de <em>Hardware</em><a class="headerlink" href="#projeto-conceitual-de-hardware" title="Permanent link">&para;</a></h1>
 <h2 id="1-visao-geral">1. Visão geral<a class="headerlink" href="#1-visao-geral" title="Permanent link">&para;</a></h2>
-<p>O <em>hardware</em> do Micromouse integra alimentação, processamento, sensoriamento e acionamento para permitir a navegação autônoma em labirintos. A arquitetura utiliza uma placa <strong>ESP32-C3 Super Mini</strong>, três sensores de distância <strong>VL53L0X</strong>, uma unidade de medição inercial <strong>MPU6050</strong>, um <em>driver</em> de motores <strong>DRV8833</strong> e dois micromotores DC com redução.</p>
+<p>O <em>hardware</em> do Micromouse integra alimentação, processamento, sensoriamento e acionamento para permitir a navegação autônoma em labirintos. A arquitetura utiliza uma placa <strong>ESP32 DevKit V1</strong>, três sensores de distância <strong>VL53L0X</strong>, uma unidade de medição inercial <strong>MPU6050</strong>, um <em>driver</em> de motores <strong>DRV8833</strong> e dois micromotores DC com redução.</p>
 <p>A alimentação parte de uma <strong>bateria LiPo 2S</strong>, com 7,4 V nominais e 8,4 V em carga plena. Três conversores <strong>MP1584EN</strong> fornecem barramentos independentes de <strong>3,3 V, 5 V e 6 V</strong>, destinados aos sensores, à placa de controle e ao estágio de potência dos motores, respectivamente.</p>
 <p>O conjunto fornece a base eletrônica para reconhecer paredes, estimar a orientação, controlar o movimento e disponibilizar dados de operação ao sistema de telemetria.</p>
 <h2 id="2-diagrama-de-blocos">2. Diagrama de blocos<a class="headerlink" href="#2-diagrama-de-blocos" title="Permanent link">&para;</a></h2>
@@ -2326,10 +2326,10 @@
     B3["U5 — MP1584EN&lt;br/&gt;Saída de 3,3 V"]
     B5["U2 — MP1584EN&lt;br/&gt;Saída de 5 V"]
     B6["U4 — MP1584EN&lt;br/&gt;Saída de 6 V"]
-    MCU["ESP32-C3 Super Mini&lt;br/&gt;Controle e firmware"]
+    MCU["ESP32 DevKit V1&lt;br/&gt;Controle e firmware"]
     TOF["J3, J4 e J5&lt;br/&gt;Três sensores VL53L0X"]
     IMU["J6 — MPU6050&lt;br/&gt;Acelerômetro e giroscópio"]
-    I2C["Barramento I2C&lt;br/&gt;SDA: GPIO9 / SCL: GPIO8"]
+    I2C["Barramento I2C&lt;br/&gt;SDA: GPIO21 / SCL: GPIO22"]
     DRV["U6 — DRV8833&lt;br/&gt;Ponte H dupla"]
     ML["J1 — Motor esquerdo"]
     MR["J2 — Motor direito"]
@@ -2341,14 +2341,14 @@
     VBAT --&gt; B6
     B3 --&gt;|Alimentação| TOF
     B3 --&gt;|Alimentação| IMU
-    B5 --&gt;|Pino 5V da placa| MCU
+    B5 --&gt;|Pino VIN / 5V da placa| MCU
     B6 --&gt;|Potência: 6 V| DRV
-    VBAT --&gt; ADC --&gt; TP["BAT_ADC_TEST&lt;br/&gt;ADC pendente na Rev 2.0"]
+    VBAT --&gt; ADC --&gt;|BAT_ADC / GPIO34| MCU
     MCU &lt;--&gt;|Dados e clock| I2C
     I2C &lt;--&gt; TOF
     I2C &lt;--&gt; IMU
-    MCU --&gt;|XSHUT: GPIO0, GPIO1 e GPIO2| TOF
-    MCU --&gt;|PWM: GPIO10, GPIO3, GPIO20 e GPIO21| DRV
+    MCU --&gt;|XSHUT: GPIO16, GPIO17 e GPIO4| TOF
+    MCU --&gt;|PWM: GPIO25, GPIO26, GPIO27 e GPIO13| DRV
     DRV --&gt; ML
     DRV --&gt; MR</code></pre>
 <p><strong>Figura 1.</strong> Visão geral do hardware do Micromouse. Todos os estágios compartilham a referência elétrica <strong>GND</strong>.</p>
@@ -2378,7 +2378,7 @@
 <td style="text-align: left;">U2</td>
 <td style="text-align: left;">MP1584EN</td>
 <td style="text-align: center;"><strong>5 V</strong></td>
-<td style="text-align: left;">Pino <code>5V</code> da placa ESP32-C3</td>
+<td style="text-align: left;">Pino <code>VIN / 5V</code> da placa ESP32 DevKit V1</td>
 <td style="text-align: left;">C6 de 10 µF e C2 de 100 µF.</td>
 </tr>
 <tr>
@@ -2386,37 +2386,39 @@
 <td style="text-align: left;">MP1584EN</td>
 <td style="text-align: center;"><strong>6 V</strong></td>
 <td style="text-align: left;">Alimentação de potência do DRV8833</td>
-<td style="text-align: left;">C3 de 10 µF e C4 de 100 µF.</td>
+<td style="text-align: left;">C3 de 10 µF e C4 de 100 µF, mantido conforme confirmação com Energia em 10/11/2026.</td>
 </tr>
 </tbody>
 </table>
+<p><strong>Alinhamento com Energia — 10/11/2026:</strong> o responsável confirmou com Energia que <strong>C4 deve permanecer em 100 µF</strong>, conforme KiCad, PDF, figura e BOM da Rev 2.1. A referência a 470 µF na <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/216">#216</a> não implica substituição de C4 nesta revisão. A confirmação do valor não comprova a eficácia da filtragem em ensaio de ruído.</p>
 <p>Os capacitores associados aos conversores auxiliam na filtragem e no atendimento às variações de carga. A alimentação dedicada dos motores busca reduzir a influência de suas comutações sobre os sensores e o microcontrolador.</p>
 <h3 id="32-unidade-central-de-controle">3.2 Unidade central de controle<a class="headerlink" href="#32-unidade-central-de-controle" title="Permanent link">&para;</a></h3>
-<p>A <strong>ESP32-C3 Super Mini</strong> executa o processamento embarcado e coordena os periféricos. O barramento de 5 V alimenta a entrada correspondente da placa, enquanto as interfaces digitais realizam a comunicação I²C e o comando da ponte H.</p>
+<p>A <strong>ESP32 DevKit V1</strong> executa o processamento embarcado e coordena os periféricos. O barramento de 5 V alimenta a entrada correspondente da placa, enquanto as interfaces digitais realizam a comunicação I²C e o comando da ponte H.</p>
 <p>Sua função no projeto compreende adquirir as distâncias e as informações inerciais, identificar paredes, estimar o ângulo de guinada e calcular os comandos de movimento. O relatório prevê controle PID para alinhamento e navegação e geração de sinais PWM para ajustar a velocidade dos motores.</p>
 <p>A escolha reúne processamento, periféricos de comunicação e conectividade em uma placa compacta, adequada à integração no chassi do Micromouse.</p>
 <h3 id="33-sensores-de-distancia-vl53l0x">3.3 Sensores de distância VL53L0X<a class="headerlink" href="#33-sensores-de-distancia-vl53l0x" title="Permanent link">&para;</a></h3>
 <p>O sensoriamento de paredes utiliza <strong>três módulos VL53L0X</strong>, representados pelos conectores <strong>J3, J4 e J5</strong>. A distribuição funcional é frontal, esquerda e direita, permitindo reconhecer obstáculos e passagens nas direções relevantes à navegação.</p>
-<p>Os sensores utilizam medição por tempo de voo (<em>Time of Flight</em> — ToF), recebem alimentação de <strong>3,3 V</strong> e compartilham o barramento <strong>I²C</strong>. Essa configuração concentra a comunicação em duas linhas: <strong>SDA no GPIO9</strong> e <strong>SCL no GPIO8</strong>.</p>
-<p>Os três sensores iniciam no endereço I²C de 7 bits <strong>0x29</strong>. Cada módulo precisa expor XSHUT: <strong>J3 esquerdo → GPIO0</strong>, <strong>J4 frontal → GPIO1</strong> e <strong>J5 direito → GPIO2</strong>. Na inicialização, o firmware deve manter todos em reset (XSHUT baixo), liberar um por vez e atribuir endereços distintos, por exemplo <strong>0x30, 0x31 e 0x32</strong>, antes de liberar o próximo. Essa atribuição deve ser repetida a cada reinicialização; a rotina ainda precisa ser implementada no firmware. A aquisição das três distâncias fornece a referência para detectar paredes e manter o alinhamento nos corredores.</p>
+<p>Os sensores utilizam medição por tempo de voo (<em>Time of Flight</em> — ToF), recebem alimentação de <strong>3,3 V</strong> e compartilham o barramento <strong>I²C</strong>. Essa configuração concentra a comunicação em duas linhas: <strong>SDA no GPIO21</strong> e <strong>SCL no GPIO22</strong>.</p>
+<p>Os três sensores iniciam no endereço I²C de 7 bits <strong>0x29</strong>. Cada módulo precisa expor XSHUT: <strong>J3 esquerdo → GPIO16</strong>, <strong>J4 frontal → GPIO17</strong> e <strong>J5 direito → GPIO4</strong>. Na inicialização, o firmware deve manter todos em reset (XSHUT baixo), liberar um por vez e atribuir endereços distintos, por exemplo <strong>0x30, 0x31 e 0x32</strong>, antes de liberar o próximo. Essa atribuição deve ser repetida a cada reinicialização; a rotina já está disponível na bancada geral integrada pela #485; a migração do robô para DevKit segue na #489. A aquisição das três distâncias fornece a referência para detectar paredes e manter o alinhamento nos corredores.</p>
 <h3 id="34-unidade-de-medicao-inercial-mpu6050">3.4 Unidade de medição inercial MPU6050<a class="headerlink" href="#34-unidade-de-medicao-inercial-mpu6050" title="Permanent link">&para;</a></h3>
 <p>A <strong>MPU6050</strong>, representada pelo conector <strong>J6</strong>, reúne acelerômetro e giroscópio de seis eixos. Sua função é fornecer informações de aceleração e taxa de rotação para estimar a orientação do robô e apoiar a correção de desvios.</p>
 <p>O módulo recebe <strong>3,3 V</strong> e utiliza o mesmo barramento I²C dos sensores de distância. A combinação de medidas inerciais e distâncias permite apoiar tanto o deslocamento em linha reta quanto a execução de curvas de 90°.</p>
 <h3 id="35-acionamento-dos-motores">3.5 Acionamento dos motores<a class="headerlink" href="#35-acionamento-dos-motores" title="Permanent link">&para;</a></h3>
-<p>O <strong>DRV8833</strong> é o estágio de potência entre o ESP32-C3 e os dois motores DC com redução. A ponte H dupla permite controlar separadamente o sentido de rotação e a velocidade de cada motor a partir de sinais PWM.</p>
-<p>Sua alimentação de potência utiliza o barramento regulado de <strong>6 V</strong>. O esquemático também apresenta o resistor <strong>R4 de 47 kΩ</strong> no circuito de habilitação do módulo. As saídas <strong>OUT1/OUT2</strong> acionam o motor esquerdo, conectado a <strong>J1</strong>, e <strong>OUT3/OUT4</strong> acionam o motor direito, conectado a <strong>J2</strong>.</p>
+<p>O <strong>DRV8833</strong> é o estágio de potência entre o ESP32 DevKit V1 e os dois motores DC com redução. A ponte H dupla permite controlar separadamente o sentido de rotação e a velocidade de cada motor a partir de sinais PWM.</p>
+<p>Sua alimentação de potência utiliza o barramento regulado de <strong>6 V</strong>. O resistor <strong>R4 de 47 kΩ</strong> liga <code>nSLEEP/EEP</code> a <code>+3V3_SENS</code> de U5, mantendo o driver habilitado. Não ligar esse terminal aos 6 V. A Rev 2.1 move IN4 de GPIO14 para GPIO13; a bancada deve receber a mesma troca. As saídas <strong>OUT1/OUT2</strong> acionam o motor esquerdo, conectado a <strong>J1</strong>, e <strong>OUT3/OUT4</strong> acionam o motor direito, conectado a <strong>J2</strong>.</p>
 <p>O controle independente dos motores permite tração diferencial: a combinação de velocidades e sentidos produz avanço, recuo e curvas. O driver fornece a interface de corrente necessária aos motores, preservando a função dos GPIOs como sinais de comando.</p>
 <h3 id="36-monitoramento-da-tensao-da-bateria">3.6 Monitoramento da tensão da bateria<a class="headerlink" href="#36-monitoramento-da-tensao-da-bateria" title="Permanent link">&para;</a></h3>
-<p>O circuito de monitoramento utiliza <strong>R1 de 100 kΩ</strong>, <strong>R2 de 33 kΩ</strong> e <strong>C5 de 100 nF</strong>. O divisor reduz a tensão de <code>VBAT</code> no ponto de teste, enquanto o capacitor filtra transientes nesse nó. A conexão a uma entrada analógica está pendente na Rev 2.0.</p>
+<p>O circuito de monitoramento utiliza <strong>R1 de 100 kΩ</strong>, <strong>R2 de 33 kΩ</strong> e <strong>C5 de 100 nF</strong>. O divisor reduz a tensão de <code>VBAT</code> no ponto de teste, enquanto o capacitor filtra transientes nesse nó. O nó <code>BAT_ADC</code> conecta-se ao <strong>GPIO34 / ADC1_CH6</strong>, somente entrada, na Rev 2.1.</p>
 <p>A relação entre as tensões é:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>V_ADC = V_BAT × R2 / (R1 + R2)
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>V_ADC = V_BAT × 33 / 133
 </code></pre></div>
 <p>Com a bateria em <strong>8,4 V</strong>, a tensão calculada no nó de medição é de aproximadamente <strong>2,084 V</strong>.</p>
 <h2 id="4-esquematico-eletrico">4. Esquemático elétrico<a class="headerlink" href="#4-esquematico-eletrico" title="Permanent link">&para;</a></h2>
-<p>O esquemático principal, <strong>Rev 2.0 de 21/10/2026</strong>, apresenta os símbolos elétricos, as referências dos componentes, as conexões de alimentação e sinais e os terminais dos módulos. A figura abaixo foi extraída do PDF disponível na pasta <code>hw</code>.</p>
-<p><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/Micromouse.pdf"><img alt="Esquemático elétrico do Micromouse" src="../../figs/hardware-esquematico.png" /></a></p>
-<p><strong>Figura 2.</strong> Esquemático elétrico do Micromouse — <strong>Rev 2.0</strong>, com bateria, fusível, chave, três conversores MP1584EN, ESP32-C3, sensores VL53L0X, MPU6050, DRV8833 e motores. O <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/Micromouse.pdf">PDF</a> e o <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/Micromouse.kicad_sch">arquivo editável KiCad</a> representam a mesma revisão e permitem consultar os detalhes das conexões. Os conectores dos VL53L0X representam a interface lógica do projeto (pino 5 = XSHUT); conferir a ordem física dos terminais no módulo adquirido.</p>
+<p>O esquemático principal é a <strong>Rev 2.1 de 03/11/2026</strong>, para ESP32 DevKit V1. A representação é uma interface elétrica de módulos por redes nomeadas, com símbolos incorporados e sem footprints; os números de U3 identificam GPIOs lógicos, não pads físicos.</p>
+<p>A folha A3 horizontal reúne quatro blocos: <strong>alimentação e proteção</strong>, <strong>acionamento e encoders</strong>, <strong>controle, START e bateria</strong> e <strong>sensores I²C</strong>. Os componentes discretos usam símbolos elétricos, e as conexões são apresentadas por fios, rótulos de rede e símbolos de alimentação. A moldura e o carimbo identificam projeto, revisão, data e folha. Essa reorganização visual preserva as redes e a pinagem da Rev 2.1.</p>
+<p><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/Micromouse.pdf"><img alt="Esquemático elétrico do Micromouse Rev 2.1" src="../../figs/hardware-esquematico.png" /></a></p>
+<p><strong>Figura 2.</strong> Rev 2.1: <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/Micromouse.pdf">PDF</a> e <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/Micromouse.kicad_sch">KiCad editável</a>. Ambos representam as mesmas conexões da Rev 2.1. Após editar o esquema no KiCad, atualizar o PDF e a figura publicada nesta página. Conferir a ordem física e a serigrafia dos módulos antes de fabricar; esta publicação não comprova validação de PCB ou da bancada modificada.</p>
 <h3 id="41-conexoes-principais">4.1 Conexões principais<a class="headerlink" href="#41-conexoes-principais" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -2439,7 +2441,7 @@
 </tr>
 <tr>
 <td style="text-align: left;">U2, saída de 5 V</td>
-<td style="text-align: left;">Pino <code>5V</code> da placa ESP32-C3</td>
+<td style="text-align: left;">Pino <code>VIN / 5V</code> da placa ESP32 DevKit V1</td>
 <td style="text-align: left;">Alimentação da unidade de controle.</td>
 </tr>
 <tr>
@@ -2453,21 +2455,6 @@
 <td style="text-align: left;">Alimentação do acionamento.</td>
 </tr>
 <tr>
-<td style="text-align: left;">GPIO9 e GPIO8</td>
-<td style="text-align: left;">SDA e SCL dos sensores</td>
-<td style="text-align: left;">Comunicação I²C compartilhada.</td>
-</tr>
-<tr>
-<td style="text-align: left;">GPIO10 e GPIO3</td>
-<td style="text-align: left;">IN1 e IN2 do DRV8833</td>
-<td style="text-align: left;">Comandos do motor esquerdo.</td>
-</tr>
-<tr>
-<td style="text-align: left;">GPIO20 e GPIO21</td>
-<td style="text-align: left;">IN3 e IN4 do DRV8833</td>
-<td style="text-align: left;">Comandos do motor direito.</td>
-</tr>
-<tr>
 <td style="text-align: left;">DRV8833, OUT1/OUT2</td>
 <td style="text-align: left;">J1, motor esquerdo</td>
 <td style="text-align: left;">Saída de potência.</td>
@@ -2478,14 +2465,9 @@
 <td style="text-align: left;">Saída de potência.</td>
 </tr>
 <tr>
-<td style="text-align: left;">GPIO0 / GPIO1 / GPIO2</td>
-<td style="text-align: left;">XSHUT de J3 / J4 / J5</td>
-<td style="text-align: left;">Habilitação individual dos VL53L0X.</td>
-</tr>
-<tr>
 <td style="text-align: left;">VBAT → R1/R2 e C5</td>
-<td style="text-align: left;">BAT_ADC_TEST</td>
-<td style="text-align: left;">Ponto de teste; conexão ADC pendente.</td>
+<td style="text-align: left;">BAT_ADC</td>
+<td style="text-align: left;">Entrada analógica do controlador; ver tabela única abaixo.</td>
 </tr>
 <tr>
 <td style="text-align: left;">Terras dos módulos</td>
@@ -2494,95 +2476,102 @@
 </tr>
 </tbody>
 </table>
-<h3 id="42-pinagem-do-esp32-c3">4.2 Pinagem do ESP32-C3<a class="headerlink" href="#42-pinagem-do-esp32-c3" title="Permanent link">&para;</a></h3>
-<p>A tabela identifica os <strong>GPIOs lógicos</strong>, os sinais e suas funções no circuito. A identificação física dos terminais deve acompanhar a placa empregada na montagem.</p>
+<h3 id="42-pinagem-do-esp32-devkit-v1">4.2 Pinagem do ESP32 DevKit V1<a class="headerlink" href="#42-pinagem-do-esp32-devkit-v1" title="Permanent link">&para;</a></h3>
+<p>A pinagem de Hardware da Rev 2.1 está definida no CSV <code>hw/diagramas/pinagem.csv</code> e apresentada na tabela abaixo. Os nomes da primeira coluna são as constantes reais do bloco <code>PLACA_ESP32_DEVKIT</code> de <code>Pinos.h</code> na <code>main</code>. Ao alterar a pinagem, manter esta tabela, o CSV e o esquemático consistentes por conferência manual.</p>
+<p><strong>Sincronização com Software:</strong> o bloco <code>PLACA_ESP32_DEVKIT</code> de <code>src/firmware/lib/nucleo/src/Pinos.h</code> e o ambiente de bancada <code>bancada_geral_devkit</code> já estão na <code>main</code>, integrados pela <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/485">#485</a>. A comparação dos 15 sinais abaixo com esse bloco encontrou uma única divergência: <code>MOTOR_DIR_IN4</code> ainda usa GPIO14 e deve passar para GPIO13. Os demais 14 GPIOs coincidem. Após essa correção, repetir a conferência linha a linha e compilar <code>bancada_geral_devkit</code>. A migração do firmware completo do robô para DevKit será tratada na <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/489">#489</a>. Não há confirmação de envio externo do aviso.</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: center;">GPIO / terminal</th>
-<th style="text-align: left;">Periférico</th>
-<th style="text-align: left;">Sinal</th>
-<th style="text-align: left;">Função</th>
+<th style="text-align: left;">Constante em <code>Pinos.h</code></th>
+<th style="text-align: center;">GPIO</th>
+<th style="text-align: left;">Ligação / função</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: center;"><strong>GPIO9</strong></td>
-<td style="text-align: left;">VL53L0X e MPU6050</td>
-<td style="text-align: left;">SDA</td>
-<td style="text-align: left;">Dados I²C.</td>
+<td style="text-align: left;"><code>I2C_SDA</code></td>
+<td style="text-align: center;"><strong>GPIO21</strong></td>
+<td style="text-align: left;">Dados I²C — J3/J4/J5/J6</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>GPIO8</strong></td>
-<td style="text-align: left;">VL53L0X e MPU6050</td>
-<td style="text-align: left;">SCL</td>
-<td style="text-align: left;">Clock I²C.</td>
+<td style="text-align: left;"><code>I2C_SCL</code></td>
+<td style="text-align: center;"><strong>GPIO22</strong></td>
+<td style="text-align: left;">Clock I²C — J3/J4/J5/J6</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>GPIO0</strong></td>
-<td style="text-align: left;">J3 — VL53L0X esquerdo</td>
-<td style="text-align: left;">XSHUT</td>
-<td style="text-align: left;">Habilitação individual.</td>
+<td style="text-align: left;"><code>XSHUT_ESQ</code></td>
+<td style="text-align: center;"><strong>GPIO16</strong></td>
+<td style="text-align: left;">XSHUT — J3 esquerdo</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>GPIO1</strong></td>
-<td style="text-align: left;">J4 — VL53L0X frontal</td>
-<td style="text-align: left;">XSHUT</td>
-<td style="text-align: left;">Habilitação individual.</td>
+<td style="text-align: left;"><code>XSHUT_FRONTAL</code></td>
+<td style="text-align: center;"><strong>GPIO17</strong></td>
+<td style="text-align: left;">XSHUT — J4 frontal</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>GPIO2</strong></td>
-<td style="text-align: left;">J5 — VL53L0X direito</td>
-<td style="text-align: left;">XSHUT</td>
-<td style="text-align: left;">Habilitação individual.</td>
+<td style="text-align: left;"><code>XSHUT_DIR</code></td>
+<td style="text-align: center;"><strong>GPIO4</strong></td>
+<td style="text-align: left;">XSHUT — J5 direito</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>GPIO10 / GPIO3</strong></td>
-<td style="text-align: left;">U6 — DRV8833</td>
-<td style="text-align: left;">IN1 / IN2</td>
-<td style="text-align: left;">PWM do motor esquerdo.</td>
+<td style="text-align: left;"><code>MOTOR_ESQ_IN1</code></td>
+<td style="text-align: center;"><strong>GPIO25</strong></td>
+<td style="text-align: left;">DRV8833 IN1/AIN1 — motor esquerdo</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>GPIO20 / GPIO21</strong></td>
-<td style="text-align: left;">U6 — DRV8833</td>
-<td style="text-align: left;">IN3 / IN4</td>
-<td style="text-align: left;">PWM do motor direito.</td>
+<td style="text-align: left;"><code>MOTOR_ESQ_IN2</code></td>
+<td style="text-align: center;"><strong>GPIO26</strong></td>
+<td style="text-align: left;">DRV8833 IN2/AIN2 — motor esquerdo</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>GPIO4 / GPIO5</strong></td>
-<td style="text-align: left;">Encoder esquerdo</td>
-<td style="text-align: left;">A / B</td>
-<td style="text-align: left;">Reservados; encoder não instalado.</td>
+<td style="text-align: left;"><code>MOTOR_DIR_IN3</code></td>
+<td style="text-align: center;"><strong>GPIO27</strong></td>
+<td style="text-align: left;">DRV8833 IN3/BIN1 — motor direito</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>GPIO6 / GPIO7</strong></td>
-<td style="text-align: left;">Encoder direito</td>
-<td style="text-align: left;">A / B</td>
-<td style="text-align: left;">Reservados; encoder não instalado.</td>
+<td style="text-align: left;"><code>MOTOR_DIR_IN4</code></td>
+<td style="text-align: center;"><strong>GPIO13</strong></td>
+<td style="text-align: left;">DRV8833 IN4/BIN2 — motor direito; substitui GPIO14</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>GPIO18 / GPIO19</strong></td>
-<td style="text-align: left;">USB nativa</td>
-<td style="text-align: left;">D− / D+</td>
-<td style="text-align: left;">Log e gravação; uso exclusivo da USB.</td>
+<td style="text-align: left;"><code>ENCODER_ESQ_A</code></td>
+<td style="text-align: center;"><strong>GPIO32</strong></td>
+<td style="text-align: left;">Encoder esquerdo C1/A</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>5V</strong></td>
-<td style="text-align: left;">Conversor U2</td>
-<td style="text-align: left;">Alimentação da placa</td>
-<td style="text-align: left;">Entrada de 5 V regulados.</td>
+<td style="text-align: left;"><code>ENCODER_ESQ_B</code></td>
+<td style="text-align: center;"><strong>GPIO33</strong></td>
+<td style="text-align: left;">Encoder esquerdo C2/B</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>GND</strong></td>
-<td style="text-align: left;">Todos os subsistemas</td>
-<td style="text-align: left;">Terra</td>
-<td style="text-align: left;">Referência comum.</td>
+<td style="text-align: left;"><code>ENCODER_DIR_A</code></td>
+<td style="text-align: center;"><strong>GPIO18</strong></td>
+<td style="text-align: left;">Encoder direito C1/A</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ENCODER_DIR_B</code></td>
+<td style="text-align: center;"><strong>GPIO19</strong></td>
+<td style="text-align: left;">Encoder direito C2/B</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>BOTAO_START</code></td>
+<td style="text-align: center;"><strong>GPIO23</strong></td>
+<td style="text-align: left;">START — INPUT_PULLUP; botão normalmente aberto para GND</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>BATERIA_ADC</code></td>
+<td style="text-align: center;"><strong>GPIO34</strong></td>
+<td style="text-align: left;">ADC1_CH6 — nó R1 (100 kΩ) / R2 (33 kΩ) / C5 (100 nF); somente entrada</td>
 </tr>
 </tbody>
 </table>
-<h3 id="43-inicializacao-e-restricoes">4.3 Inicialização e restrições<a class="headerlink" href="#43-inicializacao-e-restricoes" title="Permanent link">&para;</a></h3>
-<p>O log da aplicação usa <strong>Serial pela USB CDC nativa</strong>, configurada em <code>platformio.ini</code>, liberando GPIO20/21 para os motores. <strong>Isso não desativa as mensagens da ROM no GPIO21/U0TXD durante o reset</strong>. A montagem precisa validar uma forma de manter o driver desabilitado durante o boot antes de energizar os motores; o resistor R4 existente não comprova essa proteção. Até essa validação, testar com as rodas suspensas.</p>
-<p>GPIO2, GPIO8 e GPIO9 são pinos de <em>strapping</em>. Validar os níveis durante o reset com os módulos conectados, incluindo os pull-ups I²C e a carga de XSHUT. O botão BOOT da Super Mini compartilha GPIO9: não o acionar durante a comunicação I²C. Conferir o pinout físico da placa; o símbolo do controlador identifica sinais lógicos, sem representar a ordem dos terminais da Super Mini.</p>
+<p>As redes <code>BTN_START</code> e <code>BAT_ADC</code> do esquemático correspondem às constantes <code>BOTAO_START</code> e <code>BATERIA_ADC</code>, respectivamente. Os nomes de rede são preservados nos diagramas.</p>
+<h3 id="43-alimentacao-inicializacao-e-restricoes">4.3 Alimentação, inicialização e restrições<a class="headerlink" href="#43-alimentacao-inicializacao-e-restricoes" title="Permanent link">&para;</a></h3>
+<p><strong>U2 → VIN / 5V:</strong> ajustar U2 para 5,0 V antes de conectar U3. O LDO da DevKit gera o seu próprio 3V3. <strong>Não interligar o terminal 3V3 da DevKit ao trilho <code>+3V3_SENS</code> de U5</strong>; são saídas de reguladores diferentes. U5 alimenta ToF, IMU, encoders e o pull-up R4 de nSLEEP. Todos compartilham GND.</p>
+<p><strong>USB e VIN:</strong> usar uma fonte de alimentação da DevKit por vez. Para gravação/log com USB comum (VBUS presente), desconectar a saída de U2 do VIN. Uso simultâneo exige isolamento de VBUS ou seleção de fontes comprovada para o exemplar da DevKit; não presumir proteção contra retorno de corrente. A <a href="https://docs.espressif.com/projects/esp-idf/en/v5.0.4/esp32/hw-reference/esp32/get-started-devkitc.html#power-supply-options">orientação da Espressif para DevKitC</a> trata as fontes como mutuamente exclusivas; conferir o circuito específico da DevKit V1 adquirida.</p>
+<p><strong>Decisão de 03/11/2026: trocar IN4 de GPIO14 para GPIO13.</strong> GPIO13 está livre nesta distribuição, permite PWM e não é strapping. É também MTCK: não usar JTAG nesse terminal. A motivação é o risco relatado de pulso/tranco no reset em GPIO14; a forma de onda ainda deve ser medida na placa real. Não tratar isso como frequência/duração de PWM garantida pelo fabricante. Ver <a href="../../hw/REVISAO-2.1.md">registro da decisão e aviso ao Software</a> e <a href="https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/peripherals/gpio.html">GPIOs oficiais da Espressif</a>.</p>
+<p><strong>Ação de bancada obrigatória:</strong> com alimentação desligada, mover o fio de IN4 de GPIO14 para GPIO13 e corrigir <code>MOTOR_DIR_IN4</code> em <code>Pinos.h</code> para GPIO13 antes de compilar e gravar <code>bancada_geral_devkit</code> (<code>pio run -e bancada_geral_devkit -t upload</code>, em <code>src/firmware</code>). GPIO14 fica sem conexão. Testar energização, reset por EN, reinicialização por software e gravação, com rodas suspensas; medir entradas e saídas do driver. A troca não comprova ausência de trancos. R4 mantém nSLEEP habilitado e não é intertravamento de partida.</p>
+<p>O log usa UART0 por conversor USB–serial da DevKit; GPIO18/19 pertencem ao encoder direito, sem USB nativa. GPIO16/17 pressupõem módulo ESP32-WROOM, sem PSRAM nesses terminais. GPIO34 é somente entrada e não tem pull-up interno; o divisor fornece sua polarização. START usa INPUT_PULLUP. A bancada <code>bancada_geral_devkit</code> integrada na #485 já permite testar ToF/IMU, ADC e botão START; a integração dessas funções ao firmware completo do robô na DevKit pertence à #489.</p>
 <h2 id="5-integracao-e-sequencia-de-montagem">5. Integração e sequência de montagem<a class="headerlink" href="#5-integracao-e-sequencia-de-montagem" title="Permanent link">&para;</a></h2>
 <p>A montagem organiza a bateria, os conversores, a placa de controle e o driver no chassi, com os motores nas laterais. Os sensores de distância devem manter seus campos de medição desobstruídos nas direções frontal e laterais, e a IMU deve permanecer fixada à estrutura para acompanhar o movimento do robô.</p>
 <p>O relatório técnico estabelece a seguinte sequência de montagem e verificação:</p>
@@ -2590,8 +2579,8 @@
 <li>Inspecionar as ligações e verificar a ausência de curtos entre VBAT, os barramentos regulados e GND.</li>
 <li>Ajustar os conversores individualmente para <strong>3,3 V, 5 V e 6 V</strong>, antes de conectar as cargas.</li>
 <li>Verificar o fusível e a interrupção da alimentação pela chave geral.</li>
-<li>Conectar a placa ESP32-C3 e verificar alimentação e gravação de firmware básico via USB.</li>
-<li>Inicializar os VL53L0X sequencialmente pelos três XSHUT, atribuir endereços distintos e executar uma varredura I²C nos GPIO9 e GPIO8. Verificar também a IMU.</li>
+<li>Conectar a placa ESP32 DevKit V1 e verificar alimentação e gravação de firmware básico via USB.</li>
+<li>Inicializar os VL53L0X sequencialmente pelos três XSHUT, atribuir endereços distintos e executar uma varredura I²C nos GPIO21 e GPIO22. Verificar também a IMU.</li>
 <li>Testar os motores com as rodas suspensas, aplicando PWM progressivo e verificando o sentido de rotação.</li>
 <li>Integrar a aquisição de distâncias, as medidas inerciais e o controle de movimento.</li>
 </ol>
@@ -2621,6 +2610,11 @@
 <td style="text-align: left;">SW1.</td>
 </tr>
 <tr>
+<td style="text-align: left;">Botão START normalmente aberto</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: left;">SW2, entre BTN_START e GND.</td>
+</tr>
+<tr>
 <td style="text-align: left;">Conversor MP1584EN de 5 V</td>
 <td style="text-align: center;">1</td>
 <td style="text-align: left;">U2.</td>
@@ -2636,7 +2630,7 @@
 <td style="text-align: left;">U4.</td>
 </tr>
 <tr>
-<td style="text-align: left;">Placa ESP32-C3</td>
+<td style="text-align: left;">Placa ESP32 DevKit V1</td>
 <td style="text-align: center;">1</td>
 <td style="text-align: left;">U3.</td>
 </tr>
@@ -2673,12 +2667,12 @@
 <tr>
 <td style="text-align: left;">Capacitores de filtragem</td>
 <td style="text-align: center;">7</td>
-<td style="text-align: left;">C2 e C4: 100 µF; C3, C6 e C8: 10 µF; C5 e C7: 100 nF.</td>
+<td style="text-align: left;">C2 e C4: 100 µF; C3, C6 e C8: 10 µF; C5 e C7: 100 nF. C4 mantido conforme confirmação com Energia em 10/11/2026.</td>
 </tr>
 </tbody>
 </table>
 <h3 id="61-fonte-da-identificacao-dos-motores">6.1 Fonte da identificação dos motores<a class="headerlink" href="#61-fonte-da-identificacao-dos-motores" title="Permanent link">&para;</a></h3>
-<p>O código <strong>GA12-N20-S0310D-E</strong> e a tensão nominal de <strong>6 V</strong> foram transcritos da <a href="../../06-orcamento/#lista-de-componentes">lista de compras do projeto, item 9 — Motor DC com encoder</a>, onde constam como <strong>modelo sugerido</strong>. Essa é a fonte interna da seleção; ainda não há ficha técnica ou link de fornecedor que confirme o código completo, a relação de redução e a corrente do motor adquirido. No esquemático, <strong>J1 e J2 representam somente os dois terminais de potência</strong>; os encoders permanecem reservados e não instalados na Rev 2.0.</p>
+<p>O código <strong>GA12-N20-S0310D-E</strong> e a tensão nominal de <strong>6 V</strong> foram transcritos da <a href="../../06-orcamento/#lista-de-componentes">lista de compras do projeto, item 9 — Motor DC com encoder</a>, onde constam como <strong>modelo sugerido</strong>. Essa é a fonte interna da seleção; ainda não há ficha técnica ou link de fornecedor que confirme o código completo, a relação de redução e a corrente do motor adquirido. No esquemático, <strong>J1 e J2 representam os conectores de seis vias dos motores e encoders</strong>; a Rev 2.1 passa a representar também os quatro sinais dos encoders nos conectores de seis vias. As cores são a referência do PDF de bancada; conferir o motor adquirido.</p>
 <h2 id="7-historico-de-versoes">7. Histórico de versões<a class="headerlink" href="#7-historico-de-versoes" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -2694,6 +2688,24 @@
 <td style="text-align: center;">2.0</td>
 <td style="text-align: center;">21/10/2026</td>
 <td style="text-align: left;">Sincronização do esquemático KiCad, PDF e Figura 2: R2 de 33 kΩ, I²C em GPIO9/8, motores em GPIO10/3/20/21, XSHUT em GPIO0/1/2 e divisor em BAT_ADC_TEST. Inclusão da fonte interna do modelo sugerido dos motores.</td>
+<td style="text-align: left;">Eduardo Gaspar</td>
+</tr>
+<tr>
+<td style="text-align: center;">2.1</td>
+<td style="text-align: center;">03/11/2026</td>
+<td style="text-align: left;">Migração para DevKit V1; tabela conforme o CSV de Hardware, IN4 em GPIO13, encoders e START, BAT_ADC em ADC1_CH6, trilhos 3V3 separados e nSLEEP em 3,3 V. Sincronização pelo Software e validação física pendentes.</td>
+<td style="text-align: left;">Eduardo Gaspar</td>
+</tr>
+<tr>
+<td style="text-align: center;">2.1 (correção documental)</td>
+<td style="text-align: center;">09/11/2026</td>
+<td style="text-align: left;">Referência à #485 e ao ambiente bancada_geral_devkit; nomes reais de Pinos.h; única divergência de GPIO em MOTOR_DIR_IN4; requisito de bulk de 470 µF Low-ESR da #216 registrado como adequação pendente.</td>
+<td style="text-align: left;">Eduardo Gaspar</td>
+</tr>
+<tr>
+<td style="text-align: center;">2.1 (confirmação de C4)</td>
+<td style="text-align: center;">10/11/2026</td>
+<td style="text-align: left;">C4 mantido em 100 µF conforme confirmação com Energia informada pelo responsável; removida a pendência de troca para 470 µF.</td>
 <td style="text-align: left;">Eduardo Gaspar</td>
 </tr>
 </tbody>
