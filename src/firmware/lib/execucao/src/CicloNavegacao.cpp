@@ -524,8 +524,10 @@ void CicloNavegacao::realinharOuGirar(Movimento giro) {
 void CicloNavegacao::iniciarGiro(Movimento giro) {
   // Colado na parede da frente o chassi não tem folga para girar no lugar (os cantos batem nas paredes e as
   // rodas patinam): recua em linha reta e só então gira. Depois do recuo o ciclo percebe e decide de novo.
-  if (config_.recuoAntesDoGiroMm > 0 && !recuouParaGirar_ && temFrente_ &&
-      ultimaFrenteMm_ < config_.frenteParaRecuarMm && executor_.iniciarRecuo(config_.recuoAntesDoGiroMm)) {
+  // Só depois de ter avançado ao menos uma célula: na célula de partida a traseira já encosta na parede de
+  // trás (a célula é um bolso), e o recuo não tem para onde ir.
+  if (config_.recuoAntesDoGiroMm > 0 && !recuouParaGirar_ && celulasAvancadas_ > 0 && temFrente_ &&
+      ultimaFrenteMm_ < config_.frenteParaRecuarMm && executor_.iniciarRecuo(config_.recuoAntesDoGiroMm, true)) {
     recuouParaGirar_ = true;
     estado_ = EstadoCiclo::Recuperando;
     return;

@@ -33,10 +33,10 @@ constexpr const char* nomeDoTipoColisao(TipoColisao tipo) {
 /// Variação mínima da aceleração no plano, em mg, em relação ao repouso para valer como impacto.
 /// Medido no robô: ao cruzar o vinco entre duas células (onde as paredes são fixadas) o acelerômetro
 /// marca ~1,0 g (1024 mg na bancada), e o limiar antigo de 1000 mg tratava isso como batida, fazendo o
-/// robô recuar no meio do labirinto. Com 1600 mg o vinco passa e uma batida na parede (acima de 1,6 g,
+/// robô recuar no meio do labirinto. Com o EVA nos vincos a leitura passou de 1,6 g (1610 mg), então o limiar é 2200 mg: o vinco passa e uma batida na parede (acima de 2,2 g,
 /// a ~0,7 m/s) continua sendo detectada. Provisório: se uma batida real não for detectada, baixe de
 /// 100 em 100 mg; se o vinco ainda disparar, suba.
-constexpr uint16_t LIMIAR_IMPACTO_MG = 1600;
+constexpr uint16_t LIMIAR_IMPACTO_MG = 2200;
 
 /// Leituras seguidas acima do limiar para confirmar o impacto. Uma só (10 ms): o pico de uma batida
 /// dura poucas leituras e o filtro do sensor (42 Hz) já tira o ruído mais rápido.
