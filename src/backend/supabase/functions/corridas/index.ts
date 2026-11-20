@@ -3,6 +3,7 @@
 // O robô (ou o dashboard, quando houver login de operador) chama:
 //   POST /functions/v1/corridas                 { "labirinto": "4x4" | "8x4" | "12x4" }
 //   POST /functions/v1/corridas/{id}/encerrar   { "status"?: "concluida" | "nao_concluida", ...métricas }
+//   POST /functions/v1/corridas/{id}/labirinto   { "labirinto": "4x4" | "8x4" | "12x4" }   (o que o robô descobriu)
 //   POST /functions/v1/corridas/{id}/mapa       { "celulas": [...] }   (o MapaJson do firmware)
 // com o cabeçalho `x-device-token`. A regra de negócio fica nas funções SQL `criar_corrida`,
 // `encerrar_corrida` e `registrar_mapa`; a chave `anon` não tem permissão de escrita direta nas tabelas.
@@ -22,6 +23,7 @@ const CODIGOS: CodigoErro[] = [
   "status_invalido",
   "celulas_invalidas",
   "mapa_grande_demais",
+  "telemetria_fora_do_labirinto",
 ];
 
 /** Converte a mensagem de erro do banco em erro de negócio, quando for um dos conhecidos. */
@@ -54,6 +56,11 @@ const repositorio: Repositorio = {
       p_velocidade_pico: dados.velocidade_pico ?? null,
       p_consumo_bateria: dados.consumo_bateria ?? null,
     });
+    if (error) throw converterErro(error.message);
+    return data as Corrida;
+  },
+  async definirLabirinto(id: number, tipo: TipoLabirinto): Promise<Corrida> {
+    const { data, error } = await obterCliente().rpc("definir_labirinto_corrida", { p_id: id, p_tipo: tipo });
     if (error) throw converterErro(error.message);
     return data as Corrida;
   },

@@ -73,3 +73,10 @@
     display: none;
   }
 }
+
+/* Labirinto no modo ao vivo: sem seletor, só o que o robô descobriu. */
+.cabecalho__labirinto {
+  color: var(--cor-texto-suave);
+  font-size: 13px;
+  font-weight: 600;
+}

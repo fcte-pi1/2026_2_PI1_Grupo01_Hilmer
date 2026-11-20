@@ -59,9 +59,10 @@ constexpr int ENCODER_DIR_A = 18;  ///< GPIO18 ← canal A (C1) da roda direita.
 constexpr int ENCODER_DIR_B = 19;  ///< GPIO19 ← canal B (C2) da roda direita.
 /// @}
 
-/// @name Botão de largada e leitura da bateria
+/// @name Leitura da bateria
+/// O robô não tem botão de largada (a chave geral liga a energia direto da bateria): a largada vem do
+/// painel, do gesto da mão ou do comando `L`. O GPIO23, do antigo BTN_START, ficou livre.
 /// @{
-constexpr int BOTAO_START = 23;  ///< GPIO23 ← botão BTN_START para o GND (`INPUT_PULLUP`).
 constexpr int BATERIA_ADC = 34;  ///< GPIO34 (ADC1, só entrada) ← divisor R1/R2 da bateria.
 /// @}
 
@@ -71,7 +72,7 @@ constexpr int TODOS_OS_PINOS[] = {
     I2C_SDA,       I2C_SCL,       XSHUT_ESQ,     XSHUT_FRONTAL, XSHUT_DIR,
     MOTOR_ESQ_IN1, MOTOR_ESQ_IN2, MOTOR_DIR_IN3, MOTOR_DIR_IN4, ENCODER_ESQ_A,
     ENCODER_ESQ_B, ENCODER_DIR_A, ENCODER_DIR_B,
-    BOTAO_START,   BATERIA_ADC,
+    BATERIA_ADC,
 };
 constexpr size_t QUANTIDADE_DE_PINOS = sizeof(TODOS_OS_PINOS) / sizeof(TODOS_OS_PINOS[0]);
 

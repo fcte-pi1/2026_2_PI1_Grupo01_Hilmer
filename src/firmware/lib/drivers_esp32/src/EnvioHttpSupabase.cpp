@@ -101,6 +101,41 @@ ResultadoEnvio EnvioHttpSupabase::enviarLote(uint32_t corridaId, const AmostraTe
   return resultado;
 }
 
+ResultadoEnvio EnvioHttpSupabase::definirLabirintoCorrida(uint32_t corridaId, const char* labirinto) {
+  ResultadoEnvio resultado;
+  char caminho[48];
+  const int escritos = snprintf(caminho, sizeof(caminho), "corridas/%lu/labirinto", static_cast<unsigned long>(corridaId));
+  char corpo[48];
+  const size_t tamanho = serializarCriacaoCorrida(labirinto, corpo, sizeof(corpo));  // o mesmo corpo da criação
+  if (escritos <= 0 || static_cast<size_t>(escritos) >= sizeof(caminho) || tamanho == 0) {
+    resultado.codigoHttp = SEM_CHAMADA;
+    return resultado;
+  }
+  resultado.codigoHttp = postar(caminho, corpo, tamanho, nullptr);
+  return resultado;
+}
+
+ResultadoEnvio EnvioHttpSupabase::buscarComando(ComandoRobo& comando) {
+  ResultadoEnvio resultado;
+  String resposta;
+  resultado.codigoHttp = postar("robo/comandos/proximo", "", 0, &resposta);
+  if (sucesso(resultado.codigoHttp) && !lerComandoRobo(resposta.c_str(), comando)) {
+    resultado.codigoHttp = 0;  // respondeu, mas sem um comando que o robô entenda: ignora
+  }
+  return resultado;
+}
+
+ResultadoEnvio EnvioHttpSupabase::enviarLogs(uint32_t corridaId, const char* const* linhas, size_t quantidade) {
+  ResultadoEnvio resultado;
+  const size_t tamanho = serializarLogs(corridaId, linhas, quantidade, logs_, sizeof(logs_));
+  if (tamanho == 0) {
+    resultado.codigoHttp = SEM_CHAMADA;
+    return resultado;
+  }
+  resultado.codigoHttp = postar("robo/logs", logs_, tamanho, nullptr);
+  return resultado;
+}
+
 ResultadoEnvio EnvioHttpSupabase::encerrarCorrida(uint32_t corridaId) {
   ResultadoEnvio resultado;
   char caminho[48];

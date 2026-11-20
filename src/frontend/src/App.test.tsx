@@ -26,32 +26,32 @@ const labirintos: Labirinto[] = [
   { id: 3, tipo: '12x4', linhas: 12, colunas: 4 },
 ];
 
-const seletor = () => screen.getByRole('combobox', { name: 'Labirinto' });
-
 describe('App no modo ao vivo (integração com Supabase simulado)', () => {
   beforeEach(() => {
     clienteSimulado.limpar();
     clienteSimulado.definirTabela('labirintos', labirintos);
   });
 
-  it('sem corrida, aguarda o robô e deixa escolher o labirinto', async () => {
+  it('sem corrida, aguarda o robô e não deixa escolher o labirinto (ele é surpresa)', async () => {
     render(<App />);
     await waitFor(() => expect(screen.getByText(/labirintos lidos do banco/)).toBeInTheDocument());
 
     expect(screen.getByText('Telemetria ao vivo (Supabase Realtime)')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'AGUARDANDO LARGADA DO ROBÔ' })).toBeDisabled();
-    expect(seletor()).toHaveValue('8x4');
-    expect(seletor()).toBeEnabled();
+    expect(screen.queryByRole('combobox', { name: 'Labirinto' })).not.toBeInTheDocument();
+    expect(screen.getByRole('status', { name: 'Labirinto' })).toHaveTextContent('O robô ainda está descobrindo o labirinto');
   });
 
-  it('com corrida real, o cabeçalho mostra o labirinto dela e trava o seletor, mesmo depois de concluída', async () => {
+  it('com corrida real, só mostra o labirinto depois de o robô descobri-lo e informá-lo', async () => {
     clienteSimulado.definirTabela('corridas', [corridaSimulada({ id: 40, labirinto_id: 1, numero_tentativa: 3 })]);
     render(<App />);
-    await waitFor(() => expect(seletor()).toHaveValue('4x4'));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'AGUARDANDO LARGADA DO ROBÔ' })).toBeInTheDocument());
 
-    // A corrida criada depois da calibração aguarda a largada; o seletor já fica travado.
-    expect(screen.getByRole('button', { name: 'AGUARDANDO LARGADA DO ROBÔ' })).toBeInTheDocument();
-    expect(seletor()).toBeDisabled();
+    // A corrida nasce como 4x4 (o padrão do firmware), mas o tamanho real ainda não é conhecido: sem
+    // seletor, sem grade e com o aviso de que o robô está descobrindo.
+    expect(screen.queryByRole('combobox', { name: 'Labirinto' })).not.toBeInTheDocument();
+    expect(screen.getByRole('status', { name: 'Labirinto' })).toHaveTextContent('descobrindo');
+    expect(screen.getByText(/descobrindo o tamanho do labirinto/)).toBeInTheDocument();
 
     // O Realtime simulado atualiza o estado do React: a inserção entra num `act`.
     await act(async () => {
@@ -60,8 +60,24 @@ describe('App no modo ao vivo (integração com Supabase simulado)', () => {
         .insert(leituraSimulada(1, { corrida_id: 40, tempo_decorrido: 92.5, evento: 'objetivo_alcancado' }));
     });
     await waitFor(() => expect(screen.getByText('Concluído na Tentativa 3 · Nota 5')).toBeInTheDocument());
-    expect(seletor()).toHaveValue('4x4');
-    expect(seletor()).toBeDisabled();
-    expect(seletor()).toHaveAttribute('title', 'Labirinto definido pela corrida do robô');
+    expect(screen.getByRole('status', { name: 'Labirinto' })).toHaveTextContent('4x4 · descoberto pelo robô');
+    expect(screen.queryByText(/descobrindo o tamanho do labirinto/)).not.toBeInTheDocument();
+  });
+
+  it('quando o robô informa o tamanho real, a corrida passa para o labirinto descoberto', async () => {
+    clienteSimulado.definirTabela('corridas', [corridaSimulada({ id: 41, labirinto_id: 1, numero_tentativa: 1 })]);
+    render(<App />);
+    await waitFor(() => expect(screen.getByRole('status', { name: 'Labirinto' })).toHaveTextContent('descobrindo'));
+
+    // O robô se localizou (8x4), o banco trocou o labirinto da corrida e a primeira leitura saiu.
+    act(() =>
+      clienteSimulado.emitirRealtime('corridas', 'UPDATE', corridaSimulada({ id: 41, labirinto_id: 2, numero_tentativa: 1 })),
+    );
+    await act(async () => {
+      await clienteSimulado.from('telemetria').insert(leituraSimulada(1, { corrida_id: 41, posicao_coluna: 5 }));
+    });
+    await waitFor(() =>
+      expect(screen.getByRole('status', { name: 'Labirinto' })).toHaveTextContent('8x4 · descoberto pelo robô'),
+    );
   });
 });

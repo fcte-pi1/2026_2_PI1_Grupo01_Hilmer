@@ -30,6 +30,15 @@ constexpr uint32_t ESPERA_MINIMA_WIFI_MS = 1000;
 /// Teto da espera entre tentativas de conectar o Wi-Fi, em ms.
 constexpr uint32_t ESPERA_MAXIMA_WIFI_MS = 30000;
 
+/// Intervalo entre duas buscas de comando do painel (`POST /robo/comandos/proximo`), em ms: é o atraso
+/// típico entre o clique no painel e o robô agir (mais a chamada HTTPS, de 0,1 a 1 s). Cada busca é
+/// uma chamada HTTPS a mais, na mesma conexão reaproveitada do envio da telemetria.
+constexpr uint32_t PERIODO_CONSULTA_COMANDO_MS = 1500;
+
+/// Intervalo entre dois envios de logs de eventos ao painel (`POST /robo/logs`), em ms. Cada envio leva
+/// até `LINHAS_POR_LOTE_DE_LOGS` linhas; sem linhas pendentes, não há chamada.
+constexpr uint32_t PERIODO_ENVIO_LOGS_MS = 2000;
+
 /// Intervalo entre duas linhas de log com os contadores do envio, em ms.
 constexpr uint32_t PERIODO_LOG_ENVIO_MS = 10000;
 

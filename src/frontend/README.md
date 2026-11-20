@@ -28,6 +28,21 @@ npm run dev                  # abre em http://localhost:5173
 | `npm run build` | Confere os tipos (`tsc --noEmit`) e gera a versão final em `dist/`. |
 | `npm run preview` | Serve a pasta `dist/` para conferir o build. |
 
+### O labirinto é surpresa
+
+O labirinto real é montado na hora e o robô pode ser posto em qualquer célula, então **não há escolha de tamanho no modo ao vivo**: o robô descobre o tamanho explorando e o informa ao banco. Até lá, o cabeçalho mostra "O robô ainda está descobrindo o labirinto" e o mapa dá lugar a um aviso (a corrida nasce como 4x4, o padrão do firmware, mas esse tamanho ainda não vale). Quando o robô informa o tamanho e manda a primeira posição, o cabeçalho passa a mostrar, por exemplo, "8x4 · descoberto pelo robô", e a grade aparece com o tamanho certo. O seletor de tamanho só existe no modo de exemplo (sem Supabase). O filtro por tamanho do histórico continua, porque cada corrida já gravada tem o seu (requisito 15).
+
+### Controle e logs do robô
+
+Abaixo da tela ao vivo, o bloco **"Controle e logs do robô"** dá a largada ao robô e mostra o que ele faz. O robô não tem botão de largada: a chave geral liga a energia, ele faz o boot e espera.
+
+* **INICIAR**, **PARAR** e **ZERAR** mandam o comando à Edge Function `robo` do Supabase, que o guarda; o robô o busca em até cerca de 1,5 s, executa e passa a mostrar a situação ("aguardando o robô buscá-lo", "entregue ao robô às 12:00:03" ou "expirou", se ele não buscou em 30 s). `PARAR` freia o robô e o faz esperar uma nova largada; `ZERAR` é para o robô recolocado na partida.
+* **Senha do painel.** Os comandos pedem a senha do operador (o segredo `PAINEL_TOKEN` do Supabase, definido por quem publica a função). Ela fica só na sessão da aba (`sessionStorage`): não vai para o código, para o `.env.local` nem para o disco. O painel só **lê** as tabelas; quem escreve o comando é a função.
+* **Logs.** Os eventos do robô (largada, colisão, falha do I²C, bateria fraca, parada...) chegam ao vivo pelo Realtime, traduzidos para o operador e coloridos (aviso em âmbar, erro em vermelho). Ficam as últimas 200 linhas; os logs com mais de 7 dias são apagados no banco.
+* **Segurança da corrida.** O `PARAR` do painel não é uma parada de emergência: leva até 1,5 s mais a chamada HTTPS. Para parar na hora, use a chave geral do robô.
+
+Sem o Supabase configurado, o bloco só avisa que falta o `.env.local`. A migração dos logs precisa estar aplicada (`supabase db push`) e a função publicada (`supabase functions deploy robo`); sem elas, o bloco mostra o erro da leitura.
+
 Sem o `.env.local` o dashboard funciona do mesmo jeito, só com os dados de exemplo; o rodapé avisa "Supabase não configurado".
 
 ---

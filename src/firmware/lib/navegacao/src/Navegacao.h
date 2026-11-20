@@ -77,6 +77,11 @@ class Navegacao {
   /// @return `false` se a célula está fora do mapa: nesse caso nada muda; `true` caso contrário.
   bool moverPara(uint8_t linha, uint8_t coluna, Direcao direcao);
 
+  /// Vários objetivos de uma vez (a largada em qualquer célula, enquanto o robô ainda não sabe onde
+  /// está): o Flood Fill mede a distância até o objetivo mais próximo, e `atingiuObjetivo()` vale em
+  /// qualquer um deles. `obterObjetivo()` devolve o primeiro. Lista vazia: nenhum objetivo, sem caminho.
+  void definirObjetivos(const PosicaoCelula* objetivos, uint16_t quantidade);
+
   /// Altera a célula objetivo.
   void definirObjetivo(PosicaoCelula objetivo);
 
@@ -153,7 +158,13 @@ class Navegacao {
   PosicaoCelula celula_esperada_ = {0, 0};
   Direcao direcao_passo_ = Direcao::Norte;  ///< Direção do passo pendente, a partir da origem.
 
-  uint8_t distancias_[MAX_LINHAS_LABIRINTO][MAX_COLUNAS_LABIRINTO] = {};
+  static constexpr uint16_t CAPACIDADE = static_cast<uint16_t>(MAX_LINHAS_EXPLORACAO) * MAX_COLUNAS_EXPLORACAO;
+
+  /// Objetivos do Flood Fill: normalmente um só (o do `detector_`); vários na exploração.
+  PosicaoCelula objetivos_[CAPACIDADE] = {};
+  uint16_t quantidadeObjetivos_ = 0;
+
+  uint8_t distancias_[MAX_LINHAS_EXPLORACAO][MAX_COLUNAS_EXPLORACAO] = {};
 };
 
 }  // namespace micromouse

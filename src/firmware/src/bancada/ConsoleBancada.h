@@ -42,12 +42,18 @@ class ConsoleBancada : public Stream {
     return Serial.available() + static_cast<int>(entradaTamanho_);
   }
 
+  /// `true` se a última tecla lida por `read()` veio do telnet (e não da serial USB). Serve para testar
+  /// um comando dado à distância.
+  bool ultimaTeclaDoTelnet() const { return ultimaDoTelnet_; }
+
   int read() override {
     atualizar();
     if (Serial.available() > 0) {
+      ultimaDoTelnet_ = false;
       return Serial.read();
     }
     if (entradaTamanho_ > 0) {
+      ultimaDoTelnet_ = true;
       const uint8_t c = entrada_[entradaInicio_];
       entradaInicio_ = (entradaInicio_ + 1) % TAMANHO_ENTRADA;
       --entradaTamanho_;
@@ -127,6 +133,7 @@ class ConsoleBancada : public Stream {
   uint8_t entrada_[TAMANHO_ENTRADA] = {};
   size_t entradaInicio_ = 0;
   size_t entradaTamanho_ = 0;
+  bool ultimaDoTelnet_ = false;
 
 #if defined(BANCADA_COM_TELEMETRIA)
   static constexpr size_t TAMANHO_SAIDA = 512;

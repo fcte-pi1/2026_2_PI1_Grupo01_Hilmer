@@ -24,7 +24,9 @@ function corrida(parcial: Partial<Corrida> = {}): Corrida {
 
 /** Repositório falso que registra as chamadas e devolve o que o teste configurar. */
 function repositorioFalso(config: { erro?: ErroDeNegocio | Error } = {}) {
-  const chamadas: Array<{ tipo: TipoLabirinto } | { id: number; dados: DadosEncerramento } | { id: number; celulas: unknown[] }> = [];
+  const chamadas: Array<
+    { tipo: TipoLabirinto } | { id: number; dados: DadosEncerramento } | { id: number; celulas: unknown[] } | { id: number; labirinto: TipoLabirinto }
+  > = [];
   const repositorio: Repositorio = {
     async criarCorrida(tipo) {
       if (config.erro) throw config.erro;
@@ -35,6 +37,11 @@ function repositorioFalso(config: { erro?: ErroDeNegocio | Error } = {}) {
       if (config.erro) throw config.erro;
       chamadas.push({ id, dados });
       return corrida({ id, status: dados.status ?? "nao_concluida", data_hora_fim: "2026-10-16T12:05:00Z" });
+    },
+    async definirLabirinto(id, tipo) {
+      if (config.erro) throw config.erro;
+      chamadas.push({ id, labirinto: tipo });
+      return corrida({ id, labirinto_id: 2, numero_tentativa: 1 });
     },
     async registrarMapa(id, celulas) {
       if (config.erro) throw config.erro;
@@ -232,4 +239,64 @@ test("mapa só aceita POST", async () => {
     const r = await tratarRequisicao(requisicao({ metodo, caminho: "/corridas/7/mapa" }), dependencias(repositorio));
     assert.equal(r.status, 405, metodo);
   }
+});
+
+// ---------------------------------------------------------------- labirinto descoberto pelo robô
+
+test("o robô informa o labirinto que descobriu e a corrida volta com ele", async () => {
+  const { repositorio, chamadas } = repositorioFalso();
+  const r = await tratarRequisicao(
+    requisicao({ caminho: "/functions/v1/corridas/7/labirinto", corpo: { labirinto: "8x4" } }),
+    dependencias(repositorio),
+  );
+  assert.equal(r.status, 200);
+  assert.deepEqual(chamadas, [{ id: 7, labirinto: "8x4" }]);
+  assert.equal((r.corpo as Corrida).labirinto_id, 2);
+});
+
+test("labirinto descoberto com id, tamanho ou corpo inválido responde 400 sem chamar o banco", async () => {
+  const { repositorio, chamadas } = repositorioFalso();
+  const casos: Array<[string, unknown]> = [
+    ["/functions/v1/corridas/abc/labirinto", { labirinto: "8x4" }],
+    ["/functions/v1/corridas/0/labirinto", { labirinto: "8x4" }],
+    ["/functions/v1/corridas/7/labirinto", { labirinto: "5x5" }],
+    ["/functions/v1/corridas/7/labirinto", {}],
+    ["/functions/v1/corridas/7/labirinto", CORPO_INVALIDO],
+  ];
+  for (const [caminho, corpo] of casos) {
+    const r = await tratarRequisicao(requisicao({ caminho, corpo }), dependencias(repositorio));
+    assert.equal(r.status, 400, `${caminho} ${String(corpo)}`);
+  }
+  assert.equal(chamadas.length, 0);
+});
+
+test("os erros do labirinto descoberto vindos do banco viram 404, 409 e 409", async () => {
+  const casos: Array<[ErroDeNegocio, number]> = [
+    [new ErroDeNegocio("corrida_inexistente"), 404],
+    [new ErroDeNegocio("labirinto_inexistente"), 404],
+    [new ErroDeNegocio("corrida_ja_encerrada"), 409],
+    [new ErroDeNegocio("telemetria_fora_do_labirinto"), 409],
+  ];
+  for (const [erro, status] of casos) {
+    const { repositorio } = repositorioFalso({ erro });
+    const r = await tratarRequisicao(
+      requisicao({ caminho: "/functions/v1/corridas/7/labirinto", corpo: { labirinto: "12x4" } }),
+      dependencias(repositorio),
+    );
+    assert.equal(r.status, status, erro.codigo);
+  }
+});
+
+test("labirinto descoberto só aceita POST e exige o token do robô", async () => {
+  const { repositorio } = repositorioFalso();
+  const get = await tratarRequisicao(
+    requisicao({ metodo: "GET", caminho: "/functions/v1/corridas/7/labirinto" }),
+    dependencias(repositorio),
+  );
+  assert.equal(get.status, 405);
+  const semToken = await tratarRequisicao(
+    requisicao({ caminho: "/functions/v1/corridas/7/labirinto", tokenRecebido: null, corpo: { labirinto: "8x4" } }),
+    dependencias(repositorio),
+  );
+  assert.equal(semToken.status, 401);
 });

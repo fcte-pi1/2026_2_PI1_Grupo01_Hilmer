@@ -57,6 +57,11 @@ struct ReferenciasTof {
 constexpr ReferenciasTof REFERENCIAS_TOF_NA_LARGADA = {SEM_REFERENCIA_TOF_MM, DISTANCIA_REFERENCIA_TOF_MM,
                                                        DISTANCIA_REFERENCIA_TOF_MM};
 
+/// Referências da calibração com o robô numa célula qualquer (largada em qualquer célula): nenhuma
+/// parede a uma distância conhecida, então nenhum ToF entra na conta e os desvios ficam em zero.
+constexpr ReferenciasTof REFERENCIAS_TOF_SEM_PAREDE = {SEM_REFERENCIA_TOF_MM, SEM_REFERENCIA_TOF_MM,
+                                                       SEM_REFERENCIA_TOF_MM};
+
 /// Parâmetros do `CalibradorTof`. Os testes alteram os campos para cobrir outros cenários.
 struct ConfiguracaoCalibracaoTof {
   uint16_t amostras = AMOSTRAS_CALIBRACAO_TOF;

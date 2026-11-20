@@ -34,7 +34,11 @@ enum class EstadoParede : uint8_t { Desconhecido, Livre, Parede };
 ///
 /// Os nomes seguem a notação "colunas × linhas": `Labirinto12x4` tem 12 colunas e 4 linhas
 /// (216 × 72 cm). `Labirinto4x4` mede 72 × 72 cm e `Labirinto8x4`, 144 × 72 cm.
-enum class DimensaoMapa : uint8_t { Labirinto4x4, Labirinto8x4, Labirinto12x4 };
+///
+/// `Exploracao` não é um labirinto: é o mapa de 7 × 23 células (`MAX_LINHAS_EXPLORACAO` ×
+/// `MAX_COLUNAS_EXPLORACAO`) em que o robô colocado numa célula desconhecida começa, no meio, até
+/// descobrir onde está (`LocalizadorLargada`).
+enum class DimensaoMapa : uint8_t { Labirinto4x4, Labirinto8x4, Labirinto12x4, Exploracao };
 
 /// Posição discreta de uma célula do labirinto.
 ///
