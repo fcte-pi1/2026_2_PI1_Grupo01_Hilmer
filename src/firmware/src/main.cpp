@@ -367,7 +367,44 @@ static bool supervisionarImu(bool falhou, bool barramentoOcupado) {
 /// Ciclo percepção → mapa → decisão → atuação (#184): grava as paredes no mapa da corrida, decide
 /// pelo Flood Fill e executa os movimentos (o `ControleMovimento` e o `ControleGiro` da #190/#191
 /// ficam dentro dele). Só a tarefa de navegação o usa; só ela escreve no mapa.
-static micromouse::CicloNavegacao cicloNavegacao(armazenamentoMapa.mapa());
+/// Parâmetros do controle só para o robô real. O ToF frontal não lê menos de ~48 mm (nariz encostado na
+/// parede), então parar no centro exato da célula (84 mm da parede, leitura de 34 mm) era impossível: o
+/// robô empurrava a parede até estourar o tempo do avanço. Para a 105 mm do centro à parede (leitura de
+/// ~55 mm, 7 mm antes de encostar). O modelo simulado e os testes seguem com o valor de projeto.
+static micromouse::ConfiguracaoControle configuracaoControleDoRobo() {
+  micromouse::ConfiguracaoControle c;
+  c.distanciaParadaFrontalMm = 105;
+  // Os ganhos de centralização ficam nos padrões: o mesmo PD comanda o realinhamento, e com ganho zero o
+  // robô não se mexia (o realinhamento estourava o tempo do giro).
+  return c;
+}
+
+/// Realinhamento do robô real: desligado. Ele recentraliza o robô pelas leituras laterais, que assumem
+/// sensores a 90°; os ToF laterais do robô ficam na diagonal e, de frente para uma parede, enxergam a
+/// parede da frente, então a manobra não converge (estourava o tempo do giro antes de largar). Também sem
+/// ajuste de rumo pelo corredor, pelo mesmo motivo: o rumo reto segue pelo giroscópio.
+static micromouse::ConfiguracaoRealinhamento configuracaoRealinhamentoDoRobo() {
+  micromouse::ConfiguracaoRealinhamento c;
+  c.tentativas = 0;
+  c.ajusteRumoPeloCorredorPorMil = 0;
+  return c;
+}
+
+/// Os ToF laterais do robô ficam na diagonal (cerca de 45° da frente): de frente para uma parede próxima,
+/// eles leem a parede da frente, e a percepção não grava as laterais dessa célula (ficam desconhecidas).
+static micromouse::ConfiguracaoExecucao configuracaoExecucaoDoRobo() {
+  micromouse::ConfiguracaoExecucao c;
+  c.lateraisEmDiagonal = true;
+  // O chassi não tem folga para girar no lugar colado na parede da frente (os cantos batem e as rodas
+  // patinam, o que cortava o motor por "travado"): com a frente a menos de 90 mm, recua 45 mm antes do giro.
+  c.recuoAntesDoGiroMm = 45;
+  c.frenteParaRecuarMm = 90;
+  return c;
+}
+
+static micromouse::CicloNavegacao cicloNavegacao(armazenamentoMapa.mapa(), configuracaoExecucaoDoRobo(),
+                                                 configuracaoControleDoRobo(), micromouse::ConfiguracaoGiro{},
+                                                 configuracaoRealinhamentoDoRobo());
 
 /// Correção do erro acumulado da odometria pelas paredes (#188): a posição lateral pelas paredes
 /// laterais e, com os encoders instalados, também ao longo do avanço (no modo estimado, quem corrige
@@ -506,12 +543,6 @@ static micromouse::CredenciaisSupabase lerCredenciais() {
   c.urlProjeto = CREDENCIAL_SUPABASE_URL;
   c.chaveAnon = CREDENCIAL_SUPABASE_ANON;
   c.tokenDispositivo = CREDENCIAL_DEVICE_TOKEN;
-#if defined(CREDENCIAL_CERTIFICADO_RAIZ)
-  c.certificadoRaiz = CREDENCIAL_CERTIFICADO_RAIZ;  // opcional: sem ele, valem as raízes embutidas
-#endif
-#if defined(CREDENCIAL_SEM_VALIDAR_CERTIFICADO)
-  c.semValidarCertificado = CREDENCIAL_SEM_VALIDAR_CERTIFICADO != 0;  // opcional, só na bancada
-#endif
 #endif
   return c;
 }
@@ -685,9 +716,6 @@ static void tarefaRede(void*) {
   if (credenciais.ssidWifi == nullptr || credenciais.ssidWifi[0] == '\0') {
     vTaskDelete(nullptr);
     return;
-  }
-  if (credenciais.semValidarCertificado) {
-    console.println("{\"status\":\"aviso\",\"motivo\":\"https_sem_validar_certificado\"}");
   }
   redeWifi.iniciar();
   // Sem economia de energia do rádio: com ela, o Wi-Fi dorme entre os beacons e o telnet e o envio da

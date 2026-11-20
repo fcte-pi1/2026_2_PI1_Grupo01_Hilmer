@@ -166,19 +166,19 @@ void test_conversao_para_mm_arredonda_para_o_mais_proximo() {
 void test_uma_celula_de_18_cm_com_a_constante_provisoria() {
   ConversorDeslocamento c;  // padrão: valor provisório
   TEST_ASSERT_EQUAL_UINT32(MICROMETROS_POR_PULSO_PROVISORIO, c.obterMicrometrosPorPulso());
-  // 180 mm / 0,251 mm por pulso = 717 pulsos (ida e volta pelo arredondamento).
+  // 180 mm / 0,073 mm por pulso = 2466 pulsos (ida e volta pelo arredondamento).
   const int32_t pulsos = static_cast<int32_t>(180000 / MICROMETROS_POR_PULSO_PROVISORIO);
   const int32_t mm = c.pulsosParaMm(pulsos);
   TEST_ASSERT_INT32_WITHIN(1, 180, mm);
 }
 
 void test_uma_volta_da_roda_de_32_mm_mede_cerca_de_100_mm() {
-  // Disco de 100 linhas x 4 bordas = 400 pulsos por volta; perímetro = pi x 32 mm = 100,5 mm.
+  // Medido: ~1383 pulsos por volta (decodificação x4); perímetro = pi x 32 mm = 100,5 mm.
   ConversorDeslocamento c;
-  TEST_ASSERT_EQUAL_UINT32(400, PULSOS_POR_VOLTA_DA_RODA);
+  TEST_ASSERT_EQUAL_UINT32(1383, PULSOS_POR_VOLTA_DA_RODA);
   TEST_ASSERT_INT32_WITHIN(1, 100, c.pulsosParaMm(static_cast<int32_t>(PULSOS_POR_VOLTA_DA_RODA)));
-  // Uma célula de 18 cm pede cerca de 1,8 volta, ou 717 pulsos.
-  TEST_ASSERT_INT32_WITHIN(1, 180, c.pulsosParaMm(717));
+  // Uma célula de 18 cm pede cerca de 1,8 volta, ou 2466 pulsos.
+  TEST_ASSERT_INT32_WITHIN(1, 180, c.pulsosParaMm(2466));
 }
 
 void test_conversao_satura_em_vez_de_estourar() {

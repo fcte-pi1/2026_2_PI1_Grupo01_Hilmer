@@ -779,7 +779,7 @@ O **Wi-Fi (principal e reserva) e a URL do Supabase** já vêm no firmware, em `
 | `CREDENCIAL_SUPABASE_ANON` (opcional) | só `credenciais.h` |
 | `CREDENCIAL_DEVICE_TOKEN` (opcional) | só `credenciais.h` |
 
-**Certificado:** não precisa colar nenhum. O firmware traz as raízes públicas que validam o Supabase (`lib/comunicacao/src/CertificadosRaiz.h`: GTS Root R4 e GlobalSign Root CA). Só se o Supabase mudar de autoridade, defina `CREDENCIAL_CERTIFICADO_RAIZ` (opcional) ou acrescente a raiz nova ao `CertificadosRaiz.h`. `CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1` (opcional) aceita qualquer servidor (`setInsecure`): **só na bancada**, nunca na versão da competição (o log avisa com `https_sem_validar_certificado`). Sem a URL, o robô ainda conecta no Wi-Fi e aceita gravação pelo Wi-Fi (`envio_desligado`).
+**Certificado:** não existe nada para configurar. O robô fala HTTPS com o Supabase sem conferir o certificado do servidor (decisão do projeto, para não ter atrito; o tráfego continua cifrado). Sem a URL, o robô ainda conecta no Wi-Fi e aceita gravação pelo Wi-Fi (`envio_desligado`).
 
 ### Rede da demonstração e plano B (#491)
 

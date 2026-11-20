@@ -177,9 +177,9 @@ void test_pico_de_aceleracao_e_impacto() {
 void test_o_modulo_do_plano_conta_os_dois_eixos() {
   DetectorColisao detector;
   detector.atualizar(parado(0, 0));
-  // 800 em cada eixo: módulo 1131 mg, acima do limiar de 1000, embora cada eixo esteja abaixo.
-  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(800, 800)));
-  TEST_ASSERT_EQUAL_UINT32(1131, detector.desvioMg());
+  // 1200 em cada eixo: módulo 1697 mg, acima do limiar de 1600, embora cada eixo esteja abaixo.
+  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(1200, 1200)));
+  TEST_ASSERT_EQUAL_UINT32(1697, detector.desvioMg());
 }
 
 void test_o_desvio_e_o_modulo_exato() {
@@ -205,7 +205,7 @@ void test_o_zero_e_a_inclinacao_do_sensor_nao_contam() {
   TEST_ASSERT_EQUAL(TipoColisao::Nenhuma, detector.atualizar(andando(300, -200)));
   TEST_ASSERT_EQUAL(TipoColisao::Nenhuma, detector.atualizar(andando(700, -200)));
   // O mesmo valor absoluto de uma batida, mas a partir do repouso inclinado.
-  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(-1000, -200)));
+  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(-1700, -200)));
 }
 
 void test_a_referencia_acompanha_a_inclinacao_devagar() {
@@ -223,8 +223,8 @@ void test_a_referencia_e_media_lenta_e_nao_a_ultima_leitura_calma() {
   detector.atualizar(parado(0, 0));
   // Uma leitura calma (400 mg) move a referência só 1/16 do caminho (25 mg), e não até 400 mg.
   TEST_ASSERT_EQUAL(TipoColisao::Nenhuma, detector.atualizar(andando(400, 0)));
-  // Desvio de 1275 mg passa de 1 g; se a referência pulasse para 400 mg seria 900 mg e passaria batido.
-  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(1300, 0)));
+  // Desvio de 1875 mg passa do limiar de 1600; se a referência pulasse para 400 mg seria 1500 mg e passaria batido.
+  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(1900, 0)));
 }
 
 void test_um_impacto_nao_vira_o_novo_repouso() {
@@ -234,7 +234,7 @@ void test_um_impacto_nao_vira_o_novo_repouso() {
   // Depois do aviso (o ciclo está recuperando), o robô para e volta a andar com o mesmo repouso:
   // o impacto não deslocou a referência.
   detector.atualizar(parado(0, 0));
-  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(1100, 0)));
+  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(1700, 0)));
 }
 
 void test_confirmacao_exige_leituras_seguidas() {

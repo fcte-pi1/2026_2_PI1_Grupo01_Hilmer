@@ -41,8 +41,8 @@ void MotoresDrv8833::definirPotencia(const PotenciaRodas& potencia) {
     return;
   }
   // A potência máxima vira `dutyMaximo_` (por padrão o limite de `ConfiguracaoMotores.h`), não 100%.
-  const SinaisPonteH esquerda = calcularSinaisDrv8833(potencia.esquerda, inverterEsquerda_, dutyMaximo_);
-  const SinaisPonteH direita = calcularSinaisDrv8833(potencia.direita, inverterDireita_, dutyMaximo_);
+  const SinaisPonteH esquerda = calcularSinaisDrv8833(potencia.esquerda, inverterEsquerda_, dutyMaximo_, DUTY_MINIMO_MOTORES);
+  const SinaisPonteH direita = calcularSinaisDrv8833(potencia.direita, inverterDireita_, dutyMaximo_, DUTY_MINIMO_MOTORES);
   escrever(0, esquerda.in1);
   escrever(1, esquerda.in2);
   escrever(2, direita.in1);

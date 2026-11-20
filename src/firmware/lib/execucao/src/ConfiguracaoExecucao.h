@@ -110,6 +110,17 @@ struct ConfiguracaoExecucao {
   /// qual nem o tamanho do labirinto: o ciclo explora até se localizar (veja `CicloNavegacao`).
   bool largadaEmQualquerCelula = LARGADA_EM_QUALQUER_CELULA;
   uint8_t relargadasMaximas = RELARGADAS_MAXIMAS;
+  /// `true` se os ToF laterais ficam na diagonal (cerca de 45° da frente), como no robô real, e não a 90°.
+  /// De frente para uma parede próxima, eles enxergam a parede da frente em ângulo e leem "parede" mesmo
+  /// com a lateral aberta. Então, com a frente classificada como parede, as laterais daquela célula não
+  /// são gravadas no mapa (ficam desconhecidas): o robô tenta a passagem e, se bater, o mapa é corrigido.
+  /// Desligado por padrão: o modelo simulado tem os sensores a 90°.
+  bool lateraisEmDiagonal = false;
+  /// Se o ToF frontal ler menos que `frenteParaRecuarMm` na hora de girar, o robô recua `recuoAntesDoGiroMm`
+  /// em linha reta antes do giro, para o chassi ter folga para rodar sem bater nas paredes. 0 desliga.
+  /// Desligado por padrão: o modelo simulado gira no lugar sem problema.
+  uint16_t recuoAntesDoGiroMm = 0;
+  uint16_t frenteParaRecuarMm = 0;
 };
 
 /// Parâmetros do `GatilhoLargada`.

@@ -217,6 +217,9 @@ class CicloNavegacao {
 
  private:
   void entrarEmPercepcao();
+  /// Grava no mapa o que as amostras mostram, tratando as laterais como desconhecidas quando os sensores
+  /// laterais estão na diagonal e a frente é parede (`ConfiguracaoExecucao::lateraisEmDiagonal`).
+  void atualizarMapaComAmostras();
 
   /// Exploração: registra a célula, atualiza as hipóteses e, se der, se localiza; senão, mira o
   /// objetivo mais próximo entre os das hipóteses vivas.
@@ -286,6 +289,7 @@ class CicloNavegacao {
   TipoColisao ultimaColisao_ = TipoColisao::Nenhuma;
   uint16_t ultimaFrenteMm_ = 0;         ///< Última leitura do ToF frontal, a partir da face do sensor.
   bool temFrente_ = false;
+  bool recuouParaGirar_ = false;        ///< Já recuou para este giro (evita recuar de novo antes dele).
   Movimento giroPendente_ = Movimento::Girar180;  ///< Giro a fazer depois do realinhamento.
   uint8_t realinhamentosNoPasso_ = 0;             ///< Realinhamentos antes do giro pendente.
   bool conferindoRealinhamento_ = false;          ///< Juntando leituras para medir o desvio de novo.

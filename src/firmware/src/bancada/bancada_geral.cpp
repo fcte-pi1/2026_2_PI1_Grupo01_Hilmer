@@ -957,12 +957,6 @@ CredenciaisSupabase lerCredenciais() {
   c.urlProjeto = CREDENCIAL_SUPABASE_URL;
   c.chaveAnon = CREDENCIAL_SUPABASE_ANON;
   c.tokenDispositivo = CREDENCIAL_DEVICE_TOKEN;
-#if defined(CREDENCIAL_CERTIFICADO_RAIZ)
-  c.certificadoRaiz = CREDENCIAL_CERTIFICADO_RAIZ;  // opcional: sem ele, valem as raízes embutidas
-#endif
-#if defined(CREDENCIAL_SEM_VALIDAR_CERTIFICADO)
-  c.semValidarCertificado = CREDENCIAL_SEM_VALIDAR_CERTIFICADO != 0;  // opcional, só na bancada
-#endif
 #endif
   return c;
 }
