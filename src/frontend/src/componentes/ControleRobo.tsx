@@ -98,13 +98,13 @@ export function ControleRobo({ aoEnviar = enviarComandoAoRobo }: ControleRoboPro
       <div className="controle__cabecalho">
         <h2 className="controle__titulo">Controle e logs do robô</h2>
         <label className="controle__senha">
-          <span>Senha do painel</span>
+          <span>Senha do painel (opcional)</span>
           <input
             type="password"
             value={senha}
             autoComplete="off"
             onChange={(e) => setSenha(e.target.value)}
-            placeholder="PAINEL_TOKEN"
+            placeholder="deixe vazio se o painel for aberto"
           />
         </label>
       </div>

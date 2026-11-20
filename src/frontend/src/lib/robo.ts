@@ -50,7 +50,7 @@ const AMBIENTE_PADRAO: AmbienteRobo = {
 /**
  * Manda um comando ao robô pela Edge Function `robo`. O robô o busca em até alguns segundos.
  *
- * @param tokenPainel Senha do operador (`PAINEL_TOKEN`).
+ * @param tokenPainel Senha do operador (`PAINEL_TOKEN`); vazia, não é enviada (o painel é aberto se o segredo não existir).
  * @param buscar `fetch`, trocável nos testes.
  */
 export async function enviarComandoAoRobo(
@@ -62,9 +62,6 @@ export async function enviarComandoAoRobo(
   if (!ambiente.url || !ambiente.chaveAnon) {
     return { ok: false, mensagem: 'Supabase não configurado: preencha o .env.local.' };
   }
-  if (tokenPainel.trim() === '') {
-    return { ok: false, mensagem: 'Digite a senha do painel.' };
-  }
   const endereco = `${ambiente.url.replace(/\/+$/, '')}/functions/v1/robo/comandos`;
   let resposta: Response;
   try {
@@ -74,7 +71,8 @@ export async function enviarComandoAoRobo(
         'Content-Type': 'application/json',
         apikey: ambiente.chaveAnon,
         Authorization: `Bearer ${ambiente.chaveAnon}`,
-        'x-painel-token': tokenPainel,
+        // A senha é opcional: só vai se o operador digitou uma (a função só a exige com o segredo configurado).
+        ...(tokenPainel.trim() !== '' ? { 'x-painel-token': tokenPainel } : {}),
       },
       body: JSON.stringify({ comando }),
     });
@@ -82,7 +80,7 @@ export async function enviarComandoAoRobo(
     return { ok: false, mensagem: 'Sem conexão com o Supabase. Confira a internet e tente de novo.' };
   }
   if (resposta.status === 401) {
-    return { ok: false, mensagem: 'Senha do painel incorreta (ou PAINEL_TOKEN não definido no Supabase).' };
+    return { ok: false, mensagem: 'O painel exige senha: digite a senha do painel (o segredo PAINEL_TOKEN está definido no Supabase).' };
   }
   if (resposta.status === 404) {
     return { ok: false, mensagem: 'A função "robo" não está publicada no Supabase (supabase functions deploy robo).' };
