@@ -135,6 +135,9 @@ class ExecutorMovimentos {
 
   /// Define o rumo alvo absoluto, em mili-graus do giroscópio (por exemplo, na largada). Também é o
   /// rumo nominal, a referência do limite do rumo pelo corredor.
+  /// Informa que a célula de destino do avanço (já iniciado) termina em parede garantida, como a borda do labirinto.
+  void definirParedeGarantidaAdiante(bool garantida) { paredeGarantidaAdiante_ = garantida; }
+
   void definirRumoAlvo(int32_t rumoMiligraus) {
     rumoAlvoMiligraus_ = rumoMiligraus;
     rumoNominalMiligraus_ = rumoMiligraus;
@@ -156,6 +159,8 @@ class ExecutorMovimentos {
   /// Quanto falta até o centro de destino, em mm (negativo se passou). Zero fora do avanço ou antes
   /// do primeiro `atualizar()`. Depois do fim, guarda o valor da parada: é o erro de chegada que
   /// a bancada registra.
+  uint8_t ajustesDeChegada() const { return ajustesDeChegada_; }
+  uint16_t ultimaFrenteMm() const { return ultimaFrenteMm_; }
   int32_t restanteMm() const { return static_cast<int32_t>(restanteUm_ / 1000); }
 
   /// Tempo do movimento atual (ou do último), em ms.
@@ -197,6 +202,8 @@ class ExecutorMovimentos {
   /// Rumo pelo corredor (#188): puxa o rumo alvo para o ângulo atual quando o robô anda paralelo às
   /// duas paredes (veja `AJUSTE_RUMO_PELO_CORREDOR_POR_MIL`).
   void ajustarRumoPeloCorredor(const LeituraGiro& giro);
+  /// Desvio de quina (`ConfiguracaoExecucao::desvioParedePertoMm`): afasta o rumo alvo de uma parede lateral muito perto.
+  void desviarDeParedeProxima(const DistanciasLaterais& leitura);
 
   /// Teto da potência base para a distância que falta até o destino (a rampa de desaceleração).
   int16_t tetoParaRestante(int64_t restanteUm) const;
@@ -228,6 +235,9 @@ class ExecutorMovimentos {
   // Realinhamento: as quatro etapas do plano.
   enum class EtapaRealinhamento : uint8_t { GiroIda, Trecho, GiroVolta, Volta };
   int32_t recuoUm_ = 0;  ///< Distância do recuo (negativa, de ré), em µm.
+  uint16_t ultimaFrenteMm_ = 0xFFFF;  ///< Última leitura frontal do avanço (0xFFFF = nenhuma).
+  bool paredeGarantidaAdiante_ = false;  ///< Há parede no fim da célula de destino (borda do labirinto).
+  uint8_t ajustesDeChegada_ = 0;      ///< Quantos ajustes de chegada pela frente o avanço já fez (no máximo 3).
   bool recuoIgnoraCentro_ = false;  ///< O recuo vai até o fim, sem o atalho "já está no centro pela frente".
   PlanoRealinhamento plano_;
   EtapaRealinhamento etapa_ = EtapaRealinhamento::GiroIda;

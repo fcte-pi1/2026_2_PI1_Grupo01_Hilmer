@@ -129,6 +129,19 @@ struct ConfiguracaoExecucao {
   /// caminho", em vez de parar. Um mapa com uma parede falsa (leitura errada perto de uma quina) fecha o
   /// caminho; recomeçar o mapa a partir da célula atual dá outra chance. 0 desliga.
   uint8_t reiniciosDoMapaNoSemCaminho = 0;
+  /// Desvio de quina: durante o avanço, se uma parede lateral estiver mais perto que `desvioParedePertoMm`
+  /// e o outro lado estiver mais longe pelo menos `desvioFolgaOutroLadoMm`, o rumo alvo vira
+  /// `desvioRumoMiligraus` para o lado oposto, para o robô se afastar da quina em vez de encostar nela. 0 desliga.
+  uint16_t desvioParedePertoMm = 0;
+  uint16_t desvioFolgaOutroLadoMm = 40;
+  int32_t desvioRumoMiligraus = 6000;
+  /// Ajuste de chegada pela frente: ao fim do avanço pela odometria, se o ToF frontal mostra uma parede a mais
+  /// de `FOLGA` do ponto onde o avanço para pela parede (`distanciaParadaFrontalMm`) (a odometria superestimou o caminho), o robô anda a diferença, até
+  /// este máximo em mm. 0 desliga.
+  uint16_t ajusteChegadaPelaFrenteMaxMm = 0;
+  /// Mesmo ajuste, com teto maior, quando se sabe que há parede no fim da célula de destino (a borda do
+  /// labirinto): aí uma leitura longa só pode ser a odometria curta, nunca a parede da célula seguinte.
+  uint16_t ajusteChegadaParedeGarantidaMaxMm = 0;
 };
 
 /// Parâmetros do `GatilhoLargada`.

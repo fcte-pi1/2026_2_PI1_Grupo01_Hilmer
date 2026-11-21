@@ -252,6 +252,8 @@ class CicloNavegacao {
 
   /// Realinha se o desvio medido nas amostras passa do limiar e ainda há tentativa; senão, gira.
   void realinharOuGirar(Movimento giro);
+  /// `true` se a célula de destino do avanço fica na borda do mapa: há parede garantida no fim dela.
+  bool destinoTerminaNaBorda() const;
 
   /// Desvio lateral pela mediana das leituras da percepção.
   DesvioLateral desvioDasAmostras() const;

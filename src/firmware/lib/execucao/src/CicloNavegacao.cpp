@@ -333,6 +333,7 @@ EstadoCiclo CicloNavegacao::atualizar(const EntradaCiclo& entradaOdometria, IMot
         recuouParaGirar_ = false;
         // O avanço começa no próximo ciclo, depois de a odometria adotar a direção nova.
         executor_.iniciar(Movimento::AvancarCelula);
+        executor_.definirParedeGarantidaAdiante(destinoTerminaNaBorda());
         estado_ = EstadoCiclo::Avancando;
       } else if (resultado == EstadoExecucao::Falha) {
         falhaExecucao_ = executor_.falha();
@@ -515,8 +516,18 @@ void CicloNavegacao::decidir(IMotores& motores) {
     realinharOuGirar(giro);
   } else {
     executor_.iniciar(Movimento::AvancarCelula);
+    executor_.definirParedeGarantidaAdiante(destinoTerminaNaBorda());
     estado_ = EstadoCiclo::Avancando;
   }
+}
+
+bool CicloNavegacao::destinoTerminaNaBorda() const {
+  PosicaoCelula destino{};
+  PosicaoCelula alem{};
+  if (!vizinha(navegacao_.obterPosicao(), direcao_, destino) || !mapa_.posValida(destino)) {
+    return false;
+  }
+  return !vizinha(destino, direcao_, alem) || !mapa_.posValida(alem);
 }
 
 void CicloNavegacao::realinharOuGirar(Movimento giro) {

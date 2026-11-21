@@ -204,6 +204,8 @@ EstadoExecucao ExecutorMovimentos::terminar(EstadoExecucao estado, FalhaExecucao
 EstadoExecucao ExecutorMovimentos::atualizarAvanco(const EntradaExecucao& entrada, IMotores& motores) {
   if (!comecou_) {
     comecou_ = true;
+    ultimaFrenteMm_ = 0xFFFF;
+    ajustesDeChegada_ = 0;
     destinoUm_ = centroMaisProximo(entrada.posicaoAvancoUm) + CELULA_UM;
     controleMovimento_.reiniciar(rumoAlvoMiligraus_);
   } else {
@@ -211,9 +213,28 @@ EstadoExecucao ExecutorMovimentos::atualizarAvanco(const EntradaExecucao& entrad
     desdeCalculoMs_ += entrada.dtMs;
   }
 
+  if (entrada.leituraNova != nullptr) {
+    ultimaFrenteMm_ = entrada.leituraNova->frenteMm;
+  }
   restanteUm_ = destinoUm_ - entrada.posicaoAvancoUm;
   if (restanteUm_ <= static_cast<int64_t>(config_.toleranciaChegadaMm) * 1000) {
-    return terminar(EstadoExecucao::Concluido, FalhaExecucao::Nenhuma, motores);
+    constexpr int32_t FOLGA_AJUSTE_MM = 20;
+    const int32_t tetoAjusteMm = paredeGarantidaAdiante_ && config_.ajusteChegadaParedeGarantidaMaxMm > 0
+                                     ? config_.ajusteChegadaParedeGarantidaMaxMm
+                                     : config_.ajusteChegadaPelaFrenteMaxMm;
+    if (ajustesDeChegada_ < 3 && tetoAjusteMm > 0 &&
+        ultimaFrenteMm_ < DISTANCIA_OUT_OF_RANGE_TOF_MM) {
+      const int32_t falta = static_cast<int32_t>(ultimaFrenteMm_) + config_.distanciaSensorFrontalAoCentroMm -
+                            static_cast<int32_t>(configControle_.distanciaParadaFrontalMm);
+      if (falta > FOLGA_AJUSTE_MM && falta <= tetoAjusteMm) {
+        ++ajustesDeChegada_;  // se o robô ainda parar curto (rampa, zona morta), o próximo ciclo ajusta de novo
+        destinoUm_ += static_cast<int64_t>(falta) * 1000;  // a odometria parou antes do centro: anda o que falta
+        restanteUm_ = destinoUm_ - entrada.posicaoAvancoUm;
+      }
+    }
+    if (restanteUm_ <= static_cast<int64_t>(config_.toleranciaChegadaMm) * 1000) {
+      return terminar(EstadoExecucao::Concluido, FalhaExecucao::Nenhuma, motores);
+    }
   }
   if (tempoMs_ >= config_.tempoMaximoAvancoMs) {
     return terminar(EstadoExecucao::Falha, FalhaExecucao::TempoEsgotado, motores);
@@ -229,6 +250,7 @@ EstadoExecucao ExecutorMovimentos::atualizarAvanco(const EntradaExecucao& entrad
     desdeCalculoMs_ = 0;
     temPotencia_ = true;
     ajustarRumoPeloCorredor(entrada.giro);
+    desviarDeParedeProxima(*entrada.leituraNova);
     if (controleMovimento_.estado() == EstadoMovimento::ParadoNaParede) {
       const bool pertoDoDestino = restanteUm_ <= static_cast<int64_t>(config_.folgaParadaNaParedeMm) * 1000;
       return pertoDoDestino ? terminar(EstadoExecucao::Concluido, FalhaExecucao::Nenhuma, motores)
@@ -248,6 +270,32 @@ EstadoExecucao ExecutorMovimentos::atualizarAvanco(const EntradaExecucao& entrad
     motores.parar();
   }
   return estado_;
+}
+
+void ExecutorMovimentos::desviarDeParedeProxima(const DistanciasLaterais& leitura) {
+  if (config_.desvioParedePertoMm == 0) {
+    return;
+  }
+  const uint16_t perto = config_.desvioParedePertoMm;
+  const uint16_t folga = config_.desvioFolgaOutroLadoMm;
+  int32_t alvoRelativo = 0;
+  if (leitura.direitaMm < perto && leitura.esquerdaMm >= leitura.direitaMm + folga) {
+    alvoRelativo = config_.desvioRumoMiligraus;  // parede da direita perto: vira um pouco à esquerda
+  } else if (leitura.esquerdaMm < perto && leitura.direitaMm >= leitura.esquerdaMm + folga) {
+    alvoRelativo = -config_.desvioRumoMiligraus;  // parede da esquerda perto: vira um pouco à direita
+  }
+  const int32_t alvo = rumoNominalMiligraus_ + alvoRelativo;
+  constexpr int32_t PASSO_MILIGRAUS = 1500;  // a cada leitura, para o rumo não dar um tranco
+  int32_t novo = rumoAlvoMiligraus_;
+  if (novo < alvo) {
+    novo = novo + PASSO_MILIGRAUS > alvo ? alvo : novo + PASSO_MILIGRAUS;
+  } else if (novo > alvo) {
+    novo = novo - PASSO_MILIGRAUS < alvo ? alvo : novo - PASSO_MILIGRAUS;
+  }
+  if (novo != rumoAlvoMiligraus_) {
+    rumoAlvoMiligraus_ = novo;
+    controleMovimento_.definirRumoAlvo(novo);
+  }
 }
 
 void ExecutorMovimentos::ajustarRumoPeloCorredor(const LeituraGiro& giro) {

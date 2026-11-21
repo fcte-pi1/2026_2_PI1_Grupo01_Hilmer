@@ -408,7 +408,7 @@ static micromouse::ConfiguracaoExecucao configuracaoExecucaoDoRobo() {
   c.lateraisEmDiagonal = true;
   // O chassi não tem folga para girar no lugar colado na parede da frente (os cantos batem e as rodas
   // patinam, o que cortava o motor por "travado"): com a frente a menos de 90 mm, recua 45 mm antes do giro.
-  c.recuoAntesDoGiroMm = 45;
+  c.recuoAntesDoGiroMm = 25;  // ré curta: uma ré longa levava a traseira para outra quina e o robô prendia de novo
   c.frenteParaRecuarMm = 90;
   // Laterais na diagonal e robô fora do centro: uma parede lê de ~105 a ~175 mm. Com 140 mm, uma parede a
   // 173 mm virava "livre" (e o planejamento errava); com 190 mm ela conta como parede, e uma abertura
@@ -416,6 +416,14 @@ static micromouse::ConfiguracaoExecucao configuracaoExecucaoDoRobo() {
   c.limiarParedeLateralPercepcaoMm = 190;
   // Sem caminho (mapa com parede falsa perto de uma quina): apaga o mapa e tenta de novo, até 3 vezes.
   c.reiniciosDoMapaNoSemCaminho = 3;
+  // Desvio de quina: com uma parede lateral a menos de 90 mm e o outro lado mais livre, vira 10° para longe dela.
+  // A odometria parou ~90 mm antes de onde o robô costuma parar na parede. O teto (135) deixa de fora a parede da
+  // célula seguinte (lida a ~214 mm do sensor), para não andar uma célula a mais.
+  c.ajusteChegadaPelaFrenteMaxMm = 135;
+  c.ajusteChegadaParedeGarantidaMaxMm = 200;  // última célula antes da borda do labirinto: a parede é certa
+  c.desvioParedePertoMm = 90;
+  c.desvioFolgaOutroLadoMm = 40;
+  c.desvioRumoMiligraus = 10000;
   return c;
 }
 
@@ -1086,6 +1094,7 @@ static void tarefaNavegacao(void*) {
     const uint32_t colisoesAntes = cicloNavegacao.colisoes();
     const uint32_t percepcoesAntes = cicloNavegacao.percepcoes();
     const uint8_t reiniciosAntes = cicloNavegacao.reiniciosDoMapa();
+    const uint8_t ajustesAntes = cicloNavegacao.executor().ajustesDeChegada();
     const micromouse::EstadoCiclo antes = cicloNavegacao.estado();
     const micromouse::EstadoCiclo depois = cicloNavegacao.atualizar(entrada, motoresTracao);
     estadoCicloAtual = static_cast<uint8_t>(depois);
@@ -1099,6 +1108,12 @@ static void tarefaNavegacao(void*) {
                     "NLSO"[static_cast<uint8_t>(pose.direcao)], estado(c.frente), estado(c.esquerda), estado(c.direita),
                     static_cast<unsigned>(leituraTof.distancias.frenteMm), static_cast<unsigned>(leituraTof.distancias.esquerdaMm),
                     static_cast<unsigned>(leituraTof.distancias.direitaMm));
+    }
+    if (cicloNavegacao.executor().ajustesDeChegada() > ajustesAntes) {
+      console.printf("{\"status\":\"ajuste_chegada\",\"n\":%u,\"frente_mm\":%u,\"restante_mm\":%ld}\n",
+                    static_cast<unsigned>(cicloNavegacao.executor().ajustesDeChegada()),
+                    static_cast<unsigned>(cicloNavegacao.executor().ultimaFrenteMm()),
+                    static_cast<long>(cicloNavegacao.executor().restanteMm()));
     }
     if (cicloNavegacao.reiniciosDoMapa() != reiniciosAntes) {
       console.printf("{\"status\":\"aviso\",\"motivo\":\"mapa_reiniciado_sem_caminho\",\"vez\":%u}\n",
@@ -1303,6 +1318,7 @@ static void tarefaConsole(void*) {
 /// em uso (`"estimado"` ou `"encoder"`).
 static void tarefaTelemetria(void*) {
   static uint32_t sequencia = 0;
+  micromouse::EstimadorVelocidade estimadorVelocidade;  // velocidade da telemetria: mm/s pelo deslocamento das rodas
 
   for (;;) {
     medirBateria();
@@ -1314,11 +1330,11 @@ static void tarefaTelemetria(void*) {
     const int32_t medio = medidorDeslocamento.deslocamentoMedioMm();
     const int32_t pulsosEsq = rodaEsq.lerContagem();
     const int32_t pulsosDir = rodaDir.lerContagem();
+    const int32_t velocidadeMmPorS = estimadorVelocidade.atualizar(medio, millis());
     const micromouse::Pose pose = poseNoLabirinto;
     const bool poseConfiavel = micromouse::ENCODERS_INSTALADOS || deslocamento.poseConfiavel();
     // Antes de o robô se localizar (largada em qualquer célula), a pose não vale para o dashboard.
     const bool poseValida = odometria.posicaoValida() && poseConfiavel && poseNoLabirintoValida;
-  micromouse::EstimadorVelocidade estimadorVelocidade;  // velocidade da telemetria: mm/s pelo deslocamento das rodas
     const uint32_t semCorrecaoMm = deslocamento.distanciaSemCorrecaoMm();
     const bool dispararEvento = detectorObjetivo.consumirEventoChegada();
     // Um evento por amostra: a chegada vai primeiro, e cada colisão pendente espera a sua vez.
@@ -1330,7 +1346,6 @@ static void tarefaTelemetria(void*) {
 
     portENTER_CRITICAL(&travaTof);
     const LeituraTofTelemetria leituraTof = ultimaLeituraTof;
-    const int32_t velocidadeMmPorS = estimadorVelocidade.atualizar(medio, millis());
     portEXIT_CRITICAL(&travaTof);
 
     char falhasI2c[micromouse::TAMANHO_MAX_FALHAS_I2C];
