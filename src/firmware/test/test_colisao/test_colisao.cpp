@@ -177,9 +177,9 @@ void test_pico_de_aceleracao_e_impacto() {
 void test_o_modulo_do_plano_conta_os_dois_eixos() {
   DetectorColisao detector;
   detector.atualizar(parado(0, 0));
-  // 800 em cada eixo: módulo 1131 mg, acima do limiar de 1000, embora cada eixo esteja abaixo.
-  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(800, 800)));
-  TEST_ASSERT_EQUAL_UINT32(1131, detector.desvioMg());
+  // 1700 em cada eixo: módulo 2404 mg, acima do limiar de 2200, embora cada eixo esteja abaixo.
+  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(1700, 1700)));
+  TEST_ASSERT_EQUAL_UINT32(2404, detector.desvioMg());
 }
 
 void test_o_desvio_e_o_modulo_exato() {
@@ -205,7 +205,7 @@ void test_o_zero_e_a_inclinacao_do_sensor_nao_contam() {
   TEST_ASSERT_EQUAL(TipoColisao::Nenhuma, detector.atualizar(andando(300, -200)));
   TEST_ASSERT_EQUAL(TipoColisao::Nenhuma, detector.atualizar(andando(700, -200)));
   // O mesmo valor absoluto de uma batida, mas a partir do repouso inclinado.
-  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(-1000, -200)));
+  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(-2100, -200)));
 }
 
 void test_a_referencia_acompanha_a_inclinacao_devagar() {
@@ -223,18 +223,18 @@ void test_a_referencia_e_media_lenta_e_nao_a_ultima_leitura_calma() {
   detector.atualizar(parado(0, 0));
   // Uma leitura calma (400 mg) move a referência só 1/16 do caminho (25 mg), e não até 400 mg.
   TEST_ASSERT_EQUAL(TipoColisao::Nenhuma, detector.atualizar(andando(400, 0)));
-  // Desvio de 1275 mg passa de 1 g; se a referência pulasse para 400 mg seria 900 mg e passaria batido.
-  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(1300, 0)));
+  // Desvio de 2475 mg passa do limiar de 2200; se a referência pulasse para 400 mg seria 2100 mg e passaria batido.
+  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(2500, 0)));
 }
 
 void test_um_impacto_nao_vira_o_novo_repouso() {
   DetectorColisao detector;
   detector.atualizar(parado(0, 0));
-  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(2000, 0)));
+  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(2600, 0)));
   // Depois do aviso (o ciclo está recuperando), o robô para e volta a andar com o mesmo repouso:
   // o impacto não deslocou a referência.
   detector.atualizar(parado(0, 0));
-  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(1100, 0)));
+  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(2300, 0)));
 }
 
 void test_confirmacao_exige_leituras_seguidas() {
@@ -243,11 +243,11 @@ void test_confirmacao_exige_leituras_seguidas() {
   DetectorColisao detector(config);
   detector.atualizar(parado(0, 0));
   // Um pico isolado não basta...
-  TEST_ASSERT_EQUAL(TipoColisao::Nenhuma, detector.atualizar(andando(2000, 0)));
+  TEST_ASSERT_EQUAL(TipoColisao::Nenhuma, detector.atualizar(andando(2600, 0)));
   TEST_ASSERT_EQUAL(TipoColisao::Nenhuma, detector.atualizar(andando(0, 0)));
-  TEST_ASSERT_EQUAL(TipoColisao::Nenhuma, detector.atualizar(andando(2000, 0)));
+  TEST_ASSERT_EQUAL(TipoColisao::Nenhuma, detector.atualizar(andando(2600, 0)));
   // ...dois seguidos, sim.
-  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(2000, 0)));
+  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(2600, 0)));
 }
 
 void test_zero_amostras_de_confirmacao_vale_uma() {
@@ -255,7 +255,7 @@ void test_zero_amostras_de_confirmacao_vale_uma() {
   config.amostrasConfirmacao = 0;
   DetectorColisao detector(config);
   detector.atualizar(parado(0, 0));
-  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(2000, 0)));
+  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(2600, 0)));
 }
 
 void test_limiar_configuravel() {
@@ -286,23 +286,23 @@ void test_o_extremo_da_escala_nao_estoura() {
 void test_cada_colisao_e_avisada_uma_vez_ate_o_robo_parar() {
   DetectorColisao detector;
   detector.atualizar(parado(0, 0));
-  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(2000, 0)));
+  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(2600, 0)));
   // O pico continua por alguns ciclos: não avisa de novo.
-  TEST_ASSERT_EQUAL(TipoColisao::Nenhuma, detector.atualizar(andando(2200, 0)));
-  TEST_ASSERT_EQUAL(TipoColisao::Nenhuma, detector.atualizar(andando(2000, 0)));
+  TEST_ASSERT_EQUAL(TipoColisao::Nenhuma, detector.atualizar(andando(2700, 0)));
+  TEST_ASSERT_EQUAL(TipoColisao::Nenhuma, detector.atualizar(andando(2600, 0)));
   TEST_ASSERT_EQUAL_UINT32(1, detector.colisoes());
   // Parou (a recuperação): a próxima batida é uma colisão nova.
   detector.atualizar(parado(0, 0));
-  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(2000, 0)));
+  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(2600, 0)));
   TEST_ASSERT_EQUAL_UINT32(2, detector.colisoes());
 }
 
 void test_reiniciar_permite_avisar_de_novo() {
   DetectorColisao detector;
   detector.atualizar(parado(0, 0));
-  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(2000, 0)));
+  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(2600, 0)));
   detector.reiniciar();
-  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(2000, 0)));
+  TEST_ASSERT_EQUAL(TipoColisao::Impacto, detector.atualizar(andando(2600, 0)));
 }
 
 void test_sem_acelerometro_valido_nao_ha_impacto() {

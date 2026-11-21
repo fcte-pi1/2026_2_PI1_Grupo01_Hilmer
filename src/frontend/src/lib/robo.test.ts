@@ -38,14 +38,17 @@ describe('enviarComandoAoRobo', () => {
     expect(cabecalhos.Authorization).toBe('Bearer chave-anon');
   });
 
-  it('não chama a rede sem o Supabase configurado ou sem a senha', async () => {
+  it('não chama a rede sem o Supabase configurado', async () => {
     const buscar = vi.fn();
     expect(await enviarComandoAoRobo('parar', 'senha', { url: undefined, chaveAnon: undefined }, buscar)).toMatchObject({ ok: false });
-    expect(await enviarComandoAoRobo('parar', '   ', AMBIENTE, buscar)).toMatchObject({
-      ok: false,
-      mensagem: 'Digite a senha do painel.',
-    });
     expect(buscar).not.toHaveBeenCalled();
+  });
+
+  it('a senha é opcional: sem ela, o cabeçalho x-painel-token nem vai', async () => {
+    const buscar = vi.fn().mockResolvedValue(resposta(202, { id: 5 }));
+    expect(await enviarComandoAoRobo('parar', '   ', AMBIENTE, buscar)).toEqual({ ok: true, id: 5 });
+    const cabecalhos = (buscar.mock.calls[0][1] as RequestInit).headers as Record<string, string>;
+    expect(cabecalhos['x-painel-token']).toBeUndefined();
   });
 
   it('explica cada falha: senha errada, função não publicada, recusa e rede fora', async () => {
@@ -53,7 +56,7 @@ describe('enviarComandoAoRobo', () => {
       const r = await enviarComandoAoRobo('zerar', 'senha', AMBIENTE, buscar);
       return r.ok ? '' : r.mensagem;
     };
-    expect(await mensagem(vi.fn().mockResolvedValue(resposta(401)))).toMatch(/senha do painel incorreta/i);
+    expect(await mensagem(vi.fn().mockResolvedValue(resposta(401)))).toMatch(/exige senha/i);
     expect(await mensagem(vi.fn().mockResolvedValue(resposta(404)))).toMatch(/não está publicada/);
     expect(await mensagem(vi.fn().mockResolvedValue(resposta(500)))).toMatch(/código 500/);
     expect(await mensagem(vi.fn().mockRejectedValue(new TypeError('Failed to fetch')))).toMatch(/Sem conexão/);

@@ -100,6 +100,16 @@ void CicloNavegacao::parar(EstadoCiclo estado, IMotores& motores) {
   estado_ = estado;
 }
 
+void CicloNavegacao::atualizarMapaComAmostras() {
+  ClassificadorParede::ResultadoClassificacao classificacao = classificador_.classificar(amostras_, quantidadeAmostras_);
+  if (config_.lateraisEmDiagonal && classificacao.frente == EstadoParede::Parede) {
+    // Sensores laterais na diagonal, de frente para uma parede próxima: leem a parede da frente.
+    classificacao.esquerda = EstadoParede::Desconhecido;
+    classificacao.direita = EstadoParede::Desconhecido;
+  }
+  AtualizadorMapa::atualizar(mapa_, navegacao_.obterPose(), classificacao);
+}
+
 void CicloNavegacao::entrarEmPercepcao() {
   quantidadeAmostras_ = 0;
   estado_ = EstadoCiclo::Percebendo;
@@ -209,7 +219,7 @@ bool CicloNavegacao::relargar() {
   localizador_.reiniciar();
   navegacao_.definirPose(Pose{largada, direcao_});
   if (quantidadeAmostras_ > 0) {
-    AtualizadorMapa::atualizar(mapa_, navegacao_.obterPose(), classificador_, amostras_, quantidadeAmostras_);
+    atualizarMapaComAmostras();
   }
   atualizarExploracao();
   return true;
@@ -263,8 +273,7 @@ EstadoCiclo CicloNavegacao::atualizar(const EntradaCiclo& entradaOdometria, IMot
       if (entrada.leituraNova != nullptr) {
         amostras_[quantidadeAmostras_++] = *entrada.leituraNova;
         if (quantidadeAmostras_ >= config_.amostrasPercepcao) {
-          AtualizadorMapa::atualizar(mapa_, navegacao_.obterPose(), classificador_, amostras_,
-                                     quantidadeAmostras_);
+          atualizarMapaComAmostras();
           if (explorando_) {
             atualizarExploracao();
           }
@@ -306,6 +315,7 @@ EstadoCiclo CicloNavegacao::atualizar(const EntradaCiclo& entradaOdometria, IMot
       if (resultado == EstadoExecucao::Concluido) {
         direcao_ = direcaoPasso_;
         ++girosFeitos_;
+        recuouParaGirar_ = false;
         // O avanço começa no próximo ciclo, depois de a odometria adotar a direção nova.
         executor_.iniciar(Movimento::AvancarCelula);
         estado_ = EstadoCiclo::Avancando;
@@ -324,6 +334,7 @@ EstadoCiclo CicloNavegacao::atualizar(const EntradaCiclo& entradaOdometria, IMot
           (resultado == EstadoExecucao::Falha && executor_.falha() == FalhaExecucao::ParedeNaFrente)) {
         if (resultado == EstadoExecucao::Concluido) {
           ++celulasAvancadas_;
+          recuouParaGirar_ = false;
         } else {
           // O robô parou numa parede antes do destino: é a evidência mais forte que existe. Se a
           // percepção a tinha visto como livre, corrige, senão o planejamento voltaria por ela.
@@ -511,6 +522,16 @@ void CicloNavegacao::realinharOuGirar(Movimento giro) {
 }
 
 void CicloNavegacao::iniciarGiro(Movimento giro) {
+  // Colado na parede da frente o chassi não tem folga para girar no lugar (os cantos batem nas paredes e as
+  // rodas patinam): recua em linha reta e só então gira. Depois do recuo o ciclo percebe e decide de novo.
+  // Só depois de ter avançado ao menos uma célula: na célula de partida a traseira já encosta na parede de
+  // trás (a célula é um bolso), e o recuo não tem para onde ir.
+  if (config_.recuoAntesDoGiroMm > 0 && !recuouParaGirar_ && celulasAvancadas_ > 0 && temFrente_ &&
+      ultimaFrenteMm_ < config_.frenteParaRecuarMm && executor_.iniciarRecuo(config_.recuoAntesDoGiroMm, true)) {
+    recuouParaGirar_ = true;
+    estado_ = EstadoCiclo::Recuperando;
+    return;
+  }
   executor_.iniciar(giro);
   estado_ = EstadoCiclo::Girando;
 }

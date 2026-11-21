@@ -17,8 +17,8 @@ namespace micromouse {
 /// Cliente HTTPS das Edge Functions `corridas` e `telemetria`.
 ///
 /// Toda chamada leva os cabeçalhos `apikey` e `Authorization: Bearer` com a chave `anon` (exigidos
-/// pelo gateway) e o `x-device-token` (conferido pela função). O HTTPS valida o servidor pelo
-/// certificado raiz das credenciais; a exceção `semValidarCertificado` é só para a bancada.
+/// pelo gateway) e o `x-device-token` (conferido pela função). O HTTPS é cifrado, mas não confere o
+/// certificado do servidor (sem certificado para configurar).
 ///
 /// As chamadas **bloqueiam** até a resposta ou `TEMPO_LIMITE_REDE_MS`: só a tarefa de rede pode
 /// usá-las. O corpo do lote é montado num espaço fixo de `TAMANHO_MAXIMO_LOTE_JSON` bytes (sem

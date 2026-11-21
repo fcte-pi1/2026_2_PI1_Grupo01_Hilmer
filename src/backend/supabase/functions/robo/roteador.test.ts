@@ -94,15 +94,26 @@ test("o token do painel não vale nas rotas do robô, e o do robô não vale no 
   assert.equal(chamadas.proximos + chamadas.logs.length + chamadas.comandos.length, 0);
 });
 
-test("sem token ou sem o segredo configurado, ninguém é autorizado", async () => {
+test("com o segredo configurado, sem token ninguém é autorizado", async () => {
   const { deps } = montar();
   const semToken = await tratarRequisicao(requisicao("comandos", { corpo: { comando: "iniciar" } }), deps);
   assert.equal(semToken.status, 401);
-  const semSegredo = await tratarRequisicao(
-    requisicao("comandos", { tokenPainel: "qualquer", corpo: { comando: "iniciar" } }),
-    { ...deps, tokenPainelEsperado: undefined },
-  );
-  assert.equal(semSegredo.status, 401);
+  const semTokenDoRobo = await tratarRequisicao(requisicao("comandos/proximo", {}), deps);
+  assert.equal(semTokenDoRobo.status, 401);
+});
+
+test("sem o segredo configurado, o acesso é aberto (token opcional)", async () => {
+  const { deps } = montar();
+  const painelAberto = await tratarRequisicao(requisicao("comandos", { corpo: { comando: "iniciar" } }), {
+    ...deps,
+    tokenPainelEsperado: undefined,
+  });
+  assert.equal(painelAberto.status, 202);
+  const roboAberto = await tratarRequisicao(requisicao("comandos/proximo", {}), {
+    ...deps,
+    tokenDispositivoEsperado: undefined,
+  });
+  assert.equal(roboAberto.status, 200);
 });
 
 test("o robô busca o próximo comando e recebe 200, com ou sem comando", async () => {

@@ -43,11 +43,11 @@ test("sem token ou com token errado responde 401 e não toca o banco", async () 
   assert.equal(lotes.length, 0);
 });
 
-test("sem DEVICE_TOKEN configurado, ninguém é autorizado", async () => {
+test("sem DEVICE_TOKEN configurado, o acesso é aberto e o lote é gravado", async () => {
   const { repositorio, lotes } = repositorioFalso();
-  const r = await tratarRequisicao(requisicao({}), { tokenEsperado: undefined, repositorio });
-  assert.equal(r.status, 401);
-  assert.equal(lotes.length, 0);
+  const r = await tratarRequisicao(requisicao({ tokenRecebido: null }), { tokenEsperado: undefined, repositorio });
+  assert.equal(r.status, 200);
+  assert.equal(lotes.length, 1);
 });
 
 test("lote válido responde 200 com o que o banco gravou", async () => {

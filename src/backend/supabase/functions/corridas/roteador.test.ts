@@ -69,10 +69,10 @@ test("sem token ou com token errado responde 401 e não toca o banco", async () 
   assert.equal(chamadas.length, 0);
 });
 
-test("sem DEVICE_TOKEN configurado, ninguém é autorizado", async () => {
+test("sem DEVICE_TOKEN configurado, o acesso é aberto e a corrida é criada", async () => {
   const { repositorio } = repositorioFalso();
-  const r = await tratarRequisicao(requisicao({ corpo: { labirinto: "4x4" } }), { tokenEsperado: undefined, repositorio });
-  assert.equal(r.status, 401);
+  const r = await tratarRequisicao(requisicao({ tokenRecebido: null, corpo: { labirinto: "4x4" } }), { tokenEsperado: undefined, repositorio });
+  assert.equal(r.status, 201);
 });
 
 test("cria corridas nos três labirintos e devolve 201 com a corrida", async () => {

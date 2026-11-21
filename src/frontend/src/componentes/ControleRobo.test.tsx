@@ -36,7 +36,7 @@ describe('ControleRobo', () => {
   it('manda iniciar com a senha digitada e a guarda só nesta sessão', async () => {
     const aoEnviar = vi.fn().mockResolvedValue({ ok: true, id: 1 });
     render(<ControleRobo aoEnviar={aoEnviar} />);
-    await userEvent.type(screen.getByLabelText('Senha do painel'), 'abc123');
+    await userEvent.type(screen.getByLabelText(/Senha do painel/), 'abc123');
     await userEvent.click(screen.getByRole('button', { name: 'INICIAR' }));
     expect(aoEnviar).toHaveBeenCalledWith('iniciar', 'abc123');
     expect(await screen.findByText(/Iniciar enviado/)).toBeInTheDocument();
@@ -47,13 +47,13 @@ describe('ControleRobo', () => {
   it('lembra a senha da sessão ao abrir de novo', () => {
     window.sessionStorage.setItem(CHAVE_SENHA_DO_PAINEL, 'guardada');
     render(<ControleRobo aoEnviar={vi.fn()} />);
-    expect(screen.getByLabelText('Senha do painel')).toHaveValue('guardada');
+    expect(screen.getByLabelText(/Senha do painel/)).toHaveValue('guardada');
   });
 
   it('PARAR e ZERAR mandam os comandos certos', async () => {
     const aoEnviar = vi.fn().mockResolvedValue({ ok: true, id: 2 });
     render(<ControleRobo aoEnviar={aoEnviar} />);
-    await userEvent.type(screen.getByLabelText('Senha do painel'), 's');
+    await userEvent.type(screen.getByLabelText(/Senha do painel/), 's');
     await userEvent.click(screen.getByRole('button', { name: 'PARAR' }));
     await userEvent.click(screen.getByRole('button', { name: 'ZERAR' }));
     expect(aoEnviar.mock.calls.map((c) => c[0])).toEqual(['parar', 'zerar']);
@@ -62,7 +62,7 @@ describe('ControleRobo', () => {
   it('mostra o erro do envio e não guarda a senha recusada', async () => {
     const aoEnviar = vi.fn().mockResolvedValue({ ok: false, mensagem: 'Senha do painel incorreta.' });
     render(<ControleRobo aoEnviar={aoEnviar} />);
-    await userEvent.type(screen.getByLabelText('Senha do painel'), 'errada');
+    await userEvent.type(screen.getByLabelText(/Senha do painel/), 'errada');
     await userEvent.click(screen.getByRole('button', { name: 'INICIAR' }));
     expect(await screen.findByText('Senha do painel incorreta.')).toBeInTheDocument();
     expect(window.sessionStorage.getItem(CHAVE_SENHA_DO_PAINEL)).toBeNull();

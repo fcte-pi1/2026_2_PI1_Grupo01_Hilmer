@@ -24,10 +24,10 @@ namespace micromouse {
 // ---------------------------------------------------------------------------------------------
 
 /// `false`: a odometria usa o deslocamento ESTIMADO (este arquivo). `true`: usa os encoders reais
-/// (`EncoderEsp32`, GPIO4 a 7), e o resto deste arquivo deixa de ser usado.
-/// Troque para `true` quando os encoders forem montados; a `Odometria` e o `ControleMovimento` não
-/// mudam com a troca.
-constexpr bool ENCODERS_INSTALADOS = false;
+/// (`EncoderEsp32`, pinos de `Pinos.h`), e o resto deste arquivo deixa de ser usado.
+/// Os motores do robô têm encoder e eles contam pulsos na bancada, então fica `true`: com `false`, o
+/// robô "andava no papel" (estimando pelo tempo e pela potência) mesmo com as rodas paradas.
+constexpr bool ENCODERS_INSTALADOS = true;
 
 // ---------------------------------------------------------------------------------------------
 // 2. Tabela de velocidade: quanto o robô anda para cada potência comandada

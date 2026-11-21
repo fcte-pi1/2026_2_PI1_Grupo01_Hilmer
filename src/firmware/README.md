@@ -596,9 +596,9 @@ Com uma rede salva (tecla `p`) ou no `credenciais.h`, a bancada geral liga o Wi-
 | Serviço | Como usar |
 | :--- | :--- |
 | **Telnet** (porta 23) | Espelha tudo que a serial mostra e aceita as mesmas teclas do menu. `pio device monitor --port socket://IP:23` (manda cada tecla na hora) ou `nc IP 23` (precisa de Enter depois da tecla). Um cliente por vez. |
-| **OTA** (gravação sem cabo) | Depois de gravar uma vez por cabo, grave de novo pelo Wi-Fi: `pio run -e bancada_geral_devkit_ota -t upload --upload-port IP` (ou `micromouse-bancada.local`). Senha padrão `micromouse` (`BANCADA_SENHA_OTA`). |
+| **OTA** (gravação sem cabo) | Depois de gravar uma vez por cabo, grave de novo pelo Wi-Fi: `pio run -e bancada_geral_devkit_ota -t upload --upload-port IP` (ou `micromouse.local`). Senha padrão `micromouse` (`MICROMOUSE_SENHA_OTA`). |
 
-O computador precisa estar na mesma rede da placa; alguns hotspots isolam os aparelhos entre si (nesse caso, use o notebook no mesmo hotspot). A tecla `s` do submenu de telemetria mostra o IP e se há cliente conectado. O telnet não tem senha: use só na rede do laboratório e com as rodas fora do chão. Os motores são freados no começo da gravação OTA. A gravação OTA existe só no `bancada_geral_devkit`; o robô tem o telnet (veja [Operação remota](#operação-remota-painel-telnet-e-bateria)), mas não a gravação sem cabo.
+O computador precisa estar na mesma rede da placa; alguns hotspots isolam os aparelhos entre si (nesse caso, use o notebook no mesmo hotspot). A tecla `s` do submenu de telemetria mostra o IP e se há cliente conectado. O telnet não tem senha: use só na rede do laboratório e com as rodas fora do chão. Os motores são freados no começo da gravação OTA. O telnet existe só no `bancada_geral_devkit`. O robô também tem OTA: depois de uma gravação por cabo, ou de uma feita pela bancada geral, grave o robô pelo Wi-Fi com `pio run -e esp32_devkit_ota -t upload --upload-port IP`. Quando a gravação começa, os motores são travados; só grave com o robô parado.
 
 #### Teste de operação remota (submenu de telemetria, tecla `o`)
 
@@ -770,18 +770,16 @@ flowchart LR
 
 ### Credenciais
 
-As credenciais **não vão para o Git**. Copie `include/credenciais.exemplo.h` para `include/credenciais.h` (ignorado pelo Git) e preencha:
+O **Wi-Fi (principal e reserva) e a URL do Supabase** já vêm no firmware, em `include/credenciais_padrao.h` (versionado), então quem compila não precisa de arquivo nenhum para conectar, gravar pelo Wi-Fi e **enviar a telemetria**. O `DEVICE_TOKEN` e a chave do Supabase são **opcionais**: o robô só os envia se existirem. As Edge Functions publicadas com `--no-verify-jwt` e sem o segredo `DEVICE_TOKEN` aceitam o robô só com a URL (veja `src/backend/README.md`). Se o seu projeto ainda exige a chave `anon`/publishable ou o token, ponha-os em `include/credenciais.h` (ignorado pelo Git; modelo em `credenciais.exemplo.h`, que também troca a rede só no seu computador). A chave `sb_secret_`/`service_role` nunca entra em firmware nem em repositório.
 
-| Campo | De onde vem |
+| Campo | Onde fica |
 |---|---|
-| `CREDENCIAL_WIFI_SSID` e `CREDENCIAL_WIFI_SENHA` | Rede principal, em 2,4 GHz: na demonstração, o hotspot do celular principal |
-| `CREDENCIAL_WIFI_SSID_RESERVA` e `CREDENCIAL_WIFI_SENHA_RESERVA` | Rede reserva, também em 2,4 GHz (o segundo celular). Vazias, ou ausentes num `credenciais.h` antigo: só a principal |
-| `CREDENCIAL_SUPABASE_URL` | Supabase → Settings → API → Project URL |
-| `CREDENCIAL_SUPABASE_ANON` | Supabase → Settings → API → chave `anon` |
-| `CREDENCIAL_DEVICE_TOKEN` | O mesmo `DEVICE_TOKEN` dos segredos das Edge Functions (peça a quem administra o Supabase) |
-| `CREDENCIAL_CERTIFICADO_RAIZ` | Certificado raiz do HTTPS do projeto, em PEM (cadeado do navegador → certificado → o primeiro da cadeia → exportar) |
+| Wi-Fi principal e reserva (2,4 GHz) | `credenciais_padrao.h` (versionado); `credenciais.h` troca só no seu computador |
+| `CREDENCIAL_SUPABASE_URL` | `credenciais_padrao.h` |
+| `CREDENCIAL_SUPABASE_ANON` (opcional) | só `credenciais.h` |
+| `CREDENCIAL_DEVICE_TOKEN` (opcional) | só `credenciais.h` |
 
-Sem `include/credenciais.h`, o firmware compila, inicia e não envia nada: o log mostra `{"status":"envio_desligado","motivo":"sem_credenciais"}`. `CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1` aceita qualquer servidor (`setInsecure`): **só na bancada**, nunca na versão da competição (o log avisa com `https_sem_validar_certificado`).
+**Certificado:** não existe nada para configurar. O robô fala HTTPS com o Supabase sem conferir o certificado do servidor (decisão do projeto, para não ter atrito; o tráfego continua cifrado). Sem a URL, o robô ainda conecta no Wi-Fi e aceita gravação pelo Wi-Fi (`envio_desligado`).
 
 ### Rede da demonstração e plano B (#491)
 

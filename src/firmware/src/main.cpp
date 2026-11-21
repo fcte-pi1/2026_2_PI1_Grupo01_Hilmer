@@ -68,6 +68,7 @@
 #include "RedeWifiEsp32.h"
 #include "RegistradorPotencia.h"
 #include "RelatorioBoot.h"
+#include "ServicoOta.h"
 #include "RotinaCalibracao.h"
 #include "SupervisorI2c.h"
 #include "TelemetriaJson.h"
@@ -76,14 +77,15 @@
 #include "TravaSecaoCritica.h"
 #include "VigiaTof.h"
 
-// Credenciais do Wi-Fi e do Supabase: ficam em `include/credenciais.h`, que o Git ignora (o modelo é
-// `include/credenciais.exemplo.h`). Sem o arquivo, o firmware compila e funciona sem enviar nada.
+// Wi-Fi e URL do Supabase vêm de `include/credenciais_padrao.h` (versionado). A chave do Supabase e o
+// `DEVICE_TOKEN` ficam só em `include/credenciais.h`, que o Git ignora (o modelo é
+// `include/credenciais.exemplo.h`), e esse arquivo, se existir, vale mais que os padrões. Sem a chave
+// e o token, o firmware compila, conecta no Wi-Fi, aceita OTA e não envia telemetria.
 #if __has_include("credenciais.h")
 #include "credenciais.h"
-#define MICROMOUSE_TEM_CREDENCIAIS 1
-#else
-#define MICROMOUSE_TEM_CREDENCIAIS 0
 #endif
+#include "credenciais_padrao.h"
+#define MICROMOUSE_TEM_CREDENCIAIS 1
 
 /// Dono do mapa da corrida. Fica fora das tarefas para sobreviver ao reinício delas (HU-04).
 /// A navegação recebe `armazenamentoMapa.mapa()` para registrar paredes; a telemetria, a versão
@@ -365,7 +367,44 @@ static bool supervisionarImu(bool falhou, bool barramentoOcupado) {
 /// Ciclo percepção → mapa → decisão → atuação (#184): grava as paredes no mapa da corrida, decide
 /// pelo Flood Fill e executa os movimentos (o `ControleMovimento` e o `ControleGiro` da #190/#191
 /// ficam dentro dele). Só a tarefa de navegação o usa; só ela escreve no mapa.
-static micromouse::CicloNavegacao cicloNavegacao(armazenamentoMapa.mapa());
+/// Parâmetros do controle só para o robô real. O ToF frontal não lê menos de ~48 mm (nariz encostado na
+/// parede), então parar no centro exato da célula (84 mm da parede, leitura de 34 mm) era impossível: o
+/// robô empurrava a parede até estourar o tempo do avanço. Para a 105 mm do centro à parede (leitura de
+/// ~55 mm, 7 mm antes de encostar). O modelo simulado e os testes seguem com o valor de projeto.
+static micromouse::ConfiguracaoControle configuracaoControleDoRobo() {
+  micromouse::ConfiguracaoControle c;
+  c.distanciaParadaFrontalMm = 105;
+  // Os ganhos de centralização ficam nos padrões: o mesmo PD comanda o realinhamento, e com ganho zero o
+  // robô não se mexia (o realinhamento estourava o tempo do giro).
+  return c;
+}
+
+/// Realinhamento do robô real: desligado. Ele recentraliza o robô pelas leituras laterais, que assumem
+/// sensores a 90°; os ToF laterais do robô ficam na diagonal e, de frente para uma parede, enxergam a
+/// parede da frente, então a manobra não converge (estourava o tempo do giro antes de largar). Também sem
+/// ajuste de rumo pelo corredor, pelo mesmo motivo: o rumo reto segue pelo giroscópio.
+static micromouse::ConfiguracaoRealinhamento configuracaoRealinhamentoDoRobo() {
+  micromouse::ConfiguracaoRealinhamento c;
+  c.tentativas = 0;
+  c.ajusteRumoPeloCorredorPorMil = 0;
+  return c;
+}
+
+/// Os ToF laterais do robô ficam na diagonal (cerca de 45° da frente): de frente para uma parede próxima,
+/// eles leem a parede da frente, e a percepção não grava as laterais dessa célula (ficam desconhecidas).
+static micromouse::ConfiguracaoExecucao configuracaoExecucaoDoRobo() {
+  micromouse::ConfiguracaoExecucao c;
+  c.lateraisEmDiagonal = true;
+  // O chassi não tem folga para girar no lugar colado na parede da frente (os cantos batem e as rodas
+  // patinam, o que cortava o motor por "travado"): com a frente a menos de 90 mm, recua 45 mm antes do giro.
+  c.recuoAntesDoGiroMm = 45;
+  c.frenteParaRecuarMm = 90;
+  return c;
+}
+
+static micromouse::CicloNavegacao cicloNavegacao(armazenamentoMapa.mapa(), configuracaoExecucaoDoRobo(),
+                                                 configuracaoControleDoRobo(), micromouse::ConfiguracaoGiro{},
+                                                 configuracaoRealinhamentoDoRobo());
 
 /// Correção do erro acumulado da odometria pelas paredes (#188): a posição lateral pelas paredes
 /// laterais e, com os encoders instalados, também ao longo do avanço (no modo estimado, quem corrige
@@ -504,8 +543,6 @@ static micromouse::CredenciaisSupabase lerCredenciais() {
   c.urlProjeto = CREDENCIAL_SUPABASE_URL;
   c.chaveAnon = CREDENCIAL_SUPABASE_ANON;
   c.tokenDispositivo = CREDENCIAL_DEVICE_TOKEN;
-  c.certificadoRaiz = CREDENCIAL_CERTIFICADO_RAIZ;
-  c.semValidarCertificado = CREDENCIAL_SEM_VALIDAR_CERTIFICADO != 0;
 #endif
   return c;
 }
@@ -517,6 +554,8 @@ static micromouse::RedeWifiEsp32 redeWifi(credenciais.ssidWifi, credenciais.senh
                                            credenciais.senhaWifiReserva);
 static micromouse::ReconexaoWifi reconexaoWifi(redeWifi);
 static micromouse::EnvioHttpSupabase clienteSupabase(credenciais);
+/// Gravação pelo Wi-Fi (OTA): liga quando a rede conecta, mesmo sem credenciais do Supabase.
+static micromouse::ServicoOta servicoOta;
 static micromouse::TravaSecaoCritica travaBufferEnvio;
 static micromouse::ControladorEnvio controladorEnvio(clienteSupabase, travaBufferEnvio);
 
@@ -668,13 +707,15 @@ static void enviarLogsParaOPainel() {
 /// Prioridade 1, a menor, com pilha maior por causa do TLS. As chamadas HTTPS bloqueiam esta tarefa
 /// por até `TEMPO_LIMITE_REDE_MS`, nunca a navegação: a coleta só deixa a amostra no buffer.
 static void tarefaRede(void*) {
-  if (!micromouse::credenciaisValidas(credenciais)) {
+  // Sem as credenciais do Supabase o robô não envia telemetria, mas o Wi-Fi e a gravação pelo Wi-Fi
+  // (OTA) continuam valendo. Sem nem rede configurada, não há o que fazer aqui.
+  const bool envioPossivel = micromouse::credenciaisValidas(credenciais);
+  if (!envioPossivel) {
     console.println("{\"status\":\"envio_desligado\",\"motivo\":\"sem_credenciais\"}");
+  }
+  if (credenciais.ssidWifi == nullptr || credenciais.ssidWifi[0] == '\0') {
     vTaskDelete(nullptr);
     return;
-  }
-  if (credenciais.semValidarCertificado) {
-    console.println("{\"status\":\"aviso\",\"motivo\":\"https_sem_validar_certificado\"}");
   }
   redeWifi.iniciar();
   // Sem economia de energia do rádio: com ela, o Wi-Fi dorme entre os beacons e o telnet e o envio da
@@ -708,6 +749,10 @@ static void tarefaRede(void*) {
       }
     }
     if (conectado) {
+      servicoOta.iniciar([]() { motoresComTrava.travar(); });  // gravando: motores freados e travados
+      servicoOta.ciclo();
+    }
+    if (conectado && envioPossivel) {
       // A corrida só é criada no servidor depois da calibração (o estado Aguardando Largada, #242).
       portENTER_CRITICAL(&travaCorrida);
       const bool calibrado = faseCorrida.calibrado();
@@ -763,7 +808,7 @@ static void tarefaRede(void*) {
         }
       }
     }
-    if (conectado) {
+    if (conectado && envioPossivel) {
       // O painel: busca o comando (largar, parar, zerar) e manda os logs de evento. Cada um tem o seu
       // ritmo, e as chamadas ficam na mesma tarefa da telemetria, uma depois da outra.
       if (chegouAoInstante(agora, proximoComandoMs)) {
