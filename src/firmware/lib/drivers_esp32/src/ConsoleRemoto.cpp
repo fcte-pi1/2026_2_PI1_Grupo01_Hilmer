@@ -9,7 +9,7 @@ namespace {
 
 constexpr const char* BANNER =
     "\r\n[robo] telnet conectado. L larga, X para na hora, Z zera e volta a esperar a largada, B repete o boot, "
-    "E mostra o estado.\r\n";
+    "E mostra o estado, M mostra o mapa que o robo montou.\r\n";
 
 }  // namespace
 

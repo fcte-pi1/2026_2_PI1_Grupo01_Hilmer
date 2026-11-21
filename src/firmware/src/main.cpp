@@ -52,6 +52,7 @@
 #include "DetectorColisao.h"
 #include "DetectorObjetivo.h"
 #include "EncoderEsp32.h"
+#include "ParDeEncoders.h"
 #include "EnvioHttpSupabase.h"
 #include "FaseCorrida.h"
 #include "GatilhoLargada.h"
@@ -144,10 +145,14 @@ static micromouse::IMotores& motoresTracao = registradorPotencia;
 
 /// Encoders usados pela odometria e pela telemetria: os reais, se instalados; senão, os estimados.
 /// A troca é só aqui: a `Odometria` e o `MedidorDeslocamento` não mudam.
+///
+/// Os encoders reais passam por um `ParDeEncoders`: se um lado ficar mudo (por exemplo, um fio solto)
+/// enquanto o outro conta, a odometria usa o lado que conta para as duas rodas, e o robô avisa no log.
+static micromouse::ParDeEncoders paresDeEncoders(encoderEsq, encoderDir);
 static micromouse::IEncoder& rodaEsq =
-    micromouse::ENCODERS_INSTALADOS ? static_cast<micromouse::IEncoder&>(encoderEsq) : deslocamento.encoderEsquerdo();
+    micromouse::ENCODERS_INSTALADOS ? paresDeEncoders.esquerdo() : deslocamento.encoderEsquerdo();
 static micromouse::IEncoder& rodaDir =
-    micromouse::ENCODERS_INSTALADOS ? static_cast<micromouse::IEncoder&>(encoderDir) : deslocamento.encoderDireito();
+    micromouse::ENCODERS_INSTALADOS ? paresDeEncoders.direito() : deslocamento.encoderDireito();
 
 static micromouse::ConversorDeslocamento conversorDeslocamento;
 static micromouse::MedidorDeslocamento medidorDeslocamento(rodaEsq, rodaDir, conversorDeslocamento);
@@ -415,6 +420,11 @@ static micromouse::CorrecaoPelasParedes correcaoParedes;
 /// de navegação o usa.
 static micromouse::GatilhoLargada gatilhoLargada;
 
+/// A largada vem só do painel (INICIAR) e do comando `L`. O gesto de cobrir o sensor frontal fica
+/// desligado: com a célula de partida colada na parede da frente, a mão ao posicionar o robô já o
+/// disparava, e ele largava ainda na mão. Com `true`, o gesto volta a largar o robô.
+static constexpr bool LARGADA_POR_GESTO = false;
+
 /// `true` se a largada foi liberada: pelo gesto da mão ou pelo comando `L` (painel, telnet ou serial).
 static bool largadaLiberada() { return gatilhoLargada.disparado(); }
 
@@ -664,6 +674,7 @@ static void registrarContadoresEnvio() {
 }
 
 static void executarComando(char c);  // definida adiante, com os outros comandos
+static void imprimirMapaDoRobo();  // comando `M`, definida adiante
 
 /// Busca o comando que o painel mandou e o executa como se tivesse vindo do telnet. Só a tarefa de rede.
 /// Falha de rede ou resposta ilegível não gera log (o log seria enviado ao painel e falharia de novo).
@@ -908,7 +919,12 @@ static void tarefaNavegacao(void*) {
     if (cicloNavegacao.direcaoDefinida()) {
       odometria.definirDirecao(cicloNavegacao.direcao());
     }
+    bool avisoEncoderEsquerdo = false;
+    bool avisoEncoderDireito = false;
     if (micromouse::ENCODERS_INSTALADOS) {
+      paresDeEncoders.atualizar(cicloNavegacao.estado() == micromouse::EstadoCiclo::Girando);
+      avisoEncoderEsquerdo = paresDeEncoders.consumirAvisoEsquerdo();
+      avisoEncoderDireito = paresDeEncoders.consumirAvisoDireito();
       odometria.atualizar(rodaEsq, rodaDir);
     } else {
       // Estima o avanço dos 10 ms e corrige a posição pela leitura nova do ToF, se houver.
@@ -946,6 +962,13 @@ static void tarefaNavegacao(void*) {
     const int64_t posicaoAvancoUm = micromouse::posicaoAoLongoDoAvancoUm(odometria);
     const bool posicaoNaMalha = odometria.posicaoValida();
     portEXIT_CRITICAL(&travaOdometria);
+    // Um encoder mudo vira aviso no log (e no painel): a odometria segue pelo outro lado.
+    if (avisoEncoderEsquerdo) {
+      console.println("{\"status\":\"aviso\",\"motivo\":\"encoder_esquerdo_sem_sinal\",\"usando\":\"encoder_direito\"}");
+    }
+    if (avisoEncoderDireito) {
+      console.println("{\"status\":\"aviso\",\"motivo\":\"encoder_direito_sem_sinal\",\"usando\":\"encoder_esquerdo\"}");
+    }
 
     if (reiniciarNavegacao) {
       largadaPendente = false;
@@ -994,7 +1017,7 @@ static void tarefaNavegacao(void*) {
         largadaPendente = false;
         gatilhoLargada.dispararManual();
       }
-      if (gatilhoLargada.atualizar(tofNovo, PERIODO_NAVEGACAO_MS) && !jaLiberado) {
+      if (gatilhoLargada.atualizar(LARGADA_POR_GESTO ? tofNovo : nullptr, PERIODO_NAVEGACAO_MS) && !jaLiberado) {
         console.println("{\"status\":\"largada_liberada\"}");
       }
     }
@@ -1078,11 +1101,13 @@ static void imprimirEstado() {
   console.printf(
       "{\"status\":\"estado\",\"fase\":\"%s\",\"ciclo\":\"%s\",\"largada_liberada\":%s,\"boot_ok\":%s,"
       "\"bateria_mv\":%lu,\"bateria_pct\":%u,\"wifi\":%s,\"rssi\":%d,\"ip\":\"%s\",\"telnet\":%s,\"corrida_ativa\":%s,"
+      "\"encoder_esq\":\"%s\",\"encoder_dir\":\"%s\","
       "\"console_descartados\":%lu,\"logs_painel_descartados\":%lu,\"logs_painel_perdidos\":%lu}\n",
       fase, micromouse::nomeDoEstadoCiclo(static_cast<micromouse::EstadoCiclo>(estadoCicloAtual)),
       largadaLiberadaAtual ? "true" : "false", estadoBoot.ok ? "true" : "false", static_cast<unsigned long>(bateriaMv),
       static_cast<unsigned>(micromouse::bateriaPercentual(bateriaMv)), wifi ? "true" : "false", wifi ? WiFi.RSSI() : 0,
       wifi ? WiFi.localIP().toString().c_str() : "", console.clienteConectado() ? "true" : "false", corridaAtiva ? "true" : "false",
+      paresDeEncoders.esquerdoSemSinal() ? "sem_sinal" : "ok", paresDeEncoders.direitoSemSinal() ? "sem_sinal" : "ok",
       static_cast<unsigned long>(console.descartados()),
       static_cast<unsigned long>(console.linhasDoPainelDescartadas()), static_cast<unsigned long>(logsPerdidosNoEnvio));
 }
@@ -1142,6 +1167,51 @@ static void executarComando(char c) {
     portEXIT_CRITICAL(&travaOdometria);
   } else if (c == 'E' || c == 'e') {
     imprimirEstado();
+  } else if (c == 'M' || c == 'm') {
+    imprimirMapaDoRobo();
+  }
+}
+
+/// Comando `M`: imprime o mapa que o robô montou, com o Norte em cima. `---` e `|` são paredes, espaço é
+/// passagem livre e `?` é o que ele ainda não sabe. É só para depurar: lê o mapa enquanto a navegação o
+/// escreve, então uma linha pode sair no meio de uma atualização.
+static void imprimirMapaDoRobo() {
+  const micromouse::Mapa& mapa = armazenamentoMapa.mapa();
+  const uint8_t linhas = mapa.obterLinhas();
+  const uint8_t colunas = mapa.obterColunas();
+  console.printf("{\"status\":\"mapa\",\"linhas\":%u,\"colunas\":%u}\n", static_cast<unsigned>(linhas),
+                 static_cast<unsigned>(colunas));
+  char texto[4 * micromouse::MAX_COLUNAS_EXPLORACAO + 3];
+  const auto horizontal = [](micromouse::EstadoParede e) { return e == micromouse::EstadoParede::Parede ? "---" : (e == micromouse::EstadoParede::Livre ? "   " : " ? "); };
+  const auto vertical = [](micromouse::EstadoParede e) { return e == micromouse::EstadoParede::Parede ? '|' : (e == micromouse::EstadoParede::Livre ? ' ' : '?'); };
+  for (int l = static_cast<int>(linhas) - 1; l >= -1; --l) {
+    // Linha das paredes horizontais: o Norte de cada célula da linha `l` (ou o Sul da linha 0, no fim).
+    size_t n = 0;
+    for (uint8_t c = 0; c < colunas; ++c) {
+      texto[n++] = '+';
+      const micromouse::EstadoParede e = l >= 0 ? mapa.obterParede({static_cast<uint8_t>(l), c}, micromouse::Direcao::Norte)
+                                                : mapa.obterParede({0, c}, micromouse::Direcao::Sul);
+      const char* h = horizontal(e);
+      texto[n++] = h[0];
+      texto[n++] = h[1];
+      texto[n++] = h[2];
+    }
+    texto[n++] = '+';
+    texto[n] = '\0';
+    console.println(texto);
+    if (l < 0) {
+      break;
+    }
+    n = 0;
+    for (uint8_t c = 0; c < colunas; ++c) {
+      texto[n++] = vertical(mapa.obterParede({static_cast<uint8_t>(l), c}, micromouse::Direcao::Oeste));
+      texto[n++] = ' ';
+      texto[n++] = ' ';
+      texto[n++] = ' ';
+    }
+    texto[n++] = vertical(mapa.obterParede({static_cast<uint8_t>(l), static_cast<uint8_t>(colunas - 1)}, micromouse::Direcao::Leste));
+    texto[n] = '\0';
+    console.println(texto);
   }
 }
 
