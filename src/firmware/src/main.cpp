@@ -39,6 +39,7 @@
 #include "CicloNavegacao.h"
 #include "Configuracao.h"
 #include "ConfiguracaoDeslocamento.h"
+#include "EstimadorVelocidade.h"
 #include "ConfiguracaoImu.h"
 #include "ConfiguracaoRede.h"
 #include "ConsoleRemoto.h"
@@ -621,7 +622,8 @@ static bool chegouAoInstante(uint32_t agoraMs, uint32_t alvoMs) {
 /// Coleta: chamada pela tarefa de telemetria a cada `PERIODO_TELEMETRIA_MS`. Guarda a amostra no
 /// buffer, com o número de sequência dado agora (e que nunca muda num reenvio). A chegada ao objetivo
 /// ou o fim do tempo (10 min) registram a última amostra e pedem o encerramento da corrida.
-static void coletarAmostra(const micromouse::Pose& pose, bool chegouAoObjetivo, int32_t deslocamentoMm) {
+static void coletarAmostra(const micromouse::Pose& pose, bool chegouAoObjetivo, int32_t deslocamentoMm,
+                           int32_t velocidadeMmPorS) {
   const EstadoCorridaEnvio corrida = lerEstadoCorrida();
   if (!corrida.ativa || corrida.encerramentoPedido) {
     return;
@@ -649,7 +651,7 @@ static void coletarAmostra(const micromouse::Pose& pose, bool chegouAoObjetivo, 
     return;
   }
   micromouse::AmostraTelemetria amostra = micromouse::montarAmostra(
-      pose, decisao.tempoDecorridoMs, 0,  // velocidade: 0 até a estimativa sem encoder (#380) entrar na telemetria
+      pose, decisao.tempoDecorridoMs, velocidadeMmPorS,
       decisao.estado,
       chegouAoObjetivo ? micromouse::EventoTelemetria::ObjetivoAlcancado : micromouse::EventoTelemetria::Nenhum);
   // A bateria vai na telemetria; sem medida (chave geral desligada), 0, que o banco ignora.
@@ -1316,6 +1318,7 @@ static void tarefaTelemetria(void*) {
     const bool poseConfiavel = micromouse::ENCODERS_INSTALADOS || deslocamento.poseConfiavel();
     // Antes de o robô se localizar (largada em qualquer célula), a pose não vale para o dashboard.
     const bool poseValida = odometria.posicaoValida() && poseConfiavel && poseNoLabirintoValida;
+  micromouse::EstimadorVelocidade estimadorVelocidade;  // velocidade da telemetria: mm/s pelo deslocamento das rodas
     const uint32_t semCorrecaoMm = deslocamento.distanciaSemCorrecaoMm();
     const bool dispararEvento = detectorObjetivo.consumirEventoChegada();
     // Um evento por amostra: a chegada vai primeiro, e cada colisão pendente espera a sua vez.
@@ -1327,6 +1330,7 @@ static void tarefaTelemetria(void*) {
 
     portENTER_CRITICAL(&travaTof);
     const LeituraTofTelemetria leituraTof = ultimaLeituraTof;
+    const int32_t velocidadeMmPorS = estimadorVelocidade.atualizar(medio, millis());
     portEXIT_CRITICAL(&travaTof);
 
     char falhasI2c[micromouse::TAMANHO_MAX_FALHAS_I2C];
@@ -1344,7 +1348,7 @@ static void tarefaTelemetria(void*) {
     pacote.medioMm = medio;
     pacote.pose = pose;
     pacote.poseValida = poseValida;
-    pacote.velocidade = 0.0f;     // Provisório até inclusão de cálculo de velocidade instantânea
+    pacote.velocidade = static_cast<float>(velocidadeMmPorS) / 1000.0f;  // m/s, pelo deslocamento das rodas
     pacote.tensaoBateria = ultimaBateriaMv / 1000.0f;
     pacote.evento = dispararEvento ? "objetivo_alcancado" : (dispararColisao ? "colisao" : nullptr);
     pacote.tofFrenteMm = leituraTof.distancias.frenteMm;
@@ -1365,7 +1369,7 @@ static void tarefaTelemetria(void*) {
 
     // Envio ao Supabase: a amostra vai para o buffer; quem envia é a tarefa de rede.
     atualizarFaseDaCalibracao();
-    coletarAmostra(pose, dispararEvento, medio);
+    coletarAmostra(pose, dispararEvento, medio, velocidadeMmPorS);
 
     // Comporta o pior caso do JSON; com menos, a linha seria descartada em silêncio.
     char buffer[micromouse::TAMANHO_MAX_JSON_TELEMETRIA];
