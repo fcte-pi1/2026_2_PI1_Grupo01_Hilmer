@@ -139,6 +139,14 @@ struct ConfiguracaoExecucao {
   /// de `FOLGA` do ponto onde o avanço para pela parede (`distanciaParadaFrontalMm`) (a odometria superestimou o caminho), o robô anda a diferença, até
   /// este máximo em mm. 0 desliga.
   uint16_t ajusteChegadaPelaFrenteMaxMm = 0;
+  /// Se a ré (recuperação de colisão ou antes do giro) não andar no tempo, segue para perceber e girar em vez
+  /// de encerrar a corrida com `tempo_esgotado`.
+  bool seguirSeReNaoAndar = false;
+  /// Abertura lateral pelo perfil do avanço: se, durante o avanço, um lado ler pelo menos `aberturaLateralMm`
+  /// em `amostrasAberturaLateral` amostras seguidas (uma a cada 2 leituras do ToF), esse lado é livre, mesmo
+  /// que a leitura final tenha batido numa quina. 0 desliga (o perfil só é registrado).
+  uint16_t aberturaLateralMm = 0;
+  uint8_t amostrasAberturaLateral = 2;
   /// Mesmo ajuste, com teto maior, quando se sabe que há parede no fim da célula de destino (a borda do
   /// labirinto): aí uma leitura longa só pode ser a odometria curta, nunca a parede da célula seguinte.
   uint16_t ajusteChegadaParedeGarantidaMaxMm = 0;

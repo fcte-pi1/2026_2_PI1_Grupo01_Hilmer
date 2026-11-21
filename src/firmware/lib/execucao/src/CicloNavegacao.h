@@ -16,6 +16,7 @@
 #include "ConfiguracaoLocalizacao.h"
 #include "CorrecaoPelasParedes.h"
 #include "ExecutorMovimentos.h"
+#include "PerfilLateral.h"
 #include "IMotores.h"
 #include "LocalizadorLargada.h"
 #include "Mapa.h"
@@ -169,6 +170,10 @@ class CicloNavegacao {
   uint32_t percepcoes() const { return percepcoes_; }
   /// Quantas vezes o mapa foi apagado por "sem caminho" (`ConfiguracaoExecucao::reiniciosDoMapaNoSemCaminho`).
   uint8_t reiniciosDoMapa() const { return reiniciosDoMapa_; }
+  /// Leituras laterais do último avanço concluído e quantos avanços já geraram um perfil (para o log).
+  const PerfilLateral& perfilLateral() const { return perfil_; }
+  uint32_t perfisConcluidos() const { return perfisConcluidos_; }
+  Direcao direcaoDoPerfil() const { return direcaoDoPerfil_; }
   const ClassificadorParede::ResultadoClassificacao& ultimaClassificacao() const { return ultimaClassificacao_; }
   const Pose& poseDaUltimaPercepcao() const { return poseDaUltimaPercepcao_; }
 
@@ -305,6 +310,10 @@ class CicloNavegacao {
   uint8_t reiniciosDoMapa_ = 0;
   ClassificadorParede::ResultadoClassificacao ultimaClassificacao_;
   Pose poseDaUltimaPercepcao_ = {{0, 0}, Direcao::Norte};
+  PerfilLateral perfil_;                ///< Leituras laterais do último avanço (aberturas nas paredes).
+  Direcao direcaoDoPerfil_ = Direcao::Norte;
+  bool perfilValido_ = false;           ///< O perfil é do avanço que acabou de chegar nesta célula.
+  uint32_t perfisConcluidos_ = 0;
   bool recuouParaGirar_ = false;        ///< Já recuou para este giro (evita recuar de novo antes dele).
   Movimento giroPendente_ = Movimento::Girar180;  ///< Giro a fazer depois do realinhamento.
   uint8_t realinhamentosNoPasso_ = 0;             ///< Realinhamentos antes do giro pendente.

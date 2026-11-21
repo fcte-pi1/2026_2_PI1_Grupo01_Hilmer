@@ -394,6 +394,9 @@ static micromouse::ConfiguracaoControle configuracaoControleDoRobo() {
 /// sensores a 90°; os ToF laterais do robô ficam na diagonal e, de frente para uma parede, enxergam a
 /// parede da frente, então a manobra não converge (estourava o tempo do giro antes de largar). Também sem
 /// ajuste de rumo pelo corredor, pelo mesmo motivo: o rumo reto segue pelo giroscópio.
+/// Espaço do texto de cada lado do `perfil_lateral` (24 amostras de até 3 dígitos e vírgula).
+static constexpr size_t PERFIL_TEXTO_MAX = 112;
+
 static micromouse::ConfiguracaoRealinhamento configuracaoRealinhamentoDoRobo() {
   micromouse::ConfiguracaoRealinhamento c;
   c.tentativas = 0;
@@ -419,9 +422,14 @@ static micromouse::ConfiguracaoExecucao configuracaoExecucaoDoRobo() {
   // Desvio de quina: com uma parede lateral a menos de 90 mm e o outro lado mais livre, vira 10° para longe dela.
   // A odometria parou ~90 mm antes de onde o robô costuma parar na parede. O teto (135) deixa de fora a parede da
   // célula seguinte (lida a ~214 mm do sensor), para não andar uma célula a mais.
+  c.seguirSeReNaoAndar = true;
   c.ajusteChegadaPelaFrenteMaxMm = 135;
   c.ajusteChegadaParedeGarantidaMaxMm = 200;  // última célula antes da borda do labirinto: a parede é certa
-  c.desvioParedePertoMm = 90;
+  // Abertura lateral pelo perfil do avanço. Medido no labirinto de teste: paredes leem de 105 a 146 mm durante o avanço
+  // e aberturas leem 200 a 237 mm por 8 a 13 amostras seguidas; 190 mm por 4 amostras separa os dois com folga.
+  c.aberturaLateralMm = 190;
+  c.amostrasAberturaLateral = 4;
+  c.desvioParedePertoMm = 115;  // perto de uma parede com o outro lado livre, afasta-se: dá folga ao giro
   c.desvioFolgaOutroLadoMm = 40;
   c.desvioRumoMiligraus = 10000;
   return c;
@@ -1095,6 +1103,7 @@ static void tarefaNavegacao(void*) {
     const uint32_t percepcoesAntes = cicloNavegacao.percepcoes();
     const uint8_t reiniciosAntes = cicloNavegacao.reiniciosDoMapa();
     const uint8_t ajustesAntes = cicloNavegacao.executor().ajustesDeChegada();
+    const uint32_t perfisAntes = cicloNavegacao.perfisConcluidos();
     const micromouse::EstadoCiclo antes = cicloNavegacao.estado();
     const micromouse::EstadoCiclo depois = cicloNavegacao.atualizar(entrada, motoresTracao);
     estadoCicloAtual = static_cast<uint8_t>(depois);
@@ -1108,6 +1117,21 @@ static void tarefaNavegacao(void*) {
                     "NLSO"[static_cast<uint8_t>(pose.direcao)], estado(c.frente), estado(c.esquerda), estado(c.direita),
                     static_cast<unsigned>(leituraTof.distancias.frenteMm), static_cast<unsigned>(leituraTof.distancias.esquerdaMm),
                     static_cast<unsigned>(leituraTof.distancias.direitaMm));
+    }
+    if (cicloNavegacao.perfisConcluidos() != perfisAntes) {
+      // Leituras laterais do avanço que acabou (uma a cada 2 leituras do ToF, mm): para calibrar a abertura lateral.
+      const micromouse::PerfilLateral& perfil = cicloNavegacao.perfilLateral();
+      char esq[PERFIL_TEXTO_MAX];
+      char dir[PERFIL_TEXTO_MAX];
+      size_t ne = 0;
+      size_t nd = 0;
+      esq[0] = dir[0] = '\0';
+      for (uint8_t i = 0; i < perfil.quantidade() && ne + 6 < sizeof(esq) && nd + 6 < sizeof(dir); i++) {
+        ne += snprintf(esq + ne, sizeof(esq) - ne, i == 0 ? "%u" : ",%u", static_cast<unsigned>(perfil.esquerda(i)));
+        nd += snprintf(dir + nd, sizeof(dir) - nd, i == 0 ? "%u" : ",%u", static_cast<unsigned>(perfil.direita(i)));
+      }
+      console.printf("{\"status\":\"perfil_lateral\",\"direcao\":\"%c\",\"esq\":\"%s\",\"dir\":\"%s\"}\n",
+                    "NLSO"[static_cast<uint8_t>(cicloNavegacao.direcaoDoPerfil())], esq, dir);
     }
     if (cicloNavegacao.executor().ajustesDeChegada() > ajustesAntes) {
       console.printf("{\"status\":\"ajuste_chegada\",\"n\":%u,\"frente_mm\":%u,\"restante_mm\":%ld}\n",

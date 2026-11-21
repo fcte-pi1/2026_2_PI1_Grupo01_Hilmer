@@ -119,6 +119,16 @@ void CicloNavegacao::atualizarMapaComAmostras() {
     classificacao.esquerda = EstadoParede::Desconhecido;
     classificacao.direita = EstadoParede::Desconhecido;
   }
+  if (config_.aberturaLateralMm > 0 && perfilValido_ && direcaoDoPerfil_ == direcao_) {
+    // O raio diagonal varreu o corredor durante o avanço: uma sequência de leituras longas é uma abertura,
+    // mesmo que a leitura final (com o robô parado) tenha batido numa quina.
+    if (perfil_.maiorSequenciaAcima(true, config_.aberturaLateralMm) >= config_.amostrasAberturaLateral) {
+      classificacao.esquerda = EstadoParede::Livre;
+    }
+    if (perfil_.maiorSequenciaAcima(false, config_.aberturaLateralMm) >= config_.amostrasAberturaLateral) {
+      classificacao.direita = EstadoParede::Livre;
+    }
+  }
   ultimaClassificacao_ = classificacao;
   poseDaUltimaPercepcao_ = navegacao_.obterPose();
   ++percepcoes_;
@@ -334,6 +344,8 @@ EstadoCiclo CicloNavegacao::atualizar(const EntradaCiclo& entradaOdometria, IMot
         // O avanço começa no próximo ciclo, depois de a odometria adotar a direção nova.
         executor_.iniciar(Movimento::AvancarCelula);
         executor_.definirParedeGarantidaAdiante(destinoTerminaNaBorda());
+        perfil_.reiniciar();
+        perfilValido_ = false;
         estado_ = EstadoCiclo::Avancando;
       } else if (resultado == EstadoExecucao::Falha) {
         falhaExecucao_ = executor_.falha();
@@ -345,9 +357,15 @@ EstadoCiclo CicloNavegacao::atualizar(const EntradaCiclo& entradaOdometria, IMot
 
     case EstadoCiclo::Avancando: {
       const EntradaExecucao exec{entrada.leituraNova, entrada.giro, entrada.posicaoAvancoUm, entrada.dtMs};
+      if (entrada.leituraNova != nullptr) {
+        perfil_.registrar(*entrada.leituraNova);
+      }
       const EstadoExecucao resultado = executor_.atualizar(exec, motores);
       if (resultado == EstadoExecucao::Concluido ||
           (resultado == EstadoExecucao::Falha && executor_.falha() == FalhaExecucao::ParedeNaFrente)) {
+        perfilValido_ = true;
+        direcaoDoPerfil_ = direcao_;
+        ++perfisConcluidos_;
         if (resultado == EstadoExecucao::Concluido) {
           ++celulasAvancadas_;
           recuouParaGirar_ = false;
@@ -377,8 +395,16 @@ EstadoCiclo CicloNavegacao::atualizar(const EntradaCiclo& entradaOdometria, IMot
         ++recuperacoes_;
         entrarEmPercepcao();
       } else if (resultado == EstadoExecucao::Falha) {
-        falhaExecucao_ = executor_.falha();
-        parar(EstadoCiclo::Falha, motores);
+        // Uma ré que não andou no tempo (traseira presa numa quina) não é motivo para parar a corrida: o passo
+        // seguinte é perceber de novo e girar, que é o que tira o robô dali.
+        if (executor_.falha() == FalhaExecucao::TempoEsgotado && config_.seguirSeReNaoAndar) {
+          motores.parar();
+          ++recuperacoes_;
+          entrarEmPercepcao();
+        } else {
+          falhaExecucao_ = executor_.falha();
+          parar(EstadoCiclo::Falha, motores);
+        }
       }
       break;
     }
@@ -517,6 +543,8 @@ void CicloNavegacao::decidir(IMotores& motores) {
   } else {
     executor_.iniciar(Movimento::AvancarCelula);
     executor_.definirParedeGarantidaAdiante(destinoTerminaNaBorda());
+    perfil_.reiniciar();
+    perfilValido_ = false;
     estado_ = EstadoCiclo::Avancando;
   }
 }
