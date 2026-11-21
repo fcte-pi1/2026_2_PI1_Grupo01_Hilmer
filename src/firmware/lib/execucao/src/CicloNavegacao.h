@@ -167,6 +167,8 @@ class CicloNavegacao {
   /// Depuração: quantas percepções já gravaram o mapa, e o que a última viu e gravou. Mostra, no log, em qual
   /// célula e direção cada parede foi registrada.
   uint32_t percepcoes() const { return percepcoes_; }
+  /// Quantas vezes o mapa foi apagado por "sem caminho" (`ConfiguracaoExecucao::reiniciosDoMapaNoSemCaminho`).
+  uint8_t reiniciosDoMapa() const { return reiniciosDoMapa_; }
   const ClassificadorParede::ResultadoClassificacao& ultimaClassificacao() const { return ultimaClassificacao_; }
   const Pose& poseDaUltimaPercepcao() const { return poseDaUltimaPercepcao_; }
 
@@ -226,6 +228,8 @@ class CicloNavegacao {
   /// Grava no mapa o que as amostras mostram, tratando as laterais como desconhecidas quando os sensores
   /// laterais estão na diagonal e a frente é parede (`ConfiguracaoExecucao::lateraisEmDiagonal`).
   void atualizarMapaComAmostras();
+  /// Apaga as paredes gravadas (fica só o perímetro), mantendo a célula e a direção atuais.
+  void apagarMapaMantendoAPose();
 
   /// Exploração: registra a célula, atualiza as hipóteses e, se der, se localiza; senão, mira o
   /// objetivo mais próximo entre os das hipóteses vivas.
@@ -296,6 +300,7 @@ class CicloNavegacao {
   uint16_t ultimaFrenteMm_ = 0;         ///< Última leitura do ToF frontal, a partir da face do sensor.
   bool temFrente_ = false;
   uint32_t percepcoes_ = 0;
+  uint8_t reiniciosDoMapa_ = 0;
   ClassificadorParede::ResultadoClassificacao ultimaClassificacao_;
   Pose poseDaUltimaPercepcao_ = {{0, 0}, Direcao::Norte};
   bool recuouParaGirar_ = false;        ///< Já recuou para este giro (evita recuar de novo antes dele).

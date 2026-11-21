@@ -104,6 +104,14 @@ void CicloNavegacao::parar(EstadoCiclo estado, IMotores& motores) {
   estado_ = estado;
 }
 
+void CicloNavegacao::apagarMapaMantendoAPose() {
+  const Pose pose = navegacao_.obterPose();
+  mapa_ = Mapa(mapa_.obterDimensao());
+  navegacao_.definirObjetivo(DetectorObjetivo::calcularObjetivo(mapa_.obterLinhas(), mapa_.obterColunas()));
+  navegacao_.definirPose(pose);
+  navegacao_.cancelarPasso();
+}
+
 void CicloNavegacao::atualizarMapaComAmostras() {
   ClassificadorParede::ResultadoClassificacao classificacao = classificador_.classificar(amostras_, quantidadeAmostras_);
   if (config_.lateraisEmDiagonal && classificacao.frente == EstadoParede::Parede) {
@@ -486,6 +494,14 @@ void CicloNavegacao::decidir(IMotores& motores) {
   if (!temPasso && explorando_ && relargar()) {
     // Explorando, sem caminho para nenhum objetivo possível: o mapa gravado não fecha com o labirinto.
     temPasso = !navegacao_.atingiuObjetivo() && navegacao_.darPasso(proxima);
+  }
+  if (!temPasso && !explorando_ && !navegacao_.atingiuObjetivo() && reiniciosDoMapa_ < config_.reiniciosDoMapaNoSemCaminho) {
+    // Sem caminho, mas o mapa pode ter uma parede falsa: apaga o que gravou e percebe de novo daqui.
+    ++reiniciosDoMapa_;
+    apagarMapaMantendoAPose();
+    motores.parar();
+    entrarEmPercepcao();
+    return;
   }
   if (!temPasso) {
     parar(navegacao_.atingiuObjetivo() ? EstadoCiclo::ObjetivoAlcancado : EstadoCiclo::SemCaminho, motores);

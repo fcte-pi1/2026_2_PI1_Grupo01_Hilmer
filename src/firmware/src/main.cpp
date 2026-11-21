@@ -413,6 +413,8 @@ static micromouse::ConfiguracaoExecucao configuracaoExecucaoDoRobo() {
   // 173 mm virava "livre" (e o planejamento errava); com 190 mm ela conta como parede, e uma abertura
   // (acima de 250 mm) continua livre.
   c.limiarParedeLateralPercepcaoMm = 190;
+  // Sem caminho (mapa com parede falsa perto de uma quina): apaga o mapa e tenta de novo, até 3 vezes.
+  c.reiniciosDoMapaNoSemCaminho = 3;
   return c;
 }
 
@@ -445,6 +447,13 @@ static micromouse::DetectorColisao detectorColisao;
 /// Rodas patinando (roda no vinco, chassi preso na quina): a odometria anda e o ToF frontal não muda. Trata
 /// como colisão `frente_parada`: o ciclo para, recua em linha reta e tenta de novo.
 static micromouse::DetectorPatinagem detectorPatinagem;
+
+/// Correção da posição da odometria pelas paredes. Desligada no robô real: ela assume ToF laterais a 90° e a
+/// parede da frente a 50 mm do centro, mas os laterais ficam na diagonal. Cada leitura "corrigia" a posição
+/// para o lado errado (a odometria chegou a achar o robô 219 mm ao sul depois de andar uma célula para o
+/// leste), deslocava as paredes do mapa e invalidava a pose. Sem ela, a posição vem só dos encoders, que
+/// medem 2466 pulsos por célula, e a direção, do giroscópio.
+static constexpr bool CORRECAO_PELAS_PAREDES = false;
 static uint32_t colisoesPendentes = 0;
 
 /// Pedidos da telemetria (comandos seriais) para a tarefa de navegação, protegidos por
@@ -947,7 +956,7 @@ static void tarefaNavegacao(void*) {
       deslocamento.ciclo(PERIODO_NAVEGACAO_MS, odometria, referencia ? &leituraTof.distancias : nullptr);
     }
     // Pelas paredes: a posição lateral sempre e, com os encoders, também ao longo do avanço (#188).
-    if (leituraNova) {
+    if (CORRECAO_PELAS_PAREDES && leituraNova) {
       correcaoParedes.aplicar(odometria, leituraTof.distancias, movimento, micromouse::ENCODERS_INSTALADOS);
     }
     // A pose da odometria vai para o ciclo; a chegada e a telemetria usam a convertida para o labirinto.
@@ -1074,6 +1083,7 @@ static void tarefaNavegacao(void*) {
 
     const uint32_t colisoesAntes = cicloNavegacao.colisoes();
     const uint32_t percepcoesAntes = cicloNavegacao.percepcoes();
+    const uint8_t reiniciosAntes = cicloNavegacao.reiniciosDoMapa();
     const micromouse::EstadoCiclo antes = cicloNavegacao.estado();
     const micromouse::EstadoCiclo depois = cicloNavegacao.atualizar(entrada, motoresTracao);
     estadoCicloAtual = static_cast<uint8_t>(depois);
@@ -1087,6 +1097,10 @@ static void tarefaNavegacao(void*) {
                     "NLSO"[static_cast<uint8_t>(pose.direcao)], estado(c.frente), estado(c.esquerda), estado(c.direita),
                     static_cast<unsigned>(leituraTof.distancias.frenteMm), static_cast<unsigned>(leituraTof.distancias.esquerdaMm),
                     static_cast<unsigned>(leituraTof.distancias.direitaMm));
+    }
+    if (cicloNavegacao.reiniciosDoMapa() != reiniciosAntes) {
+      console.printf("{\"status\":\"aviso\",\"motivo\":\"mapa_reiniciado_sem_caminho\",\"vez\":%u}\n",
+                    static_cast<unsigned>(cicloNavegacao.reiniciosDoMapa()));
     }
     if (cicloNavegacao.colisoes() != colisoesAntes) {
       console.printf("{\"status\":\"colisao\",\"tipo\":\"%s\",\"desvio_mg\":%lu,\"celulas\":%lu}\n",

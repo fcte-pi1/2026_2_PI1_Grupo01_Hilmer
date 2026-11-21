@@ -125,6 +125,10 @@ struct ConfiguracaoExecucao {
   /// (140 mm, calculado para sensores a 90°). Com os sensores na diagonal e o robô fora do centro, a leitura de
   /// uma parede vai de ~105 a ~175 mm, então o robô real usa mais folga.
   uint16_t limiarParedeLateralPercepcaoMm = 0;
+  /// Quantas vezes o robô, na largada fixa, apaga o mapa e tenta de novo quando o planejador conclui "sem
+  /// caminho", em vez de parar. Um mapa com uma parede falsa (leitura errada perto de uma quina) fecha o
+  /// caminho; recomeçar o mapa a partir da célula atual dá outra chance. 0 desliga.
+  uint8_t reiniciosDoMapaNoSemCaminho = 0;
 };
 
 /// Parâmetros do `GatilhoLargada`.
