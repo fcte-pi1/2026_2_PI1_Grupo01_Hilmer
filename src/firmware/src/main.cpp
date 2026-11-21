@@ -50,6 +50,7 @@
 #include "CredenciaisSupabase.h"
 #include "DeslocamentoEstimado.h"
 #include "DetectorColisao.h"
+#include "DetectorPatinagem.h"
 #include "DetectorObjetivo.h"
 #include "EncoderEsp32.h"
 #include "ParDeEncoders.h"
@@ -379,8 +380,12 @@ static bool supervisionarImu(bool falhou, bool barramentoOcupado) {
 static micromouse::ConfiguracaoControle configuracaoControleDoRobo() {
   micromouse::ConfiguracaoControle c;
   c.distanciaParadaFrontalMm = 105;
-  // Os ganhos de centralização ficam nos padrões: o mesmo PD comanda o realinhamento, e com ganho zero o
-  // robô não se mexia (o realinhamento estourava o tempo do giro).
+  // Sem centralização pelas paredes laterais: os ToF laterais ficam na diagonal, e quando uma parede termina
+  // a leitura daquele lado "some", o que puxava o robô para a abertura, até encostar na quina da parede (o
+  // vídeo da pista mostrou o robô preso ali). O rumo reto segue pelo giroscópio, que não depende dos ToF.
+  // Isso só é seguro com o realinhamento desligado (`configuracaoRealinhamentoDoRobo`): o mesmo PD o comandava.
+  c.ganhoProporcionalDecimos = 0;
+  c.ganhoDerivativoDecimos = 0;
   return c;
 }
 
@@ -404,6 +409,10 @@ static micromouse::ConfiguracaoExecucao configuracaoExecucaoDoRobo() {
   // patinam, o que cortava o motor por "travado"): com a frente a menos de 90 mm, recua 45 mm antes do giro.
   c.recuoAntesDoGiroMm = 45;
   c.frenteParaRecuarMm = 90;
+  // Laterais na diagonal e robô fora do centro: uma parede lê de ~105 a ~175 mm. Com 140 mm, uma parede a
+  // 173 mm virava "livre" (e o planejamento errava); com 190 mm ela conta como parede, e uma abertura
+  // (acima de 250 mm) continua livre.
+  c.limiarParedeLateralPercepcaoMm = 190;
   return c;
 }
 
@@ -432,6 +441,10 @@ static bool largadaLiberada() { return gatilhoLargada.disparado(); }
 /// navegação a usa. `colisoesPendentes` são as colisões que a telemetria ainda não enviou como evento
 /// `colisao`, protegidas por `travaOdometria`.
 static micromouse::DetectorColisao detectorColisao;
+
+/// Rodas patinando (roda no vinco, chassi preso na quina): a odometria anda e o ToF frontal não muda. Trata
+/// como colisão `frente_parada`: o ciclo para, recua em linha reta e tenta de novo.
+static micromouse::DetectorPatinagem detectorPatinagem;
 static uint32_t colisoesPendentes = 0;
 
 /// Pedidos da telemetria (comandos seriais) para a tarefa de navegação, protegidos por
@@ -973,6 +986,7 @@ static void tarefaNavegacao(void*) {
     if (reiniciarNavegacao) {
       largadaPendente = false;
       detectorColisao.reiniciar();
+      detectorPatinagem.reiniciar();
       portENTER_CRITICAL(&travaOdometria);
       correcaoParedes.reiniciar();
       portEXIT_CRITICAL(&travaOdometria);
@@ -1050,11 +1064,30 @@ static void tarefaNavegacao(void*) {
     deteccao.medidas = micromouse::MedidasProtecao{leituraTof.valida, leituraTof.distancias.frenteMm, giro.taxaDecimosDps};
     deteccao.dtMs = PERIODO_NAVEGACAO_MS;
     entrada.colisao = detectorColisao.atualizar(deteccao);
+    const bool patinando = detectorPatinagem.atualizar(
+        deteccao.ativo && cicloNavegacao.estado() == micromouse::EstadoCiclo::Avancando, posicaoAvancoUm,
+        leituraTof.valida, leituraTof.distancias.frenteMm, PERIODO_NAVEGACAO_MS);
+    if (patinando && entrada.colisao == micromouse::TipoColisao::Nenhuma) {
+      entrada.colisao = micromouse::TipoColisao::FrenteParada;
+      console.println("{\"status\":\"patinagem\",\"acao\":\"recuar_e_tentar_de_novo\"}");
+    }
 
     const uint32_t colisoesAntes = cicloNavegacao.colisoes();
+    const uint32_t percepcoesAntes = cicloNavegacao.percepcoes();
     const micromouse::EstadoCiclo antes = cicloNavegacao.estado();
     const micromouse::EstadoCiclo depois = cicloNavegacao.atualizar(entrada, motoresTracao);
     estadoCicloAtual = static_cast<uint8_t>(depois);
+    if (cicloNavegacao.percepcoes() != percepcoesAntes) {
+      // O que o robô viu e gravou no mapa, em qual célula e direção (depuração do mapa).
+      const auto estado = [](micromouse::EstadoParede e) { return e == micromouse::EstadoParede::Parede ? "parede" : (e == micromouse::EstadoParede::Livre ? "livre" : "?"); };
+      const micromouse::Pose& pose = cicloNavegacao.poseDaUltimaPercepcao();
+      const micromouse::ClassificadorParede::ResultadoClassificacao& c = cicloNavegacao.ultimaClassificacao();
+      console.printf("{\"status\":\"percepcao\",\"linha\":%u,\"coluna\":%u,\"direcao\":\"%c\",\"frente\":\"%s\",\"esquerda\":\"%s\",\"direita\":\"%s\",\"tof\":[%u,%u,%u]}\n",
+                    static_cast<unsigned>(pose.celula.linha), static_cast<unsigned>(pose.celula.coluna),
+                    "NLSO"[static_cast<uint8_t>(pose.direcao)], estado(c.frente), estado(c.esquerda), estado(c.direita),
+                    static_cast<unsigned>(leituraTof.distancias.frenteMm), static_cast<unsigned>(leituraTof.distancias.esquerdaMm),
+                    static_cast<unsigned>(leituraTof.distancias.direitaMm));
+    }
     if (cicloNavegacao.colisoes() != colisoesAntes) {
       console.printf("{\"status\":\"colisao\",\"tipo\":\"%s\",\"desvio_mg\":%lu,\"celulas\":%lu}\n",
                     micromouse::nomeDoTipoColisao(cicloNavegacao.ultimaColisao()),
@@ -1066,12 +1099,19 @@ static void tarefaNavegacao(void*) {
       // Se a proteção do motor travado (#341) freou o robô, ela segura o freio até aqui: o recuo precisa
       // de ré. O ciclo já parou os motores e só manda potência nos ciclos seguintes.
       motoresProtegidos.liberar();
+      detectorPatinagem.reiniciar();
     }
     if (depois != antes) {
       console.printf("{\"status\":\"navegacao\",\"estado\":\"%s\",\"falha\":\"%s\",\"celulas\":%lu}\n",
                     micromouse::nomeDoEstadoCiclo(depois),
                     micromouse::nomeDaFalhaExecucao(cicloNavegacao.falhaExecucao()),
                     static_cast<unsigned long>(cicloNavegacao.celulasAvancadas()));
+      if (depois == micromouse::EstadoCiclo::Falha) {
+        // Onde a odometria achava que o robô estava, em mm (norte e leste a partir do centro da célula 0,0).
+        console.printf("{\"status\":\"odometria_na_falha\",\"norte_mm\":%ld,\"leste_mm\":%ld}\n",
+                      static_cast<long>(odometria.posicaoNorteMicrometros() / 1000),
+                      static_cast<long>(odometria.posicaoLesteMicrometros() / 1000));
+      }
     }
     vTaskDelay(pdMS_TO_TICKS(PERIODO_NAVEGACAO_MS));
   }

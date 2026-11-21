@@ -39,6 +39,10 @@ CicloNavegacao::CicloNavegacao(Mapa& mapa, const ConfiguracaoExecucao& config, c
   } else if (config_.amostrasPercepcao > MAX_AMOSTRAS) {
     config_.amostrasPercepcao = MAX_AMOSTRAS;
   }
+  if (config_.limiarParedeLateralPercepcaoMm > 0) {
+    classificador_.definirLimiar(Lado::Esquerda, config_.limiarParedeLateralPercepcaoMm);
+    classificador_.definirLimiar(Lado::Direita, config_.limiarParedeLateralPercepcaoMm);
+  }
 }
 
 void CicloNavegacao::reiniciar(const Pose& inicialDada, IMotores& motores) {
@@ -107,6 +111,9 @@ void CicloNavegacao::atualizarMapaComAmostras() {
     classificacao.esquerda = EstadoParede::Desconhecido;
     classificacao.direita = EstadoParede::Desconhecido;
   }
+  ultimaClassificacao_ = classificacao;
+  poseDaUltimaPercepcao_ = navegacao_.obterPose();
+  ++percepcoes_;
   AtualizadorMapa::atualizar(mapa_, navegacao_.obterPose(), classificacao);
 }
 

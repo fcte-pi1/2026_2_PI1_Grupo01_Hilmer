@@ -164,6 +164,12 @@ class CicloNavegacao {
   /// Recuos concluídos desde a largada (colisões de que o robô se recuperou).
   uint32_t recuperacoes() const { return recuperacoes_; }
 
+  /// Depuração: quantas percepções já gravaram o mapa, e o que a última viu e gravou. Mostra, no log, em qual
+  /// célula e direção cada parede foi registrada.
+  uint32_t percepcoes() const { return percepcoes_; }
+  const ClassificadorParede::ResultadoClassificacao& ultimaClassificacao() const { return ultimaClassificacao_; }
+  const Pose& poseDaUltimaPercepcao() const { return poseDaUltimaPercepcao_; }
+
   /// Paredes gravadas no mapa por colisões repetidas (veja a classe).
   uint32_t paredesPorColisao() const { return paredesPorColisao_; }
 
@@ -289,6 +295,9 @@ class CicloNavegacao {
   TipoColisao ultimaColisao_ = TipoColisao::Nenhuma;
   uint16_t ultimaFrenteMm_ = 0;         ///< Última leitura do ToF frontal, a partir da face do sensor.
   bool temFrente_ = false;
+  uint32_t percepcoes_ = 0;
+  ClassificadorParede::ResultadoClassificacao ultimaClassificacao_;
+  Pose poseDaUltimaPercepcao_ = {{0, 0}, Direcao::Norte};
   bool recuouParaGirar_ = false;        ///< Já recuou para este giro (evita recuar de novo antes dele).
   Movimento giroPendente_ = Movimento::Girar180;  ///< Giro a fazer depois do realinhamento.
   uint8_t realinhamentosNoPasso_ = 0;             ///< Realinhamentos antes do giro pendente.

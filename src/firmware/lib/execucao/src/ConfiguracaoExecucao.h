@@ -121,6 +121,10 @@ struct ConfiguracaoExecucao {
   /// Desligado por padrão: o modelo simulado gira no lugar sem problema.
   uint16_t recuoAntesDoGiroMm = 0;
   uint16_t frenteParaRecuarMm = 0;
+  /// Limiar de parede das laterais, em mm (leitura abaixo disso conta como parede). 0 mantém o da percepção
+  /// (140 mm, calculado para sensores a 90°). Com os sensores na diagonal e o robô fora do centro, a leitura de
+  /// uma parede vai de ~105 a ~175 mm, então o robô real usa mais folga.
+  uint16_t limiarParedeLateralPercepcaoMm = 0;
 };
 
 /// Parâmetros do `GatilhoLargada`.
