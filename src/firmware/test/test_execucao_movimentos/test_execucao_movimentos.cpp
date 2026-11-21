@@ -759,7 +759,7 @@ void test_ciclo_pose_fora_do_mapa_falha() {
   EntradaCiclo e = t.entradaBase(&corredor, 178000, Pose{{1, 0}, Direcao::Norte});
   e.poseValida = false;
   TEST_ASSERT_EQUAL(EstadoCiclo::Falha, t.ciclo.atualizar(e, t.motores));
-  TEST_ASSERT_EQUAL(FalhaExecucao::Nenhuma, t.ciclo.falhaExecucao());
+  TEST_ASSERT_EQUAL(FalhaExecucao::PoseForaDaMalha, t.ciclo.falhaExecucao());
   TEST_ASSERT_TRUE(t.motores.freados());
 
   // Uma pose medida fora do mapa também para.

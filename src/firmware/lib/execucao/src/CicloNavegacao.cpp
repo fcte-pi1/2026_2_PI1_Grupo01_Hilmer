@@ -452,14 +452,14 @@ void CicloNavegacao::iniciarRecuperacao(const EntradaCiclo& entrada, IMotores& m
 
 void CicloNavegacao::confirmarChegada(const EntradaCiclo& entrada) {
   if (!entrada.poseValida) {
-    falhaExecucao_ = FalhaExecucao::Nenhuma;
+    falhaExecucao_ = FalhaExecucao::PoseForaDaMalha;
     navegacao_.cancelarPasso();
     estado_ = EstadoCiclo::Falha;
     return;
   }
   ultimaConfirmacao_ = navegacao_.confirmarPose(Pose{entrada.pose.celula, direcao_});
   if (ultimaConfirmacao_ == ResultadoConfirmacao::Invalida) {
-    falhaExecucao_ = FalhaExecucao::Nenhuma;
+    falhaExecucao_ = FalhaExecucao::CelulaForaDoMapa;
     navegacao_.cancelarPasso();
     estado_ = EstadoCiclo::Falha;
     return;
@@ -529,6 +529,9 @@ void CicloNavegacao::iniciarGiro(Movimento giro) {
   if (config_.recuoAntesDoGiroMm > 0 && !recuouParaGirar_ && celulasAvancadas_ > 0 && temFrente_ &&
       ultimaFrenteMm_ < config_.frenteParaRecuarMm && executor_.iniciarRecuo(config_.recuoAntesDoGiroMm, true)) {
     recuouParaGirar_ = true;
+    // O passo já foi escolhido, mas não vai ser dado agora: sem cancelá-lo, a decisão depois do recuo
+    // acha o passo antigo pendente e conclui "sem caminho" mesmo com a passagem livre.
+    navegacao_.cancelarPasso();
     estado_ = EstadoCiclo::Recuperando;
     return;
   }

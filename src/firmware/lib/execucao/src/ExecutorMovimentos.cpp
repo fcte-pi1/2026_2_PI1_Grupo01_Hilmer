@@ -421,6 +421,10 @@ const char* nomeDaFalhaExecucao(FalhaExecucao falha) {
       return "giro_tempo_esgotado";
     case FalhaExecucao::ColisoesSeguidas:
       return "colisoes_seguidas";
+    case FalhaExecucao::PoseForaDaMalha:
+      return "pose_fora_da_malha";
+    case FalhaExecucao::CelulaForaDoMapa:
+      return "celula_fora_do_mapa";
   }
   return "nenhuma";
 }

@@ -34,7 +34,9 @@ enum class FalhaExecucao : uint8_t {
   SemLeituraTof,      ///< Sem leitura nova do ToF por `tempoMaximoSemLeituraMs` durante o avanço.
   TempoEsgotado,      ///< O avanço (ou um trecho do realinhamento) passou do tempo máximo.
   GiroTempoEsgotado,  ///< O giro não chegou ao rumo no tempo limite (inclusive sem giroscópio válido).
-  ColisoesSeguidas    ///< O ciclo desistiu: colisões demais seguidas, sem concluir uma célula (#192).
+  ColisoesSeguidas,   ///< O ciclo desistiu: colisões demais seguidas, sem concluir uma célula (#192).
+  PoseForaDaMalha,    ///< Ao fim do avanço, a odometria estava fora da malha de células (pose inválida).
+  CelulaForaDoMapa    ///< Ao fim do avanço, a célula da odometria não existe no mapa da navegação.
 };
 
 /// Plano de um realinhamento: o giro pequeno e o trecho reto que levam o robô ao centro do corredor.
