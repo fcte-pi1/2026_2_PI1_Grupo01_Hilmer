@@ -4447,7 +4447,7 @@
 <p>Esta página documenta o código do firmware do micromouse em <code>src/firmware</code>. Ela complementa a <a href="../software/">arquitetura de software</a>, que define as decisões de alto nível, e o <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/tree/main/src/firmware">README do firmware</a>, que traz os comandos do dia a dia.</p>
 <p>O firmware começou no <strong>projeto base</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/172">#172</a>, Sprint 2) e hoje tem percepção, mapa, navegação, odometria, controle de movimento e telemetria, todos testados no computador. Desde 21/10/2026 ele segue a <strong>Rev 2.0 do hardware</strong>, descrita na seção <a href="#hardware-rev-20">Hardware Rev 2.0</a> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/382">#382</a>).</p>
 <h2 id="visao-geral">Visão geral<a class="headerlink" href="#visao-geral" title="Permanent link">&para;</a></h2>
-<p>O firmware roda no <strong>ESP32-C3</strong> com o <strong>Arduino Core</strong> (C++17) e é compilado com o <strong>PlatformIO</strong>. O código segue o ciclo <em>sense-think-act</em> (perceber, decidir, agir) e é dividido em camadas, uma biblioteca por camada em <code>lib/</code>.</p>
+<p>O firmware roda no <strong>ESP32 DevKit V1</strong> (ESP32 clássico) com o <strong>Arduino Core</strong> (C++17) e é compilado com o <strong>PlatformIO</strong>. O código segue o ciclo <em>sense-think-act</em> (perceber, decidir, agir) e é dividido em camadas, uma biblioteca por camada em <code>lib/</code>.</p>
 <pre class="mermaid"><code>flowchart TB
     main["src/main.cpp&lt;br/&gt;tarefas FreeRTOS"]
     subgraph logica["Lógica (compila no computador)"]
@@ -4488,8 +4488,8 @@
 <tr>
 <td>Placa</td>
 <td>ESP32-C3 DevKit</td>
-<td><strong>ESP32-C3 Super Mini</strong></td>
-<td>O log sai pela USB nativa (GPIO18/19), porque a UART0 (GPIO20/21) passou a acionar os motores (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/377">#377</a>)</td>
+<td><strong>ESP32 DevKit V1</strong></td>
+<td>Pinagem da tabela de fiação da bancada integrada e log pela UART0, pelo conversor USB da placa (veja <a href="#pinagem">Pinagem</a>)</td>
 </tr>
 <tr>
 <td>Sensores de distância</td>
@@ -4512,37 +4512,38 @@
 <tr>
 <td>Encoders</td>
 <td>Encoder óptico</td>
-<td>Encoders dos N20, em GPIO4 a 7</td>
+<td>Encoders dos N20, em GPIO32/33 (esquerdo) e GPIO18/19 (direito)</td>
 <td>A odometria (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/187">#187</a>) continua; os parâmetros precisam ser recalibrados para o N20</td>
 </tr>
 </tbody>
 </table>
+<p>O esquemático Rev 2.0 previa a ESP32-C3 Super Mini. Em 10/11/2026 o grupo decidiu ficar com o ESP32 DevKit V1 da bancada integrada, e o firmware do robô e as bancadas passaram a compilar só para ele.</p>
 <p>Enquanto os encoders não eram integrados à Rev 2.0, o plano previa estimar o deslocamento pelo comando dos motores, corrigido pelos sensores de distância (modo sem encoder, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380">#380</a>). Com os encoders disponíveis, esse modo passa a ser o plano B: desde a <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/475">#475</a>, <code>ENCODERS_INSTALADOS</code> é <code>true</code> por padrão, e o modo estimado só entra compilando com <code>-DENCODERS_INSTALADOS_VALOR=0</code>.</p>
 <p><strong>O LiDAR não é mais usado.</strong> O código dele (<code>lib/lidar</code>, decodificador LD06, <code>FonteBytesSerial</code> e os testes <code>test_lidar</code> e <code>test_decodificador_ld06</code>) foi removido do firmware na <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/481">#481</a>. Os registros de teste anteriores a 21/10 em <a href="../../07-testes/software-registro/">Testes de software</a> foram feitos com o LiDAR simulado e continuam como histórico.</p>
 <h2 id="dois-ambientes-placa-e-computador">Dois ambientes: placa e computador<a class="headerlink" href="#dois-ambientes-placa-e-computador" title="Permanent link">&para;</a></h2>
 <p>O <code>platformio.ini</code> define dois ambientes de compilação para o mesmo código:</p>
 <pre class="mermaid"><code>flowchart TB
     ini["platformio.ini"]
-    ini --&gt; placa["&lt;b&gt;esp32c3&lt;/b&gt;&lt;br/&gt;compilar para a placa"]
+    ini --&gt; placa["&lt;b&gt;esp32_devkit&lt;/b&gt;&lt;br/&gt;compilar para a placa"]
     ini --&gt; pc["&lt;b&gt;native&lt;/b&gt;&lt;br/&gt;compilar e testar no computador"]
-    placa --&gt; p1["compilador RISC-V da Espressif&lt;br/&gt;+ Arduino Core + FreeRTOS"]
+    placa --&gt; p1["compilador Xtensa da Espressif&lt;br/&gt;+ Arduino Core + FreeRTOS"]
     pc --&gt; c1["compilador do computador&lt;br/&gt;+ Unity (framework de testes)"]
-    p1 --&gt; p2["firmware.bin&lt;br/&gt;gravado no ESP32-C3"]
+    p1 --&gt; p2["firmware.bin&lt;br/&gt;gravado no ESP32 DevKit V1"]
     c1 --&gt; c2["programa de teste&lt;br/&gt;executado no computador"]</code></pre>
-<p><strong>Figura 2.</strong> Os dois ambientes de compilação definidos no <code>platformio.ini</code>: <code>esp32c3</code> gera o firmware gravado na placa e <code>native</code> compila e executa os testes no computador.</p>
+<p><strong>Figura 2.</strong> Os dois ambientes de compilação definidos no <code>platformio.ini</code>: <code>esp32_devkit</code> gera o firmware gravado na placa e <code>native</code> compila e executa os testes no computador.</p>
 <p>A lógica do robô (direções, mapa, classificação de paredes) não usa nada do Arduino, por isso compila nos dois ambientes. Assim, ela pode ser testada no computador, sem a placa e sem o sensor. Quando a lógica precisa dos sensores de distância, os testes usam o <code>SensorDistanciaSimulado</code>, um sensor simulado que devolve as leituras escolhidas pelo próprio teste.</p>
 <table>
 <thead>
 <tr>
 <th></th>
-<th><code>esp32c3</code></th>
+<th><code>esp32_devkit</code></th>
 <th><code>native</code></th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Onde roda</td>
-<td>No ESP32-C3</td>
+<td>No ESP32 DevKit V1</td>
 <td>No computador de quem está desenvolvendo</td>
 </tr>
 <tr>
@@ -4552,7 +4553,7 @@
 </tr>
 <tr>
 <td>Comando</td>
-<td><code>pio run -e esp32c3</code></td>
+<td><code>pio run -e esp32_devkit</code></td>
 <td><code>pio test -e native</code></td>
 </tr>
 <tr>
@@ -4562,7 +4563,7 @@
 </tr>
 </tbody>
 </table>
-<p>Há ainda os ambientes de bancada, que herdam o <code>esp32c3</code> mas compilam só um programa de <code>src/bancada/</code>: <strong><code>bancada_tof</code></strong>, para os sensores de distância (veja <a href="#bancada-dos-vl53l0x">Bancada dos VL53L0X</a>), e <strong><code>bancada_deslocamento</code></strong>, para o deslocamento sem encoder (veja <a href="#bancada-do-deslocamento-sem-encoder">Bancada do deslocamento sem encoder</a>). O <code>esp32c3</code> exclui a pasta <code>src/bancada/</code> (<code>build_src_filter</code>), então o firmware do robô não muda.</p>
+<p>Há ainda os ambientes de bancada, que herdam o <code>esp32_devkit</code> mas compilam só um programa de <code>src/bancada/</code>: <strong><code>bancada_geral_devkit</code></strong>, o menu que confere sensores, motores, encoders, botão, bateria e telemetria (veja o <a href="../../07-testes/guia-bancada-geral/">Guia da bancada geral</a>), <strong><code>bancada_tof_devkit</code></strong>, para os sensores de distância (veja <a href="#bancada-dos-vl53l0x">Bancada dos VL53L0X</a>), e <strong><code>bancada_deslocamento_devkit</code></strong>, para o deslocamento sem encoder (veja <a href="#bancada-do-deslocamento-sem-encoder">Bancada do deslocamento sem encoder</a>). O <code>esp32_devkit</code> exclui a pasta <code>src/bancada/</code> (<code>build_src_filter</code>), então o firmware do robô não muda. O <code>native_cobertura</code> é o <code>native</code> com medição de cobertura, usado no CI.</p>
 <h2 id="estrutura-de-pastas">Estrutura de pastas<a class="headerlink" href="#estrutura-de-pastas" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -4574,7 +4575,7 @@
 <tbody>
 <tr>
 <td><code>platformio.ini</code></td>
-<td>Ambientes <code>esp32c3</code> (placa) e <code>native</code> (testes no computador, com Unity)</td>
+<td>Ambientes <code>esp32_devkit</code> (robô), <code>native</code> e <code>native_cobertura</code> (testes no computador, com Unity) e os três de bancada (<code>bancada_geral_devkit</code>, <code>bancada_tof_devkit</code> e <code>bancada_deslocamento_devkit</code>)</td>
 </tr>
 <tr>
 <td><code>src/main.cpp</code></td>
@@ -4654,7 +4655,7 @@
 </tr>
 <tr>
 <td><code>src/bancada/</code></td>
-<td>Programas de bancada, fora do firmware do robô: <code>bancada_tof.cpp</code> testa os VL53L0X (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a>) e <code>bancada_deslocamento.cpp</code>, o deslocamento sem encoder (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380">#380</a>)</td>
+<td>Programas de bancada, fora do firmware do robô: <code>bancada_geral.cpp</code> é o menu da bancada geral, <code>bancada_tof.cpp</code> testa os VL53L0X (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a>) e <code>bancada_deslocamento.cpp</code>, o deslocamento sem encoder (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380">#380</a>)</td>
 </tr>
 <tr>
 <td><code>scripts/</code></td>
@@ -4789,7 +4790,7 @@
 </tbody>
 </table>
 <h2 id="pinagem">Pinagem<a class="headerlink" href="#pinagem" title="Permanent link">&para;</a></h2>
-<p>Definida em <code>lib/nucleo/src/Pinos.h</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/377">#377</a>), conforme o <a href="../hardware/#42-pinagem-do-esp32-c3">esquemático Rev 2.0</a>.</p>
+<p>Definida em <code>lib/nucleo/src/Pinos.h</code>, conforme a <a href="../../07-testes/integracao/ensaio-integrado-protoboard/#28-microcontrolador-esp32-devkit-v1-conferencia-final-de-todos-os-pinos">tabela de fiação da bancada integrada</a>. A placa é o <strong>ESP32 DevKit V1</strong> (ESP32 clássico, 4 MB de Flash); os números são GPIOs lógicos, não posições de terminal da placa.</p>
 <table>
 <thead>
 <tr>
@@ -4802,48 +4803,57 @@
 <tr>
 <td>I²C dos 3 VL53L0X e do MPU6050</td>
 <td>SDA / SCL</td>
-<td>9 / 8</td>
+<td>21 / 22</td>
 </tr>
 <tr>
 <td>VL53L0X esquerdo, frontal e direito</td>
 <td>XSHUT</td>
-<td>0 / 1 / 2</td>
+<td>16 / 17 / 4</td>
 </tr>
 <tr>
 <td>DRV8833, motor esquerdo</td>
 <td>IN1 / IN2</td>
-<td>10 / 3</td>
+<td>25 / 26</td>
 </tr>
 <tr>
 <td>DRV8833, motor direito</td>
 <td>IN3 / IN4</td>
-<td>20 / 21</td>
+<td>27 / 14</td>
 </tr>
 <tr>
 <td>Encoder esquerdo</td>
 <td>A / B</td>
-<td>4 / 5</td>
+<td>32 / 33</td>
 </tr>
 <tr>
 <td>Encoder direito</td>
 <td>A / B</td>
-<td>6 / 7</td>
+<td>18 / 19</td>
 </tr>
 <tr>
-<td>USB nativa (log e gravação)</td>
-<td>D− / D+</td>
-<td>18 / 19</td>
+<td>Botão de largada <code>BTN_START</code> (para o GND, <code>INPUT_PULLUP</code>)</td>
+<td>Entrada</td>
+<td>23</td>
+</tr>
+<tr>
+<td>Bateria (ADC1, divisor 100 kΩ / 33 kΩ)</td>
+<td>Entrada analógica</td>
+<td>34</td>
+</tr>
+<tr>
+<td>UART0 (log e gravação, pelo conversor USB da placa)</td>
+<td>TX / RX</td>
+<td>1 / 3</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Conferência com o esquemático (23/10/2026):</strong> os 15 pinos do <code>Pinos.h</code> da <code>main</code> são iguais aos da tabela de pinagem da <a href="../hardware/">4.3 Hardware</a>, publicada no commit <code>ca175d9</code>. A versão anterior do esquemático, com o I²C em GPIO6/7, foi substituída pela Rev 2.0 nesse mesmo PR da eletrônica. O teste <code>test_pinos</code> confere que nenhum GPIO é usado duas vezes.</p>
-<div class="admonition warning">
-<p class="admonition-title">Pontos a validar com a eletrônica</p>
+<p>Os 15 GPIOs do <code>Pinos.h</code> são os da tabela de fiação da bancada integrada. O teste <code>test_pinos</code> e um <code>static_assert</code> no próprio <code>Pinos.h</code> reprovam a compilação se um GPIO se repetir ou não existir no DevKit (o GPIO6 a GPIO11 são da Flash e o GPIO20 não é exposto).</p>
+<div class="admonition note">
+<p class="admonition-title">Cuidados da pinagem</p>
 <ul>
-<li><strong>GPIO20/21 (UART0) acionam o motor direito.</strong> O ESP32-C3 manda o log de boot por eles antes de o firmware assumir, o que pode dar um tranco no motor ao ligar. O próprio esquemático pede validação.</li>
-<li><strong>GPIO2, GPIO8 e GPIO9 são pinos de <em>strapping</em></strong> (definem o modo de boot). Eles estão com o XSHUT direito e o I²C; a placa precisa iniciar normalmente com esses circuitos ligados.</li>
-<li><strong>Leitura da bateria:</strong> o divisor termina em <code>BAT_ADC_TEST</code>, sem GPIO, porque o GPIO2, que tem ADC, ficou com o XSHUT. Ainda não há pino definido para medir a bateria.</li>
-<li>O esquemático ainda descreve os encoders como "reservados; encoder não instalado". Com os encoders disponíveis, a eletrônica precisa atualizar essa nota.</li>
+<li><strong>Log pela UART0.</strong> O <code>Serial</code> sai pelo GPIO1/GPIO3 e chega ao computador pelo conversor USB da placa (CP210x ou CH340): <code>/dev/ttyUSB0</code> no Linux, <code>/dev/cu.usbserial-*</code> ou <code>/dev/cu.wchusbserial-*</code> no macOS e <code>COMx</code> no Windows. Abrir o monitor serial reinicia a placa. Sem computador, a UART transmite do mesmo jeito e o log se perde, sem atrasar o firmware.</li>
+<li><strong>GPIO14 no reset.</strong> A ROM emite um pulso PWM curto no GPIO14 (IN4) antes de o firmware rodar, e o motor direito pode dar um tranco (veja <a href="#atuacao-motores-n20-e-protecao-sem-encoder">Atuação: motores N20 e proteção sem encoder</a>).</li>
+<li><strong>GPIO34 só tem entrada</strong>, sem pull-up interno: serve para o ADC da bateria, e não para outro sinal digital.</li>
 </ul>
 </div>
 <h2 id="sensores-de-distancia-interface-isensordistancia-e-sensordistanciasimulado">Sensores de distância: interface <code>ISensorDistancia</code> e <code>SensorDistanciaSimulado</code><a class="headerlink" href="#sensores-de-distancia-interface-isensordistancia-e-sensordistanciasimulado" title="Permanent link">&para;</a></h2>
@@ -4898,7 +4908,7 @@
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">ISensorDistancia</span><span class="o">&amp;</span><span class="w"> </span><span class="n">sensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sensorSimulado</span><span class="p">;</span><span class="w">           </span><span class="c1">// a lógica recebe só a interface</span>
 </code></pre></div>
 <h2 id="sensores-de-distancia-3-vl53l0x-tofvl53l0x">Sensores de distância: 3 VL53L0X (<code>TofVl53l0x</code>)<a class="headerlink" href="#sensores-de-distancia-3-vl53l0x-tofvl53l0x" title="Permanent link">&para;</a></h2>
-<p>Na Rev 2.0 do hardware (21/10/2026), o LiDAR por UART deu lugar a <strong>3 sensores VL53L0X</strong> pelo I²C: um à esquerda, um à frente e um à direita. O <code>TofVl53l0x</code> (<code>lib/drivers_esp32</code>) implementa a <code>ISensorDistancia</code>, então o resto do firmware não mudou (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/36">HU-02</a>). A regra que decide se uma leitura vale fica no <code>CombinadorTof</code> (<code>lib/tof</code>), sem Arduino, e é testada no computador; o driver só conversa com os sensores pela biblioteca <code>pololu/VL53L0X</code> (1.3.1), que entra apenas no ambiente <code>esp32c3</code>.</p>
+<p>Na Rev 2.0 do hardware (21/10/2026), o LiDAR por UART deu lugar a <strong>3 sensores VL53L0X</strong> pelo I²C: um à esquerda, um à frente e um à direita. O <code>TofVl53l0x</code> (<code>lib/drivers_esp32</code>) implementa a <code>ISensorDistancia</code>, então o resto do firmware não mudou (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344">#344</a>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/36">HU-02</a>). A regra que decide se uma leitura vale fica no <code>CombinadorTof</code> (<code>lib/tof</code>), sem Arduino, e é testada no computador; o driver só conversa com os sensores pela biblioteca <code>pololu/VL53L0X</code> (1.3.1), que entra apenas nos ambientes da placa (<code>esp32_devkit</code> e as bancadas).</p>
 <pre class="mermaid"><code>flowchart LR
     s1["VL53L0X frente&lt;br/&gt;0x31"] --&gt; drv
     s2["VL53L0X esquerda&lt;br/&gt;0x30"] --&gt; drv
@@ -4920,22 +4930,22 @@
 <tbody>
 <tr>
 <td>Esquerdo (J3)</td>
-<td style="text-align: center;">GPIO0</td>
+<td style="text-align: center;">GPIO16</td>
 <td style="text-align: center;">0x30</td>
 </tr>
 <tr>
 <td>Frontal (J4)</td>
-<td style="text-align: center;">GPIO1</td>
+<td style="text-align: center;">GPIO17</td>
 <td style="text-align: center;">0x31</td>
 </tr>
 <tr>
 <td>Direito (J5)</td>
-<td style="text-align: center;">GPIO2</td>
+<td style="text-align: center;">GPIO4</td>
 <td style="text-align: center;">0x32</td>
 </tr>
 <tr>
 <td>Barramento</td>
-<td style="text-align: center;">SDA GPIO9, SCL GPIO8</td>
+<td style="text-align: center;">SDA GPIO21, SCL GPIO22</td>
 <td style="text-align: center;">MPU6050 em 0x68</td>
 </tr>
 </tbody>
@@ -5035,7 +5045,7 @@
 </ul>
 <p><strong>No <code>main.cpp</code>.</strong> O <code>setup()</code> inicia o barramento e chama <code>iniciar()</code>; o autoteste do boot (próxima seção) confere o resultado e diz qual sensor falhou. A tarefa de navegação lê os sensores a cada 10 ms e guarda uma cópia, protegida por seção crítica, que a telemetria envia nos campos <code>tof_frente_mm</code>, <code>tof_esq_mm</code>, <code>tof_dir_mm</code>, <code>tof_valida</code> e <code>tof_idade_ms</code>.</p>
 <h3 id="bancada-dos-vl53l0x">Bancada dos VL53L0X<a class="headerlink" href="#bancada-dos-vl53l0x" title="Permanent link">&para;</a></h3>
-<p>Para a equipe de software e a eletrônica validarem o driver no hardware montado, há um firmware de bancada (<code>src/bancada/bancada_tof.cpp</code>, ambiente <code>bancada_tof</code>) e um menu no computador (<code>scripts/bancada_tof.py</code>). O firmware mantém os motores freados e responde a comandos pela serial; o menu grava esse firmware e conduz o roteiro, com resultado APROVADO, REPROVADO ou OBSERVADO em cada verificação e um relatório em Markdown no fim.</p>
+<p>Para a equipe de software e a eletrônica validarem o driver no hardware montado, há um firmware de bancada (<code>src/bancada/bancada_tof.cpp</code>, ambiente <code>bancada_tof_devkit</code>) e um menu no computador (<code>scripts/bancada_tof.py</code>). O firmware mantém os motores freados e responde a comandos pela serial; o menu grava esse firmware e conduz o roteiro, com resultado APROVADO, REPROVADO ou OBSERVADO em cada verificação e um relatório em Markdown no fim.</p>
 <table>
 <thead>
 <tr>
@@ -5077,7 +5087,7 @@
 </tr>
 </tbody>
 </table>
-<p>O passo a passo de uso está no <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/main/src/firmware/README.md#bancada-dos-vl53l0x">README do firmware</a>. O CI compila o <code>bancada_tof</code> junto com o firmware do robô e roda os testes do menu (<code>scripts/testes/test_bancada_tof.py</code>, job "Scripts de bancada"), que conferem cada etapa com respostas falsas da placa, sem hardware nem <code>pyserial</code>.</p>
+<p>O passo a passo de uso está no <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/main/src/firmware/README.md#bancada-dos-vl53l0x">README do firmware</a>. O CI compila o <code>bancada_tof_devkit</code> junto com o firmware do robô e roda os testes do menu (<code>scripts/testes/test_bancada_tof.py</code>, job "Scripts de bancada"), que conferem cada etapa com respostas falsas da placa, sem hardware nem <code>pyserial</code>.</p>
 <h3 id="simulacao-dos-vl53l0x-e-integracao-com-o-mapa">Simulação dos VL53L0X e integração com o mapa<a class="headerlink" href="#simulacao-dos-vl53l0x-e-integracao-com-o-mapa" title="Permanent link">&para;</a></h3>
 <p>O <code>TofSimulado</code> (<code>lib/simulacao</code>) faz no computador o papel do driver: gera a amostra bruta de cada sensor no <a href="#labirinto-simulado-labirintosimulado"><code>LabirintoSimulado</code></a> e a passa pelo <code>CombinadorTof</code> real. Assim a regra de validade entra nos testes de integração.</p>
 <ul>
@@ -5151,10 +5161,10 @@
 <ul>
 <li><strong>Identidade do MPU6050:</strong> além de responder no 0x68, o registrador <code>WHO_AM_I</code> (0x75) precisa valer 0x68, para outro chip nesse endereço não passar pela IMU. Usa só o <code>Wire</code>, sem depender do driver da IMU (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378">#378</a>).</li>
 <li><strong>Falha:</strong> os motores ficam travados <strong>até o robô ser reiniciado</strong>. Durante a corrida, a falha de um dispositivo é tratada pela <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/241">#241</a>, com a mesma trava (veja <a href="#falha-do-i2c-durante-a-corrida-supervisori2c">Falha do I²C durante a corrida</a>).</li>
-<li><strong>Trava dos motores:</strong> a <code>MotoresComTrava</code> envolve o driver e começa travada. Travada, todo <code>definirPotencia</code> vira <code>parar()</code>; o <code>parar()</code> sempre passa. O <code>motores.iniciar()</code> é a primeira linha do <code>setup()</code>, para frear antes de tudo, porque o GPIO20/21 (IN3/IN4) recebe um tranco da ROM durante o reset.</li>
+<li><strong>Trava dos motores:</strong> a <code>MotoresComTrava</code> envolve o driver e começa travada. Travada, todo <code>definirPotencia</code> vira <code>parar()</code>; o <code>parar()</code> sempre passa. O <code>motores.iniciar()</code> é a primeira linha do <code>setup()</code>, para frear antes de tudo, porque o GPIO14 (IN4) emite um pulso PWM curto durante o reset.</li>
 <li><strong>Camadas dos motores:</strong> no <code>main.cpp</code>, cada camada tem o próprio nome: <code>motores</code> é o driver e <code>motoresComTrava</code>, a trava. Quem aciona as rodas (o detector do objetivo hoje e o controle de movimento depois) usa só <code>motoresTracao</code>, uma referência (<code>IMotores&amp;</code>) à camada de fora. Ordem combinada para quando as outras camadas entrarem: <code>MotoresComTrava</code> (#50) → <code>MotoresComProtecao</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/341">#341</a>) → <code>MotoresComEstimativa</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380">#380</a>) → <code>MotoresDrv8833</code>. Com a trava por fora, a proteção recebe freio enquanto o robô não foi liberado e não acusa um motor travado falso; quando as camadas se juntarem, só a referência <code>motoresTracao</code> muda.</li>
 <li><strong>I²C compartilhado com a IMU:</strong> o <code>BarramentoI2c</code> do PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/403">#403</a> (com mutex) vai tomar o lugar do <code>Wire.begin</code> do <code>setup()</code>, com <code>barramentoI2c.iniciar(SDA, SCL)</code> antes do <code>tof.iniciar()</code>. O <code>tof.iniciar()</code> e o autoteste não precisam do mutex, porque rodam antes dos <code>xTaskCreate</code> (inclusive o da IMU). Fica para essa integração unificar o <code>BarramentoI2cEsp32</code> com o <code>BarramentoI2c</code>, por exemplo com o <code>BarramentoI2cEsp32</code> usando o <code>BarramentoI2c::Uso</code> por dentro.</li>
-<li><strong>Tempo do boot (RNF-09):</strong> <code>boot_ms</code> é o <code>millis()</code> no fim do <code>setup()</code>, contado desde o início do programa. A ROM e o bootloader do ESP32-C3 rodam antes e ficam de fora; o tempo desde o ligar precisa ser medido na bancada.</li>
+<li><strong>Tempo do boot (RNF-09):</strong> <code>boot_ms</code> é o <code>millis()</code> no fim do <code>setup()</code>, contado desde o início do programa. A ROM e o bootloader do ESP32 rodam antes e ficam de fora; o tempo desde o ligar precisa ser medido na bancada.</li>
 </ul>
 <p><strong>Parâmetros:</strong> em <code>lib/inicializacao/src/ConfiguracaoBoot.h</code>.</p>
 <table>
@@ -5200,7 +5210,7 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span><span class="nt">"tipo"</span><span class="p">:</span><span class="s2">"boot"</span><span class="p">,</span><span class="nt">"ok"</span><span class="p">:</span><span class="kc">false</span><span class="p">,</span><span class="nt">"motores_liberados"</span><span class="p">:</span><span class="kc">false</span><span class="p">,</span><span class="nt">"falhas"</span><span class="p">:</span><span class="s2">"tof_frontal"</span><span class="p">,</span><span class="nt">"boot_ms"</span><span class="p">:</span><span class="mi">412</span><span class="p">,</span><span class="nt">"prazo_ms"</span><span class="p">:</span><span class="mi">2000</span><span class="p">,</span><span class="nt">"no_prazo"</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="nt">"dispositivos"</span><span class="p">:{</span><span class="nt">"tof_esquerdo"</span><span class="p">:</span><span class="s2">"ok"</span><span class="p">,</span><span class="nt">"tof_frontal"</span><span class="p">:</span><span class="s2">"ausente"</span><span class="p">,</span><span class="nt">"tof_direito"</span><span class="p">:</span><span class="s2">"ok"</span><span class="p">,</span><span class="nt">"mpu6050"</span><span class="p">:</span><span class="s2">"ok"</span><span class="p">},</span><span class="nt">"tof_0x29"</span><span class="p">:</span><span class="kc">false</span><span class="p">,</span><span class="nt">"mpu6050_who_am_i"</span><span class="p">:</span><span class="mi">104</span><span class="p">,</span><span class="nt">"inesperados"</span><span class="p">:[],</span><span class="nt">"inesperados_total"</span><span class="p">:</span><span class="mi">0</span><span class="p">}</span>
 </code></pre></div>
 <p><strong>Figura 6.</strong> Relatório de um boot com o ToF frontal ausente: os motores ficam travados e a falha é nomeada.</p>
-<p><strong>No <code>main.cpp</code>.</strong> A sequência da Figura 5 roda no <code>setup()</code>, antes de criar as tarefas. Como a linha do boot se perde se o monitor serial abrir depois do reset (a USB nativa reconecta), a telemetria repete <code>boot_ok</code>, <code>boot_falhas</code> e <code>boot_ms</code> em todo pacote, e o comando <code>B</code> no monitor reimprime o relatório. Com os campos do boot, o pior caso do JSON de telemetria chegou a 516 bytes, e o buffer (<code>TAMANHO_MAX_JSON_TELEMETRIA</code>) passou de 512 para 768 bytes.</p>
+<p><strong>No <code>main.cpp</code>.</strong> A sequência da Figura 5 roda no <code>setup()</code>, antes de criar as tarefas. Como a linha do boot se perde se ninguém estiver lendo a serial no reset (por exemplo, no robô sem computador), a telemetria repete <code>boot_ok</code>, <code>boot_falhas</code> e <code>boot_ms</code> em todo pacote, e o comando <code>B</code> no monitor reimprime o relatório. Com os campos do boot, o pior caso do JSON de telemetria chegou a 516 bytes, e o buffer (<code>TAMANHO_MAX_JSON_TELEMETRIA</code>) passou de 512 para 768 bytes.</p>
 <h2 id="calibracao-autocalibracao-dos-vl53l0x-e-do-giroscopio-calibradortof-calibradorgiro-e-rotinacalibracao">Calibração: autocalibração dos VL53L0X e do giroscópio (<code>CalibradorTof</code>, <code>CalibradorGiro</code> e <code>RotinaCalibracao</code>)<a class="headerlink" href="#calibracao-autocalibracao-dos-vl53l0x-e-do-giroscopio-calibradortof-calibradorgiro-e-rotinacalibracao" title="Permanent link">&para;</a></h2>
 <p>Na largada, o robô deve estar parado e centralizado na célula inicial (0, 0). Antes de iniciar o deslocamento pelo labirinto, o micromouse executa uma rotina de autocalibração dos sensores de distância (3 VL53L0X) e inerciais (IMU MPU6050, eixo Z) (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/240">#240</a>, <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/51">HU-13</a> / RF-13).</p>
 <p>A camada <code>lib/calibracao</code> é puramente em C++17, não inclui <code>Arduino.h</code> e roda no computador com falsos (<code>SensorDistanciaSimulado</code> e <code>ImuSimulado</code>). A rotina cumpre o requisito não funcional <strong><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/26">RNF-08</a></strong>: a calibração completa deve ser concluída em <strong>até 1 segundo</strong> (1000 ms), com a duração ativamente medida pela rotina.</p>
@@ -5558,7 +5568,7 @@
 <li><strong>Uma vez por corrida:</strong> congelar antes de <code>iniciarCorrida()</code> ou congelar de novo é recusado (<code>false</code>), e o mapa final continua o da primeira vez. <code>iniciarCorrida()</code> destrava o congelamento para a próxima corrida.</li>
 <li><strong>Leitura protegida:</strong> <code>mapaFinal()</code> devolve <code>nullptr</code> enquanto o mapa não foi congelado e, depois, um ponteiro <code>const</code>, só para leitura.</li>
 <li><strong>Serialização no formato da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/178">#178</a> (tarefa 5.3.3):</strong> <code>MapaJson::serializarFinal(armazenamento, saida, capacidade)</code> gera o mesmo JSON de <code>serializar()</code>, mas do mapa final. Sem mapa congelado, devolve <code>0</code> e deixa <code>saida</code> com uma string vazia.</li>
-<li><strong>Memória sem alocação dinâmica:</strong> os dois mapas ficam dentro do objeto, que passou de 196 para 392 bytes (dois <code>Mapa</code> de 195 bytes e dois indicadores), cerca de 0,1% dos 320 KB de RAM do ESP32-C3.</li>
+<li><strong>Memória sem alocação dinâmica:</strong> os dois mapas ficam dentro do objeto, que passou de 196 para 392 bytes (dois <code>Mapa</code> de 195 bytes e dois indicadores), cerca de 0,1% dos cerca de 320 KB de RAM de dados do ESP32.</li>
 </ul>
 <h3 id="interface-da-classe_3">Interface da Classe<a class="headerlink" href="#interface-da-classe_3" title="Permanent link">&para;</a></h3>
 <ul>
@@ -5749,7 +5759,7 @@
 <li><strong>Mapa final:</strong> <code>MapaJson::serializarFinal(const ArmazenamentoMapa &amp;armazenamento, char *saida, size_t capacidade)</code> serializa o mapa congelado ao alcançar o objetivo, com as mesmas regras de buffer (veja <a href="#mapeamento-mapa-final-da-corrida">Mapeamento: mapa final da corrida</a>)</li>
 </ul>
 <h2 id="navegacao-odometria">Navegação: odometria<a class="headerlink" href="#navegacao-odometria" title="Permanent link">&para;</a></h2>
-<p>A <code>Odometria</code> (<code>lib/navegacao</code>) estima a <strong>pose do robô</strong>, isto é, a célula (linha e coluna) e a direção (Norte, Leste, Sul ou Oeste), a partir das contagens dos dois encoders (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/187">#187</a>, HU-05). A arquitetura não tem IMU: a rotação vem da diferença entre as rodas e o avanço vem da média delas (odometria diferencial). A lógica não depende do Arduino e só usa inteiros, porque o ESP32-C3 não tem unidade de ponto flutuante.</p>
+<p>A <code>Odometria</code> (<code>lib/navegacao</code>) estima a <strong>pose do robô</strong>, isto é, a célula (linha e coluna) e a direção (Norte, Leste, Sul ou Oeste), a partir das contagens dos dois encoders (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/187">#187</a>, HU-05). A arquitetura não tem IMU: a rotação vem da diferença entre as rodas e o avanço vem da média delas (odometria diferencial). A lógica não depende do Arduino e só usa inteiros, para as contas darem o mesmo resultado no computador (testes <code>native</code>) e na placa.</p>
 <pre class="mermaid"><code>flowchart LR
     E["IEncoder esquerdo"] --&gt; D["Δ esquerda − Δ direita&lt;br/&gt;(giro)"]
     R["IEncoder direito"] --&gt; D
@@ -5898,7 +5908,7 @@
 <blockquote>
 <p><strong>Situação:</strong> implementado e integrado ao firmware na <code>main</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/378">#378</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/403">#403</a>): a lógica do ângulo de giro, o driver do MPU6050, a tarefa da IMU e a trava do barramento I²C. Os testes rodam no computador, com um giroscópio simulado. <strong>Ainda não houve leitura do sensor real</strong>; a validação na placa faz parte da bancada integrada (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/381">#381</a>).</p>
 </blockquote>
-<p>Na Rev 2.0 do hardware, o robô tem uma IMU <strong>MPU6050</strong> no mesmo barramento I²C dos três VL53L0X (SDA no GPIO9 e SCL no GPIO8, endereço 0x68). O firmware usa o <strong>giroscópio do eixo Z</strong>, que mede a taxa de giro em torno do eixo vertical, para saber quanto o robô girou (o ângulo de giro, ou <em>yaw</em>). É a base dos giros de 90° e 180° (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/190">#190</a>) e da calibração (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/240">#240</a>).</p>
+<p>Na Rev 2.0 do hardware, o robô tem uma IMU <strong>MPU6050</strong> no mesmo barramento I²C dos três VL53L0X (SDA no GPIO21 e SCL no GPIO22, endereço 0x68). O firmware usa o <strong>giroscópio do eixo Z</strong>, que mede a taxa de giro em torno do eixo vertical, para saber quanto o robô girou (o ângulo de giro, ou <em>yaw</em>). É a base dos giros de 90° e 180° (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/190">#190</a>) e da calibração (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/240">#240</a>).</p>
 <pre class="mermaid"><code>flowchart LR
     bus["BarramentoI2c&lt;br/&gt;(Wire + mutex)"] --- mpu["ImuMpu6050&lt;br/&gt;lê o eixo Z"]
     mpu --&gt;|"bruto → décimos de °/s&lt;br/&gt;(faixa ±500 °/s)"| acomp["AcompanhadorGiro&lt;br/&gt;calibra o viés na largada,&lt;br/&gt;conta as falhas"]
@@ -5913,7 +5923,7 @@
 <li><strong>Zona morta:</strong> depois de tirar o viés, taxas de até 0,3 °/s contam como zero, para o ruído do sensor parado não virar deriva.</li>
 <li><strong>Integração:</strong> a cada leitura (10 ms), o ângulo soma <code>taxa × dt</code>. A soma é guardada sem arredondar a cada ciclo, para frações pequenas não se perderem.</li>
 <li><strong>Ângulo:</strong> o ângulo é <strong>acumulado</strong> (um giro de 360° vale 360 000 mili-graus), o que facilita controlar um giro de 90°. Também há a versão <strong>normalizada</strong>, entre −180° e 180°.</li>
-<li><strong>Só inteiros:</strong> o ESP32-C3 não tem unidade de ponto flutuante, então todas as contas usam inteiros.</li>
+<li><strong>Só inteiros:</strong> todas as contas usam inteiros, para darem o mesmo resultado no computador (testes <code>native</code>) e na placa.</li>
 <li><strong>Falhas de leitura:</strong> uma leitura que falha (sensor sem resposta ou barramento ocupado) não soma nada ao ângulo e é contada. Depois de 5 falhas seguidas (50 ms sem leitura), o ângulo fica <strong>inválido</strong> até a próxima leitura boa: um giro de 300 °/s já andaria 15° sem ser contado.</li>
 <li><strong>Calibração automática:</strong> se o robô se mexer durante a calibração e ela for recusada, a calibração recomeça sozinha com as próximas amostras. O ângulo só é válido depois da calibração concluída.</li>
 </ul>
@@ -5979,11 +5989,11 @@
 </tbody>
 </table>
 <h3 id="driver-barramento-i2c-e-tarefa-da-imu">Driver, barramento I²C e tarefa da IMU<a class="headerlink" href="#driver-barramento-i2c-e-tarefa-da-imu" title="Permanent link">&para;</a></h3>
-<p>O driver (<code>ImuMpu6050</code>) e o barramento (<code>BarramentoI2c</code>) ficam em <code>lib/drivers_esp32</code>, que só compila no ambiente <code>esp32c3</code>: os registradores do MPU6050 aparecem só ali, e o <code>pio test -e native</code> não depende deles. As contas que dá para testar no computador (montar o valor dos dois bytes, o valor do registrador da faixa e a inversão do sinal) ficam em <code>ConversorGiro.h</code> e têm teste.</p>
+<p>O driver (<code>ImuMpu6050</code>) e o barramento (<code>BarramentoI2c</code>) ficam em <code>lib/drivers_esp32</code>, que só compila nos ambientes da placa (<code>esp32_devkit</code> e as bancadas): os registradores do MPU6050 aparecem só ali, e o <code>pio test -e native</code> não depende deles. As contas que dá para testar no computador (montar o valor dos dois bytes, o valor do registrador da faixa e a inversão do sinal) ficam em <code>ConversorGiro.h</code> e têm teste.</p>
 <pre class="mermaid"><code>flowchart LR
     nav["tarefaNavegacao&lt;br/&gt;(3 VL53L0X)"] --&gt;|"BarramentoI2c::Uso"| bar["BarramentoI2c&lt;br/&gt;Wire + mutex"]
     imuT["tarefaImu, a cada 10 ms&lt;br/&gt;ImuMpu6050 + AcompanhadorGiro"] --&gt;|"BarramentoI2c::Uso"| bar
-    bar --&gt; fios(["SDA GPIO9 · SCL GPIO8"])
+    bar --&gt; fios(["SDA GPIO21 · SCL GPIO22"])
     imuT --&gt;|"cópia em seção crítica"| leit["LeituraGiro&lt;br/&gt;taxa, ângulo, válida"]
     leit --&gt;|"lerGiro()"| outras["navegação, proteção dos motores,&lt;br/&gt;giros de 90° e 180°"]</code></pre>
 <p><strong>Figura 15.</strong> O barramento I²C compartilhado: as duas tarefas só falam com os sensores dentro de um <code>BarramentoI2c::Uso</code>, e as outras partes do firmware leem o giro pela cópia <code>LeituraGiro</code>, sem tocar no I²C.</p>
@@ -6011,7 +6021,7 @@
 </ul>
 <h2 id="navegacao-deteccao-do-objetivo-e-evento-na-telemetria">Navegação: detecção do objetivo e evento na telemetria<a class="headerlink" href="#navegacao-deteccao-do-objetivo-e-evento-na-telemetria" title="Permanent link">&para;</a></h2>
 <p>O módulo de navegação (<code>lib/navegacao</code>) implementa a classe <code>DetectorObjetivo</code>, responsável por identificar o instante em que o robô alcança a célula de destino (canto diametralmente oposto à partida), acionar a parada imediata dos motores, disparar o congelamento do mapa final e sinalizar o evento pontual correspondente (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/189">#189</a>, HU-07 / RF-07).</p>
-<p>Em conjunto, a camada de comunicação (<code>lib/comunicacao</code>) provê a classe <code>TelemetriaJson</code>, que encapsula os dados de telemetria periódica e insere o evento pontual <code>"objetivo_alcancado"</code> em um único payload JSON transmitido via serial (USB nativa CDC), formatado com estrutura compatível com a tabela <code>telemetria</code> do Supabase para futura ingestão na nuvem (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/236">#236</a>) e acompanhamento no dashboard web (HU-14).</p>
+<p>Em conjunto, a camada de comunicação (<code>lib/comunicacao</code>) provê a classe <code>TelemetriaJson</code>, que encapsula os dados de telemetria periódica e insere o evento pontual <code>"objetivo_alcancado"</code> em um único payload JSON transmitido via serial (UART0, pelo conversor USB da placa), formatado com estrutura compatível com a tabela <code>telemetria</code> do Supabase para futura ingestão na nuvem (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/236">#236</a>) e acompanhamento no dashboard web (HU-14).</p>
 <pre class="mermaid"><code>sequenceDiagram
     autonumber
     participant N as tarefaNavegacao (10 ms)
@@ -6021,7 +6031,7 @@
     participant A as ArmazenamentoMapa
     participant T as tarefaTelemetria (100 ms)
     participant J as TelemetriaJson
-    participant S as Serial (USB nativa CDC)
+    participant S as Serial (UART0)
 
     Note over N,A: Seção crítica com travaOdometria
     N-&gt;&gt;O: atualizar(encoderEsq, encoderDir)
@@ -6130,7 +6140,7 @@
 </tbody>
 </table>
 <p><strong>No <code>main.cpp</code>:</strong>
-Na <code>tarefaNavegacao</code>, a atualização da pose e a chamada <code>detectorObjetivo.processarChegada(pose, motores, &amp;armazenamentoMapa)</code> executam sob a seção crítica <code>travaOdometria</code>. Caso o objetivo seja alcançado, o loop mantém os motores freados. Na <code>tarefaTelemetria</code> (100 ms), o evento pontual é consumido de forma atômica (<code>detectorObjetivo.consumirEventoChegada()</code>) também sob <code>travaOdometria</code>, garantindo que apenas um pacote envie <code>"evento": "objetivo_alcancado"</code> pela Serial (USB CDC) e os pacotes seguintes recebam <code>null</code>. O comando serial <code>'Z'</code> reinicia a medição de deslocamento e zera o detector via <code>resetar()</code>.</p>
+Na <code>tarefaNavegacao</code>, a atualização da pose e a chamada <code>detectorObjetivo.processarChegada(pose, motores, &amp;armazenamentoMapa)</code> executam sob a seção crítica <code>travaOdometria</code>. Caso o objetivo seja alcançado, o loop mantém os motores freados. Na <code>tarefaTelemetria</code> (100 ms), o evento pontual é consumido de forma atômica (<code>detectorObjetivo.consumirEventoChegada()</code>) também sob <code>travaOdometria</code>, garantindo que apenas um pacote envie <code>"evento": "objetivo_alcancado"</code> pela Serial (UART0) e os pacotes seguintes recebam <code>null</code>. O comando serial <code>'Z'</code> reinicia a medição de deslocamento e zera o detector via <code>resetar()</code>.</p>
 <blockquote>
 <p>[!NOTE]
 A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <strong>provisória</strong> para validação de bancada. Em labirintos 8x4 ou 12x4, o tamanho deve ser recebido por comando dinâmico antes de iniciar a corrida. A duplicidade entre a instância de <code>DetectorObjetivo</code> em <code>main.cpp</code> e o <code>detector_</code> interno de <code>Navegacao</code> será unificada quando a classe <code>Navegacao</code> assumir o controle do laço de controle.</p>
@@ -6245,7 +6255,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 </tr>
 </tbody>
 </table>
-<p>Todos são <strong>provisórios</strong>: nada foi medido com o Wi-Fi real. O envio ocupa cerca de 45 KB de RAM fixa (<em>buffer</em>, cópia do lote e JSON), de 320 KB do ESP32-C3.</p>
+<p>Todos são <strong>provisórios</strong>: nada foi medido com o Wi-Fi real. O envio ocupa cerca de 45 KB de RAM fixa (<em>buffer</em>, cópia do lote e JSON), de cerca de 320 KB de RAM de dados do ESP32.</p>
 <h3 id="interface-das-classes_4">Interface das Classes<a class="headerlink" href="#interface-das-classes_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong><code>ControladorEnvio</code></strong> (<code>lib/comunicacao</code>): <code>iniciarCorrida(id)</code>, <code>registrar(amostra)</code> (devolve o número de sequência dado), <code>ciclo(agoraMs)</code> (devolve <code>Ocioso</code>, <code>Aguardando</code>, <code>Enviado</code>, <code>Falhou</code>, <code>Descartado</code>, <code>Pausado</code> ou <code>Encerrada</code>), <code>solicitarEncerramento(agoraMs)</code>, <code>encerrada()</code>, <code>encerramentoAtrasado(agoraMs)</code>, <code>pausado()</code>, <code>retomar()</code>, <code>ocupacao()</code>, <code>amostrasPerdidas()</code> e <code>contadores()</code>.</li>
@@ -6259,7 +6269,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <p><strong>Rastreabilidade:</strong> <code>lib/comunicacao</code> (<code>ControladorEnvio</code>, <code>BufferCircular</code>, <code>PoliticaReenvio</code>, <code>ContratoTelemetria</code>, <code>ReconexaoWifi</code>, <code>CredenciaisSupabase</code>), <code>lib/hal</code> (<code>IEnvioTelemetria</code>, <code>ITrava</code>, <code>IRedeWifi</code>) e <code>lib/drivers_esp32</code> (<code>EnvioHttpSupabase</code>, <code>RedeWifiEsp32</code>, <code>TravaSecaoCritica</code>) atendem às tarefas <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/236">#236</a>, da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/45">HU-08</a> (RF08), e <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/238">#238</a>, da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/46">HU-16</a> (RF16).</p>
 <p><strong>Pendências:</strong> a Edge Function <code>telemetria</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/229">#229</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/398">#398</a>) já está na <code>main</code>; sem ela no ar, o servidor responderia <code>404</code> e os lotes seriam descartados (contados em <code>descartadas</code>). O teste com o Wi-Fi real fica para a bancada (ED2), e o teste ponta a ponta, para a <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/232">#232</a>. O labirinto da corrida é fixo em 4×4 até o tamanho ser escolhido antes da largada.</p>
 <h2 id="tarefas-do-freertos">Tarefas do FreeRTOS<a class="headerlink" href="#tarefas-do-freertos" title="Permanent link">&para;</a></h2>
-<p>Criadas em <code>src/main.cpp</code>. Navegação, IMU, telemetria e rede rodam de forma concorrente, como no diagrama de atividades: o ESP32-C3 tem um único núcleo, e o FreeRTOS alterna entre as tarefas conforme a prioridade de cada uma.</p>
+<p>Criadas em <code>src/main.cpp</code>. Navegação, IMU, telemetria e rede rodam de forma concorrente, como no diagrama de atividades: as tarefas são criadas sem núcleo fixo (<code>xTaskCreate</code>), e o FreeRTOS as distribui entre os dois núcleos do ESP32 conforme a prioridade de cada uma.</p>
 <table>
 <thead>
 <tr>
@@ -6309,7 +6319,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
     controle --&gt; lateral["ControladorCentralizacao&lt;br/&gt;correção lateral (PD)"]
     controle --&gt; frontal["PerfilParadaFrontal&lt;br/&gt;potência base"]
     controle --&gt; motores["IMotores&lt;br/&gt;potência de cada roda"]
-    motores -. implementa .-&gt; drv["MotoresDrv8833&lt;br/&gt;PWM nos GPIO 10, 3, 20 e 21"]
+    motores -. implementa .-&gt; drv["MotoresDrv8833&lt;br/&gt;PWM nos GPIO 25, 26, 27 e 14"]
     motores -. implementa .-&gt; sim["MotoresSimulados&lt;br/&gt;testes"]</code></pre>
 <p><strong>Figura 19.</strong> Fluxo do controle de movimento: a cada leitura dos sensores de distância, a distância frontal define a potência base, as distâncias laterais definem a correção, e o resultado vai para os motores pela interface <code>IMotores</code>.</p>
 <h3 id="geometria-considerada">Geometria considerada<a class="headerlink" href="#geometria-considerada" title="Permanent link">&para;</a></h3>
@@ -6471,7 +6481,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 </tbody>
 </table>
 <h3 id="gatilho-da-largada">Gatilho da largada<a class="headerlink" href="#gatilho-da-largada" title="Permanent link">&para;</a></h3>
-<p>A Super Mini não tem botão livre (o BOOT fica no GPIO9, o SDA do I²C), e o dashboard ainda não manda comandos ao robô. A largada é dada por um <strong>gesto na frente do ToF frontal</strong>, o truque clássico de micromouse, ou pelo comando serial <code>L</code> na bancada:</p>
+<p>O firmware do robô ainda não lê o botão <code>BTN_START</code> do DevKit (GPIO23, usado só pela bancada geral), e o dashboard ainda não manda comandos ao robô. A largada é dada por um <strong>gesto na frente do ToF frontal</strong>, o truque clássico de micromouse, ou pelo comando serial <code>L</code> na bancada:</p>
 <ol>
 <li>Com o robô pronto (boot aprovado e giroscópio calibrado), a frente precisa estar livre (100 mm ou mais) para o gatilho armar.</li>
 <li>A mão cobre o sensor (50 mm ou menos) por pelo menos 300 ms. Um vulto mais curto é ignorado.</li>
@@ -6867,7 +6877,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <tr>
 <td><code>ENCODERS_INSTALADOS</code></td>
 <td><code>true</code></td>
-<td>Odometria pelos <code>EncoderEsp32</code> (pinos no <code>Pinos.h</code>). Para o modo estimado, compile com <code>-DENCODERS_INSTALADOS_VALOR=0</code> (ambiente <code>bancada_deslocamento_sem_encoder</code>)</td>
+<td>Odometria pelos <code>EncoderEsp32</code> (pinos no <code>Pinos.h</code>). Para o modo estimado, acrescente <code>-DENCODERS_INSTALADOS_VALOR=0</code> aos <code>build_flags</code> do ambiente</td>
 </tr>
 <tr>
 <td><code>TABELA_VELOCIDADE</code></td>
@@ -6933,7 +6943,7 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <li><strong>Movimento simplificado:</strong> a parada é instantânea, sem inércia, e o giro estimado é grosseiro.</li>
 </ul>
 <h3 id="bancada-do-deslocamento-sem-encoder">Bancada do deslocamento sem encoder<a class="headerlink" href="#bancada-do-deslocamento-sem-encoder" title="Permanent link">&para;</a></h3>
-<p>Para conferir a estimativa no robô montado, há um firmware de bancada (<code>src/bancada/bancada_deslocamento.cpp</code>, ambiente <code>bancada_deslocamento</code>) e um menu no computador (<code>scripts/bancada_deslocamento.py</code>).</p>
+<p>Para conferir a estimativa no robô montado, há um firmware de bancada (<code>src/bancada/bancada_deslocamento.cpp</code>, ambiente <code>bancada_deslocamento_devkit</code>) e um menu no computador (<code>scripts/bancada_deslocamento.py</code>).</p>
 <ul>
 <li><strong>O firmware</strong> aciona os motores por um tempo e roda o mesmo <code>DeslocamentoEstimado</code> do robô. A cada 50 ms, manda o log pela serial (potência, pulsos, posição, pose, confiança e ToF), com uma linha à parte a cada correção. Qualquer byte recebido durante o movimento freia os motores, e cada movimento dura no máximo 10 s.</li>
 <li><strong>O menu</strong> mostra o log ao vivo, salva cada movimento em CSV, compara a estimativa com a régua e gera um relatório.</li>
@@ -6999,13 +7009,13 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
     quem["ControleMovimento&lt;br/&gt;DetectorObjetivo"] --&gt;|"definirPotencia / parar"| prot["MotoresComProtecao&lt;br/&gt;(ProtecaoMotorTravado)"]
     nav["tarefaNavegacao, a cada 10 ms"] --&gt;|"atualizarProtecao(ToF frontal, giro)"| prot
     prot --&gt;|"potência, ou freio se travado"| drv["MotoresDrv8833&lt;br/&gt;duty máximo de 70%"]
-    drv --&gt; pinos(["IN1/IN2: GPIO10/3&lt;br/&gt;IN3/IN4: GPIO20/21"])</code></pre>
+    drv --&gt; pinos(["IN1/IN2: GPIO25/26&lt;br/&gt;IN3/IN4: GPIO27/14"])</code></pre>
 <p><strong>Figura 24.</strong> Caminho de um comando até as rodas: todo comando passa pela <code>MotoresComProtecao</code>, que a navegação alimenta com o ToF frontal e o giroscópio; o driver converte a potência em PWM, já limitado ao duty máximo.</p>
 <h3 id="regras-de-negocio-e-algoritmo_16">Regras de Negócio e Algoritmo<a class="headerlink" href="#regras-de-negocio-e-algoritmo_16" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Pinos:</strong> vêm de <code>Pinos.h</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/377">#377</a>): IN1/IN2 em GPIO10/GPIO3 (motor esquerdo) e IN3/IN4 em GPIO20/GPIO21 (motor direito, invertido no <code>main.cpp</code> pela montagem espelhada).</li>
+<li><strong>Pinos:</strong> vêm de <code>Pinos.h</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/377">#377</a>): IN1/IN2 em GPIO25/GPIO26 (motor esquerdo) e IN3/IN4 em GPIO27/GPIO14 (motor direito, invertido no <code>main.cpp</code> pela montagem espelhada).</li>
 <li><strong>Freio antes do PWM:</strong> <code>motores.iniciar()</code> é a primeira linha do <code>setup()</code>. Ele põe os quatro pinos como saída em nível alto, que é o freio do DRV8833 (IN1 e IN2 altos), e só depois liga o PWM, já com duty total, que também é freio. A ordem importa: no Arduino-ESP32 3.x, um <code>digitalWrite</code> antes do <code>pinMode</code> é ignorado.</li>
-<li><strong>Tranco no boot:</strong> GPIO20 e GPIO21 são a UART0 do ESP32-C3. No reset, antes de o firmware rodar, a ROM escreve o log de boot no GPIO21, e o motor direito pode dar um tranco por cerca de 0,3 s. O firmware não alcança esse intervalo. As saídas, a decidir com a eletrônica: ligar o robô com as rodas fora do chão na bancada; resistores de <em>pull-down</em> em IN3/IN4; ou desligar o log da ROM pelo eFuse <code>UART_PRINT_CONTROL</code>, o que <strong>não tem volta</strong>.</li>
+<li><strong>Tranco no boot:</strong> no reset do ESP32, antes de o firmware rodar, a ROM emite um pulso PWM curto no GPIO14 (IN4 do motor direito), e o motor direito pode dar um tranco. O firmware não alcança esse intervalo. As saídas são ligar o robô com as rodas fora do chão na bancada, um resistor de <em>pull-down</em> no IN4 (o pino fica em nível baixo, roda livre, enquanto a ROM não o controla) ou o nSLEEP do DRV8833 num GPIO livre do DevKit.</li>
 <li><strong>Duty máximo:</strong> a potência máxima pedida pelo controle (1000) vira <code>DUTY_MAXIMO_MOTORES</code>, e não 100%; as potências menores ficam proporcionais (500 vira 358 de 1023, e não 511). O freio sempre usa o duty total. O limite (70%) é provisório: um N20 de 6 V numa bateria 2S carregada recebe 6 / 8,4 ≈ 71% da tensão. Uma verificação na compilação garante que frequência × 2^bits não passa dos 80 MHz do LEDC.</li>
 <li><strong>Motor travado sem encoder (<code>ProtecaoMotorTravado</code>):</strong> com <code>|potência|</code> de alguma roda a partir de 300, abre-se uma janela de 500 ms. Se, ao fim dela, o ToF frontal variou menos de 5 mm <strong>e</strong> o giroscópio nunca passou de 5 °/s, o robô está travado: andar em linha reta muda o ToF, girar no lugar muda o giroscópio, e só o robô preso não muda nenhum dos dois. Sem leitura frontal válida, nada é concluído e a contagem recomeça; potência baixa também zera a contagem. O estado <code>Travado</code> só sai com <code>reiniciar()</code>.</li>
 <li><strong>Freio e recusa (<code>MotoresComProtecao</code>):</strong> o decorador repassa os comandos ao driver e, a cada ciclo, roda a proteção com a última potência repassada. Travado, freia na hora e transforma todo <code>definirPotencia</code> seguinte em freio, até a navegação chamar <code>liberar()</code>; assim o controle não religa o motor preso no ciclo seguinte. <code>parar()</code> sempre passa. Ele conta os cortes e os comandos recusados.</li>
@@ -8839,9 +8849,9 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <p>Para rodar, dentro de <code>src/firmware</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native<span class="w">                  </span><span class="c1"># todos os testes</span>
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>pio<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-e<span class="w"> </span>native<span class="w"> </span>-f<span class="w"> </span>test_nucleo<span class="w">   </span><span class="c1"># só um módulo</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>pio<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>esp32c3<span class="w">                  </span><span class="c1"># compila para a placa</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>pio<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>esp32_devkit<span class="w">             </span><span class="c1"># compila para a placa</span>
 </code></pre></div>
-<p>Resultado do projeto base, executado em 04/10/2026: <strong>10 de 10 testes aprovados</strong> e build para o ESP32-C3 concluído com 4,2% de RAM e 18,9% de Flash. O registro completo da execução (ambiente, saídas e pendências) está em <a href="../../07-testes/software-registro/#registro-de-execucao-dos-testes">Testes de Software</a>.</p>
+<p>Resultado do projeto base, executado em 04/10/2026: <strong>10 de 10 testes aprovados</strong> e build para a placa da época (ESP32-C3) concluído com 4,2% de RAM e 18,9% de Flash. O registro completo da execução (ambiente, saídas e pendências) está em <a href="../../07-testes/software-registro/#registro-de-execucao-dos-testes">Testes de Software</a>.</p>
 <h3 id="como-ler-uma-falha">Como ler uma falha<a class="headerlink" href="#como-ler-uma-falha" title="Permanent link">&para;</a></h3>
 <p>Exemplo real, com um valor esperado alterado de propósito (registrado em <a href="../../07-testes/software-registro/#verificacao-de-deteccao-de-falhas-teste-negativo">Testes de Software</a>):</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>test/test_nucleo/test_direcao.cpp:21: test_girar_direita_percorre_as_quatro_direcoes: Expected 2 Was 1  [FAILED]
@@ -8900,8 +8910,8 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/38">HU-04</a> (RF04)</td>
 </tr>
 <tr>
-<td><code>Pinos.h</code> (pinagem Rev 2.0) e log pela USB nativa</td>
-<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/377">#377</a> Pinagem Rev 2.0 e placa Super Mini</td>
+<td><code>Pinos.h</code> (pinagem do ESP32 DevKit V1) e log pela UART0</td>
+<td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/377">#377</a> Pinagem Rev 2.0 (no ESP32 DevKit V1 desde 10/11/2026)</td>
 <td><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/36">HU-02</a> (RF02)</td>
 </tr>
 <tr>
@@ -9019,9 +9029,9 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 <h2 id="proximos-passos">Próximos passos<a class="headerlink" href="#proximos-passos" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Simulador de labirinto</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/224">#224</a>), concluído: a atualização do mapa (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/177">#177</a>) já pode ser validada num labirinto simulado inteiro (veja <a href="#labirinto-simulado-labirintosimulado">Labirinto simulado</a>).</li>
-<li><strong>CI do firmware</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/223">#223</a>), concluído no PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/295">#295</a>: todo PR para a <code>main</code> roda os testes nativos com cobertura mínima de 80% e o build do ESP32-C3. Os checks são obrigatórios na proteção da <code>main</code>. Com o PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/391">#391</a>, o build também compila o <code>bancada_tof</code>, e o job "Scripts de bancada" roda os testes dos scripts de <code>scripts/</code>.</li>
+<li><strong>CI do firmware</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/223">#223</a>), concluído no PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/295">#295</a>: todo PR para a <code>main</code> roda os testes nativos com cobertura mínima de 80% e o build da placa: o firmware do robô (<code>esp32_devkit</code>) e as três bancadas (<code>bancada_geral_devkit</code>, <code>bancada_tof_devkit</code> e <code>bancada_deslocamento_devkit</code>). Os checks são obrigatórios na proteção da <code>main</code>. O job "Scripts de bancada" roda os testes dos scripts de <code>scripts/</code>.</li>
 <li><strong>Rev 2.0 do hardware:</strong> pinagem concluída (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/377">#377</a>); em revisão, o driver dos 3 VL53L0X (PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/391">#391</a>), a IMU (PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/403">#403</a>) e a detecção de motor travado (PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/396">#396</a>); concluídos, os limiares para os VL53L0X (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/379">#379</a>) e o deslocamento sem encoder (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/380">#380</a>). A remoção do código do LiDAR (<code>lib/lidar</code>) e a troca do nome <code>ISensorDistancia</code> para um nome de sensor de distância ficam para um PR de código.</li>
-<li><strong>Validar com o hardware:</strong> a bancada da Rev 2.0 (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/381">#381</a>): I²C com os 3 VL53L0X e o MPU6050, motores N20 e o tranco no boot pelos GPIO20/21 (veja <a href="#pinagem">Pinagem</a>).</li>
+<li><strong>Validar com o hardware:</strong> a bancada da Rev 2.0 (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/381">#381</a>): I²C com os 3 VL53L0X e o MPU6050, motores N20 e o tranco no boot pelo GPIO14 (veja <a href="#pinagem">Pinagem</a>).</li>
 <li><strong>Formato JSON do mapa</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/178">#178</a>): o formato foi validado com as outras equipes. O dashboard (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/239">#239</a>) aceitou o JSON e vai tratar <code>null</code> como área não explorada, e a tabela <code>mapa_celulas</code> passou a aceitar <code>null</code> nas colunas <code>parede_*</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/228">#228</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/328">#328</a>). Falta o envio de fato da lista de células ao banco, que entra com a telemetria (Épico 03).</li>
 <li><strong>Mapa final serializado</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/180">#180</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/330">#330</a>), concluído: o mapa é congelado e serializado ao alcançar o objetivo e testado no labirinto simulado. Falta a navegação chamar <code>congelarMapa()</code> quando detectar o objetivo (Épico 02) e o envio do JSON do mapa final ao servidor, vinculado à corrida criada pela Edge Function <code>corridas</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/233">#233</a>), no Épico 03.</li>
 <li><strong>Algoritmo de resolução sobre o mapa</strong> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/183">#183</a>), concluído: a <code>Navegacao</code> decide o próximo passo por <em>flood fill</em> com o mapa parcial e foi testada nos labirintos simulados 4×4, 8×4 e 12×4 (veja <a href="#navegacao-algoritmo-de-resolucao-do-labirinto">Navegação: algoritmo de resolução do labirinto</a>). Falta ligar a navegação ao robô: o controle de movimento (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/184">#184</a>) executa a direção decidida, e a odometria (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/187">#187</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/343">#343</a>) informa a pose a <code>confirmarPose()</code>, dentro de <code>tarefaNavegacao</code>.</li>

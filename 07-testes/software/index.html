@@ -2151,7 +2151,7 @@
 <h3 id="escopo-da-ed1">Escopo da ED1<a class="headerlink" href="#escopo-da-ed1" title="Permanent link">&para;</a></h3>
 <p>A ED1 avalia testes isolados de <em>software</em>, com simuladores. Os testes automatizados cobrem as três camadas sem hardware real:</p>
 <ul>
-<li><strong>Firmware</strong> (C++ no ESP32-C3): PlatformIO e Unity, rodando no computador, com sensores, motores, Wi-Fi e labirinto simulados.</li>
+<li><strong>Firmware</strong> (C++ para o ESP32 DevKit V1): PlatformIO e Unity, rodando no computador, com sensores, motores, Wi-Fi e labirinto simulados.</li>
 <li><strong>Backend</strong> (Supabase): <code>node:test</code> sobre as Edge Functions e as funções SQL, com um PostgreSQL de verdade em WebAssembly (PGlite).</li>
 <li><strong>Frontend</strong> (React): Vitest e Testing Library, com um cliente Supabase simulado.</li>
 </ul>
@@ -2231,9 +2231,14 @@
 </thead>
 <tbody>
 <tr>
-<td>Compilação para a ESP32-C3</td>
+<td>Compilação para a placa da época (ESP32-C3), em 26/10</td>
 <td><code>pio run -e esp32c3</code></td>
 <td>Sucesso. RAM 26,9% (88 292 de 327 680 bytes), Flash 74,0% (969 906 de 1 310 720 bytes)</td>
+</tr>
+<tr>
+<td>Compilação para o ESP32 DevKit V1, em 10/11 (commit <code>f20485b</code>)</td>
+<td><code>pio run -e esp32_devkit</code></td>
+<td>Sucesso. RAM 29,2% (95 720 de 327 680 bytes), Flash 76,2% (999 301 de 1 310 720 bytes)</td>
 </tr>
 <tr>
 <td>Tipagem e <em>build</em> do frontend</td>

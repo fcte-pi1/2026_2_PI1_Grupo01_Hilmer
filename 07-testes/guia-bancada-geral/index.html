@@ -2322,7 +2322,7 @@
 
 
 <h1 id="guia-da-bancada-geral">Guia da bancada geral<a class="headerlink" href="#guia-da-bancada-geral" title="Permanent link">&para;</a></h1>
-<p>A <strong>bancada geral</strong> é um programa para a ESP32 (a DevKit V1 da bancada integrada ou a ESP32-C3 Super Mini) que mostra um menu no terminal do computador. Com a placa ligada por um cabo USB, você aperta uma tecla e o programa lê os sensores, aciona os motores, confere os encoders, a bateria e o botão, e testa a telemetria, usando os mesmos drivers do robô. Serve para testar os componentes sem escrever código e para investigar o que deu errado.</p>
+<p>A <strong>bancada geral</strong> é um programa para o ESP32 DevKit V1, a placa do robô, que mostra um menu no terminal do computador. Com a placa ligada por um cabo USB, você aperta uma tecla e o programa lê os sensores, aciona os motores, confere os encoders, a bateria e o botão, e testa a telemetria, usando os mesmos drivers do robô. Serve para testar os componentes sem escrever código e para investigar o que deu errado.</p>
 <p>Este guia funciona em <strong>Windows, macOS e Linux</strong> e não exige conhecimento prévio do firmware.</p>
 <div class="admonition warning">
 <p class="admonition-title">Antes de acionar qualquer motor</p>
@@ -2362,16 +2362,16 @@
 <td>Tecla <code>i</code> (teste integrado)</td>
 </tr>
 <tr>
-<td>Ver a tensão da bateria e se o botão de largada funciona (DevKit)</td>
+<td>Ver a tensão da bateria e se o botão de largada funciona</td>
 <td>Teclas <code>a</code> e <code>b</code></td>
 </tr>
 <tr>
-<td>Conferir se a placa conecta no Wi-Fi e grava a telemetria no banco (DevKit)</td>
+<td>Conferir se a placa conecta no Wi-Fi e grava a telemetria no banco</td>
 <td>Tecla <code>w</code></td>
 </tr>
 </tbody>
 </table>
-<p>A bancada <strong>não é o firmware do robô</strong>. Ela não faz a corrida, só testa componentes. Para voltar ao robô, grave o ambiente dele (<code>esp32c3</code>).</p>
+<p>A bancada <strong>não é o firmware do robô</strong>. Ela não faz a corrida, só testa componentes. Para voltar ao robô, grave o ambiente dele: <code>pio run -e esp32_devkit -t upload</code>.</p>
 <h2 id="2-o-que-voce-precisa">2. O que você precisa<a class="headerlink" href="#2-o-que-voce-precisa" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -2383,7 +2383,7 @@
 <tbody>
 <tr>
 <td>Placa</td>
-<td><strong>ESP32 DevKit V1</strong> (bancada integrada, ambiente <code>bancada_geral_devkit</code>) ou ESP32-C3 Super Mini (Rev 2.0, ambiente <code>bancada_geral</code>). Os comandos abaixo usam a DevKit; a Super Mini tem notas à parte</td>
+<td><strong>ESP32 DevKit V1</strong>, com a fiação da bancada integrada (ambiente <code>bancada_geral_devkit</code>)</td>
 </tr>
 <tr>
 <td>Cabo</td>
@@ -2426,7 +2426,7 @@
 <p>Se aparecer "<code>pio</code> não é reconhecido", use <code>py -m platformio</code> no lugar de <code>pio</code> nos comandos deste guia.</p>
 </li>
 <li>
-<p><strong>Driver USB:</strong> a DevKit tem um chip conversor USB-serial (leia o nome no chip da placa: <strong>CP2102/CP210x</strong> ou <strong>CH340/CH341</strong>). O Windows 10 e o 11 costumam instalar sozinhos; se a placa aparecer em <em>Gerenciador de Dispositivos &gt; Outros dispositivos</em> ou com triângulo amarelo, instale o driver do fabricante do chip (Silicon Labs para o CP210x, WCH para o CH340). Ela aparece em <em>Portas (COM e LPT)</em> como <code>COMn</code>. A Super Mini usa o driver USB-Serial/JTAG da Espressif.</p>
+<p><strong>Driver USB:</strong> a DevKit tem um chip conversor USB-serial (leia o nome no chip da placa: <strong>CP2102/CP210x</strong> ou <strong>CH340/CH341</strong>). O Windows 10 e o 11 costumam instalar sozinhos; se a placa aparecer em <em>Gerenciador de Dispositivos &gt; Outros dispositivos</em> ou com triângulo amarelo, instale o driver do fabricante do chip (Silicon Labs para o CP210x, WCH para o CH340). Ela aparece em <em>Portas (COM e LPT)</em> como <code>COMn</code>.</p>
 </li>
 </ol>
 </div>
@@ -2449,7 +2449,7 @@
 </code></pre></div>
 </li>
 <li>
-<p>As versões recentes do macOS reconhecem a maioria das DevKit, que aparecem como <code>/dev/cu.usbserial-XXXX</code> (a Super Mini aparece como <code>/dev/cu.usbmodemXXXX</code>). Se a porta não aparecer, instale o driver do chip (CP210x da Silicon Labs ou CH340 da WCH).</p>
+<p>As versões recentes do macOS reconhecem a maioria das DevKit, que aparecem como <code>/dev/cu.usbserial-XXXX</code> (ou <code>/dev/cu.wchusbserial-XXXX</code>, com o CH340). Se a porta não aparecer, instale o driver do chip (CP210x da Silicon Labs ou CH340 da WCH).</p>
 </li>
 </ol>
 </div>
@@ -2475,7 +2475,7 @@
 <p>Depois, <strong>saia da sessão e entre de novo</strong> (ou reinicie). No Arch e no Manjaro o grupo é <code>uucp</code>, em vez de <code>dialout</code>.</p>
 </li>
 <li>
-<p>Confira com <code>pio --version</code>. A DevKit aparece como <code>/dev/ttyUSB0</code> (a Super Mini, como <code>/dev/ttyACM0</code>). Se a porta abrir e sumir, o ModemManager pode estar interferindo: <code>sudo systemctl stop ModemManager</code>.</p>
+<p>Confira com <code>pio --version</code>. A DevKit aparece como <code>/dev/ttyUSB0</code>. Se a porta abrir e sumir, o ModemManager pode estar interferindo: <code>sudo systemctl stop ModemManager</code>.</p>
 </li>
 </ol>
 </div>
@@ -2524,7 +2524,7 @@
 <tr>
 <td style="text-align: center;">6</td>
 <td><strong>Rodas fora do chão</strong> no primeiro teste</td>
-<td>O robô pode sair andando. Na DevKit, o pino do <code>IN4</code> (motor direito) dá um pulso no reset do ESP32, e a roda direita pode dar um tranco ao ligar ou reiniciar</td>
+<td>O robô pode sair andando. O pino do <code>IN4</code> (GPIO14, motor direito) dá um pulso no reset do ESP32, e a roda direita pode dar um tranco ao ligar ou reiniciar</td>
 </tr>
 <tr>
 <td style="text-align: center;">7</td>
@@ -2547,54 +2547,44 @@
 <p><strong>2. Conecte a placa e veja a porta</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>pio<span class="w"> </span>device<span class="w"> </span>list
 </code></pre></div>
-<p>Procure a entrada da sua placa: na DevKit, algo como <code>CP2102 USB to UART Bridge</code> (VID:PID <code>10C4:EA60</code>) ou o <code>USB Serial</code> do CH340 (<code>1A86:7523</code>); na Super Mini, <code>USB JTAG/serial debug unit</code> (<code>303A:1001</code>). A porta é <code>COMn</code> no Windows, <code>/dev/cu.usbserial-XXXX</code> (DevKit) ou <code>/dev/cu.usbmodemXXXX</code> (Super Mini) no macOS e <code>/dev/ttyUSB0</code> (DevKit) ou <code>/dev/ttyACM0</code> (Super Mini) no Linux. Se não aparecer, vá para <a href="#7-problemas-comuns-e-como-resolver">Problemas comuns</a>.</p>
+<p>Procure a entrada da placa: algo como <code>CP2102 USB to UART Bridge</code> (VID:PID <code>10C4:EA60</code>) ou o <code>USB Serial</code> do CH340 (<code>1A86:7523</code>). A porta é <code>COMn</code> no Windows, <code>/dev/cu.usbserial-XXXX</code> (ou <code>/dev/cu.wchusbserial-XXXX</code>) no macOS e <code>/dev/ttyUSB0</code> no Linux. Se não aparecer, vá para <a href="#7-problemas-comuns-e-como-resolver">Problemas comuns</a>.</p>
 <p><strong>3. Grave o programa na placa</strong></p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">ESP32 DevKit V1</label><label for="__tabbed_2_2">ESP32-C3 Super Mini</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>pio<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>bancada_geral_devkit<span class="w"> </span>-t<span class="w"> </span>upload
 </code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>pio<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>bancada_geral<span class="w"> </span>-t<span class="w"> </span>upload
-</code></pre></div>
-</div>
-</div>
-</div>
 <p>A primeira vez baixa a plataforma e o compilador e demora alguns minutos. Termina com <code>[SUCCESS]</code>. Se aparecer <code>Failed to connect</code>, use o <a href="#modo-boot-quando-a-gravacao-nao-conecta">modo BOOT</a>.</p>
 <p><strong>4. Abra o monitor serial</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>pio<span class="w"> </span>device<span class="w"> </span>monitor<span class="w"> </span>-e<span class="w"> </span>bancada_geral_devkit
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>pio<span class="w"> </span>device<span class="w"> </span>monitor<span class="w"> </span>-e<span class="w"> </span>bancada_geral_devkit
 </code></pre></div>
-<p>(Na Super Mini, <code>-e bancada_geral</code>.) O menu aparece sozinho; na DevKit, abrir o monitor reinicia a placa e o menu sai em cerca de 1 s. Se não aparecer, aperte <strong>Enter</strong>. Se houver mais de uma porta, indique a certa: <code>pio device monitor -e bancada_geral_devkit --port COM5</code> (ou <code>/dev/ttyUSB0</code>).</p>
+<p>O menu aparece sozinho: abrir o monitor reinicia a placa e o menu sai em cerca de 1 s. Se não aparecer, aperte <strong>Enter</strong>. Se houver mais de uma porta, indique a certa: <code>pio device monitor -e bancada_geral_devkit --port COM5</code> (ou <code>/dev/ttyUSB0</code>).</p>
 <p><strong>5. Use o menu.</strong> Digite <strong>só a tecla</strong>, sem Enter. Para sair do monitor, <code>Ctrl+C</code>.</p>
 <p><strong>6. Rode o autoteste (tecla <code>t</code>)</strong> com o robô parado. Ele verifica o I²C, os 3 ToF, o MPU6050 e os encoders e diz o que fazer em cada falha. Exemplo de resposta saudável:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>AUTOTESTE (robo parado; os motores nao sao acionados)
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>1) Barramento I2C
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>  [OK]    0x30 VL53L0X esquerdo responde
-<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>  [OK]    0x31 VL53L0X frontal responde
-<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>  [OK]    0x32 VL53L0X direito responde
-<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>  [OK]    0x68 MPU6050 responde
-<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>  [OK]    nenhum VL53L0X ficou no endereco de fabrica (0x29)
-<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>2) Sensores de distancia (ToF)
-<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>  [OK]    ToF frente: 182 mm
-<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>  [OK]    ToF esquerda: 95 mm
-<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>  [OK]    ToF direita: fora de alcance
-<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>3) MPU6050
-<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>  [OK]    MPU6050 responde (WHO_AM_I 0x68, 50 de 50 leituras)
-<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a>  [OK]    giro Z parado: 0.3 graus/s (limite 5.0)
-<a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a>  [OK]    aceleracao X=12 mg, Y=-8 mg
-<a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a>4) Encoders (parados)
-<a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a>  [OK]    encoder esquerdo estavel (0 pulsos, 0 transicoes invalidas)
-<a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a>  [OK]    encoder direito estavel (0 pulsos, 0 transicoes invalidas)
-<a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a>5) Bateria e botao
-<a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a>  [OK]    bateria 7.62 V
-<a id="__codelineno-13-21" name="__codelineno-13-21" href="#__codelineno-13-21"></a>  [OK]    botao BTN_START solto (nivel alto)
-<a id="__codelineno-13-22" name="__codelineno-13-22" href="#__codelineno-13-22"></a>RESULTADO: 15 OK, 0 FALHA(S).
-<a id="__codelineno-13-23" name="__codelineno-13-23" href="#__codelineno-13-23"></a>REGISTRO: autoteste | ok=15 falhas=0 | veredito=OK
-<a id="__codelineno-13-24" name="__codelineno-13-24" href="#__codelineno-13-24"></a>Nao verificado aqui: motores (tecla 7), o sentido dos encoders (gire a roda a mao com a tecla 9) e o aperto do botao (tecla b).
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>AUTOTESTE (robo parado; os motores nao sao acionados)
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>1) Barramento I2C
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>  [OK]    0x30 VL53L0X esquerdo responde
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>  [OK]    0x31 VL53L0X frontal responde
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>  [OK]    0x32 VL53L0X direito responde
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>  [OK]    0x68 MPU6050 responde
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>  [OK]    nenhum VL53L0X ficou no endereco de fabrica (0x29)
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>2) Sensores de distancia (ToF)
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>  [OK]    ToF frente: 182 mm
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>  [OK]    ToF esquerda: 95 mm
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>  [OK]    ToF direita: fora de alcance
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>3) MPU6050
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>  [OK]    MPU6050 responde (WHO_AM_I 0x68, 50 de 50 leituras)
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>  [OK]    giro Z parado: 0.3 graus/s (limite 5.0)
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>  [OK]    aceleracao X=12 mg, Y=-8 mg
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>4) Encoders (parados)
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>  [OK]    encoder esquerdo estavel (0 pulsos, 0 transicoes invalidas)
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>  [OK]    encoder direito estavel (0 pulsos, 0 transicoes invalidas)
+<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a>5) Bateria e botao
+<a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a>  [OK]    bateria 7.62 V
+<a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a>  [OK]    botao BTN_START solto (nivel alto)
+<a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a>RESULTADO: 15 OK, 0 FALHA(S).
+<a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a>REGISTRO: autoteste | ok=15 falhas=0 | veredito=OK
+<a id="__codelineno-12-24" name="__codelineno-12-24" href="#__codelineno-12-24"></a>Nao verificado aqui: motores (tecla 7), o sentido dos encoders (gire a roda a mao com a tecla 9) e o aperto do botao (tecla b).
 </code></pre></div>
-<p>Os valores são um exemplo. A etapa 5 (bateria e botão) só existe na DevKit; na Super Mini o resultado é <code>13 OK</code>. A linha <code>REGISTRO</code> é a que se cola no registro de testes.</p>
-<p><strong>7. Para testar a telemetria</strong> (só na DevKit), copie <code>include/credenciais.exemplo.h</code> para <code>include/credenciais.h</code> (o Git ignora esse arquivo), preencha o Wi-Fi, a URL do Supabase, a chave <code>anon</code> (nunca a <code>sb_secret</code>), o <code>DEVICE_TOKEN</code> e, na bancada, <code>CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1</code>. Grave de novo, tecle <code>w</code> e depois <code>a</code>. Veja a <a href="#telemetria-tecla-w">tabela da telemetria</a>.</p>
+<p>Os valores são um exemplo. A linha <code>REGISTRO</code> é a que se cola no registro de testes.</p>
+<p><strong>7. Para testar a telemetria</strong>, copie <code>include/credenciais.exemplo.h</code> para <code>include/credenciais.h</code> (o Git ignora esse arquivo), preencha o Wi-Fi, a URL do Supabase, a chave <code>anon</code> (nunca a <code>sb_secret</code>), o <code>DEVICE_TOKEN</code> e, na bancada, <code>CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1</code>. Grave de novo, tecle <code>w</code> e depois <code>a</code>. Veja a <a href="#telemetria-tecla-w">tabela da telemetria</a>.</p>
 <p><strong>8. Registre o resultado</strong> (veja <a href="#8-como-registrar-um-teste">como registrar</a>).</p>
 <h2 id="6-teclas-do-menu">6. Teclas do menu<a class="headerlink" href="#6-teclas-do-menu" title="Permanent link">&para;</a></h2>
 <p><strong>Menu principal</strong></p>
@@ -2640,15 +2630,15 @@
 </tr>
 <tr>
 <td style="text-align: center;"><code>i</code></td>
-<td><strong>Teste integrado</strong>: liga os dois motores por 5 s e lê ToF, MPU6050 e encoders ao mesmo tempo. Diz se os dois giram, se o PWM derruba algum sensor e, na DevKit, quanto a bateria cai. Termina com uma linha <code>REGISTRO</code></td>
+<td><strong>Teste integrado</strong>: liga os dois motores por 5 s e lê ToF, MPU6050 e encoders ao mesmo tempo. Diz se os dois giram, se o PWM derruba algum sensor e quanto a bateria cai. Termina com uma linha <code>REGISTRO</code></td>
 </tr>
 <tr>
 <td style="text-align: center;"><code>a</code> / <code>b</code></td>
-<td><strong>DevKit:</strong> tensão da bateria pelo divisor do GPIO34 / botão de largada ao vivo (aperte e solte; qualquer tecla para)</td>
+<td>Tensão da bateria pelo divisor do GPIO34 / botão de largada ao vivo (aperte e solte; qualquer tecla para)</td>
 </tr>
 <tr>
 <td style="text-align: center;"><code>w</code></td>
-<td><strong>DevKit:</strong> abre o submenu de telemetria (Wi-Fi e banco)</td>
+<td>Abre o submenu de telemetria (Wi-Fi e banco)</td>
 </tr>
 <tr>
 <td style="text-align: center;"><code>r</code></td>
@@ -2707,7 +2697,7 @@
 </tr>
 </tbody>
 </table>
-<p>Cada teste de motor dura no máximo 2 s e <strong>qualquer tecla freia</strong> os motores. No modo contínuo, na Super Mini, fechar o monitor também freia; na DevKit o programa não percebe o monitor fechar, então ele pede a tecla <code>m</code> a cada 10 s e, sem ela, freia sozinho. Ao fim de cada teste, a bancada compara o sinal do encoder com o comando e diz se está coerente.</p>
+<p>Cada teste de motor dura no máximo 2 s e <strong>qualquer tecla freia</strong> os motores. No modo contínuo, o programa não percebe o monitor fechar (a serial é a UART0 da placa), então ele pede a tecla <code>m</code> a cada 10 s e, sem ela, freia sozinho. Ao fim de cada teste, a bancada compara o sinal do encoder com o comando e diz se está coerente.</p>
 <h3 id="telemetria-tecla-w">Telemetria (tecla <code>w</code>)<a class="headerlink" href="#telemetria-tecla-w" title="Permanent link">&para;</a></h3>
 <p>O submenu grava uma corrida e amostras de teste <strong>de verdade</strong> no banco do <code>credenciais.h</code>. Use o projeto Supabase de testes ou apague a corrida depois.</p>
 <table>
@@ -2780,7 +2770,7 @@
 </tr>
 <tr>
 <td>Windows</td>
-<td>Veja em <em>Gerenciador de Dispositivos</em> se aparece em <em>Portas (COM)</em>. Se aparecer em "Outros dispositivos" ou com triângulo amarelo, instale o driver do chip da placa (CP210x ou CH340 na DevKit; USB-Serial/JTAG da Espressif na Super Mini)</td>
+<td>Veja em <em>Gerenciador de Dispositivos</em> se aparece em <em>Portas (COM)</em>. Se aparecer em "Outros dispositivos" ou com triângulo amarelo, instale o driver do chip da placa (CP210x ou CH340)</td>
 </tr>
 <tr>
 <td>macOS</td>
@@ -2788,107 +2778,92 @@
 </tr>
 <tr>
 <td>Linux</td>
-<td><code>ls /dev/ttyUSB* /dev/ttyACM*</code> e <code>dmesg \| tail</code>. Se aparecer e sumir, pare o ModemManager</td>
+<td><code>ls /dev/ttyUSB*</code> e <code>dmesg \| tail</code>. Se aparecer e sumir, pare o ModemManager</td>
 </tr>
 </tbody>
 </table>
 <h3 id="permission-denied-ao-abrir-a-porta-linux"><code>Permission denied</code> ao abrir a porta (Linux)<a class="headerlink" href="#permission-denied-ao-abrir-a-porta-linux" title="Permanent link">&para;</a></h3>
 <p>Entre no grupo da porta e saia da sessão para valer:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>sudo<span class="w"> </span>usermod<span class="w"> </span>-a<span class="w"> </span>-G<span class="w"> </span>dialout<span class="w"> </span><span class="nv">$USER</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>sudo<span class="w"> </span>usermod<span class="w"> </span>-a<span class="w"> </span>-G<span class="w"> </span>dialout<span class="w"> </span><span class="nv">$USER</span>
 </code></pre></div>
 <h3 id="could-not-open-port-access-is-denied-resource-busy"><code>could not open port</code> / <code>Access is denied</code> / <code>Resource busy</code><a class="headerlink" href="#could-not-open-port-access-is-denied-resource-busy" title="Permanent link">&para;</a></h3>
 <p>Outro programa está usando a porta: um monitor serial aberto, outra janela do terminal, o VS Code ou o Arduino IDE. Feche-o (no terminal, <code>Ctrl+C</code>) e tente de novo. No Windows, desconecte e reconecte o cabo.</p>
 <h3 id="modo-boot-quando-a-gravacao-nao-conecta">Modo BOOT: quando a gravação não conecta<a class="headerlink" href="#modo-boot-quando-a-gravacao-nao-conecta" title="Permanent link">&para;</a></h3>
 <p>Sintoma:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>Connecting......................................
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>A fatal error occurred: Failed to connect to ESP32-C3: No serial data received.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>Connecting......................................
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>A fatal error occurred: Failed to connect to ESP32: No serial data received.
 </code></pre></div>
 <p>A placa não entrou no modo de gravação sozinha. Faça isso à mão:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">ESP32 DevKit V1</label><label for="__tabbed_3_2">ESP32-C3 Super Mini</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
 <ol>
 <li>Rode <code>pio run -e bancada_geral_devkit -t upload</code>.</li>
 <li>Quando aparecer <code>Connecting....</code>, <strong>segure o botão BOOT</strong> da placa e solte quando a gravação começar (aparecem os percentuais).</li>
 <li>Ao terminar, aperte o botão <strong>EN</strong> (reset) para a placa rodar o programa.</li>
 <li>Se a gravação nunca começa, troque o cabo por um com dados e confira o driver do chip (seção 3).</li>
 </ol>
-</div>
-<div class="tabbed-block">
-<ol>
-<li>Desconecte o cabo USB da placa.</li>
-<li><strong>Segure o botão BOOT</strong> da Super Mini.</li>
-<li>Ligue o cabo USB <strong>com o BOOT pressionado</strong> e solte depois de 1 ou 2 s.</li>
-<li>Rode de novo <code>pio run -e bancada_geral -t upload</code>. A porta pode mudar de nome; o <code>pio</code> detecta sozinho.</li>
-<li>Ao terminar, aperte o botão <strong>RESET</strong> (ou desligue e ligue o cabo) para a placa rodar o programa.</li>
-</ol>
-</div>
-</div>
-</div>
 <h3 id="o-menu-nao-aparece">O menu não aparece<a class="headerlink" href="#o-menu-nao-aparece" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Aperte <strong>Enter</strong>.</li>
-<li>Abra o monitor de novo (<code>pio device monitor -e bancada_geral_devkit</code>; <code>bancada_geral</code> na Super Mini). O menu aparece quando o monitor conecta.</li>
+<li>Abra o monitor de novo (<code>pio device monitor -e bancada_geral_devkit</code>). Abrir o monitor reinicia a placa, e o menu aparece em cerca de 1 s.</li>
 <li>Aperte <code>r</code> para reiniciar a placa por software.</li>
-<li>Confira se está no ambiente certo (<code>bancada_geral_devkit</code> ou <code>bancada_geral</code>) e se a gravação terminou em <code>[SUCCESS]</code>.</li>
+<li>Confira se gravou o ambiente certo (<code>bancada_geral_devkit</code>) e se a gravação terminou em <code>[SUCCESS]</code>.</li>
 </ul>
 <h3 id="aparecem-caracteres-estranhos-ou-o-terminal-nao-mostra-o-que-voce-digita">Aparecem caracteres estranhos ou o terminal não mostra o que você digita<a class="headerlink" href="#aparecem-caracteres-estranhos-ou-o-terminal-nao-mostra-o-que-voce-digita" title="Permanent link">&para;</a></h3>
-<p>É esperado: a bancada não escreve acentos de propósito e não repete as teclas digitadas. A velocidade (baud) não importa, porque é USB direto.</p>
+<p>É esperado: a bancada não escreve acentos de propósito e não repete as teclas digitadas. A velocidade é de 115200 baud: o <code>pio device monitor -e bancada_geral_devkit</code> já usa esse valor (<code>monitor_speed</code> no <code>platformio.ini</code>); em outro programa de terminal, escolha 115200.</p>
 <h3 id="a-fonte-desarma-ao-ligar-o-driver">A fonte desarma ao ligar o driver<a class="headerlink" href="#a-fonte-desarma-ao-ligar-o-driver" title="Permanent link">&para;</a></h3>
 <p>Quase sempre é <strong>polaridade invertida</strong> ou <strong>curto</strong> no driver. Desconecte tudo e confira, com a fonte desligada, o <code>+</code> e o <code>-</code> com o multímetro e a resistência entre <code>VM</code> e <code>GND</code> do driver. Perto de 0 Ω: driver danificado. Troque o driver antes de tentar de novo.</p>
 <h3 id="exemplos-de-diagnostico-pela-propria-bancada">Exemplos de diagnóstico pela própria bancada<a class="headerlink" href="#exemplos-de-diagnostico-pela-propria-bancada" title="Permanent link">&para;</a></h3>
 <p><strong>Falta um sensor de distância</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>2) Sensores de distancia (ToF)
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>  [OK]    ToF frente: 182 mm
-<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>  [FALHA] ToF esquerda: sem amostra
-<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>          dica: sem medida: confira fiacao, XSHUT e alimentacao de 3,3 V; tente a tecla 2 e a varredura (tecla 1)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>2) Sensores de distancia (ToF)
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>  [OK]    ToF frente: 182 mm
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>  [FALHA] ToF esquerda: sem amostra
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>          dica: sem medida: confira fiacao, XSHUT e alimentacao de 3,3 V; tente a tecla 2 e a varredura (tecla 1)
 </code></pre></div>
 <ol>
 <li>Aperte <code>1</code> (varredura). Se faltar o <code>0x30</code>, o sensor esquerdo não está respondendo no barramento.</li>
-<li>Confira a fiação de <code>SDA</code>, <code>SCL</code>, <code>3,3 V</code> e <code>GND</code> do módulo e o fio do <code>XSHUT</code> esquerdo (GPIO16 na DevKit, GPIO0 na Super Mini; a tecla <code>8</code> mostra a pinagem em uso).</li>
+<li>Confira a fiação de <code>SDA</code>, <code>SCL</code>, <code>3,3 V</code> e <code>GND</code> do módulo e o fio do <code>XSHUT</code> esquerdo (GPIO16; a tecla <code>8</code> mostra a pinagem em uso).</li>
 <li>Aperte <code>2</code> para reiniciar os sensores e rode <code>t</code> de novo.</li>
 </ol>
-<p>Endereços esperados: esquerdo <code>0x30</code>, frontal <code>0x31</code>, direito <code>0x32</code> e MPU6050 <code>0x68</code>. Os pinos de <code>XSHUT</code> são GPIO16, 17 e 4 na DevKit (GPIO0, 1 e 2 na Super Mini).</p>
+<p>Endereços esperados: esquerdo <code>0x30</code>, frontal <code>0x31</code>, direito <code>0x32</code> e MPU6050 <code>0x68</code>. Os pinos de <code>XSHUT</code> são GPIO16, 17 e 4.</p>
 <p><strong>Sensor no endereço de fábrica</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>  0x29  VL53L0X no endereco de fabrica (nao foi reenderecado)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>  0x29  VL53L0X no endereco de fabrica (nao foi reenderecado)
 </code></pre></div>
 <p>O sensor não recebeu o novo endereço no boot. Aperte <code>2</code> e confira o <code>XSHUT</code> dele. Se o <code>XSHUT</code> estiver solto no ar, o sensor liga junto dos outros e briga pelo endereço.</p>
 <p><strong>MPU6050 não responde</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>  MPU6050: FALHOU (sem resposta no 0x68; confira SDA, SCL, energia e AD0)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>  MPU6050: FALHOU (sem resposta no 0x68; confira SDA, SCL, energia e AD0)
 </code></pre></div>
 <p>(Mensagem da tecla <code>2</code>. No autoteste, o item aparece como <code>[FALHA]</code> com a mesma dica.)</p>
 <p>Confira <code>SDA</code>, <code>SCL</code>, <code>3,3 V</code>, <code>GND</code> e o pino <code>AD0</code> no <code>GND</code> (endereço <code>0x68</code>). Se a varredura (<code>1</code>) mostrar <code>0x69</code>, o <code>AD0</code> está em nível alto.</p>
 <p><strong>Giro parado alto</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>  [FALHA] giro Z parado: 12.4 graus/s (limite 5.0)
-<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>          dica: o robo precisa estar parado; se estiver, o vies do giroscopio e alto (a calibracao do boot corrige)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>  [FALHA] giro Z parado: 12.4 graus/s (limite 5.0)
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>          dica: o robo precisa estar parado; se estiver, o vies do giroscopio e alto (a calibracao do boot corrige)
 </code></pre></div>
 <p>Deixe o robô imóvel sobre a bancada e rode <code>t</code> de novo. Se persistir, o viés do giroscópio está alto; a calibração do boot do robô compensa.</p>
 <p><strong>Encoder sem sinal ou com sinal oposto</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>&gt; motor esquerdo para a frente: esquerda 600, direita 0 (duty efetivo 42%). Qualquer tecla freia.
-<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>&gt; tempo esgotado, motores freados.
-<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>  encoder esquerdo: 0 pulsos (0 mm) -&gt; SEM PULSOS: confira VCC, GND, A e B do encoder e se a roda girou.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>&gt; motor esquerdo para a frente: esquerda 600, direita 0 (duty efetivo 42%). Qualquer tecla freia.
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>&gt; tempo esgotado, motores freados.
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>  encoder esquerdo: 0 pulsos (0 mm) -&gt; SEM PULSOS: confira VCC, GND, A e B do encoder e se a roda girou.
 </code></pre></div>
 <ul>
-<li><strong>Sem pulsos e a roda girou:</strong> o problema é o encoder. Meça <code>VCC</code> (3,3 V) e <code>GND</code> na plaquinha e confira os fios <code>A</code> e <code>B</code> (GPIO32 e 33 no esquerdo e GPIO18 e 19 no direito na DevKit; GPIO4 e 5, e 6 e 7, na Super Mini). Gire a roda à mão com a tecla <code>9</code>: a contagem tem que mudar.</li>
+<li><strong>Sem pulsos e a roda girou:</strong> o problema é o encoder. Meça <code>VCC</code> (3,3 V) e <code>GND</code> na plaquinha e confira os fios <code>A</code> e <code>B</code> (GPIO32 e 33 no esquerdo e GPIO18 e 19 no direito). Gire a roda à mão com a tecla <code>9</code>: a contagem tem que mudar.</li>
 <li><strong>Sem pulsos e a roda não girou:</strong> veja a rampa abaixo.</li>
 <li><strong>Sinal oposto ao comando:</strong> se a roda andou para trás, o <strong>motor</strong> está invertido (inverta os dois fios <code>OUT</code> do motor ou a flag no código). Se andou para o lado certo, o <strong>encoder</strong> está com <code>A</code> e <code>B</code> trocados.</li>
 <li><strong>Muitas transições inválidas:</strong> ruído. Afaste os fios do encoder dos fios do motor e confira o <code>GND</code>.</li>
 </ul>
 <p><strong>O motor não gira</strong></p>
 <p>Use a <strong>rampa</strong> (menu de motores, tecla <code>9</code> para o esquerdo ou <code>a</code> para o direito):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>  potencia  100 (duty  7%): 0 pulsos
-<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>  potencia  300 (duty 21%): 0 pulsos
-<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>  ...
-<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>  potencia  500 (duty 35%): 4 pulsos
-<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>  potencia  600 (duty 42%): 38 pulsos
-<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>&gt; a roda comecou a girar na potencia 500 (duty 35%).
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>  potencia  100 (duty  7%): 0 pulsos
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>  potencia  300 (duty 21%): 0 pulsos
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>  ...
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>  potencia  500 (duty 35%): 4 pulsos
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>  potencia  600 (duty 42%): 38 pulsos
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>&gt; a roda comecou a girar na potencia 500 (duty 35%).
 </code></pre></div>
 <p>Neste exemplo, a potência padrão de 300 não bastava: o N20 tem uma zona morta e precisa de mais tensão para sair do lugar. Se a rampa terminar assim, o problema é de hardware:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>&gt; a roda NAO girou em nenhuma potencia. Se o motor nem zumbe: confira VM, GND, nSLEEP e os fios OUT.
-<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>  Se zumbe e nao gira: falta corrente na fonte ou o motor esta travado.
-<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>  Se gira e o encoder nao conta: o problema esta no encoder (VCC, GND, A, B).
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>&gt; a roda NAO girou em nenhuma potencia. Se o motor nem zumbe: confira VM, GND, nSLEEP e os fios OUT.
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>  Se zumbe e nao gira: falta corrente na fonte ou o motor esta travado.
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>  Se gira e o encoder nao conta: o problema esta no encoder (VCC, GND, A, B).
 </code></pre></div>
-<p>Meça o <code>VM</code> com o motor acionado (deve ficar entre 5 e 6 V), o <code>nSLEEP</code> (cerca de 3,3 V) e a tensão média no <code>IN1</code> (GPIO25 na DevKit, GPIO10 na Super Mini): com o limite de duty de 70% e VM de 6 V, cerca de 4,2 V na potência 1000. O multímetro lê a média do PWM, então marca duty × VM, e não os 6 V do pulso.</p>
+<p>Meça o <code>VM</code> com o motor acionado (deve ficar entre 5 e 6 V), o <code>nSLEEP</code> (cerca de 3,3 V) e a tensão média no <code>IN1</code> (GPIO25): com o limite de duty de 70% e VM de 6 V, cerca de 4,2 V na potência 1000. O multímetro lê a média do PWM, então marca duty × VM, e não os 6 V do pulso.</p>
 <p><strong>Telemetria: erros comuns (tecla <code>w</code>, depois <code>a</code>)</strong></p>
 <p>A bancada mostra o código HTTP, a resposta do servidor e uma dica. Os casos mais comuns:</p>
 <table>
@@ -2935,18 +2910,18 @@
 <p>Depois de um fluxo completo bem-sucedido, confira no painel do Supabase (Table Editor) as tabelas <code>corridas</code> e <code>telemetria</code>. No reenvio (tecla <code>r</code>), a resposta correta é <code>gravadas 0, ja existentes 5</code>.</p>
 <h2 id="8-como-registrar-um-teste">8. Como registrar um teste<a class="headerlink" href="#8-como-registrar-um-teste" title="Permanent link">&para;</a></h2>
 <p>Registre em <code>docs/07-testes/hardware.md</code>, uma linha por teste, com o que for relevante:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>Data: 29/10/2026
-<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>Quem: &lt;nome&gt;
-<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>Bancada geral: build de &lt;data e hora mostradas no menu&gt;, branch/commit &lt;hash&gt;
-<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>Componente: motor direito + encoder direito
-<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>Comando: tecla 7, rampa (a) e teste 3
-<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>Resultado: a roda começou a girar na potência 500; encoder +380 pulsos em 2 s, sinal coerente
-<a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>Observações: VM 5,5 V, fonte limitada a 1 A
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>Data: 29/10/2026
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>Quem: &lt;nome&gt;
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>Bancada geral: build de &lt;data e hora mostradas no menu&gt;, branch/commit &lt;hash&gt;
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>Componente: motor direito + encoder direito
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>Comando: tecla 7, rampa (a) e teste 3
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>Resultado: a roda começou a girar na potência 500; encoder +380 pulsos em 2 s, sinal coerente
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a>Observações: VM 5,5 V, fonte limitada a 1 A
 </code></pre></div>
 <p>O menu mostra a linha <code>Build: &lt;data&gt; &lt;hora&gt;</code>, que identifica a versão gravada. Copie o autoteste inteiro (com a linha <code>REGISTRO</code>) quando for o resultado do dia.</p>
 <h2 id="9-como-evoluir-a-bancada">9. Como evoluir a bancada<a class="headerlink" href="#9-como-evoluir-a-bancada" title="Permanent link">&para;</a></h2>
 <p>A bancada é de toda a equipe. Ao mudar um driver, um pino ou a arquitetura de um componente, atualize também o menu. Os passos para acrescentar um componente (reuso dos drivers do robô, limites de segurança, item no autoteste) estão no <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/main/src/firmware/README.md#como-acrescentar-um-componente-ao-menu">README do firmware</a>.</p>
-<p>Código: <code>src/firmware/src/bancada/bancada_geral.cpp</code>. Ambientes do PlatformIO: <code>bancada_geral_devkit</code> (ESP32 DevKit V1, com bateria, botão e telemetria) e <code>bancada_geral</code> (Super Mini).</p>
+<p>Código: <code>src/firmware/src/bancada/bancada_geral.cpp</code>. Ambiente do PlatformIO: <code>bancada_geral_devkit</code> (ESP32 DevKit V1).</p>
 
 
 

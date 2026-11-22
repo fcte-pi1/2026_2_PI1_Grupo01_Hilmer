@@ -8539,7 +8539,7 @@
 <ul>
 <li>A navegação (Épico 02) ainda precisa chamar <code>congelarMapa()</code> quando detectar a célula objetivo; por enquanto o objetivo é sinalizado pelos próprios testes.</li>
 <li>O envio do JSON do mapa final ao servidor, vinculado à corrida criada pela Edge Function <code>corridas</code> (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/233">#233</a>), entra com a telemetria (Épico 03).</li>
-<li>Medir no ESP32-C3 (<code>pio run -e esp32c3</code>) a RAM estática do <code>ArmazenamentoMapa</code> com o mapa final; no computador, o <code>sizeof</code> é de 392 bytes.</li>
+<li>Medir no ESP32 DevKit V1 (<code>pio run -e esp32_devkit</code>) a RAM estática do <code>ArmazenamentoMapa</code> com o mapa final; no computador, o <code>sizeof</code> é de 392 bytes.</li>
 </ul>
 <hr />
 <h3 id="sprint-4-algoritmo-de-resolucao-sobre-o-mapa">Sprint 4 · Algoritmo de resolução sobre o mapa<a class="headerlink" href="#sprint-4-algoritmo-de-resolucao-sobre-o-mapa" title="Permanent link">&para;</a></h3>
@@ -8839,7 +8839,7 @@
 </table>
 <h4 id="pendencias-desta-etapa_3">Pendências desta etapa<a class="headerlink" href="#pendencias-desta-etapa_3" title="Permanent link">&para;</a></h4>
 <ul>
-<li>Rodar <code>pio test -e native_cobertura</code> e <code>pio run -e esp32c3</code> (o CI do PR faz os dois) e registrar a cobertura total de <code>lib/</code> e o uso de memória na placa.</li>
+<li>Rodar <code>pio test -e native_cobertura</code> e <code>pio run -e esp32_devkit</code> (o CI do PR faz os dois) e registrar a cobertura total de <code>lib/</code> e o uso de memória na placa.</li>
 <li>Ligar a <code>Navegacao</code> ao robô na <code>tarefaNavegacao</code>: o controle de movimento (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/184">#184</a>) executa a direção decidida, e a odometria (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/187">#187</a>, PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/343">#343</a>) informa a pose a <code>confirmarPose()</code>.</li>
 <li>Cobrir com testes o construtor com objetivo e pose escolhidos, <code>definirPose()</code> e <code>definirObjetivo()</code>.</li>
 </ul>
@@ -11504,7 +11504,7 @@ Para reproduzir localmente antes da integração com a <code>main</code>, garant
 <ul>
 <li><strong>Bancada (<a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/175">#175</a>):</strong> rodar <code>./scripts/bancada_tof.py</code> com os sensores montados e registrar aqui o relatório: fiação de cada XSHUT, endereços, taxa, tempo da leitura, erro contra a régua em pelo menos 5 distâncias e comportamento fora da faixa.</li>
 <li><strong>Valores provisórios:</strong> trocar os de <code>ConfiguracaoTof.h</code> pelos medidos na bancada.</li>
-<li><strong>Hardware:</strong> confirmar com a eletrônica que o módulo aceita o XSHUT em 3,3 V e que os pinos de <em>strapping</em> (GPIO2, GPIO8 e GPIO9) não impedem o boot com os sensores ligados.</li>
+<li><strong>Hardware:</strong> confirmar com a eletrônica que o módulo aceita o XSHUT em 3,3 V (GPIO16, GPIO17 e GPIO4 no ESP32 DevKit V1).</li>
 </ul>
 <h4 id="revisao-do-pr-391-24102026">Revisão do PR #391 (24/10/2026)<a class="headerlink" href="#revisao-do-pr-391-24102026" title="Permanent link">&para;</a></h4>
 <p>A revisão do PR <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/391">#391</a> pediu quatro mudanças no código, feitas no branch <code>feat/344-driver-vl53l0x</code> (commits <code>579fff7</code>, <code>e466217</code>, <code>2a51308</code> e <code>aa4f134</code>). Esta execução registra o resultado depois delas; a execução de 22/10, acima, fica como estava.</p>
@@ -16147,7 +16147,7 @@ Para reproduzir localmente antes da integração com a <code>main</code>, garant
 <ul>
 <li><strong>Bancada:</strong> com as rodas no ar e o monitor serial aberto, soltar e recolocar o conector de um VL53L0X e depois o do MPU6050 com o robô ligado; conferir a sequência do log (<a href="../../04-projeto-conceitual/firmware/#falha-do-i2c-durante-a-corrida-supervisori2c">Figura 27</a>), o reinício pelo XSHUT e a volta dos motores. Combinar com a eletrônica como soltar o conector sem curto no barramento.</li>
 <li><strong>Valores provisórios:</strong> ajustar as tentativas, as leituras para recuperar, os reinícios e a espera com o que a bancada mostrar.</li>
-<li><strong>Compilação para a placa:</strong> anotar aqui a RAM e a Flash do <code>pio run -e esp32c3</code> do CI do PR.</li>
+<li><strong>Compilação para a placa:</strong> anotar aqui a RAM e a Flash do <code>pio run -e esp32_devkit</code> do CI do PR.</li>
 </ul>
 <h3 id="sprint-5-deteccao-de-colisao-e-recuperacao-sem-perda-do-mapa-testes-com-batidas-simuladas">Sprint 5 · Detecção de colisão e recuperação sem perda do mapa (testes com batidas simuladas)<a class="headerlink" href="#sprint-5-deteccao-de-colisao-e-recuperacao-sem-perda-do-mapa-testes-com-batidas-simuladas" title="Permanent link">&para;</a></h3>
 <div class="admonition warning">
