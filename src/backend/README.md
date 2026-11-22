@@ -20,16 +20,19 @@ src/backend/
 │   └── banco.test.ts                             # Migrações, funções SQL e RLS num PostgreSQL (PGlite)
 └── supabase/
     ├── functions/
-    │   ├── _shared/autenticacao.ts               # Confere o x-device-token
+    │   ├── _shared/autenticacao.ts               # Confere o x-device-token (só se o segredo existir)
     │   ├── _shared/                              # Token do dispositivo e validações comuns
     │   ├── corridas/                             # Edge Function: criar e encerrar corridas e gravar o mapa final
+    │   ├── robo/                                 # Edge Function: comandos do painel para o robô e logs do robô para o painel
     │   └── telemetria/                           # Edge Function: gravar os lotes de telemetria do robô
     └── migrations/
         ├── 20261014180000_esquema_inicial.sql    # DDL das 4 tabelas, restrições e seed de labirintos
         ├── 20261014180500_seguranca_rls.sql      # Políticas RLS e ativação do Realtime
         ├── 20261018232250_remote_schema.sql      # criar_corrida e encerrar_corrida (só service_role)
         ├── 20261023100000_telemetria_mapa_e_consolidacao.sql  # Telemetria em lote, mapa final e consolidação (#229)
-        └── 20261024120000_realtime_corridas.sql  # Publica `corridas` no Realtime (#231)
+        ├── 20261024120000_realtime_corridas.sql  # Publica `corridas` no Realtime (#231)
+        ├── 20261117120000_comandos_e_logs_do_robo.sql  # Comandos do painel (iniciar, parar, zerar) e logs do robô
+        └── 20261117130000_definir_labirinto_da_corrida.sql  # O robô informa o tamanho do labirinto que descobriu
 ```
 ---
 
@@ -82,6 +85,39 @@ O backend adota uma estratégia de **segurança em camadas**:
 
 ---
 
+## Edge Function `robo` (comandos do painel e logs do robô)
+
+O robô não tem botão de largada: a chave geral liga a energia e o operador dá a largada pelo painel. A função `supabase/functions/robo` é o canal entre os dois. Duas tabelas novas (`comandos_robo` e `logs_robo`, migração `20261117120000`) seguem o padrão do resto do banco: `anon` e `authenticated` só leem (e recebem as mudanças pelo Realtime); toda escrita passa por três funções SQL executáveis só pela chave de serviço.
+
+| Requisição | Quem chama e como | Corpo | Resposta |
+|---|---|---|---|
+| `POST /functions/v1/robo/comandos` | O **painel**, com `x-painel-token` | `{"comando": "iniciar"}` (ou `"parar"`, `"zerar"`) | `202` com `{"id": n, "comando": "..."}` |
+| `POST /functions/v1/robo/comandos/proximo` | O **robô**, com `x-device-token` | vazio | `200` com `{"id": n, "comando": "iniciar"}`, ou `{"id": null, "comando": null}` se não há comando |
+| `POST /functions/v1/robo/logs` | O **robô**, com `x-device-token` | `{"corrida_id": 7, "linhas": ["..."]}` (`corrida_id` opcional; de 1 a 50 linhas de até 300 caracteres) | `200` com `{"gravadas": n}` |
+
+Regras:
+- **Duas credenciais, cada uma na sua rota.** O `PAINEL_TOKEN` (a senha do operador) só vale em `/comandos`, e o `DEVICE_TOKEN` do robô só nas outras duas. Sem o segredo definido, ninguém é autorizado.
+- **Entrega uma vez só.** `proximo_comando_robo` pega o próximo comando pendente e o marca como entregue na mesma instrução (`FOR UPDATE SKIP LOCKED`): duas buscas ao mesmo tempo não recebem o mesmo comando.
+- **Validade de 30 s.** Um comando que o robô não buscou em 30 s expira e nunca é entregue: um `iniciar` esquecido não larga o robô depois.
+- **`parar` na frente.** Um `parar` cancela os comandos pendentes (um `iniciar` que o robô não buscou não larga depois do `parar`) e é entregue antes dos outros.
+- **Logs.** O lote é recusado inteiro se alguma linha for vazia ou passar de 300 caracteres (`400`) ou se tiver mais de 50 linhas (`413`). Uma `corrida_id` que não existe vira `NULL`. Logs com mais de 7 dias são apagados a cada lote novo.
+- **CORS.** O painel chama a função do navegador, então ela responde ao `OPTIONS` e aceita o cabeçalho `x-painel-token`.
+- **Erros:** `400` (comando ou corpo inválido), `401` (token), `404` (rota), `405` (método), `413` (lote de logs grande demais) e `500` (falha do banco, sem expor a mensagem).
+
+```bash
+# Publicação (além do que a seção das corridas já faz)
+supabase db push
+supabase secrets set PAINEL_TOKEN="$(openssl rand -hex 12)"   # a senha que o operador digita no painel
+supabase functions deploy robo
+
+# Mandar um comando sem o painel (por exemplo, para testar o robô ou a bancada)
+curl -s -X POST "${SUPABASE_URL}/functions/v1/robo/comandos" \
+  -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" -H "apikey: ${SUPABASE_ANON_KEY}" \
+  -H "x-painel-token: ${PAINEL_TOKEN}" -H "Content-Type: application/json" -d '{"comando": "iniciar"}'
+```
+
+---
+
 ## Edge Function `corridas` (criar e encerrar corridas, gravar o mapa)
 
 A criação e o encerramento de corridas passam por uma Edge Function (`supabase/functions/corridas`), que usa a chave de serviço (`service_role`). A regra de negócio fica em duas funções SQL (`criar_corrida` e `encerrar_corrida`, na migração `20261018232250_remote_schema.sql`, gerada pelo `supabase db pull` e completada com o `REVOKE` e o `GRANT`), executáveis só pela chave de serviço: `anon` e `authenticated` não têm permissão de `EXECUTE` nelas nem de escrita nas tabelas. Os testes do banco (`tests/banco.test.ts`) conferem essa restrição.
@@ -89,25 +125,29 @@ A criação e o encerramento de corridas passam por uma Edge Function (`supabase
 | Requisição | Corpo | Resposta |
 |---|---|---|
 | `POST /functions/v1/corridas` | `{"labirinto": "4x4"}` (ou `"8x4"`, `"12x4"`); o labirinto é obrigatório | `201` com a corrida em andamento, com `numero_tentativa` contado por labirinto |
+| `POST /functions/v1/corridas/{id}/labirinto` | `{"labirinto": "8x4"}`: o tamanho que o robô **descobriu** explorando (o labirinto real é surpresa); a corrida nasce como 4x4 | `200` com a corrida no labirinto novo e a `numero_tentativa` renumerada nele. Repetir o mesmo tamanho não muda nada |
 | `POST /functions/v1/corridas/{id}/mapa` | `{"celulas": [...]}`, o `MapaJson` do firmware (os campos `dimensao`, `linhas` e `colunas` são ignorados); cada célula traz `linha`, `coluna` e as quatro paredes (`true`, `false` ou `null`) | `200` com `{"novas": n, "atualizadas": m}`. Reenviar atualiza as células, sem duplicar |
 | `POST /functions/v1/corridas/{id}/encerrar` | **Tudo opcional:** `"status"` (`"concluida"` ou `"nao_concluida"`), `tempo_final`, `velocidade_media`, `velocidade_pico` e `consumo_bateria`. O que faltar o banco calcula pela telemetria já gravada (`concluida` se houve o evento `objetivo_alcancado`, senão `nao_concluida`) | `200` com a corrida encerrada e `data_hora_fim` preenchida |
 
 Regras:
 - **Tentativa por labirinto:** a primeira corrida do 4x4 é a tentativa 1, e a primeira do 8x4 também. Um bloqueio no banco serializa criações simultâneas do mesmo labirinto, e `UNIQUE (labirinto_id, numero_tentativa)` é a segunda barreira.
+- **Labirinto descoberto:** só vale com a corrida `em_andamento` (senão, `409`) e se a telemetria e o mapa já gravados cabem na malha nova (senão, `409 telemetria_fora_do_labirinto`). O robô só manda a telemetria depois de informar o tamanho. Migração `20261117130000`.
 - **Encerramento idempotente:** repetir o pedido com o mesmo status (por exemplo, depois de uma queda de rede) devolve a corrida como está. Com outro status, responde `409`. Sem `tempo_final`, o banco usa o tempo desde `data_hora_inicio`.
 - **Encerramento sem status:** repetir o pedido sem status em uma corrida já encerrada devolve a corrida como está. O robô pode, então, encerrar com `{}` e deixar o banco decidir.
 - **Mapa:** o banco recusa o mapa inteiro se uma célula for inválida (fora do labirinto da corrida) e responde `413` se houver mais células do que o labirinto tem.
 - **Erros:** `400` (corpo, status, id ou células inválidos), `401` (token), `404` (labirinto ou corrida inexistente), `405` (método), `409` (já encerrada com outro status), `413` (mapa com células demais) e `500` (falha do banco, sem expor a mensagem).
 
-**Autenticação.** O gateway do Supabase exige um JWT (`Authorization: Bearer <SUPABASE_ANON_KEY>`), e a função exige também o cabeçalho `x-device-token`, comparado com o segredo `DEVICE_TOKEN`. Sem o segredo configurado, ninguém é autorizado. A chave `service_role` fica só no servidor.
+**Autenticação.** O token de dispositivo é **opcional**, para o robô enviar sem segredo nenhum (projeto de faculdade, com o endereço do projeto restrito ao grupo). Sem o segredo `DEVICE_TOKEN` configurado, a função aceita qualquer requisição; configurado, ela exige o cabeçalho `x-device-token` igual a ele. Para o robô precisar só da URL, publique as funções sem a verificação de JWT do gateway (`--no-verify-jwt`) e remova o segredo (`supabase secrets unset DEVICE_TOKEN`); sem isso, o gateway ainda pede `Authorization: Bearer <SUPABASE_ANON_KEY>`. A chave `service_role` fica só no servidor, nunca no firmware. Quem quiser proteger de novo basta voltar a definir o segredo.
 
 ```bash
 # Publicação (uma vez por projeto Supabase: teste e produção)
 supabase link --project-ref <ID-DO-PROJETO>
 supabase db push
-supabase secrets set DEVICE_TOKEN="$(openssl rand -hex 24)"
-supabase functions deploy corridas
-supabase functions deploy telemetria
+# Modo aberto (o robô envia só com a URL): sem segredo e sem verificação de JWT no gateway
+supabase secrets unset DEVICE_TOKEN
+supabase functions deploy corridas --no-verify-jwt
+supabase functions deploy telemetria --no-verify-jwt
+# Modo protegido (opcional): supabase secrets set DEVICE_TOKEN="$(openssl rand -hex 24)" e deploy sem --no-verify-jwt
 
 # Exemplo: criar uma corrida no labirinto 8x4 e encerrá-la
 curl -s -X POST "${SUPABASE_URL}/functions/v1/corridas" \
@@ -136,7 +176,7 @@ Regras:
 - **Corrida encerrada:** continua aceitando amostras (o robô pode reenviar depois de a rede voltar), e as métricas da corrida são refeitas (`reconsolidada`).
 - **Erros e o que o firmware faz com cada um:** `400` (corpo ou amostra inválidos), `404` (corrida inexistente) e `413` (lote com mais de 100 amostras) descartam o lote; `401` e `403` pausam o envio; `405` (método) e `5xx` repetem ou pausam conforme a política de reenvio.
 
-A autenticação, os segredos e a publicação são os da função `corridas`: o mesmo `DEVICE_TOKEN`. Para publicar as duas: `supabase functions deploy corridas` e `supabase functions deploy telemetria`.
+A autenticação, os segredos e a publicação são os da função `corridas`: o mesmo `DEVICE_TOKEN` (opcional). Para publicar as duas: `supabase functions deploy corridas` e `supabase functions deploy telemetria`.
 
 ```bash
 curl -s -X POST "${SUPABASE_URL}/functions/v1/telemetria" \

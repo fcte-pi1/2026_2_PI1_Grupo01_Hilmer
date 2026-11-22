@@ -4,9 +4,8 @@
 /// @brief Gatilho da largada pelo gesto da mão na frente do ToF frontal, ou pelo comando serial
 /// (#184).
 ///
-/// O gesto não depende de botão (o firmware do robô ainda não lê o BTN_START do DevKit) e o
-/// dashboard ainda não manda comandos ao robô. O gesto é o truque clássico de micromouse: cobrir o sensor da frente e
-/// tirar a mão.
+/// O gesto não depende de computador. É o truque clássico de micromouse: cobrir o sensor da frente e
+/// tirar a mão. O painel e o comando `L` (serial ou telnet) largam por fora dele: o robô não tem botão.
 
 #include <stdint.h>
 

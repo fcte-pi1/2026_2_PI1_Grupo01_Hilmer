@@ -288,8 +288,9 @@ void test_consistencia_se_mantem_apos_registros_pseudoaleatorios() {
 }
 
 void test_mapa_ocupa_pouca_memoria() {
-  // 12 colunas x 4 linhas de 4 bytes, mais o cabeçalho: bem abaixo dos cerca de 320 KB de RAM de dados do ESP32.
-  TEST_ASSERT_LESS_OR_EQUAL_UINT32(256, sizeof(Mapa));
+  // Capacidade do mapa de exploração da largada em qualquer célula, 23 colunas x 7 linhas de 4 bytes,
+  // mais o cabeçalho: bem abaixo dos cerca de 320 KB de RAM de dados do ESP32.
+  TEST_ASSERT_LESS_OR_EQUAL_UINT32(700, sizeof(Mapa));
 }
 
 int main(int, char**) {

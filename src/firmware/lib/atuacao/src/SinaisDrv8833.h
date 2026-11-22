@@ -27,10 +27,13 @@ struct SinaisPonteH {
 /// @param potencia De `-POTENCIA_MAXIMA` a `POTENCIA_MAXIMA` (valores fora são limitados).
 /// @param inverter `true` para o motor montado espelhado: troca o sentido.
 /// @param dutyMaximo Duty correspondente a 100% (por exemplo, 1023 com PWM de 10 bits).
-constexpr SinaisPonteH calcularSinaisDrv8833(int16_t potencia, bool inverter, uint32_t dutyMaximo) {
+/// @param dutyMinimo Zona morta: duty de qualquer potência acima de zero. O duty sobe dele até
+///        `dutyMaximo` na proporção da potência (0 desliga a compensação). Potência zero fica em 0.
+constexpr SinaisPonteH calcularSinaisDrv8833(int16_t potencia, bool inverter, uint32_t dutyMaximo, uint32_t dutyMinimo = 0) {
   const int16_t limitada = limitarPotencia(inverter ? -static_cast<int32_t>(potencia) : potencia);
   const uint32_t modulo = static_cast<uint32_t>(limitada < 0 ? -limitada : limitada);
-  const uint32_t duty = modulo * dutyMaximo / POTENCIA_MAXIMA;
+  const uint32_t minimo = dutyMinimo < dutyMaximo ? dutyMinimo : dutyMaximo;
+  const uint32_t duty = modulo == 0 ? 0 : minimo + modulo * (dutyMaximo - minimo) / POTENCIA_MAXIMA;
   return limitada >= 0 ? SinaisPonteH{duty, 0} : SinaisPonteH{0, duty};
 }
 

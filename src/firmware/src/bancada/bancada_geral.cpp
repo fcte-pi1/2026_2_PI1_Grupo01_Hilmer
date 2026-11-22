@@ -11,7 +11,7 @@
 /// Para o primeiro teste, deixe as rodas fora do chão.
 ///
 /// Placa: ESP32 DevKit V1, com a serial pelo conversor USB da placa (UART0). Além dos sensores e dos
-/// motores, confere o botão de largada, a tensão da bateria e a telemetria. A pinagem está em `Pinos.h`.
+/// motores, confere a tensão da bateria e a telemetria. A pinagem está em `Pinos.h`.
 
 #include <Arduino.h>
 #include <Wire.h>
@@ -19,6 +19,8 @@
 #include <stdlib.h>
 
 #include "BarramentoI2c.h"
+#include "Bateria.h"
+#include "BateriaAdc.h"
 #include "ConsoleBancada.h"
 #include "ConfiguracaoMotores.h"
 #include "ConversorDeslocamento.h"
@@ -32,27 +34,30 @@
 // `BANCADA_COM_TELEMETRIA` (o `bancada_geral_devkit`). Precisa de `include/credenciais.h`; sem ele, o
 // firmware compila e o menu de telemetria explica o que fazer.
 #if defined(BANCADA_COM_TELEMETRIA)
-#include <ArduinoOTA.h>
 #include <HTTPClient.h>
 #include <Preferences.h>
 #include <WiFi.h>
 #include <string.h>
 #include <strings.h>
 
+// Wi-Fi e URL: `credenciais_padrao.h` (versionado). Chave do Supabase e token: só no `credenciais.h` local.
 #if __has_include("credenciais.h")
 #include "credenciais.h"
 #define BANCADA_TEM_CREDENCIAIS 1
 #else
 #define BANCADA_TEM_CREDENCIAIS 0
 #endif
+#include "credenciais_padrao.h"
 
 #include "AmostraTelemetria.h"
+#include "ContratoTelemetria.h"
 #include "ConfiguracaoRede.h"
 #include "ControladorEnvio.h"
 #include "CredenciaisSupabase.h"
 #include "EnvioHttpSupabase.h"
 #include "ReconexaoWifi.h"
 #include "RedeWifiEsp32.h"
+#include "ServicoOta.h"
 #include "TravaSecaoCritica.h"
 #endif
 
@@ -87,14 +92,9 @@ constexpr uint32_t AUTOTESTE_ESPERA_ENCODER_MS = 1000;
 constexpr uint8_t AUTOTESTE_LEITURAS_GIRO = 50;
 constexpr int32_t AUTOTESTE_GIRO_PARADO_MAX_DECIMOS = 50;
 
-/// Divisor da bateria (R1 de 100 kohm no positivo, R2 de 33 kohm no GND) e faixa da LiPo 2S. A
-/// tensão no pino é a da bateria vezes R2 / (R1 + R2), e só vale com a chave geral ligada.
-constexpr uint32_t BATERIA_R1_OHMS = 100000;
-constexpr uint32_t BATERIA_R2_OHMS = 33000;
-constexpr uint32_t BATERIA_LEITURAS = 16;
-constexpr uint32_t BATERIA_CORTE_MV = 6600;   ///< Abaixo disso a LiPo 2S está descarregada.
-constexpr uint32_t BATERIA_PLENA_MV = 8400;   ///< Carga plena da LiPo 2S.
-constexpr uint32_t BATERIA_MAXIMA_VALIDA_MV = 8700;
+/// O divisor da bateria (R1 de 100 kohm, R2 de 33 kohm) e a faixa da LiPo 2S vêm de `Bateria.h`, o
+/// mesmo arquivo do robô; a leitura, do `BateriaAdc`, também o mesmo driver do robô.
+BateriaAdc bateriaAdc;
 
 /// Tensão nominal do VM (buck U4) e passo do limite de duty. O multímetro, no motor, lê a tensão
 /// média do PWM: duty × VM. Com o limite do robô (70%) e VM de 6 V, o máximo é 4,2 V.
@@ -205,7 +205,6 @@ void imprimirMenuPrincipal() {
   console.println(" 9  encoders: contagem continua, gire a roda a mao (qualquer tecla para)");
   console.println(" 0  zerar a contagem dos encoders");
   console.println(" a  bateria: tensao pelo divisor no GPIO34");
-  console.println(" b  botao de largada: mostra quando aperta e solta (qualquer tecla para)");
 #if defined(BANCADA_COM_TELEMETRIA)
   console.println(" w  telemetria: Wi-Fi, HTTPS e banco (submenu; grava corrida de verdade no banco do credenciais.h)");
 #endif
@@ -379,19 +378,11 @@ void zerarEncoders() {
 }
 
 /// Tensão da bateria em mV, pela média de `BATERIA_LEITURAS` leituras do ADC no divisor R1/R2.
-uint32_t lerBateriaMv() {
-  uint32_t somaPinoMv = 0;
-  for (uint32_t i = 0; i < BATERIA_LEITURAS; i++) {
-    somaPinoMv += analogReadMilliVolts(pinos::BATERIA_ADC);
-    delay(2);
-  }
-  const uint32_t pinoMv = somaPinoMv / BATERIA_LEITURAS;
-  return pinoMv * (BATERIA_R1_OHMS + BATERIA_R2_OHMS) / BATERIA_R2_OHMS;
-}
+uint32_t lerBateriaMv() { return bateriaAdc.lerMv(); }
 
 /// Uma leitura só (sem média), rápida o bastante para rodar dentro do laço dos testes de motor.
 uint32_t lerBateriaRapidaMv() {
-  return analogReadMilliVolts(pinos::BATERIA_ADC) * (BATERIA_R1_OHMS + BATERIA_R2_OHMS) / BATERIA_R2_OHMS;
+  return bateriaMvDoPino(analogReadMilliVolts(pinos::BATERIA_ADC));
 }
 
 void imprimirBateria() {
@@ -406,23 +397,6 @@ void imprimirBateria() {
   } else if (bateriaMv < BATERIA_CORTE_MV) {
     console.println("  aviso: abaixo de 6,6 V. Recarregue a bateria antes de testar os motores.");
   }
-}
-
-/// Mostra o estado do botão de largada a cada mudança, até chegar uma tecla.
-void lerBotaoContinuo() {
-  pinMode(pinos::BOTAO_START, INPUT_PULLUP);
-  console.printf("Botao BTN_START (GPIO%d, pull-up interno). Aperte e solte o botao; qualquer tecla para.\n",
-                pinos::BOTAO_START);
-  int anterior = -1;
-  while (!teclaPressionada()) {
-    const int estado = digitalRead(pinos::BOTAO_START);
-    if (estado != anterior) {
-      anterior = estado;
-      console.printf("  botao %s (nivel %s)\n", estado == LOW ? "PRESSIONADO" : "solto", estado == LOW ? "LOW" : "HIGH");
-    }
-    delay(5);
-  }
-  console.println("Fim da leitura do botao.");
 }
 
 /// Soma dos itens do autoteste.
@@ -539,21 +513,16 @@ void autoteste() {
             "encoder direito estavel (%ld pulsos, %lu transicoes invalidas)", static_cast<long>(pulsosDir),
             static_cast<unsigned long>(novasDir));
 
-  console.println("5) Bateria e botao");
+  console.println("5) Bateria");
   const uint32_t bateriaMv = lerBateriaMv();
   registrar(resumo, bateriaMv >= BATERIA_CORTE_MV && bateriaMv <= BATERIA_MAXIMA_VALIDA_MV,
             "esperado entre 6,6 V e 8,4 V: perto de 0 V = chave geral desligada ou divisor solto no GPIO34; abaixo de 6,6 V = recarregue",
             "bateria %.2f V", bateriaMv / 1000.0f);
-  pinMode(pinos::BOTAO_START, INPUT_PULLUP);
-  delay(5);
-  registrar(resumo, digitalRead(pinos::BOTAO_START) == HIGH,
-            "o pino esta em LOW sem apertar: botao pressionado, em curto ou terminal ligado ao GND errado",
-            "botao BTN_START solto (nivel alto)");
 
   console.printf("RESULTADO: %u OK, %u FALHA(S).\n", resumo.ok, resumo.falhas);
   console.printf("REGISTRO: autoteste | ok=%u falhas=%u | veredito=%s\n", resumo.ok, resumo.falhas,
                 resumo.falhas == 0 ? "OK" : "FALHA");
-  console.println("Nao verificado aqui: motores (tecla 7), o sentido dos encoders (gire a roda a mao com a tecla 9) e o aperto do botao (tecla b).");
+  console.println("Nao verificado aqui: motores (tecla 7), o sentido dos encoders (gire a roda a mao com a tecla 9).");
 }
 
 void imprimirPinagem() {
@@ -565,7 +534,7 @@ void imprimirPinagem() {
   console.printf("  Motor direito: IN3=GPIO%d, IN4=GPIO%d\n", pinos::MOTOR_DIR_IN3, pinos::MOTOR_DIR_IN4);
   console.printf("  Encoders: esq A=GPIO%d B=GPIO%d, dir A=GPIO%d B=GPIO%d (entradas com pull-up, no maximo 3,3 V)\n",
                 pinos::ENCODER_ESQ_A, pinos::ENCODER_ESQ_B, pinos::ENCODER_DIR_A, pinos::ENCODER_DIR_B);
-  console.printf("  Botao BTN_START: GPIO%d (pull-up). Bateria (ADC): GPIO%d\n", pinos::BOTAO_START, pinos::BATERIA_ADC);
+  console.printf("  Bateria (ADC): GPIO%d. Sem botao de largada: a largada e pelo painel ou pelo telnet.\n", pinos::BATERIA_ADC);
 }
 
 /// Muda o limite de duty dos motores em `delta` milésimos e avisa o que isso significa.
@@ -978,7 +947,7 @@ constexpr int SEM_CHAMADA = -1000;
 
 CredenciaisSupabase lerCredenciais() {
   CredenciaisSupabase c;
-#if BANCADA_TEM_CREDENCIAIS
+#if 1  // os padroes versionados sempre existem
   c.ssidWifi = CREDENCIAL_WIFI_SSID;
   c.senhaWifi = CREDENCIAL_WIFI_SENHA;
 #if defined(CREDENCIAL_WIFI_SSID_RESERVA) && defined(CREDENCIAL_WIFI_SENHA_RESERVA)
@@ -988,8 +957,6 @@ CredenciaisSupabase lerCredenciais() {
   c.urlProjeto = CREDENCIAL_SUPABASE_URL;
   c.chaveAnon = CREDENCIAL_SUPABASE_ANON;
   c.tokenDispositivo = CREDENCIAL_DEVICE_TOKEN;
-  c.certificadoRaiz = CREDENCIAL_CERTIFICADO_RAIZ;
-  c.semValidarCertificado = CREDENCIAL_SEM_VALIDAR_CERTIFICADO != 0;
 #endif
   return c;
 }
@@ -1026,20 +993,11 @@ uint16_t chamadasComFalha = 0;
 /// `true` se as credenciais do Supabase existem e estão completas; senão, diz o que fazer. O Wi-Fi não
 /// entra aqui: a rede pode vir do `credenciais.h` ou da escolha pela serial (`p`).
 bool credenciaisOk() {
-  if (!BANCADA_TEM_CREDENCIAIS) {
-    console.println("  [FALHA] sem include/credenciais.h: o Wi-Fi funciona (tecla p), mas o banco precisa do arquivo.");
-    console.println("          dica: copie include/credenciais.exemplo.h para include/credenciais.h,");
-    console.println("          preencha os campos, use CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1 na bancada e grave de novo.");
-    return false;
-  }
   CredenciaisSupabase supabase = credenciais;
-  supabase.ssidWifi = "rede";  // a rede é conferida no Wi-Fi; aqui, só a URL, a chave, o token e o certificado
+  supabase.ssidWifi = "rede";  // a rede é conferida no Wi-Fi; aqui, só a URL do projeto
   supabase.senhaWifi = "";
   if (!credenciaisValidas(supabase)) {
-    console.println("  [FALHA] credenciais do Supabase incompletas em include/credenciais.h.");
-    console.println("          dica: confira a URL (https://...), a chave anon, o device token e o certificado");
-    console.println("          (ou CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1). Os valores do exemplo contam como preenchidos:");
-    console.println("          troque todos pelos reais.");
+    console.println("  [FALHA] URL do Supabase ausente ou sem https:// (credenciais_padrao.h ou credenciais.h).");
     return false;
   }
   return true;
@@ -1084,12 +1042,10 @@ void iniciarWifiSeNecessario() {
   imprimirRedes();
 }
 
-/// Nome na rede (mDNS) e senha da gravação sem cabo (OTA). A senha só protege a bancada no laboratório;
-/// pode ser trocada com `-DBANCADA_SENHA_OTA=\"outra\"` no `platformio.ini`.
-constexpr const char* NOME_NA_REDE = "micromouse-bancada";
-#if !defined(BANCADA_SENHA_OTA)
-#define BANCADA_SENHA_OTA "micromouse"
-#endif
+/// Nome na rede (mDNS) da gravação sem cabo (OTA), a mesma do robô (`ServicoOta.h`). A senha padrão
+/// é `MICROMOUSE_SENHA_OTA`.
+constexpr const char* NOME_NA_REDE = ServicoOta::NOME_PADRAO;
+ServicoOta servicoOta;
 
 bool servicosDeRedeAtivos = false;
 
@@ -1100,15 +1056,7 @@ void iniciarServicosDeRede() {
   }
   servicosDeRedeAtivos = true;
   console.iniciarTelnet();
-  ArduinoOTA.setHostname(NOME_NA_REDE);
-  ArduinoOTA.setPassword(BANCADA_SENHA_OTA);
-  ArduinoOTA.onStart([]() {
-    motores.parar();  // gravando, nada de motor girando
-    console.println("\n[OTA] gravando; a placa reinicia no fim.");
-  });
-  ArduinoOTA.onEnd([]() { console.println("[OTA] gravado, reiniciando."); console.flush(); });
-  ArduinoOTA.onError([](ota_error_t erro) { console.printf("[OTA] erro %u\n", static_cast<unsigned>(erro)); });
-  ArduinoOTA.begin();
+  servicoOta.iniciar([]() { motores.parar(); });  // gravando, nada de motor girando
   console.printf("[rede] telnet na porta %u e OTA prontos: %s (nc %s %u)\n", ConsoleBancada::PORTA_TELNET,
                  WiFi.localIP().toString().c_str(), WiFi.localIP().toString().c_str(), ConsoleBancada::PORTA_TELNET);
 }
@@ -1121,7 +1069,7 @@ void cuidarDaRede() {
   reconexaoWifi.ciclo(millis());
   if (WiFi.status() == WL_CONNECTED) {
     iniciarServicosDeRede();
-    ArduinoOTA.handle();
+    servicoOta.ciclo();
   }
 }
 
@@ -1236,7 +1184,7 @@ void explicarCodigoHttp(int codigo) {
   } else if (codigo <= 0) {
     console.printf("          dica: sem resposta do servidor (%s).\n", HTTPClient::errorToString(codigo).c_str());
     console.println("          Se for connection refused ou tempo esgotado: use a tecla d para ver o DNS; se o DNS passa,");
-    console.println("          o problema e o TLS. Na bancada, use CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1.");
+    console.println("          o problema e o TLS (certificado ou hora da placa).");
   } else if (codigo == 401 || codigo == 403) {
     console.println("          dica: chave anon ou device token recusados. Confira CREDENCIAL_SUPABASE_ANON e CREDENCIAL_DEVICE_TOKEN");
     console.println("          (o token precisa ser igual ao segredo DEVICE_TOKEN das Edge Functions).");
@@ -1770,6 +1718,364 @@ bool comandoCorridaSemRede(uint16_t amostras) {
   return resumo.falhas == 0;
 }
 
+// ---------------------------------------------------------------- operação remota
+
+/// Operação remota: o robô anda e continua falando com o computador e com o banco. A bancada liga os
+/// motores por um comando que chega **pelo telnet** e, durante `OPERACAO_DURACAO_MS`, faz o que o robô
+/// faz andando: lê ToF e MPU6050, gera 1 amostra por segundo (com a tensão da bateria) e a envia ao
+/// banco por uma tarefa de rede à parte (`tarefaRedeDaOperacao`, como a tarefa de rede do robô).
+constexpr uint32_t OPERACAO_ESPERA_CLIENTE_MS = 60000;   ///< Tempo para conectar o telnet.
+constexpr uint32_t OPERACAO_ESPERA_COMANDO_MS = 60000;   ///< Tempo para o `G` chegar pelo telnet.
+constexpr uint32_t OPERACAO_DURACAO_MS = 15000;          ///< Motores ligados depois do `G`.
+constexpr uint32_t OPERACAO_PERIODO_AMOSTRA_MS = 1000;   ///< Uma amostra de telemetria por segundo.
+constexpr uint32_t OPERACAO_ESPERA_FINAL_MS = 60000;     ///< Espera para o buffer esvaziar no fim.
+/// Maior intervalo aceito entre dois ciclos do laço de controle, em ms. O robô gira o laço a cada 10 ms;
+/// passando disso, a rede (o envio HTTPS, que espera o servidor) estaria prendendo o controle.
+constexpr uint32_t OPERACAO_INTERVALO_MAXIMO_MS = 100;
+
+/// A tarefa de rede da operação só roda com `operacaoAtiva`. Só ela chama `reconexaoWifi` e
+/// `controladorEnvio.ciclo()` nesse período; o laço da bancada só registra amostras (o
+/// `ControladorEnvio` é feito para isso, com a trava do buffer).
+volatile bool operacaoAtiva = false;
+bool tarefaOperacaoCriada = false;
+
+void tarefaRedeDaOperacao(void*) {
+  for (;;) {
+    if (operacaoAtiva) {
+      const uint32_t agoraMs = millis();
+      if (reconexaoWifi.ciclo(agoraMs)) {
+        controladorEnvio.ciclo(agoraMs);  // pode esperar o servidor por vários segundos, sem prender o laço
+      }
+    }
+    vTaskDelay(pdMS_TO_TICKS(PERIODO_CICLO_REDE_MS));
+  }
+}
+
+/// `true` para uma tecla de verdade (Enter não conta).
+bool teclaDeVerdade(char c) { return c != '\r' && c != '\n'; }
+
+/// `o`: operação remota. Confere que o robô, andando, continua com o telnet, o Wi-Fi e a telemetria.
+bool comandoOperacaoRemota() {
+  console.println("--- OPERACAO REMOTA: motores ligados por comando do telnet, com a telemetria indo ao banco ---");
+  console.println("  Grava uma corrida de verdade no banco do credenciais.h. Rodas fora do chao no primeiro teste.");
+  if (!credenciaisOk() || !conectarWifi()) {
+    return false;
+  }
+  iniciarServicosDeRede();
+
+  // 1. O computador conecta por telnet, como faria com o robô.
+  if (!console.clienteConectado()) {
+    console.printf("  Conecte o computador por telnet: nc %s %u   (qualquer tecla cancela)\n",
+                   WiFi.localIP().toString().c_str(), ConsoleBancada::PORTA_TELNET);
+    const uint32_t inicio = millis();
+    while (!console.clienteConectado()) {
+      if (teclaPressionada()) {
+        console.println("  [FALHA] cancelado por tecla.");
+        return false;
+      }
+      if (millis() - inicio >= OPERACAO_ESPERA_CLIENTE_MS) {
+        console.println("  [FALHA] nenhum cliente telnet em 60 s.");
+        console.println("          dica: o computador precisa estar na mesma rede (alguns hotspots isolam os aparelhos).");
+        return false;
+      }
+      cuidarDaRede();
+      console.atualizar();
+      delay(50);
+    }
+  }
+  console.println("  telnet conectado.");
+
+  // 2. A corrida no banco, como o robô a cria depois de calibrar.
+  if (!comandoCriarCorrida()) {
+    return false;
+  }
+  controladorEnvio.iniciarCorrida(corridaId);
+  clienteSupabase.definirResultadoCorrida(false);
+  const ContadoresEnvio antes = controladorEnvio.contadores();
+  const uint32_t perdidasAntes = controladorEnvio.amostrasPerdidas();
+  const uint32_t quedasAntes = reconexaoWifi.quedas();
+
+  // 3. Espera o comando de largada, que tem de vir pelo telnet.
+  console.printf("  Pronto. Envie G pelo TELNET para ligar os motores (potencia %d) por %lu s.\n", potencia,
+                 static_cast<unsigned long>(OPERACAO_DURACAO_MS / 1000));
+  console.println("  X, ou qualquer outra tecla (telnet ou serial), freia na hora. Aguardando ate 60 s.");
+  bool largou = false;
+  const uint32_t inicioEspera = millis();
+  while (!largou) {
+    if (millis() - inicioEspera >= OPERACAO_ESPERA_COMANDO_MS) {
+      console.println("  [FALHA] o comando G nao chegou em 60 s; a corrida ficou aberta no banco.");
+      return false;
+    }
+    if (!console.clienteConectado()) {
+      console.println("  [FALHA] o cliente telnet saiu antes do comando; a corrida ficou aberta no banco.");
+      return false;
+    }
+    while (console.available() > 0) {
+      const char c = static_cast<char>(console.read());
+      if (!teclaDeVerdade(c)) {
+        continue;
+      }
+      if (c == 'g' || c == 'G') {
+        if (console.ultimaTeclaDoTelnet()) {
+          largou = true;
+        } else {
+          console.println("  G veio da serial. Para testar a distancia, envie o G pelo telnet.");
+        }
+      } else {
+        console.println("  [FALHA] cancelado por tecla; a corrida ficou aberta no banco.");
+        return false;
+      }
+    }
+    cuidarDaRede();
+    delay(10);
+  }
+  console.println("  G recebido pelo telnet: motores ligados.");
+
+  // 4. Anda, como o robô: laço de controle de 10 ms, sensores, amostra por segundo, rede em outra tarefa.
+  if (!tarefaOperacaoCriada) {
+    xTaskCreate(tarefaRedeDaOperacao, "rede_operacao", 10240, nullptr, 1, nullptr);
+    tarefaOperacaoCriada = true;
+  }
+  lerTofPor(ESPERA_LEITURA_TOF_MS);  // os ToF precisam de leituras contínuas para ter amostra
+  uint32_t leiturasTof = 0;
+  uint32_t falhasTof = 0;
+  uint32_t leiturasImu = 0;
+  uint32_t falhasImu = 0;
+  uint32_t geradas = 0;
+  uint32_t maiorIntervaloMs = 0;
+  uint32_t quedasDuranteMs = 0;
+  bool telnetCaiu = false;
+  bool freadoPorComando = false;
+  const uint32_t bateriaAntesMv = lerBateriaMv();
+  uint32_t bateriaMinimaMv = bateriaAntesMv;
+  encoderEsq.zerar();
+  encoderDir.zerar();
+  operacaoAtiva = true;
+  motores.definirPotencia({potencia, potencia});
+  const uint32_t inicioMs = millis();
+  uint32_t ultimoCicloMs = inicioMs;
+  uint32_t ultimaAmostraMs = inicioMs - OPERACAO_PERIODO_AMOSTRA_MS;
+  uint32_t ultimoLogMs = inicioMs;
+  while (millis() - inicioMs < OPERACAO_DURACAO_MS) {
+    const uint32_t agoraMs = millis();
+    const uint32_t intervaloMs = agoraMs - ultimoCicloMs;
+    maiorIntervaloMs = intervaloMs > maiorIntervaloMs ? intervaloMs : maiorIntervaloMs;
+    ultimoCicloMs = agoraMs;
+
+    if (teclaPressionada()) {
+      freadoPorComando = true;
+      break;
+    }
+    if (!console.clienteConectado()) {
+      telnetCaiu = true;  // só a serial avisa: o telnet já caiu
+    }
+    if (WiFi.status() != WL_CONNECTED) {
+      quedasDuranteMs += intervaloMs;
+    }
+
+    DistanciasLaterais descartada;
+    tof.lerDistanciasLaterais(descartada);
+    for (uint8_t i = 0; i < 3; i++) {
+      leiturasTof++;
+      if (tof.amostra(LADOS[i]).estado == EstadoAmostraTof::Falha) {
+        falhasTof++;
+      }
+    }
+    int16_t giro = 0;
+    leiturasImu++;
+    if (!imu.lerTaxaGiroZ(giro)) {
+      falhasImu++;
+    }
+    const uint32_t bateriaMv = lerBateriaRapidaMv();
+    if (bateriaMv > BATERIA_MINIMA_MEDIDA_MV && bateriaMv < bateriaMinimaMv) {
+      bateriaMinimaMv = bateriaMv;
+    }
+
+    if (agoraMs - ultimaAmostraMs >= OPERACAO_PERIODO_AMOSTRA_MS) {
+      ultimaAmostraMs = agoraMs;
+      AmostraTelemetria a;
+      a.tempoDecorridoMs = agoraMs - inicioMs;
+      a.velocidadeMmPorS = 100;
+      a.tensaoBateriaMv = static_cast<uint16_t>(bateriaMv > UINT16_MAX ? UINT16_MAX : bateriaMv);
+      a.posicaoLinha = static_cast<uint8_t>((geradas / 4) % 4);
+      a.posicaoColuna = static_cast<uint8_t>(geradas % 4);
+      a.orientacao = 'N';
+      a.estado = EstadoCorrida::Explorando;
+      controladorEnvio.registrar(a);
+      ++geradas;
+    }
+    if (agoraMs - ultimoLogMs >= 2000) {
+      ultimoLogMs = agoraMs;
+      const ContadoresEnvio& c = controladorEnvio.contadores();
+      console.printf("  t=%2lu s | wifi %s %d dBm | telnet ok | bateria %.2f V | no buffer %u | confirmadas %lu | maior intervalo %lu ms\n",
+                     static_cast<unsigned long>((agoraMs - inicioMs) / 1000), WiFi.status() == WL_CONNECTED ? "ok" : "CAIU",
+                     WiFi.RSSI(), bateriaMv / 1000.0f, controladorEnvio.ocupacao(),
+                     static_cast<unsigned long>(c.amostrasConfirmadas - antes.amostrasConfirmadas),
+                     static_cast<unsigned long>(maiorIntervaloMs));
+    }
+    delay(PERIODO_LEITURA_TOF_MS);
+  }
+  motores.parar();
+  const int32_t pulsosEsq = encoderEsq.lerContagem();
+  const int32_t pulsosDir = encoderDir.lerContagem();
+  console.println(freadoPorComando ? "> freado por tecla (parada remota)." : "> tempo esgotado, motores freados.");
+
+  // 5. Fim da corrida: o buffer tem de esvaziar e a corrida fechar no banco.
+  console.println("  encerrando a corrida e esvaziando o buffer...");
+  controladorEnvio.solicitarEncerramento(millis());
+  const uint32_t inicioFinalMs = millis();
+  while (!controladorEnvio.encerrada() && millis() - inicioFinalMs < OPERACAO_ESPERA_FINAL_MS) {
+    console.atualizar();
+    delay(50);
+  }
+  operacaoAtiva = false;
+  vTaskDelay(pdMS_TO_TICKS(2 * PERIODO_CICLO_REDE_MS));  // a tarefa de rede termina o ciclo em andamento
+
+  const ContadoresEnvio& c = controladorEnvio.contadores();
+  const uint32_t gravadas = c.amostrasConfirmadas - antes.amostrasConfirmadas;
+  const uint32_t existentes = c.amostrasJaExistentes - antes.amostrasJaExistentes;
+  const uint32_t perdidas = controladorEnvio.amostrasPerdidas() - perdidasAntes;
+  const uint32_t quedas = reconexaoWifi.quedas() - quedasAntes;
+  ResumoAutoteste resumo;
+  registrar(resumo, labs(pulsosEsq) >= PULSOS_MINIMOS_NO_TESTE && labs(pulsosDir) >= PULSOS_MINIMOS_NO_TESTE,
+            "o G chegou, mas as rodas nao giraram: veja o VM e os pulsos no menu de motores",
+            "o comando do telnet ligou os dois motores: %ld e %ld pulsos", static_cast<long>(pulsosEsq),
+            static_cast<long>(pulsosDir));
+  registrar(resumo, !telnetCaiu, "o telnet caiu com o robo andando: veja o sinal do Wi-Fi (tecla m) e o ruido dos motores",
+            "o telnet ficou conectado durante toda a corrida");
+  registrar(resumo, quedas == 0 && quedasDuranteMs == 0,
+            "o Wi-Fi caiu com os motores ligados: ruido ou queda de tensao; aproxime a placa do roteador e confira a bateria",
+            "o Wi-Fi nao caiu (%lu queda(s))", static_cast<unsigned long>(quedas));
+  registrar(resumo, maiorIntervaloMs <= OPERACAO_INTERVALO_MAXIMO_MS,
+            "o laco de controle ficou preso: a rede esta esperando o servidor no mesmo laco; o envio precisa ficar em tarefa propria",
+            "o laco de controle nunca passou de %lu ms (limite %lu ms) com o envio ao banco em andamento",
+            static_cast<unsigned long>(maiorIntervaloMs), static_cast<unsigned long>(OPERACAO_INTERVALO_MAXIMO_MS));
+  registrar(resumo, perdidas == 0 && gravadas + existentes == geradas && c.amostrasDescartadas == antes.amostrasDescartadas,
+            "o banco nao recebeu todas as amostras: veja 'confirmadas' e as falhas; o buffer pode ter enchido",
+            "telemetria: %lu geradas, %lu gravadas no banco, %lu perdidas", static_cast<unsigned long>(geradas),
+            static_cast<unsigned long>(gravadas + existentes), static_cast<unsigned long>(perdidas));
+  registrar(resumo, controladorEnvio.encerrada(), "a corrida nao foi encerrada a tempo; veja as falhas de envio",
+            "corrida encerrada no servidor");
+  registrar(resumo, falhasTof == 0 && falhasImu == 0,
+            "sensor falhando com o Wi-Fi transmitindo e o motor ligado: ruido no 3,3 V ou no I2C; confira GND e capacitor do trilho",
+            "ToF e MPU6050 sem falhas com o Wi-Fi ligado (%lu e %lu leituras)", static_cast<unsigned long>(leiturasTof),
+            static_cast<unsigned long>(leiturasImu));
+  registrar(resumo, bateriaAntesMv - bateriaMinimaMv <= QUEDA_MAXIMA_BATERIA_MV,
+            "a bateria cai demais com motores e Wi-Fi: a fonte nao aguenta; veja o buck do VM e o capacitor de bulk",
+            "bateria %.2f V parado, %.2f V no minimo (queda de %.2f V, limite %.2f V)", bateriaAntesMv / 1000.0f,
+            bateriaMinimaMv / 1000.0f, (bateriaAntesMv - bateriaMinimaMv) / 1000.0f, QUEDA_MAXIMA_BATERIA_MV / 1000.0f);
+  console.printf("RESULTADO: %u OK, %u FALHA(S).\n", resumo.ok, resumo.falhas);
+  console.printf("  Confira no banco (SQL Editor): select count(*), min(tensao_bateria), max(tensao_bateria) from telemetria where corrida_id = %lu;"
+                 "  esperado: %lu amostras e a tensao da bateria preenchida.\n",
+                 static_cast<unsigned long>(corridaId), static_cast<unsigned long>(geradas));
+  console.printf("REGISTRO: operacao_remota | corrida=%lu geradas=%lu gravadas=%lu perdidas=%lu quedas_wifi=%lu telnet_caiu=%s"
+                 " maior_intervalo_ms=%lu pulsos_esq=%ld pulsos_dir=%ld tof_falhas=%lu imu_falhas=%lu bateria_min_mv=%lu | veredito=%s\n",
+                 static_cast<unsigned long>(corridaId), static_cast<unsigned long>(geradas),
+                 static_cast<unsigned long>(gravadas + existentes), static_cast<unsigned long>(perdidas),
+                 static_cast<unsigned long>(quedas), telnetCaiu ? "sim" : "nao", static_cast<unsigned long>(maiorIntervaloMs),
+                 static_cast<long>(pulsosEsq), static_cast<long>(pulsosDir), static_cast<unsigned long>(falhasTof),
+                 static_cast<unsigned long>(falhasImu), static_cast<unsigned long>(bateriaMinimaMv),
+                 resumo.falhas == 0 ? "OK" : "FALHA");
+  corridaEncerrada = controladorEnvio.encerrada();
+  return resumo.falhas == 0;
+}
+
+/// Maior duração aceita de uma busca de comando, em ms: a do robô espera até `TEMPO_LIMITE_REDE_MS`, mas
+/// uma busca normal, com a conexão TLS reaproveitada, leva bem menos.
+constexpr uint32_t PAINEL_BUSCA_MAXIMA_MS = 2500;
+constexpr uint32_t PAINEL_ESPERA_COMANDO_MS = 60000;
+
+/// `k`: o canal painel ↔ robô. A bancada busca, pelo mesmo cliente HTTPS do robô, o comando que o
+/// operador mandou pelo painel (ou pelo `curl` do README), confere que ele chega uma vez só e envia
+/// algumas linhas de log de volta, para o operador conferir no painel.
+bool comandoPainel() {
+  console.println("--- COMANDO DO PAINEL: o robo busca o comando do painel e manda logs de volta ---");
+  console.println("  Depois da funcao `robo` publicada (supabase functions deploy robo) e do PAINEL_TOKEN definido.");
+  if (!credenciaisOk() || !conectarWifi()) {
+    return false;
+  }
+  console.printf("  No painel, clique em INICIAR (ou PARAR, ou ZERAR). Busco a cada %lu ms por ate %lu s. Qualquer tecla cancela.\n",
+                 static_cast<unsigned long>(PERIODO_CONSULTA_COMANDO_MS), static_cast<unsigned long>(PAINEL_ESPERA_COMANDO_MS / 1000));
+  ComandoRobo comando = ComandoRobo::Nenhum;
+  uint32_t buscas = 0;
+  uint32_t falhas = 0;
+  uint32_t maiorBuscaMs = 0;
+  int ultimoCodigo = 0;
+  bool recebeu = false;
+  const uint32_t inicio = millis();
+  uint32_t proximaBusca = inicio;
+  while (!recebeu && millis() - inicio < PAINEL_ESPERA_COMANDO_MS) {
+    if (teclaPressionada()) {
+      console.println("  [FALHA] cancelado por tecla.");
+      return false;
+    }
+    const uint32_t agora = millis();
+    if (static_cast<int32_t>(agora - proximaBusca) >= 0) {
+      proximaBusca = agora + PERIODO_CONSULTA_COMANDO_MS;
+      const ResultadoEnvio r = clienteSupabase.buscarComando(comando);
+      const uint32_t duracao = millis() - agora;
+      maiorBuscaMs = duracao > maiorBuscaMs ? duracao : maiorBuscaMs;
+      ++buscas;
+      if (r.codigoHttp < 200 || r.codigoHttp >= 300) {
+        ++falhas;
+        ultimoCodigo = r.codigoHttp;
+        comando = ComandoRobo::Nenhum;
+      } else if (comando != ComandoRobo::Nenhum) {
+        recebeu = true;
+      }
+    }
+    cuidarDaRede();
+    delay(20);
+  }
+  const uint32_t esperaMs = millis() - inicio;
+  const char* nome = comando == ComandoRobo::Iniciar ? "iniciar" : comando == ComandoRobo::Parar ? "parar" : "zerar";
+  if (recebeu) {
+    console.printf("  comando recebido: %s, %lu ms depois do inicio da espera.\n", nome, static_cast<unsigned long>(esperaMs));
+  }
+
+  // O comando é entregue uma vez só: a busca seguinte já não o traz.
+  bool repetiu = false;
+  if (recebeu) {
+    ComandoRobo outro = ComandoRobo::Nenhum;
+    const ResultadoEnvio r = clienteSupabase.buscarComando(outro);
+    repetiu = r.codigoHttp >= 200 && r.codigoHttp < 300 && outro == comando;
+  }
+
+  // Logs de volta: o operador confere no painel (o campo de logs) que as três linhas chegaram.
+  const char* linhas[3] = {"{\"status\":\"teste_bancada\",\"n\":1}", "{\"status\":\"teste_bancada\",\"n\":2}",
+                           "{\"status\":\"teste_bancada\",\"n\":3,\"aspas\":\"ok\"}"};
+  const uint32_t inicioLogs = millis();
+  const ResultadoEnvio logs = clienteSupabase.enviarLogs(corridaCriada ? corridaId : 0, linhas, 3);
+  const uint32_t duracaoLogsMs = millis() - inicioLogs;
+
+  ResumoAutoteste resumo;
+  registrar(resumo, buscas > 0 && falhas == 0,
+            "a busca falhou: 401 = DEVICE_TOKEN errado no credenciais.h ou na funcao; 404 = a funcao `robo` nao foi publicada; 5xx = migracao nao aplicada",
+            "%lu busca(s) ao banco, todas com resposta 2xx", static_cast<unsigned long>(buscas));
+  if (falhas > 0) {
+    console.printf("          ultimo codigo HTTP: %d. %s\n", ultimoCodigo, clienteSupabase.ultimaResposta().c_str());
+  }
+  registrar(resumo, recebeu,
+            "nenhum comando em 60 s: o painel nao mandou, ele expirou (vale 30 s) ou o PAINEL_TOKEN do painel esta errado",
+            "o comando do painel chegou ao robo: %s", recebeu ? nome : "-");
+  registrar(resumo, recebeu && !repetiu, "o mesmo comando chegou duas vezes: a entrega deveria ser uma so",
+            "o comando foi entregue uma vez so");
+  registrar(resumo, maiorBuscaMs <= PAINEL_BUSCA_MAXIMA_MS,
+            "a busca demorou: sinal fraco, TLS lento ou servidor longe; no robo isso atrasa a telemetria que usa a mesma tarefa",
+            "a busca mais lenta levou %lu ms (limite %lu ms)", static_cast<unsigned long>(maiorBuscaMs),
+            static_cast<unsigned long>(PAINEL_BUSCA_MAXIMA_MS));
+  registrar(resumo, logs.codigoHttp >= 200 && logs.codigoHttp < 300,
+            "o envio dos logs falhou: 404 = funcao `robo` nao publicada; 400 = linha invalida; 5xx = migracao nao aplicada",
+            "3 linhas de log enviadas ao painel em %lu ms", static_cast<unsigned long>(duracaoLogsMs));
+  console.printf("RESULTADO: %u OK, %u FALHA(S).\n", resumo.ok, resumo.falhas);
+  console.println("  Confira no painel: o campo de logs mostra 3 linhas com {\"status\":\"teste_bancada\"}.");
+  console.printf("REGISTRO: painel | buscas=%lu falhas=%lu comando=%s espera_ms=%lu maior_busca_ms=%lu logs_http=%d | veredito=%s\n",
+                 static_cast<unsigned long>(buscas), static_cast<unsigned long>(falhas), recebeu ? nome : "nenhum",
+                 static_cast<unsigned long>(esperaMs), static_cast<unsigned long>(maiorBuscaMs), logs.codigoHttp,
+                 resumo.falhas == 0 ? "OK" : "FALHA");
+  return resumo.falhas == 0;
+}
+
 /// Como uma rede da varredura bate com a do `credenciais.h`: igual, só na caixa das letras, ou não.
 const char* compararSsid(const char* visto, const char* configurado) {
   if (configurado == nullptr || configurado[0] == '\0') {
@@ -2046,7 +2352,7 @@ void comandoStatus() {
 void imprimirMenuTelemetria() {
   console.println();
   console.println("=== TELEMETRIA: Wi-Fi, HTTPS e banco ===");
-  console.println(" ATENCAO: a, c e l gravam uma corrida e amostras de teste DE VERDADE no banco do credenciais.h.");
+  console.println(" ATENCAO: a, c, l e o gravam uma corrida e amostras de teste DE VERDADE no banco do credenciais.h.");
   console.println("          Use o projeto Supabase de testes ou apague a corrida depois, para nao encher o historico.");
   console.println(" a  FLUXO COMPLETO: faz tudo abaixo e diz se a placa fala com o banco");
   console.println(" p  ESCOLHER A REDE: lista as redes visiveis, voce digita o numero e a senha (sem regravar)");
@@ -2060,6 +2366,8 @@ void imprimirMenuTelemetria() {
   console.println(" b  TESTE DE REENVIO: amostras ate o Wi-Fi cair e voltar (buffer do robo, #478)");
   console.println(" v  varrer as redes visiveis e conferir a principal e a reserva do credenciais.h (#491)");
   console.println(" m  medir o sinal ao vivo (RSSI, rede principal ou reserva) andando pela pista (#491)");
+  console.println(" k  COMANDO DO PAINEL: o robo busca o comando que o painel mandou e manda logs de volta");
+  console.println(" o  OPERACAO REMOTA: o telnet liga os motores e a telemetria segue para o banco, como no robo");
   console.println(" n  CORRIDA SEM REDE: 600 amostras (10 min) com o Wi-Fi desligado, depois envia tudo (#491)");
   console.println(" x  BUFFER CHEIO: 650 amostras sem rede; as 50 mais antigas devem ser descartadas (#478)");
   console.println(" s  status");
@@ -2103,6 +2411,12 @@ void executarTelemetria(char tecla) {
       break;
     case 'f':
       comandoEsquecerRede();
+      break;
+    case 'o':
+      comandoOperacaoRemota();
+      break;
+    case 'k':
+      comandoPainel();
       break;
     case 'n':
       comandoCorridaSemRede(CAPACIDADE_BUFFER_AMOSTRAS);
@@ -2176,10 +2490,6 @@ void executarPrincipal(char tecla) {
     case 'A':
       imprimirBateria();
       break;
-    case 'b':
-    case 'B':
-      lerBotaoContinuo();
-      break;
     case 'r':
     case 'R':
       console.println("Reiniciando a placa... (se o monitor fechar, abra de novo)");
@@ -2233,8 +2543,7 @@ void executarTecla(char tecla) {
 void setup() {
   console.iniciar(115200);
   motores.iniciar();  // freados durante toda a bancada, até o submenu de motores
-  pinMode(pinos::BOTAO_START, INPUT_PULLUP);
-  analogSetPinAttenuation(pinos::BATERIA_ADC, ADC_11db);  // faixa até cerca de 3,1 V no pino
+  bateriaAdc.iniciar();  // atenuação de 11 dB: faixa até cerca de 3,1 V no pino
   barramento.iniciar(pinos::I2C_SDA, pinos::I2C_SCL);  // inicia o `Wire`
   encoderEsq.iniciar();
   encoderDir.iniciar();

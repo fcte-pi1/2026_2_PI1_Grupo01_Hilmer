@@ -526,7 +526,6 @@ CredenciaisSupabase credenciaisCompletas() {
   c.urlProjeto = "https://abc.supabase.co";
   c.chaveAnon = "anon";
   c.tokenDispositivo = "token";
-  c.certificadoRaiz = "-----BEGIN CERTIFICATE-----";
   return c;
 }
 
@@ -537,10 +536,13 @@ void test_sem_credenciais_o_envio_fica_desligado() {
   TEST_ASSERT_TRUE(credenciaisValidas(credenciaisCompletas()));
 
   CredenciaisSupabase c = credenciaisCompletas();
-  c.tokenDispositivo = "";
-  TEST_ASSERT_FALSE(credenciaisValidas(c));
+  c.tokenDispositivo = "";  // o token é opcional (função aberta)
+  TEST_ASSERT_TRUE(credenciaisValidas(c));
   c = credenciaisCompletas();
-  c.chaveAnon = nullptr;
+  c.chaveAnon = nullptr;  // a chave também (função sem verificação de JWT)
+  TEST_ASSERT_TRUE(credenciaisValidas(c));
+  c = credenciaisCompletas();
+  c.urlProjeto = "";
   TEST_ASSERT_FALSE(credenciaisValidas(c));
   c = credenciaisCompletas();
   c.ssidWifi = "";
@@ -550,17 +552,14 @@ void test_sem_credenciais_o_envio_fica_desligado() {
   TEST_ASSERT_TRUE(credenciaisValidas(c));
 }
 
-void test_so_https_e_com_certificado_ou_excecao_de_bancada() {
+void test_so_https_e_sem_certificado() {
   CredenciaisSupabase c = credenciaisCompletas();
   c.urlProjeto = "http://abc.supabase.co";
   TEST_ASSERT_FALSE(credenciaisValidas(c));
   c.urlProjeto = "https://";
   TEST_ASSERT_FALSE(credenciaisValidas(c));
   c = credenciaisCompletas();
-  c.certificadoRaiz = "";
-  TEST_ASSERT_FALSE(credenciaisValidas(c));
-  c.semValidarCertificado = true;  // só na bancada
-  TEST_ASSERT_TRUE(credenciaisValidas(c));
+  TEST_ASSERT_TRUE(credenciaisValidas(c));  // não há certificado para configurar
 }
 
 void test_url_das_funcoes() {
@@ -877,7 +876,7 @@ int main(int, char**) {
   RUN_TEST(test_corpos_da_criacao_e_do_encerramento);
   RUN_TEST(test_amostra_montada_a_partir_da_pose);
   RUN_TEST(test_sem_credenciais_o_envio_fica_desligado);
-  RUN_TEST(test_so_https_e_com_certificado_ou_excecao_de_bancada);
+  RUN_TEST(test_so_https_e_sem_certificado);
   RUN_TEST(test_url_das_funcoes);
   RUN_TEST(test_periodo_da_coleta_e_tempos_da_rede);
   RUN_TEST(test_wifi_conecta_na_primeira_tentativa);

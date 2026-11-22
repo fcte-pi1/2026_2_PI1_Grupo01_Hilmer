@@ -16,6 +16,8 @@ const char* nomeDimensao(DimensaoMapa dimensao) {
       return "8x4";
     case DimensaoMapa::Labirinto12x4:
       return "12x4";
+    case DimensaoMapa::Exploracao:
+      return "";
   }
   return "";
 }
@@ -36,6 +38,9 @@ size_t MapaJson::serializar(const Mapa& mapa, char* saida, size_t capacidade) {
     return 0;
   }
   saida[0] = '\0';
+  if (mapa.obterDimensao() == DimensaoMapa::Exploracao) {
+    return 0;  // o mapa de exploração não é o labirinto: o dashboard só recebe o mapa já localizado
+  }
 
   JsonDocument doc;
   doc["dimensao"] = nomeDimensao(mapa.obterDimensao());

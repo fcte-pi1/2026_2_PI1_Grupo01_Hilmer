@@ -39,6 +39,11 @@ interface TelaAoVivoProps {
    * robô, então os botões de iniciar e resetar dão lugar a avisos.
    */
   aoVivo?: boolean;
+  /**
+   * `false` enquanto o robô ainda não descobriu o tamanho do labirinto (largada em qualquer célula): sem
+   * tamanho, não há grade para desenhar. Padrão `true`, que é o dos dados de exemplo.
+   */
+  labirintoDescoberto?: boolean;
   aoIniciar: () => void;
   aoResetar: () => void;
 }
@@ -55,6 +60,7 @@ export function TelaAoVivo({
   leituras,
   tentativa,
   aoVivo = false,
+  labirintoDescoberto = true,
   aoIniciar,
   aoResetar,
 }: TelaAoVivoProps) {
@@ -87,13 +93,19 @@ export function TelaAoVivo({
   return (
     <div className="ao-vivo">
       <section className="ao-vivo__mapa cartao" aria-label="Mapa do labirinto">
-        <GradeLabirinto
-          linhas={labirinto.linhas}
-          colunas={labirinto.colunas}
-          mapa={aoVivo ? mapa : mapaConhecido(mapa, percurso)}
-          percurso={percurso}
-          robo={robo}
-        />
+        {labirintoDescoberto ? (
+          <GradeLabirinto
+            linhas={labirinto.linhas}
+            colunas={labirinto.colunas}
+            mapa={aoVivo ? mapa : mapaConhecido(mapa, percurso)}
+            percurso={percurso}
+            robo={robo}
+          />
+        ) : (
+          <p className="grafico-vazio">
+            O robô está se localizando e descobrindo o tamanho do labirinto. O mapa aparece quando ele souber.
+          </p>
+        )}
 
         <div className="ao-vivo__grafico">
           <h2 className="ao-vivo__titulo">Velocidade (m/s) × tempo (s)</h2>

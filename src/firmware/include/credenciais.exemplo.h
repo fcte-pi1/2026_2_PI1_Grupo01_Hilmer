@@ -1,48 +1,30 @@
 #pragma once
 
 /// @file credenciais.exemplo.h
-/// @brief Modelo das credenciais do envio da telemetria (#238, #236). **Este arquivo vai para o Git;
-/// as credenciais de verdade, não.**
+/// @brief Modelo do `include/credenciais.h` local, que o Git ignora. **Este arquivo vai para o Git;
+/// o `credenciais.h` de verdade, não.**
 ///
-/// Como usar:
-/// 1. Copie este arquivo para `include/credenciais.h` (o Git ignora esse nome).
-/// 2. Preencha os campos abaixo. Peça a chave `anon`, a URL e o `DEVICE_TOKEN` a quem administra o
-///    Supabase do grupo; nunca cole esses valores em issue, PR ou conversa.
-/// 3. Grave a placa: `pio run -e esp32_devkit -t upload`.
+/// Você normalmente NÃO precisa de `credenciais.h`: o Wi-Fi e a URL do Supabase já vêm de
+/// `credenciais_padrao.h`, e a chave e o token são opcionais. Crie o arquivo só para:
+/// - usar outro Wi-Fi no seu computador;
+/// - informar a chave `anon`/publishable ou o `DEVICE_TOKEN`, se o seu projeto Supabase ainda os exigir.
 ///
-/// Sem `include/credenciais.h`, o firmware compila, inicia e não envia nada (o log mostra
-/// `envio_desligado`).
+/// Como usar: copie este arquivo para `include/credenciais.h`, descomente e preencha só o que precisa
+/// (qualquer `#define` seu vale mais que o padrão). Nunca cole segredos em issue, PR ou conversa, e
+/// nunca use a chave `sb_secret_`/`service_role` no firmware. Depois grave: `pio run -e esp32_devkit -t upload`
+/// (ou `-e esp32_devkit_ota` pelo Wi-Fi).
 
-/// Rede Wi-Fi principal (2,4 GHz: o ESP32 não conecta em 5 GHz). Na demonstração, o hotspot do
-/// celular principal (roteiro de troca no README do firmware, seção "Rede da demonstração").
-#define CREDENCIAL_WIFI_SSID "nome-da-rede"
-#define CREDENCIAL_WIFI_SENHA "senha-da-rede"
+// Outro Wi-Fi (2,4 GHz; o ESP32 não conecta em 5 GHz), principal e reserva (#491).
+// #define CREDENCIAL_WIFI_SSID "nome-da-rede"
+// #define CREDENCIAL_WIFI_SENHA "senha-da-rede"
+// #define CREDENCIAL_WIFI_SSID_RESERVA "nome-da-reserva"
+// #define CREDENCIAL_WIFI_SENHA_RESERVA "senha-da-reserva"
 
-/// Rede reserva (#491), também em 2,4 GHz: o robô passa para ela quando a principal não conecta em
-/// 10 s, e volta a tentar a principal só se a reserva cair. Deixe as duas vazias para usar só a
-/// principal. Arquivos `credenciais.h` antigos, sem estas linhas, continuam valendo (sem reserva).
-#define CREDENCIAL_WIFI_SSID_RESERVA ""
-#define CREDENCIAL_WIFI_SENHA_RESERVA ""
+// Outro projeto Supabase (sem `/` no fim).
+// #define CREDENCIAL_SUPABASE_URL "https://SEU-PROJETO.supabase.co"
 
-/// Projeto do Supabase: Settings → API → Project URL (sem `/` no fim).
-#define CREDENCIAL_SUPABASE_URL "https://SEU-PROJETO.supabase.co"
+// OPCIONAL: chave `anon`/publishable, só se o gateway das Edge Functions ainda exigir JWT.
+// #define CREDENCIAL_SUPABASE_ANON "cole-aqui-a-chave-anon"
 
-/// Chave `anon` (pública, só leitura pelo RLS), exigida pelo gateway das Edge Functions.
-#define CREDENCIAL_SUPABASE_ANON "cole-aqui-a-chave-anon"
-
-/// `DEVICE_TOKEN`: o mesmo segredo configurado nas Edge Functions (Settings → Edge Functions → Secrets).
-#define CREDENCIAL_DEVICE_TOKEN "cole-aqui-o-device-token"
-
-/// Certificado raiz (PEM) que valida o HTTPS do projeto. Para obter: abra a URL do projeto no
-/// navegador, clique no cadeado → certificado → o primeiro da cadeia (a raiz) → exportar em PEM, e
-/// cole o conteúdo inteiro aqui, uma linha do PEM por linha abaixo, cada uma entre aspas e terminada em
-/// `\n"` e `\` (o `#define` não aceita texto de várias linhas sem isso). Na bancada, com
-/// `CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1`, este valor não é usado.
-#define CREDENCIAL_CERTIFICADO_RAIZ \
-  "-----BEGIN CERTIFICATE-----\n" \
-  "cole aqui o certificado raiz\n" \
-  "-----END CERTIFICATE-----\n"
-
-/// 1 só na bancada, para testar sem o certificado: aceita qualquer servidor (`setInsecure`). Nunca
-/// deixe 1 na versão da competição.
-#define CREDENCIAL_SEM_VALIDAR_CERTIFICADO 0
+// OPCIONAL: `DEVICE_TOKEN`, só se o segredo existir nas Edge Functions.
+// #define CREDENCIAL_DEVICE_TOKEN "cole-aqui-o-device-token"

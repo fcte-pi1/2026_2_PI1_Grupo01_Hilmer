@@ -9,7 +9,10 @@
 }
 
 .app__conteudo {
+  display: flex;
   flex: 1;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .app__rodape {

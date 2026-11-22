@@ -115,7 +115,9 @@ class ExecutorMovimentos {
   /// `distanciaMm` pela odometria. Termina antes se a parede da frente mostrar que o robô voltou ao
   /// centro da célula: o centro fica a `DISTANCIA_CENTRO_A_PAREDE_MM` dela.
   /// @return `false` se outro movimento está em andamento ou se a distância é zero.
-  bool iniciarRecuo(uint16_t distanciaMm);
+  /// @param ignorarCentroPelaFrente `true` recua a distância inteira, sem parar antes quando o ToF frontal
+  ///        já indica o centro da célula (o atalho vale depois de uma colisão, mas não para dar folga ao giro).
+  bool iniciarRecuo(uint16_t distanciaMm, bool ignorarCentroPelaFrente = false);
 
   /// Começa um realinhamento ao centro do corredor (#188), pelo plano dado.
   /// @return `false` se outro movimento está em andamento ou se o plano não desloca nada.
@@ -224,6 +226,7 @@ class ExecutorMovimentos {
   // Realinhamento: as quatro etapas do plano.
   enum class EtapaRealinhamento : uint8_t { GiroIda, Trecho, GiroVolta, Volta };
   int32_t recuoUm_ = 0;  ///< Distância do recuo (negativa, de ré), em µm.
+  bool recuoIgnoraCentro_ = false;  ///< O recuo vai até o fim, sem o atalho "já está no centro pela frente".
   PlanoRealinhamento plano_;
   EtapaRealinhamento etapa_ = EtapaRealinhamento::GiroIda;
   bool etapaComecou_ = false;

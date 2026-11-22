@@ -3,6 +3,7 @@
 #include <ArduinoJson.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "Direcao.h"
 
@@ -128,6 +129,70 @@ bool lerIdCorrida(const char* corpo, uint32_t& id) {
   }
   id = static_cast<uint32_t>(lido);
   return true;
+}
+
+const char* nomeDoLabirinto(DimensaoMapa dimensao) {
+  switch (dimensao) {
+    case DimensaoMapa::Labirinto4x4:
+      return "4x4";
+    case DimensaoMapa::Labirinto8x4:
+      return "8x4";
+    case DimensaoMapa::Labirinto12x4:
+      return "12x4";
+    case DimensaoMapa::Exploracao:
+      break;
+  }
+  return "";
+}
+
+bool lerComandoRobo(const char* corpo, ComandoRobo& comando) {
+  if (corpo == nullptr) {
+    return false;
+  }
+  JsonDocument doc;
+  if (deserializeJson(doc, corpo) != DeserializationError::Ok || !doc.is<JsonObjectConst>()) {
+    return false;
+  }
+  JsonVariantConst lido = doc["comando"];
+  if (lido.isNull()) {
+    comando = ComandoRobo::Nenhum;
+    return true;
+  }
+  if (!lido.is<const char*>()) {
+    return false;
+  }
+  const char* texto = lido.as<const char*>();
+  if (strcmp(texto, "iniciar") == 0) {
+    comando = ComandoRobo::Iniciar;
+  } else if (strcmp(texto, "parar") == 0) {
+    comando = ComandoRobo::Parar;
+  } else if (strcmp(texto, "zerar") == 0) {
+    comando = ComandoRobo::Zerar;
+  } else {
+    return false;
+  }
+  return true;
+}
+
+size_t serializarLogs(uint32_t corridaId, const char* const* linhas, size_t quantidade, char* saida, size_t capacidade) {
+  if (linhas == nullptr || quantidade == 0 || saida == nullptr || capacidade == 0) {
+    return 0;
+  }
+  JsonDocument doc;
+  if (corridaId > 0) {
+    doc["corrida_id"] = corridaId;
+  }
+  JsonArray lista = doc["linhas"].to<JsonArray>();
+  for (size_t i = 0; i < quantidade; ++i) {
+    if (linhas[i] == nullptr || linhas[i][0] == '\0') {
+      return 0;
+    }
+    lista.add(linhas[i]);
+  }
+  if (measureJson(doc) >= capacidade) {
+    return 0;
+  }
+  return serializeJson(doc, saida, capacidade);
 }
 
 size_t serializarCriacaoCorrida(const char* labirinto, char* saida, size_t capacidade) {
