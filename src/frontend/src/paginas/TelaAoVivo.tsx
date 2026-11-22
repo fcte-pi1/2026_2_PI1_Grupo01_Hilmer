@@ -7,12 +7,12 @@ import {
   TENSAO_CHEIA_V,
   formatarMinutos,
   formatarTempo,
-  formatarVelocidade,
+  formatarVelocidadeOuTraco,
   notaDaTentativa,
   percentualBateria,
 } from '../lib/formatacao';
 import { mapaConhecido } from '../lib/labirinto';
-import { calcularMetricas, fracaoDoLimite, leiturasDaCorrida } from '../lib/painelAoVivo';
+import { calcularMetricas, fracaoDoLimite, leiturasDaCorrida, serieDeVelocidade } from '../lib/painelAoVivo';
 import type { EstadoPainel, Labirinto, MapaCelula, Orientacao, Posicao, Telemetria } from '../tipos';
 import './TelaAoVivo.css';
 
@@ -73,13 +73,15 @@ export function TelaAoVivo({
     : { linha: 0, coluna: 0, orientacao: 'N' };
 
   // Cards: recalculados a cada leitura nova (sem leituras, valores nominais do Frame 01)
-  const metricas = calcularMetricas(leituras);
+  const metricas = calcularMetricas(leituras, tempo);
   const tensao = metricas.tensao ?? TENSAO_CHEIA_V;
   const usoDoLimite = fracaoDoLimite(tempo);
 
   // Antes da largada o robô já manda leituras (parado na célula de partida), mas o gráfico e os
   // cards de velocidade e tempo só passam a contar depois dela (#242).
   const leiturasNaCorrida = leiturasDaCorrida(leituras);
+  // Com o robô mandando velocidade 0, o gráfico mostra a média acumulada pela distância (#557).
+  const serie = serieDeVelocidade(leituras);
 
   const detalheTempo =
     estado === 'concluido'
@@ -108,12 +110,14 @@ export function TelaAoVivo({
         )}
 
         <div className="ao-vivo__grafico">
-          <h2 className="ao-vivo__titulo">Velocidade (m/s) × tempo (s)</h2>
+          <h2 className="ao-vivo__titulo">
+            Velocidade (m/s) × tempo (s){serie.estimada ? ' · estimada pela distância' : ''}
+          </h2>
           {leiturasNaCorrida.length === 0 ? (
             <p className="grafico-vazio">O gráfico aparece quando a corrida começar.</p>
           ) : (
             <Suspense fallback={<p className="grafico-vazio">Carregando o gráfico…</p>}>
-              <GraficoVelocidade leituras={leiturasNaCorrida} />
+              <GraficoVelocidade leituras={serie.leituras} />
             </Suspense>
           )}
         </div>
@@ -127,8 +131,12 @@ export function TelaAoVivo({
         />
         <CartaoMetrica
           rotulo="Velocidade média"
-          valor={formatarVelocidade(metricas.velocidadeMedia)}
-          detalhe={`Pico máx: ${formatarVelocidade(metricas.velocidadePico)}`}
+          valor={formatarVelocidadeOuTraco(metricas.velocidadeMedia)}
+          detalhe={
+            metricas.mediaPelaDistancia
+              ? 'Pela distância (células × 0,18 m ÷ tempo)'
+              : `Pico máx: ${formatarVelocidadeOuTraco(metricas.velocidadePico)}`
+          }
         />
         <CartaoMetrica rotulo="Tempo de conclusão" valor={formatarTempo(tempo)} detalhe={detalheTempo} />
         <div

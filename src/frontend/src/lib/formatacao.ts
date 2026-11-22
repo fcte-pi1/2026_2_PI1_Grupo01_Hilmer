@@ -43,6 +43,22 @@ export function formatarVelocidade(metrosPorSegundo: number): string {
   return `${metrosPorSegundo.toFixed(2)} m/s`;
 }
 
+/** Traço das células sem dado. */
+export const TRACO = '—';
+
+/**
+ * Velocidade para a tela, sem nunca mostrar "0.00 m/s" de uma corrida sem dado (#557):
+ * `null`, zero ou valor inválido viram "—".
+ */
+export function formatarVelocidadeOuTraco(metrosPorSegundo: number | null | undefined): string {
+  return metrosPorSegundo != null && metrosPorSegundo > 0 ? formatarVelocidade(metrosPorSegundo) : TRACO;
+}
+
+/** "Sim", "Não" ou "—" (em andamento) para a coluna "Desafio cumprido (S/N)" do histórico. */
+export function desafioCumprido(status: StatusCorrida): string {
+  return status === 'concluida' ? 'Sim' : status === 'nao_concluida' ? 'Não' : TRACO;
+}
+
 /**
  * Carga restante (0 a 100 %) estimada pela tensão, linear entre o corte e a carga plena.
  * Provisório: a curva real da LiPo não é linear; a HU-08 define o cálculo final.

@@ -6,7 +6,7 @@
 
 .tabela-historico table {
   width: 100%;
-  min-width: 760px;
+  min-width: 940px;
   border-collapse: collapse;
   font-size: 13px;
 }
@@ -43,4 +43,25 @@
   border-top: 1px solid var(--cor-borda);
   color: var(--cor-texto-suave);
   text-align: center;
+}
+
+.tabela-historico__linha--clicavel {
+  cursor: pointer;
+}
+
+.tabela-historico__detalhe {
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  color: var(--cor-primaria);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tabela-historico__detalhe:hover,
+.tabela-historico__detalhe:focus-visible {
+  border-color: var(--cor-primaria);
 }

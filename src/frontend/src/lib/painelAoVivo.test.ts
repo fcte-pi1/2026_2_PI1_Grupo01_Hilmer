@@ -132,8 +132,14 @@ describe('aplicarTelemetria', () => {
 });
 
 describe('calcularMetricas', () => {
-  it('sem leituras, devolve tensão nula e zeros', () => {
-    expect(calcularMetricas([])).toEqual({ tensao: null, correnteMa: 0, velocidadeMedia: 0, velocidadePico: 0 });
+  it('sem leituras, devolve tensão e velocidades nulas (a tela mostra "—", #557)', () => {
+    expect(calcularMetricas([])).toEqual({
+      tensao: null,
+      correnteMa: 0,
+      velocidadeMedia: null,
+      mediaPelaDistancia: false,
+      velocidadePico: null,
+    });
   });
 
   it('usa a última leitura para bateria e todas para a velocidade', () => {
@@ -205,10 +211,10 @@ describe('Aguardando Largada (#242)', () => {
     expect(leiturasDaCorrida(todas).map((l) => l.numero_sequencia)).toEqual([3, 4]);
   });
 
-  it('antes da largada, velocidade e pico são zero e a bateria vale a da leitura', () => {
+  it('antes da largada, velocidade e pico são nulos e a bateria vale a da leitura', () => {
     const m = calcularMetricas([naLargada(1, { corrente_bateria: 0.2 }), naLargada(2, { corrente_bateria: 0.2 })]);
-    expect(m.velocidadeMedia).toBe(0);
-    expect(m.velocidadePico).toBe(0);
+    expect(m.velocidadeMedia).toBeNull();
+    expect(m.velocidadePico).toBeNull();
     expect(m.tensao).toBe(8.1);
     expect(m.correnteMa).toBe(200);
   });

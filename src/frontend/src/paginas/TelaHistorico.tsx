@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { DetalheCorrida } from '../componentes/DetalheCorrida';
 import { FiltroLabirinto, type Filtro } from '../componentes/FiltroLabirinto';
 import { TabelaHistorico } from '../componentes/TabelaHistorico';
 import { useCorridas } from '../hooks/useCorridas';
@@ -17,9 +18,13 @@ interface TelaHistoricoProps {
  * Consulta dados reais da tabela `corridas` no Supabase via `useCorridas` (HU-10 / Issue #235).
  * O filtro escolhido vai para a consulta ao banco (#234); o filtro abaixo, no navegador, só
  * garante o resultado quando as corridas vêm por props ou o tipo não tem labirinto no banco.
+ *
+ * Clicar numa corrida abre o detalhe dela (#557) no lugar da tabela. Trocar o filtro fecha o detalhe
+ * se a corrida aberta não pertence ao labirinto escolhido.
  */
 export function TelaHistorico({ corridas: corridasProp, labirintos }: TelaHistoricoProps) {
   const [filtro, setFiltro] = useState<Filtro>('todos');
+  const [selecionada, setSelecionada] = useState<Corrida | null>(null);
   const labirintoId = filtro === 'todos' ? null : (labirintos.find((l) => l.tipo === filtro)?.id ?? null);
   const hookCorridas = useCorridas(labirintoId);
 
@@ -31,6 +36,8 @@ export function TelaHistorico({ corridas: corridasProp, labirintos }: TelaHistor
   const visiveis = corridas
     .filter((c) => idsFiltrados === null || idsFiltrados.has(c.labirinto_id))
     .sort((a, b) => Date.parse(b.data_hora_inicio) - Date.parse(a.data_hora_inicio));
+  // O detalhe obedece ao filtro: uma corrida fora dele não fica aberta.
+  const aberta = selecionada && visiveis.some((c) => c.id === selecionada.id) ? selecionada : null;
 
   return (
     <section className="historico cartao" aria-label="Histórico de corridas">
@@ -63,13 +70,20 @@ export function TelaHistorico({ corridas: corridasProp, labirintos }: TelaHistor
         </div>
       )}
 
-      {carregando && corridas.length === 0 ? (
+      {aberta ? (
+        <DetalheCorrida corrida={aberta} labirintos={labirintos} aoVoltar={() => setSelecionada(null)} />
+      ) : carregando && corridas.length === 0 ? (
         <div className="historico__carregando">
           <p>Carregando histórico do banco de dados…</p>
         </div>
       ) : erro && corridas.length === 0 ? null : (
         // Com erro e sem corridas, só o alerta aparece: "Nenhuma corrida registrada" seria enganoso.
-        <TabelaHistorico corridas={visiveis} labirintos={labirintos} filtroAtivo={filtro !== 'todos'} />
+        <TabelaHistorico
+          corridas={visiveis}
+          labirintos={labirintos}
+          filtroAtivo={filtro !== 'todos'}
+          aoSelecionar={setSelecionada}
+        />
       )}
     </section>
   );
