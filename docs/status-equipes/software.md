@@ -4,10 +4,10 @@
 
 **Última atualização:** 23/10/2026 (Sprint 5). **Atualizado por:** Ana Carolina Fialho (gerente geral), a partir das *issues* e dos PRs do GitHub.
 
-**O que a equipe entrega:** o firmware do ESP32-C3 (percepção, mapa, navegação, controle dos motores), o backend no Supabase (banco e Edge Function) e o dashboard web. Detalhes em [Software](../04-projeto-conceitual/software.md) e [Firmware](../04-projeto-conceitual/firmware.md).
+**O que a equipe entrega:** o firmware do ESP32 DevKit V1 (percepção, mapa, navegação, controle dos motores), o backend no Supabase (banco e Edge Function) e o dashboard web. Detalhes em [Software](../04-projeto-conceitual/software.md) e [Firmware](../04-projeto-conceitual/firmware.md).
 
 !!! warning "Mudança de hardware (Rev 2.0, 21/10/2026)"
-    A eletrônica trocou o LiDAR por **3 sensores VL53L0X** (I²C), acrescentou a **IMU MPU6050** e passou para o motor **N20** e a placa **ESP32-C3 Super Mini**. Os encoders dos N20 já estão disponíveis (GPIO4 a 7), mas ainda precisam ser integrados ao firmware. O software abriu as tarefas [#377](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/377) a [#382](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/382) para se adaptar; a pinagem nova já está no `Pinos.h` ([#377](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/377), PR [#390](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/390)).
+    A eletrônica trocou o LiDAR por **3 sensores VL53L0X** (I²C), acrescentou a **IMU MPU6050** e passou para o motor **N20**, com encoders. Desde 10/11/2026 a placa do robô é o **ESP32 DevKit V1** da bancada integrada, com os encoders em GPIO32/33 e GPIO18/19 (veja a [pinagem](../04-projeto-conceitual/firmware.md#pinagem)). O software abriu as tarefas [#377](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/377) a [#382](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/382) para se adaptar; a pinagem nova já está no `Pinos.h` ([#377](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/377), PR [#390](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/390)).
 
 ## Onde está
 
@@ -23,8 +23,8 @@
 
 ## Entregue (mesclado em `main`)
 
-- **Base:** projeto base do firmware ([#172](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/172)), simulador de labirinto ([#224](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/224)), CI do firmware com testes nativos, cobertura mínima de 80% e build do ESP32-C3 ([#223](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/223)) e CI do backend com testes e cobertura ([#345](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/345)). Os dois CIs são obrigatórios na proteção da `main` (o do backend desde 23/10).
-- **Rev 2.0:** pinagem nova, placa Super Mini e log pela USB nativa ([#377](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/377)).
+- **Base:** projeto base do firmware ([#172](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/172)), simulador de labirinto ([#224](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/224)), CI do firmware com testes nativos, cobertura mínima de 80% e build da placa ([#223](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/223)) e CI do backend com testes e cobertura ([#345](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/345)). Os dois CIs são obrigatórios na proteção da `main` (o do backend desde 23/10).
+- **Rev 2.0:** pinagem nova no `Pinos.h` ([#377](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/377)), hoje a do ESP32 DevKit V1, com o log pela UART0.
 - **Percepção (versão LiDAR):** driver de leitura do LiDAR ([#173](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/173)) e classificação parede/livre ([#174](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/174)). Com a troca de sensor, a percepção é refeita nas tarefas [#344](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344) e [#379](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/379).
 - **Mapa:** estrutura de dados ([#176](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/176)), atualização a cada célula ([#177](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/177)), armazenamento em memória ([#179](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/179)), mapa final serializado ([#180](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/180)) e formato JSON ([#178](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/178)).
 - **Navegação:** algoritmo de resolução ([#183](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/183)), leitura dos encoders ([#186](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/186)), odometria ([#187](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/187)), centralização no corredor e parada frontal ([#191](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/191)) e detecção da célula objetivo com evento na telemetria ([#189](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/189)).
@@ -59,7 +59,7 @@
 | **De** | **O quê** | **Dependência** |
 |--------|-----------|:---------------:|
 | Eletrônica | Hardware Rev 2.0 montado para a bancada (3 VL53L0X, MPU6050, driver e motores N20) | D1 |
-| Eletrônica | Pino do ADC da bateria: na Rev 2.0 o divisor termina em `BAT_ADC_TEST`, sem GPIO (o GPIO2 ficou com o XSHUT direito) | D2, D7 |
+| Eletrônica | Divisor da bateria (100 kΩ / 33 kΩ) montado no GPIO34 do ESP32 DevKit V1, o pino do ADC da bateria no `Pinos.h` | D2, D7 |
 | Eletrônica | Redução, corrente de travamento e tensão do motor N20 (valores provisórios em `ConfiguracaoProtecaoMotor.h`) | D1 |
 | Estrutura | Posição dos 3 VL53L0X no chassi, base da calibração dos limiares ([#379](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/379)) | D9 |
 | Estrutura | Diâmetro da roda e bitola definitivos (a odometria usa valores provisórios) | D3 |

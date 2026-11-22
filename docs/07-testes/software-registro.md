@@ -691,7 +691,7 @@ native         test_armazenamento_mapa  PASSED    00:00:01.287
 
 - A navegação (Épico 02) ainda precisa chamar `congelarMapa()` quando detectar a célula objetivo; por enquanto o objetivo é sinalizado pelos próprios testes.
 - O envio do JSON do mapa final ao servidor, vinculado à corrida criada pela Edge Function `corridas` ([#233](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/233)), entra com a telemetria (Épico 03).
-- Medir no ESP32-C3 (`pio run -e esp32c3`) a RAM estática do `ArmazenamentoMapa` com o mapa final; no computador, o `sizeof` é de 392 bytes.
+- Medir no ESP32 DevKit V1 (`pio run -e esp32_devkit`) a RAM estática do `ArmazenamentoMapa` com o mapa final; no computador, o `sizeof` é de 392 bytes.
 
 ---
 
@@ -812,7 +812,7 @@ Além da suíte, um programa de validação (fora do repositório) gerou 12.000 
 
 #### Pendências desta etapa
 
-- Rodar `pio test -e native_cobertura` e `pio run -e esp32c3` (o CI do PR faz os dois) e registrar a cobertura total de `lib/` e o uso de memória na placa.
+- Rodar `pio test -e native_cobertura` e `pio run -e esp32_devkit` (o CI do PR faz os dois) e registrar a cobertura total de `lib/` e o uso de memória na placa.
 - Ligar a `Navegacao` ao robô na `tarefaNavegacao`: o controle de movimento ([#184](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/184)) executa a direção decidida, e a odometria ([#187](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/187), PR [#343](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/343)) informa a pose a `confirmarPose()`.
 - Cobrir com testes o construtor com objetivo e pose escolhidos, `definirPose()` e `definirObjetivo()`.
 
@@ -2049,7 +2049,7 @@ O menu `scripts/bancada_tof.py` foi executado contra uma placa simulada (porta s
 
 - **Bancada ([#175](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/175)):** rodar `./scripts/bancada_tof.py` com os sensores montados e registrar aqui o relatório: fiação de cada XSHUT, endereços, taxa, tempo da leitura, erro contra a régua em pelo menos 5 distâncias e comportamento fora da faixa.
 - **Valores provisórios:** trocar os de `ConfiguracaoTof.h` pelos medidos na bancada.
-- **Hardware:** confirmar com a eletrônica que o módulo aceita o XSHUT em 3,3 V e que os pinos de *strapping* (GPIO2, GPIO8 e GPIO9) não impedem o boot com os sensores ligados.
+- **Hardware:** confirmar com a eletrônica que o módulo aceita o XSHUT em 3,3 V (GPIO16, GPIO17 e GPIO4 no ESP32 DevKit V1).
 
 #### Revisão do PR #391 (24/10/2026)
 
@@ -4043,7 +4043,7 @@ A branch recebeu a `main` de 25/10/2026, com os PRs [#442](https://github.com/fc
 
 - **Bancada:** com as rodas no ar e o monitor serial aberto, soltar e recolocar o conector de um VL53L0X e depois o do MPU6050 com o robô ligado; conferir a sequência do log ([Figura 27](../04-projeto-conceitual/firmware.md#falha-do-i2c-durante-a-corrida-supervisori2c)), o reinício pelo XSHUT e a volta dos motores. Combinar com a eletrônica como soltar o conector sem curto no barramento.
 - **Valores provisórios:** ajustar as tentativas, as leituras para recuperar, os reinícios e a espera com o que a bancada mostrar.
-- **Compilação para a placa:** anotar aqui a RAM e a Flash do `pio run -e esp32c3` do CI do PR.
+- **Compilação para a placa:** anotar aqui a RAM e a Flash do `pio run -e esp32_devkit` do CI do PR.
 
 ### Sprint 5 · Detecção de colisão e recuperação sem perda do mapa (testes com batidas simuladas)
 

@@ -345,7 +345,7 @@ As HUs com interface gráfica (HU-06, HU-07, HU-08, HU-10, HU-14 e HU-15) estão
   * **Quero** acompanhar em tempo real os dados de telemetria enviados pelo micromouse,
   * **Para que** eu possa monitorar as condições e o funcionamento do robô durante o desafio.
 * **Critérios de Aceitação:**
-  1. O ESP32-C3 deve enviar pacotes de telemetria contendo posição na malha, velocidade, tensão/corrente da bateria, tempo decorrido e estado da corrida, com carimbo de tempo e número de sequência.
+  1. O ESP32 do robô deve enviar pacotes de telemetria contendo posição na malha, velocidade, tensão/corrente da bateria, tempo decorrido e estado da corrida, com carimbo de tempo e número de sequência.
   2. Os dados devem ser exibidos no *dashboard* em até 2 s após a leitura do sensor correspondente (RNF-05).
   3. Devem ser exibidos cards dedicados de telemetria contendo consumo de bateria (%, V, mA), velocidade média/pico e cronômetro da tentativa atual.
 * **Protótipo da HU:**
@@ -576,7 +576,7 @@ receber, persistir e apresentar a telemetria em tempo real e o histórico de cor
 
 **Linguagens de programação:**
 
-- Firmware: **C++** (Arduino Core para ESP32-C3)
+- Firmware: **C++** (Arduino Core para o ESP32 DevKit V1)
 - Lógica de servidor (Edge Functions): **TypeScript** (Deno, runtime das Edge Functions do Supabase)
 - Frontend: **JavaScript/TypeScript**
 
@@ -584,17 +584,19 @@ receber, persistir e apresentar a telemetria em tempo real e o histórico de cor
 
 - Firmware: `WiFi.h` e `HTTPClient.h` para o envio de telemetria via HTTP, `ArduinoJson`
   para serialização dos pacotes, leitura dos *encoders* por interrupção de GPIO
-  (quadratura A/B, `GPIO4` a `GPIO7`), PWM nativo do ESP32-C3 para o DRV8833 (`GPIO10`, `GPIO3`,
-  `GPIO20` e `GPIO21`) e leitura dos 3 VL53L0X e do MPU6050 por I²C (`GPIO9`/`GPIO8`, com XSHUT
-  dos VL53L0X em `GPIO0`, `GPIO1` e `GPIO2`), conforme a Rev 2.0 do hardware (21/10/2026). A
-  versão anterior previa um LiDAR ToF 360° por UART, que deixou de ser usado.
+  (quadratura A/B, `GPIO32`/`GPIO33` à esquerda e `GPIO18`/`GPIO19` à direita), PWM (LEDC) do
+  ESP32 para o DRV8833 (`GPIO25`, `GPIO26`, `GPIO27` e `GPIO14`) e leitura dos 3 VL53L0X e do
+  MPU6050 por I²C (`GPIO21`/`GPIO22`, com XSHUT dos VL53L0X em `GPIO16`, `GPIO17` e `GPIO4`),
+  conforme a [tabela de fiação da bancada integrada](../07-testes/integracao/ensaio-integrado-protoboard.md#28-microcontrolador-esp32-devkit-v1-conferencia-final-de-todos-os-pinos). Os sensores e os
+  motores são os da Rev 2.0 do hardware (21/10/2026); a placa passou a ser o ESP32 DevKit V1 em
+  10/11/2026. A versão anterior previa um LiDAR ToF 360° por UART, que deixou de ser usado.
 - Sistema Web: SDK oficial **`supabase-js`** no frontend, usado tanto para consultas
   (histórico de corridas) quanto para assinar mudanças em tempo real via Realtime
   (substitui um servidor Socket.IO próprio); Supabase Edge Functions em TypeScript para
   a lógica de encerramento de corrida.
 - Frontend: **React** + Vite + **Recharts** (gráficos de telemetria).
 
-O ESP32-C3 envia telemetria por HTTP POST periódico (cerca de 1 s) a um endpoint do
+O ESP32 do robô envia telemetria por HTTP POST periódico (cerca de 1 s) a um endpoint do
 Supabase, em vez de manter um cliente WebSocket embarcado: é mais simples de
 implementar em C++ e já atende à latência de 2 s do RNF05. O frontend recebe cada nova
 leitura em tempo real pelo Supabase Realtime. Se uma requisição falhar, o firmware
@@ -759,7 +761,7 @@ só autentica, valida o corpo e traduz erros; a regra de negócio fica em duas f
 
 ```mermaid
 sequenceDiagram
-    participant R as Robô (ESP32-C3)
+    participant R as Robô (ESP32)
     participant G as Gateway do Supabase
     participant F as Edge Function corridas
     participant B as PostgreSQL
@@ -813,14 +815,14 @@ lê-lo no navegador.
 1. **Lógica:** módulos do firmware (Navegação, Percepção pelos sensores de distância, IMU e *encoders*,
    Comunicação) e do sistema web (Ingestão de Telemetria, Encerramento de Corrida,
    Dashboard, Histórico).
-2. **Processos:** no ESP32-C3, navegação e envio de telemetria rodam concorrentemente
+2. **Processos:** no ESP32, navegação e envio de telemetria rodam concorrentemente
    sobre o FreeRTOS do Arduino Core, no mesmo *fork* do diagrama de atividades. No
    Supabase, o PostgREST atende as requisições REST e o Realtime propaga as mudanças de
    forma assíncrona, sem um processo de servidor próprio para gerenciar.
 3. **Implementação:** mapeia direto para a estrutura de pastas já existente
    (`src/firmware` para o firmware, `src/frontend` para o dashboard e o histórico, e as
    Edge Functions do Supabase em `src/backend`).
-4. **Implantação:** ESP32-C3 embarcado no robô, conectado por WiFi ao projeto Supabase
+4. **Implantação:** ESP32 DevKit V1 embarcado no robô, conectado por WiFi ao projeto Supabase
    (Postgres, PostgREST, Realtime e Edge Functions, todos no mesmo plano gratuito), com
    o frontend hospedado como site estático (Vercel ou Netlify) consumindo o Supabase
    diretamente via `supabase-js`.
@@ -996,7 +998,7 @@ A visualização do labirinto no dashboard web (`GradeLabirinto`, Frames `01_Idl
 
 ```mermaid
 sequenceDiagram
-    participant MM as Robô (ESP32-C3)
+    participant MM as Robô (ESP32)
     participant EF as Edge Functions
     participant DB as Supabase · PostgreSQL
     participant RT as Supabase Realtime (WebSocket)
