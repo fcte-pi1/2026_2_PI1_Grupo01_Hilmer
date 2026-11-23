@@ -121,6 +121,35 @@ struct ConfiguracaoExecucao {
   /// Desligado por padrão: o modelo simulado gira no lugar sem problema.
   uint16_t recuoAntesDoGiroMm = 0;
   uint16_t frenteParaRecuarMm = 0;
+  /// Limiar de parede das laterais, em mm (leitura abaixo disso conta como parede). 0 mantém o da percepção
+  /// (140 mm, calculado para sensores a 90°). Com os sensores na diagonal e o robô fora do centro, a leitura de
+  /// uma parede vai de ~105 a ~175 mm, então o robô real usa mais folga.
+  uint16_t limiarParedeLateralPercepcaoMm = 0;
+  /// Quantas vezes o robô, na largada fixa, apaga o mapa e tenta de novo quando o planejador conclui "sem
+  /// caminho", em vez de parar. Um mapa com uma parede falsa (leitura errada perto de uma quina) fecha o
+  /// caminho; recomeçar o mapa a partir da célula atual dá outra chance. 0 desliga.
+  uint8_t reiniciosDoMapaNoSemCaminho = 0;
+  /// Desvio de quina: durante o avanço, se uma parede lateral estiver mais perto que `desvioParedePertoMm`
+  /// e o outro lado estiver mais longe pelo menos `desvioFolgaOutroLadoMm`, o rumo alvo vira
+  /// `desvioRumoMiligraus` para o lado oposto, para o robô se afastar da quina em vez de encostar nela. 0 desliga.
+  uint16_t desvioParedePertoMm = 0;
+  uint16_t desvioFolgaOutroLadoMm = 40;
+  int32_t desvioRumoMiligraus = 6000;
+  /// Ajuste de chegada pela frente: ao fim do avanço pela odometria, se o ToF frontal mostra uma parede a mais
+  /// de `FOLGA` do ponto onde o avanço para pela parede (`distanciaParadaFrontalMm`) (a odometria superestimou o caminho), o robô anda a diferença, até
+  /// este máximo em mm. 0 desliga.
+  uint16_t ajusteChegadaPelaFrenteMaxMm = 0;
+  /// Se a ré (recuperação de colisão ou antes do giro) não andar no tempo, segue para perceber e girar em vez
+  /// de encerrar a corrida com `tempo_esgotado`.
+  bool seguirSeReNaoAndar = false;
+  /// Abertura lateral pelo perfil do avanço: se, durante o avanço, um lado ler pelo menos `aberturaLateralMm`
+  /// em `amostrasAberturaLateral` amostras seguidas (uma a cada 2 leituras do ToF), esse lado é livre, mesmo
+  /// que a leitura final tenha batido numa quina. 0 desliga (o perfil só é registrado).
+  uint16_t aberturaLateralMm = 0;
+  uint8_t amostrasAberturaLateral = 2;
+  /// Mesmo ajuste, com teto maior, quando se sabe que há parede no fim da célula de destino (a borda do
+  /// labirinto): aí uma leitura longa só pode ser a odometria curta, nunca a parede da célula seguinte.
+  uint16_t ajusteChegadaParedeGarantidaMaxMm = 0;
 };
 
 /// Parâmetros do `GatilhoLargada`.

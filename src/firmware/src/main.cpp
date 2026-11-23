@@ -39,6 +39,7 @@
 #include "CicloNavegacao.h"
 #include "Configuracao.h"
 #include "ConfiguracaoDeslocamento.h"
+#include "EstimadorVelocidade.h"
 #include "ConfiguracaoImu.h"
 #include "ConfiguracaoRede.h"
 #include "ConsoleRemoto.h"
@@ -50,8 +51,10 @@
 #include "CredenciaisSupabase.h"
 #include "DeslocamentoEstimado.h"
 #include "DetectorColisao.h"
+#include "DetectorPatinagem.h"
 #include "DetectorObjetivo.h"
 #include "EncoderEsp32.h"
+#include "ParDeEncoders.h"
 #include "EnvioHttpSupabase.h"
 #include "FaseCorrida.h"
 #include "GatilhoLargada.h"
@@ -144,10 +147,14 @@ static micromouse::IMotores& motoresTracao = registradorPotencia;
 
 /// Encoders usados pela odometria e pela telemetria: os reais, se instalados; senão, os estimados.
 /// A troca é só aqui: a `Odometria` e o `MedidorDeslocamento` não mudam.
+///
+/// Os encoders reais passam por um `ParDeEncoders`: se um lado ficar mudo (por exemplo, um fio solto)
+/// enquanto o outro conta, a odometria usa o lado que conta para as duas rodas, e o robô avisa no log.
+static micromouse::ParDeEncoders paresDeEncoders(encoderEsq, encoderDir);
 static micromouse::IEncoder& rodaEsq =
-    micromouse::ENCODERS_INSTALADOS ? static_cast<micromouse::IEncoder&>(encoderEsq) : deslocamento.encoderEsquerdo();
+    micromouse::ENCODERS_INSTALADOS ? paresDeEncoders.esquerdo() : deslocamento.encoderEsquerdo();
 static micromouse::IEncoder& rodaDir =
-    micromouse::ENCODERS_INSTALADOS ? static_cast<micromouse::IEncoder&>(encoderDir) : deslocamento.encoderDireito();
+    micromouse::ENCODERS_INSTALADOS ? paresDeEncoders.direito() : deslocamento.encoderDireito();
 
 static micromouse::ConversorDeslocamento conversorDeslocamento;
 static micromouse::MedidorDeslocamento medidorDeslocamento(rodaEsq, rodaDir, conversorDeslocamento);
@@ -374,8 +381,12 @@ static bool supervisionarImu(bool falhou, bool barramentoOcupado) {
 static micromouse::ConfiguracaoControle configuracaoControleDoRobo() {
   micromouse::ConfiguracaoControle c;
   c.distanciaParadaFrontalMm = 105;
-  // Os ganhos de centralização ficam nos padrões: o mesmo PD comanda o realinhamento, e com ganho zero o
-  // robô não se mexia (o realinhamento estourava o tempo do giro).
+  // Sem centralização pelas paredes laterais: os ToF laterais ficam na diagonal, e quando uma parede termina
+  // a leitura daquele lado "some", o que puxava o robô para a abertura, até encostar na quina da parede (o
+  // vídeo da pista mostrou o robô preso ali). O rumo reto segue pelo giroscópio, que não depende dos ToF.
+  // Isso só é seguro com o realinhamento desligado (`configuracaoRealinhamentoDoRobo`): o mesmo PD o comandava.
+  c.ganhoProporcionalDecimos = 0;
+  c.ganhoDerivativoDecimos = 0;
   return c;
 }
 
@@ -383,6 +394,9 @@ static micromouse::ConfiguracaoControle configuracaoControleDoRobo() {
 /// sensores a 90°; os ToF laterais do robô ficam na diagonal e, de frente para uma parede, enxergam a
 /// parede da frente, então a manobra não converge (estourava o tempo do giro antes de largar). Também sem
 /// ajuste de rumo pelo corredor, pelo mesmo motivo: o rumo reto segue pelo giroscópio.
+/// Espaço do texto de cada lado do `perfil_lateral` (24 amostras de até 3 dígitos e vírgula).
+static constexpr size_t PERFIL_TEXTO_MAX = 112;
+
 static micromouse::ConfiguracaoRealinhamento configuracaoRealinhamentoDoRobo() {
   micromouse::ConfiguracaoRealinhamento c;
   c.tentativas = 0;
@@ -397,8 +411,27 @@ static micromouse::ConfiguracaoExecucao configuracaoExecucaoDoRobo() {
   c.lateraisEmDiagonal = true;
   // O chassi não tem folga para girar no lugar colado na parede da frente (os cantos batem e as rodas
   // patinam, o que cortava o motor por "travado"): com a frente a menos de 90 mm, recua 45 mm antes do giro.
-  c.recuoAntesDoGiroMm = 45;
+  c.recuoAntesDoGiroMm = 25;  // ré curta: uma ré longa levava a traseira para outra quina e o robô prendia de novo
   c.frenteParaRecuarMm = 90;
+  // Laterais na diagonal e robô fora do centro: uma parede lê de ~105 a ~175 mm. Com 140 mm, uma parede a
+  // 173 mm virava "livre" (e o planejamento errava); com 190 mm ela conta como parede, e uma abertura
+  // (acima de 250 mm) continua livre.
+  c.limiarParedeLateralPercepcaoMm = 190;
+  // Sem caminho (mapa com parede falsa perto de uma quina): apaga o mapa e tenta de novo, até 3 vezes.
+  c.reiniciosDoMapaNoSemCaminho = 3;
+  // Desvio de quina: com uma parede lateral a menos de 90 mm e o outro lado mais livre, vira 10° para longe dela.
+  // A odometria parou ~90 mm antes de onde o robô costuma parar na parede. O teto (135) deixa de fora a parede da
+  // célula seguinte (lida a ~214 mm do sensor), para não andar uma célula a mais.
+  c.seguirSeReNaoAndar = true;
+  c.ajusteChegadaPelaFrenteMaxMm = 135;
+  c.ajusteChegadaParedeGarantidaMaxMm = 200;  // última célula antes da borda do labirinto: a parede é certa
+  // Abertura lateral pelo perfil do avanço. Medido no labirinto de teste: paredes leem de 105 a 146 mm durante o avanço
+  // e aberturas leem 200 a 237 mm por 8 a 13 amostras seguidas; 190 mm por 4 amostras separa os dois com folga.
+  c.aberturaLateralMm = 190;
+  c.amostrasAberturaLateral = 4;
+  c.desvioParedePertoMm = 115;  // perto de uma parede com o outro lado livre, afasta-se: dá folga ao giro
+  c.desvioFolgaOutroLadoMm = 40;
+  c.desvioRumoMiligraus = 10000;
   return c;
 }
 
@@ -415,6 +448,11 @@ static micromouse::CorrecaoPelasParedes correcaoParedes;
 /// de navegação o usa.
 static micromouse::GatilhoLargada gatilhoLargada;
 
+/// A largada vem só do painel (INICIAR) e do comando `L`. O gesto de cobrir o sensor frontal fica
+/// desligado: com a célula de partida colada na parede da frente, a mão ao posicionar o robô já o
+/// disparava, e ele largava ainda na mão. Com `true`, o gesto volta a largar o robô.
+static constexpr bool LARGADA_POR_GESTO = false;
+
 /// `true` se a largada foi liberada: pelo gesto da mão ou pelo comando `L` (painel, telnet ou serial).
 static bool largadaLiberada() { return gatilhoLargada.disparado(); }
 
@@ -422,6 +460,17 @@ static bool largadaLiberada() { return gatilhoLargada.disparado(); }
 /// navegação a usa. `colisoesPendentes` são as colisões que a telemetria ainda não enviou como evento
 /// `colisao`, protegidas por `travaOdometria`.
 static micromouse::DetectorColisao detectorColisao;
+
+/// Rodas patinando (roda no vinco, chassi preso na quina): a odometria anda e o ToF frontal não muda. Trata
+/// como colisão `frente_parada`: o ciclo para, recua em linha reta e tenta de novo.
+static micromouse::DetectorPatinagem detectorPatinagem;
+
+/// Correção da posição da odometria pelas paredes. Desligada no robô real: ela assume ToF laterais a 90° e a
+/// parede da frente a 50 mm do centro, mas os laterais ficam na diagonal. Cada leitura "corrigia" a posição
+/// para o lado errado (a odometria chegou a achar o robô 219 mm ao sul depois de andar uma célula para o
+/// leste), deslocava as paredes do mapa e invalidava a pose. Sem ela, a posição vem só dos encoders, que
+/// medem 2466 pulsos por célula, e a direção, do giroscópio.
+static constexpr bool CORRECAO_PELAS_PAREDES = false;
 static uint32_t colisoesPendentes = 0;
 
 /// Pedidos da telemetria (comandos seriais) para a tarefa de navegação, protegidos por
@@ -589,7 +638,8 @@ static bool chegouAoInstante(uint32_t agoraMs, uint32_t alvoMs) {
 /// Coleta: chamada pela tarefa de telemetria a cada `PERIODO_TELEMETRIA_MS`. Guarda a amostra no
 /// buffer, com o número de sequência dado agora (e que nunca muda num reenvio). A chegada ao objetivo
 /// ou o fim do tempo (10 min) registram a última amostra e pedem o encerramento da corrida.
-static void coletarAmostra(const micromouse::Pose& pose, bool chegouAoObjetivo, int32_t deslocamentoMm) {
+static void coletarAmostra(const micromouse::Pose& pose, bool chegouAoObjetivo, int32_t deslocamentoMm,
+                           int32_t velocidadeMmPorS) {
   const EstadoCorridaEnvio corrida = lerEstadoCorrida();
   if (!corrida.ativa || corrida.encerramentoPedido) {
     return;
@@ -617,7 +667,7 @@ static void coletarAmostra(const micromouse::Pose& pose, bool chegouAoObjetivo, 
     return;
   }
   micromouse::AmostraTelemetria amostra = micromouse::montarAmostra(
-      pose, decisao.tempoDecorridoMs, 0,  // velocidade: 0 até a estimativa sem encoder (#380) entrar na telemetria
+      pose, decisao.tempoDecorridoMs, velocidadeMmPorS,
       decisao.estado,
       chegouAoObjetivo ? micromouse::EventoTelemetria::ObjetivoAlcancado : micromouse::EventoTelemetria::Nenhum);
   // A bateria vai na telemetria; sem medida (chave geral desligada), 0, que o banco ignora.
@@ -664,6 +714,7 @@ static void registrarContadoresEnvio() {
 }
 
 static void executarComando(char c);  // definida adiante, com os outros comandos
+static void imprimirMapaDoRobo();  // comando `M`, definida adiante
 
 /// Busca o comando que o painel mandou e o executa como se tivesse vindo do telnet. Só a tarefa de rede.
 /// Falha de rede ou resposta ilegível não gera log (o log seria enviado ao painel e falharia de novo).
@@ -908,7 +959,12 @@ static void tarefaNavegacao(void*) {
     if (cicloNavegacao.direcaoDefinida()) {
       odometria.definirDirecao(cicloNavegacao.direcao());
     }
+    bool avisoEncoderEsquerdo = false;
+    bool avisoEncoderDireito = false;
     if (micromouse::ENCODERS_INSTALADOS) {
+      paresDeEncoders.atualizar(cicloNavegacao.estado() == micromouse::EstadoCiclo::Girando);
+      avisoEncoderEsquerdo = paresDeEncoders.consumirAvisoEsquerdo();
+      avisoEncoderDireito = paresDeEncoders.consumirAvisoDireito();
       odometria.atualizar(rodaEsq, rodaDir);
     } else {
       // Estima o avanço dos 10 ms e corrige a posição pela leitura nova do ToF, se houver.
@@ -918,7 +974,7 @@ static void tarefaNavegacao(void*) {
       deslocamento.ciclo(PERIODO_NAVEGACAO_MS, odometria, referencia ? &leituraTof.distancias : nullptr);
     }
     // Pelas paredes: a posição lateral sempre e, com os encoders, também ao longo do avanço (#188).
-    if (leituraNova) {
+    if (CORRECAO_PELAS_PAREDES && leituraNova) {
       correcaoParedes.aplicar(odometria, leituraTof.distancias, movimento, micromouse::ENCODERS_INSTALADOS);
     }
     // A pose da odometria vai para o ciclo; a chegada e a telemetria usam a convertida para o labirinto.
@@ -946,10 +1002,18 @@ static void tarefaNavegacao(void*) {
     const int64_t posicaoAvancoUm = micromouse::posicaoAoLongoDoAvancoUm(odometria);
     const bool posicaoNaMalha = odometria.posicaoValida();
     portEXIT_CRITICAL(&travaOdometria);
+    // Um encoder mudo vira aviso no log (e no painel): a odometria segue pelo outro lado.
+    if (avisoEncoderEsquerdo) {
+      console.println("{\"status\":\"aviso\",\"motivo\":\"encoder_esquerdo_sem_sinal\",\"usando\":\"encoder_direito\"}");
+    }
+    if (avisoEncoderDireito) {
+      console.println("{\"status\":\"aviso\",\"motivo\":\"encoder_direito_sem_sinal\",\"usando\":\"encoder_esquerdo\"}");
+    }
 
     if (reiniciarNavegacao) {
       largadaPendente = false;
       detectorColisao.reiniciar();
+      detectorPatinagem.reiniciar();
       portENTER_CRITICAL(&travaOdometria);
       correcaoParedes.reiniciar();
       portEXIT_CRITICAL(&travaOdometria);
@@ -994,7 +1058,7 @@ static void tarefaNavegacao(void*) {
         largadaPendente = false;
         gatilhoLargada.dispararManual();
       }
-      if (gatilhoLargada.atualizar(tofNovo, PERIODO_NAVEGACAO_MS) && !jaLiberado) {
+      if (gatilhoLargada.atualizar(LARGADA_POR_GESTO ? tofNovo : nullptr, PERIODO_NAVEGACAO_MS) && !jaLiberado) {
         console.println("{\"status\":\"largada_liberada\"}");
       }
     }
@@ -1027,11 +1091,58 @@ static void tarefaNavegacao(void*) {
     deteccao.medidas = micromouse::MedidasProtecao{leituraTof.valida, leituraTof.distancias.frenteMm, giro.taxaDecimosDps};
     deteccao.dtMs = PERIODO_NAVEGACAO_MS;
     entrada.colisao = detectorColisao.atualizar(deteccao);
+    const bool patinando = detectorPatinagem.atualizar(
+        deteccao.ativo && cicloNavegacao.estado() == micromouse::EstadoCiclo::Avancando, posicaoAvancoUm,
+        leituraTof.valida, leituraTof.distancias.frenteMm, PERIODO_NAVEGACAO_MS);
+    if (patinando && entrada.colisao == micromouse::TipoColisao::Nenhuma) {
+      entrada.colisao = micromouse::TipoColisao::FrenteParada;
+      console.println("{\"status\":\"patinagem\",\"acao\":\"recuar_e_tentar_de_novo\"}");
+    }
 
     const uint32_t colisoesAntes = cicloNavegacao.colisoes();
+    const uint32_t percepcoesAntes = cicloNavegacao.percepcoes();
+    const uint8_t reiniciosAntes = cicloNavegacao.reiniciosDoMapa();
+    const uint8_t ajustesAntes = cicloNavegacao.executor().ajustesDeChegada();
+    const uint32_t perfisAntes = cicloNavegacao.perfisConcluidos();
     const micromouse::EstadoCiclo antes = cicloNavegacao.estado();
     const micromouse::EstadoCiclo depois = cicloNavegacao.atualizar(entrada, motoresTracao);
     estadoCicloAtual = static_cast<uint8_t>(depois);
+    if (cicloNavegacao.percepcoes() != percepcoesAntes) {
+      // O que o robô viu e gravou no mapa, em qual célula e direção (depuração do mapa).
+      const auto estado = [](micromouse::EstadoParede e) { return e == micromouse::EstadoParede::Parede ? "parede" : (e == micromouse::EstadoParede::Livre ? "livre" : "?"); };
+      const micromouse::Pose& pose = cicloNavegacao.poseDaUltimaPercepcao();
+      const micromouse::ClassificadorParede::ResultadoClassificacao& c = cicloNavegacao.ultimaClassificacao();
+      console.printf("{\"status\":\"percepcao\",\"linha\":%u,\"coluna\":%u,\"direcao\":\"%c\",\"frente\":\"%s\",\"esquerda\":\"%s\",\"direita\":\"%s\",\"tof\":[%u,%u,%u]}\n",
+                    static_cast<unsigned>(pose.celula.linha), static_cast<unsigned>(pose.celula.coluna),
+                    "NLSO"[static_cast<uint8_t>(pose.direcao)], estado(c.frente), estado(c.esquerda), estado(c.direita),
+                    static_cast<unsigned>(leituraTof.distancias.frenteMm), static_cast<unsigned>(leituraTof.distancias.esquerdaMm),
+                    static_cast<unsigned>(leituraTof.distancias.direitaMm));
+    }
+    if (cicloNavegacao.perfisConcluidos() != perfisAntes) {
+      // Leituras laterais do avanço que acabou (uma a cada 2 leituras do ToF, mm): para calibrar a abertura lateral.
+      const micromouse::PerfilLateral& perfil = cicloNavegacao.perfilLateral();
+      char esq[PERFIL_TEXTO_MAX];
+      char dir[PERFIL_TEXTO_MAX];
+      size_t ne = 0;
+      size_t nd = 0;
+      esq[0] = dir[0] = '\0';
+      for (uint8_t i = 0; i < perfil.quantidade() && ne + 6 < sizeof(esq) && nd + 6 < sizeof(dir); i++) {
+        ne += snprintf(esq + ne, sizeof(esq) - ne, i == 0 ? "%u" : ",%u", static_cast<unsigned>(perfil.esquerda(i)));
+        nd += snprintf(dir + nd, sizeof(dir) - nd, i == 0 ? "%u" : ",%u", static_cast<unsigned>(perfil.direita(i)));
+      }
+      console.printf("{\"status\":\"perfil_lateral\",\"direcao\":\"%c\",\"esq\":\"%s\",\"dir\":\"%s\"}\n",
+                    "NLSO"[static_cast<uint8_t>(cicloNavegacao.direcaoDoPerfil())], esq, dir);
+    }
+    if (cicloNavegacao.executor().ajustesDeChegada() > ajustesAntes) {
+      console.printf("{\"status\":\"ajuste_chegada\",\"n\":%u,\"frente_mm\":%u,\"restante_mm\":%ld}\n",
+                    static_cast<unsigned>(cicloNavegacao.executor().ajustesDeChegada()),
+                    static_cast<unsigned>(cicloNavegacao.executor().ultimaFrenteMm()),
+                    static_cast<long>(cicloNavegacao.executor().restanteMm()));
+    }
+    if (cicloNavegacao.reiniciosDoMapa() != reiniciosAntes) {
+      console.printf("{\"status\":\"aviso\",\"motivo\":\"mapa_reiniciado_sem_caminho\",\"vez\":%u}\n",
+                    static_cast<unsigned>(cicloNavegacao.reiniciosDoMapa()));
+    }
     if (cicloNavegacao.colisoes() != colisoesAntes) {
       console.printf("{\"status\":\"colisao\",\"tipo\":\"%s\",\"desvio_mg\":%lu,\"celulas\":%lu}\n",
                     micromouse::nomeDoTipoColisao(cicloNavegacao.ultimaColisao()),
@@ -1043,12 +1154,19 @@ static void tarefaNavegacao(void*) {
       // Se a proteção do motor travado (#341) freou o robô, ela segura o freio até aqui: o recuo precisa
       // de ré. O ciclo já parou os motores e só manda potência nos ciclos seguintes.
       motoresProtegidos.liberar();
+      detectorPatinagem.reiniciar();
     }
     if (depois != antes) {
       console.printf("{\"status\":\"navegacao\",\"estado\":\"%s\",\"falha\":\"%s\",\"celulas\":%lu}\n",
                     micromouse::nomeDoEstadoCiclo(depois),
                     micromouse::nomeDaFalhaExecucao(cicloNavegacao.falhaExecucao()),
                     static_cast<unsigned long>(cicloNavegacao.celulasAvancadas()));
+      if (depois == micromouse::EstadoCiclo::Falha) {
+        // Onde a odometria achava que o robô estava, em mm (norte e leste a partir do centro da célula 0,0).
+        console.printf("{\"status\":\"odometria_na_falha\",\"norte_mm\":%ld,\"leste_mm\":%ld}\n",
+                      static_cast<long>(odometria.posicaoNorteMicrometros() / 1000),
+                      static_cast<long>(odometria.posicaoLesteMicrometros() / 1000));
+      }
     }
     vTaskDelay(pdMS_TO_TICKS(PERIODO_NAVEGACAO_MS));
   }
@@ -1078,11 +1196,13 @@ static void imprimirEstado() {
   console.printf(
       "{\"status\":\"estado\",\"fase\":\"%s\",\"ciclo\":\"%s\",\"largada_liberada\":%s,\"boot_ok\":%s,"
       "\"bateria_mv\":%lu,\"bateria_pct\":%u,\"wifi\":%s,\"rssi\":%d,\"ip\":\"%s\",\"telnet\":%s,\"corrida_ativa\":%s,"
+      "\"encoder_esq\":\"%s\",\"encoder_dir\":\"%s\","
       "\"console_descartados\":%lu,\"logs_painel_descartados\":%lu,\"logs_painel_perdidos\":%lu}\n",
       fase, micromouse::nomeDoEstadoCiclo(static_cast<micromouse::EstadoCiclo>(estadoCicloAtual)),
       largadaLiberadaAtual ? "true" : "false", estadoBoot.ok ? "true" : "false", static_cast<unsigned long>(bateriaMv),
       static_cast<unsigned>(micromouse::bateriaPercentual(bateriaMv)), wifi ? "true" : "false", wifi ? WiFi.RSSI() : 0,
       wifi ? WiFi.localIP().toString().c_str() : "", console.clienteConectado() ? "true" : "false", corridaAtiva ? "true" : "false",
+      paresDeEncoders.esquerdoSemSinal() ? "sem_sinal" : "ok", paresDeEncoders.direitoSemSinal() ? "sem_sinal" : "ok",
       static_cast<unsigned long>(console.descartados()),
       static_cast<unsigned long>(console.linhasDoPainelDescartadas()), static_cast<unsigned long>(logsPerdidosNoEnvio));
 }
@@ -1142,6 +1262,51 @@ static void executarComando(char c) {
     portEXIT_CRITICAL(&travaOdometria);
   } else if (c == 'E' || c == 'e') {
     imprimirEstado();
+  } else if (c == 'M' || c == 'm') {
+    imprimirMapaDoRobo();
+  }
+}
+
+/// Comando `M`: imprime o mapa que o robô montou, com o Norte em cima. `---` e `|` são paredes, espaço é
+/// passagem livre e `?` é o que ele ainda não sabe. É só para depurar: lê o mapa enquanto a navegação o
+/// escreve, então uma linha pode sair no meio de uma atualização.
+static void imprimirMapaDoRobo() {
+  const micromouse::Mapa& mapa = armazenamentoMapa.mapa();
+  const uint8_t linhas = mapa.obterLinhas();
+  const uint8_t colunas = mapa.obterColunas();
+  console.printf("{\"status\":\"mapa\",\"linhas\":%u,\"colunas\":%u}\n", static_cast<unsigned>(linhas),
+                 static_cast<unsigned>(colunas));
+  char texto[4 * micromouse::MAX_COLUNAS_EXPLORACAO + 3];
+  const auto horizontal = [](micromouse::EstadoParede e) { return e == micromouse::EstadoParede::Parede ? "---" : (e == micromouse::EstadoParede::Livre ? "   " : " ? "); };
+  const auto vertical = [](micromouse::EstadoParede e) { return e == micromouse::EstadoParede::Parede ? '|' : (e == micromouse::EstadoParede::Livre ? ' ' : '?'); };
+  for (int l = static_cast<int>(linhas) - 1; l >= -1; --l) {
+    // Linha das paredes horizontais: o Norte de cada célula da linha `l` (ou o Sul da linha 0, no fim).
+    size_t n = 0;
+    for (uint8_t c = 0; c < colunas; ++c) {
+      texto[n++] = '+';
+      const micromouse::EstadoParede e = l >= 0 ? mapa.obterParede({static_cast<uint8_t>(l), c}, micromouse::Direcao::Norte)
+                                                : mapa.obterParede({0, c}, micromouse::Direcao::Sul);
+      const char* h = horizontal(e);
+      texto[n++] = h[0];
+      texto[n++] = h[1];
+      texto[n++] = h[2];
+    }
+    texto[n++] = '+';
+    texto[n] = '\0';
+    console.println(texto);
+    if (l < 0) {
+      break;
+    }
+    n = 0;
+    for (uint8_t c = 0; c < colunas; ++c) {
+      texto[n++] = vertical(mapa.obterParede({static_cast<uint8_t>(l), c}, micromouse::Direcao::Oeste));
+      texto[n++] = ' ';
+      texto[n++] = ' ';
+      texto[n++] = ' ';
+    }
+    texto[n++] = vertical(mapa.obterParede({static_cast<uint8_t>(l), static_cast<uint8_t>(colunas - 1)}, micromouse::Direcao::Leste));
+    texto[n] = '\0';
+    console.println(texto);
   }
 }
 
@@ -1177,6 +1342,7 @@ static void tarefaConsole(void*) {
 /// em uso (`"estimado"` ou `"encoder"`).
 static void tarefaTelemetria(void*) {
   static uint32_t sequencia = 0;
+  micromouse::EstimadorVelocidade estimadorVelocidade;  // velocidade da telemetria: mm/s pelo deslocamento das rodas
 
   for (;;) {
     medirBateria();
@@ -1188,6 +1354,7 @@ static void tarefaTelemetria(void*) {
     const int32_t medio = medidorDeslocamento.deslocamentoMedioMm();
     const int32_t pulsosEsq = rodaEsq.lerContagem();
     const int32_t pulsosDir = rodaDir.lerContagem();
+    const int32_t velocidadeMmPorS = estimadorVelocidade.atualizar(medio, millis());
     const micromouse::Pose pose = poseNoLabirinto;
     const bool poseConfiavel = micromouse::ENCODERS_INSTALADOS || deslocamento.poseConfiavel();
     // Antes de o robô se localizar (largada em qualquer célula), a pose não vale para o dashboard.
@@ -1220,7 +1387,7 @@ static void tarefaTelemetria(void*) {
     pacote.medioMm = medio;
     pacote.pose = pose;
     pacote.poseValida = poseValida;
-    pacote.velocidade = 0.0f;     // Provisório até inclusão de cálculo de velocidade instantânea
+    pacote.velocidade = static_cast<float>(velocidadeMmPorS) / 1000.0f;  // m/s, pelo deslocamento das rodas
     pacote.tensaoBateria = ultimaBateriaMv / 1000.0f;
     pacote.evento = dispararEvento ? "objetivo_alcancado" : (dispararColisao ? "colisao" : nullptr);
     pacote.tofFrenteMm = leituraTof.distancias.frenteMm;
@@ -1241,7 +1408,7 @@ static void tarefaTelemetria(void*) {
 
     // Envio ao Supabase: a amostra vai para o buffer; quem envia é a tarefa de rede.
     atualizarFaseDaCalibracao();
-    coletarAmostra(pose, dispararEvento, medio);
+    coletarAmostra(pose, dispararEvento, medio, velocidadeMmPorS);
 
     // Comporta o pior caso do JSON; com menos, a linha seria descartada em silêncio.
     char buffer[micromouse::TAMANHO_MAX_JSON_TELEMETRIA];

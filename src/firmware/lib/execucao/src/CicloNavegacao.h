@@ -16,6 +16,7 @@
 #include "ConfiguracaoLocalizacao.h"
 #include "CorrecaoPelasParedes.h"
 #include "ExecutorMovimentos.h"
+#include "PerfilLateral.h"
 #include "IMotores.h"
 #include "LocalizadorLargada.h"
 #include "Mapa.h"
@@ -164,6 +165,18 @@ class CicloNavegacao {
   /// Recuos concluídos desde a largada (colisões de que o robô se recuperou).
   uint32_t recuperacoes() const { return recuperacoes_; }
 
+  /// Depuração: quantas percepções já gravaram o mapa, e o que a última viu e gravou. Mostra, no log, em qual
+  /// célula e direção cada parede foi registrada.
+  uint32_t percepcoes() const { return percepcoes_; }
+  /// Quantas vezes o mapa foi apagado por "sem caminho" (`ConfiguracaoExecucao::reiniciosDoMapaNoSemCaminho`).
+  uint8_t reiniciosDoMapa() const { return reiniciosDoMapa_; }
+  /// Leituras laterais do último avanço concluído e quantos avanços já geraram um perfil (para o log).
+  const PerfilLateral& perfilLateral() const { return perfil_; }
+  uint32_t perfisConcluidos() const { return perfisConcluidos_; }
+  Direcao direcaoDoPerfil() const { return direcaoDoPerfil_; }
+  const ClassificadorParede::ResultadoClassificacao& ultimaClassificacao() const { return ultimaClassificacao_; }
+  const Pose& poseDaUltimaPercepcao() const { return poseDaUltimaPercepcao_; }
+
   /// Paredes gravadas no mapa por colisões repetidas (veja a classe).
   uint32_t paredesPorColisao() const { return paredesPorColisao_; }
 
@@ -220,6 +233,8 @@ class CicloNavegacao {
   /// Grava no mapa o que as amostras mostram, tratando as laterais como desconhecidas quando os sensores
   /// laterais estão na diagonal e a frente é parede (`ConfiguracaoExecucao::lateraisEmDiagonal`).
   void atualizarMapaComAmostras();
+  /// Apaga as paredes gravadas (fica só o perímetro), mantendo a célula e a direção atuais.
+  void apagarMapaMantendoAPose();
 
   /// Exploração: registra a célula, atualiza as hipóteses e, se der, se localiza; senão, mira o
   /// objetivo mais próximo entre os das hipóteses vivas.
@@ -242,6 +257,8 @@ class CicloNavegacao {
 
   /// Realinha se o desvio medido nas amostras passa do limiar e ainda há tentativa; senão, gira.
   void realinharOuGirar(Movimento giro);
+  /// `true` se a célula de destino do avanço fica na borda do mapa: há parede garantida no fim dela.
+  bool destinoTerminaNaBorda() const;
 
   /// Desvio lateral pela mediana das leituras da percepção.
   DesvioLateral desvioDasAmostras() const;
@@ -289,6 +306,14 @@ class CicloNavegacao {
   TipoColisao ultimaColisao_ = TipoColisao::Nenhuma;
   uint16_t ultimaFrenteMm_ = 0;         ///< Última leitura do ToF frontal, a partir da face do sensor.
   bool temFrente_ = false;
+  uint32_t percepcoes_ = 0;
+  uint8_t reiniciosDoMapa_ = 0;
+  ClassificadorParede::ResultadoClassificacao ultimaClassificacao_;
+  Pose poseDaUltimaPercepcao_ = {{0, 0}, Direcao::Norte};
+  PerfilLateral perfil_;                ///< Leituras laterais do último avanço (aberturas nas paredes).
+  Direcao direcaoDoPerfil_ = Direcao::Norte;
+  bool perfilValido_ = false;           ///< O perfil é do avanço que acabou de chegar nesta célula.
+  uint32_t perfisConcluidos_ = 0;
   bool recuouParaGirar_ = false;        ///< Já recuou para este giro (evita recuar de novo antes dele).
   Movimento giroPendente_ = Movimento::Girar180;  ///< Giro a fazer depois do realinhamento.
   uint8_t realinhamentosNoPasso_ = 0;             ///< Realinhamentos antes do giro pendente.
