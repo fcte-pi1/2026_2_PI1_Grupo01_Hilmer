@@ -268,6 +268,93 @@ void test_avanco_corrige_o_rumo_pelo_giroscopio_sem_paredes() {
   TEST_ASSERT_EQUAL_INT16(motores.ultimaPotencia().esquerda, motores.ultimaPotencia().direita);
 }
 
+void test_desvio_de_quina_afasta_o_rumo_da_parede_lateral_perto() {
+  ConfiguracaoExecucao config;
+  config.desvioParedePertoMm = 70;
+  ExecutorMovimentos executor(config);
+  MotoresSimulados motores;
+  const DistanciasLaterais direitaPerto{LONGE, 150, 55};
+  executor.iniciar(Movimento::AvancarCelula);
+  for (int i = 0; i < 8; i++) {
+    executor.atualizar(entrada(&direitaPerto, i * 1000), motores);
+  }
+  TEST_ASSERT_EQUAL_INT32(6000, executor.rumoAlvoMiligraus());  // virou à esquerda, afastando-se da direita
+  const DistanciasLaterais esquerdaPerto{LONGE, 55, 150};
+  for (int i = 0; i < 12; i++) {
+    executor.atualizar(entrada(&esquerdaPerto, (8 + i) * 1000), motores);
+  }
+  TEST_ASSERT_EQUAL_INT32(-6000, executor.rumoAlvoMiligraus());
+  const DistanciasLaterais centrado{LONGE, 110, 110};
+  for (int i = 0; i < 12; i++) {
+    executor.atualizar(entrada(&centrado, (20 + i) * 1000), motores);
+  }
+  TEST_ASSERT_EQUAL_INT32(0, executor.rumoAlvoMiligraus());  // sem parede perto, volta ao rumo reto
+}
+
+void test_desvio_de_quina_so_vale_com_o_outro_lado_mais_longe_e_desligado_por_padrao() {
+  ConfiguracaoExecucao config;
+  config.desvioParedePertoMm = 70;
+  ExecutorMovimentos executor(config);
+  MotoresSimulados motores;
+  const DistanciasLaterais ladosPerto{LONGE, 60, 58};  // corredor estreito: dos dois lados, nada a desviar
+  executor.iniciar(Movimento::AvancarCelula);
+  for (int i = 0; i < 8; i++) {
+    executor.atualizar(entrada(&ladosPerto, i * 1000), motores);
+  }
+  TEST_ASSERT_EQUAL_INT32(0, executor.rumoAlvoMiligraus());
+
+  ExecutorMovimentos padrao;  // desvio desligado
+  MotoresSimulados motoresPadrao;
+  const DistanciasLaterais direitaPerto{LONGE, 150, 55};
+  padrao.iniciar(Movimento::AvancarCelula);
+  for (int i = 0; i < 8; i++) {
+    padrao.atualizar(entrada(&direitaPerto, i * 1000), motoresPadrao);
+  }
+  TEST_ASSERT_EQUAL_INT32(0, padrao.rumoAlvoMiligraus());
+}
+
+void test_ajuste_de_chegada_pela_frente_anda_o_que_a_odometria_deixou_faltando() {
+  ConfiguracaoExecucao config;
+  config.ajusteChegadaPelaFrenteMaxMm = 135;
+  ExecutorMovimentos executor(config);
+  MotoresSimulados motores;
+  // Parede a ~190 mm do centro: a odometria diz que chegou, mas o robô está ~100 mm antes do centro.
+  const DistanciasLaterais paredeLonge{static_cast<uint16_t>(ConfiguracaoControle{}.distanciaParadaFrontalMm + 100 - config.distanciaSensorFrontalAoCentroMm), 110, 110};
+  executor.iniciar(Movimento::AvancarCelula);
+  executor.atualizar(entrada(&paredeLonge, 0), motores);
+  const int64_t chegouUm = 180000;  // posição de destino pela odometria
+  TEST_ASSERT_EQUAL(static_cast<int>(EstadoExecucao::Executando),
+                    static_cast<int>(executor.atualizar(entrada(&paredeLonge, chegouUm), motores)));
+  const DistanciasLaterais noCentro{static_cast<uint16_t>(ConfiguracaoControle{}.distanciaParadaFrontalMm - config.distanciaSensorFrontalAoCentroMm), 110, 110};
+  TEST_ASSERT_EQUAL(static_cast<int>(EstadoExecucao::Concluido),
+                    static_cast<int>(executor.atualizar(entrada(&noCentro, chegouUm + 100000), motores)));
+
+  ExecutorMovimentos padrao;  // desligado: conclui na odometria
+  MotoresSimulados motoresPadrao;
+  padrao.iniciar(Movimento::AvancarCelula);
+  padrao.atualizar(entrada(&paredeLonge, 0), motoresPadrao);
+  TEST_ASSERT_EQUAL(static_cast<int>(EstadoExecucao::Concluido),
+                    static_cast<int>(padrao.atualizar(entrada(&paredeLonge, chegouUm), motoresPadrao)));
+}
+
+void test_ajuste_de_chegada_com_parede_garantida_aceita_leitura_mais_longa() {
+  ConfiguracaoExecucao config;
+  config.ajusteChegadaPelaFrenteMaxMm = 135;
+  config.ajusteChegadaParedeGarantidaMaxMm = 200;
+  const DistanciasLaterais longe{220, 110, 110};  // falta 220 + 50 - 105 = 165 mm: acima do teto comum
+  for (int i = 0; i < 2; i++) {
+    const bool garantida = i == 1;
+    ExecutorMovimentos executor(config);
+    MotoresSimulados motores;
+    executor.iniciar(Movimento::AvancarCelula);
+    executor.definirParedeGarantidaAdiante(garantida);
+    executor.atualizar(entrada(&longe, 0), motores);
+    const EstadoExecucao esperado = garantida ? EstadoExecucao::Executando : EstadoExecucao::Concluido;
+    TEST_ASSERT_EQUAL(static_cast<int>(esperado),
+                      static_cast<int>(executor.atualizar(entrada(&longe, 180000), motores)));
+  }
+}
+
 void test_parede_na_frente_perto_do_destino_conclui() {
   ExecutorMovimentos executor;
   MotoresSimulados motores;
@@ -759,7 +846,7 @@ void test_ciclo_pose_fora_do_mapa_falha() {
   EntradaCiclo e = t.entradaBase(&corredor, 178000, Pose{{1, 0}, Direcao::Norte});
   e.poseValida = false;
   TEST_ASSERT_EQUAL(EstadoCiclo::Falha, t.ciclo.atualizar(e, t.motores));
-  TEST_ASSERT_EQUAL(FalhaExecucao::Nenhuma, t.ciclo.falhaExecucao());
+  TEST_ASSERT_EQUAL(FalhaExecucao::PoseForaDaMalha, t.ciclo.falhaExecucao());
   TEST_ASSERT_TRUE(t.motores.freados());
 
   // Uma pose medida fora do mapa também para.
@@ -862,6 +949,10 @@ int main(int, char**) {
   RUN_TEST(test_avanco_ignora_parede_lateral_distante_na_centralizacao);
   RUN_TEST(test_avanco_centraliza_no_corredor);
   RUN_TEST(test_avanco_corrige_o_rumo_pelo_giroscopio_sem_paredes);
+  RUN_TEST(test_desvio_de_quina_afasta_o_rumo_da_parede_lateral_perto);
+  RUN_TEST(test_ajuste_de_chegada_pela_frente_anda_o_que_a_odometria_deixou_faltando);
+  RUN_TEST(test_ajuste_de_chegada_com_parede_garantida_aceita_leitura_mais_longa);
+  RUN_TEST(test_desvio_de_quina_so_vale_com_o_outro_lado_mais_longe_e_desligado_por_padrao);
   RUN_TEST(test_parede_na_frente_perto_do_destino_conclui);
   RUN_TEST(test_parede_na_frente_longe_do_destino_falha);
   RUN_TEST(test_sem_leitura_do_tof_falha_e_freia);

@@ -39,6 +39,10 @@ CicloNavegacao::CicloNavegacao(Mapa& mapa, const ConfiguracaoExecucao& config, c
   } else if (config_.amostrasPercepcao > MAX_AMOSTRAS) {
     config_.amostrasPercepcao = MAX_AMOSTRAS;
   }
+  if (config_.limiarParedeLateralPercepcaoMm > 0) {
+    classificador_.definirLimiar(Lado::Esquerda, config_.limiarParedeLateralPercepcaoMm);
+    classificador_.definirLimiar(Lado::Direita, config_.limiarParedeLateralPercepcaoMm);
+  }
 }
 
 void CicloNavegacao::reiniciar(const Pose& inicialDada, IMotores& motores) {
@@ -100,6 +104,14 @@ void CicloNavegacao::parar(EstadoCiclo estado, IMotores& motores) {
   estado_ = estado;
 }
 
+void CicloNavegacao::apagarMapaMantendoAPose() {
+  const Pose pose = navegacao_.obterPose();
+  mapa_ = Mapa(mapa_.obterDimensao());
+  navegacao_.definirObjetivo(DetectorObjetivo::calcularObjetivo(mapa_.obterLinhas(), mapa_.obterColunas()));
+  navegacao_.definirPose(pose);
+  navegacao_.cancelarPasso();
+}
+
 void CicloNavegacao::atualizarMapaComAmostras() {
   ClassificadorParede::ResultadoClassificacao classificacao = classificador_.classificar(amostras_, quantidadeAmostras_);
   if (config_.lateraisEmDiagonal && classificacao.frente == EstadoParede::Parede) {
@@ -107,6 +119,19 @@ void CicloNavegacao::atualizarMapaComAmostras() {
     classificacao.esquerda = EstadoParede::Desconhecido;
     classificacao.direita = EstadoParede::Desconhecido;
   }
+  if (config_.aberturaLateralMm > 0 && perfilValido_ && direcaoDoPerfil_ == direcao_) {
+    // O raio diagonal varreu o corredor durante o avanço: uma sequência de leituras longas é uma abertura,
+    // mesmo que a leitura final (com o robô parado) tenha batido numa quina.
+    if (perfil_.maiorSequenciaAcima(true, config_.aberturaLateralMm) >= config_.amostrasAberturaLateral) {
+      classificacao.esquerda = EstadoParede::Livre;
+    }
+    if (perfil_.maiorSequenciaAcima(false, config_.aberturaLateralMm) >= config_.amostrasAberturaLateral) {
+      classificacao.direita = EstadoParede::Livre;
+    }
+  }
+  ultimaClassificacao_ = classificacao;
+  poseDaUltimaPercepcao_ = navegacao_.obterPose();
+  ++percepcoes_;
   AtualizadorMapa::atualizar(mapa_, navegacao_.obterPose(), classificacao);
 }
 
@@ -318,6 +343,9 @@ EstadoCiclo CicloNavegacao::atualizar(const EntradaCiclo& entradaOdometria, IMot
         recuouParaGirar_ = false;
         // O avanço começa no próximo ciclo, depois de a odometria adotar a direção nova.
         executor_.iniciar(Movimento::AvancarCelula);
+        executor_.definirParedeGarantidaAdiante(destinoTerminaNaBorda());
+        perfil_.reiniciar();
+        perfilValido_ = false;
         estado_ = EstadoCiclo::Avancando;
       } else if (resultado == EstadoExecucao::Falha) {
         falhaExecucao_ = executor_.falha();
@@ -329,9 +357,15 @@ EstadoCiclo CicloNavegacao::atualizar(const EntradaCiclo& entradaOdometria, IMot
 
     case EstadoCiclo::Avancando: {
       const EntradaExecucao exec{entrada.leituraNova, entrada.giro, entrada.posicaoAvancoUm, entrada.dtMs};
+      if (entrada.leituraNova != nullptr) {
+        perfil_.registrar(*entrada.leituraNova);
+      }
       const EstadoExecucao resultado = executor_.atualizar(exec, motores);
       if (resultado == EstadoExecucao::Concluido ||
           (resultado == EstadoExecucao::Falha && executor_.falha() == FalhaExecucao::ParedeNaFrente)) {
+        perfilValido_ = true;
+        direcaoDoPerfil_ = direcao_;
+        ++perfisConcluidos_;
         if (resultado == EstadoExecucao::Concluido) {
           ++celulasAvancadas_;
           recuouParaGirar_ = false;
@@ -361,8 +395,16 @@ EstadoCiclo CicloNavegacao::atualizar(const EntradaCiclo& entradaOdometria, IMot
         ++recuperacoes_;
         entrarEmPercepcao();
       } else if (resultado == EstadoExecucao::Falha) {
-        falhaExecucao_ = executor_.falha();
-        parar(EstadoCiclo::Falha, motores);
+        // Uma ré que não andou no tempo (traseira presa numa quina) não é motivo para parar a corrida: o passo
+        // seguinte é perceber de novo e girar, que é o que tira o robô dali.
+        if (executor_.falha() == FalhaExecucao::TempoEsgotado && config_.seguirSeReNaoAndar) {
+          motores.parar();
+          ++recuperacoes_;
+          entrarEmPercepcao();
+        } else {
+          falhaExecucao_ = executor_.falha();
+          parar(EstadoCiclo::Falha, motores);
+        }
       }
       break;
     }
@@ -452,14 +494,14 @@ void CicloNavegacao::iniciarRecuperacao(const EntradaCiclo& entrada, IMotores& m
 
 void CicloNavegacao::confirmarChegada(const EntradaCiclo& entrada) {
   if (!entrada.poseValida) {
-    falhaExecucao_ = FalhaExecucao::Nenhuma;
+    falhaExecucao_ = FalhaExecucao::PoseForaDaMalha;
     navegacao_.cancelarPasso();
     estado_ = EstadoCiclo::Falha;
     return;
   }
   ultimaConfirmacao_ = navegacao_.confirmarPose(Pose{entrada.pose.celula, direcao_});
   if (ultimaConfirmacao_ == ResultadoConfirmacao::Invalida) {
-    falhaExecucao_ = FalhaExecucao::Nenhuma;
+    falhaExecucao_ = FalhaExecucao::CelulaForaDoMapa;
     navegacao_.cancelarPasso();
     estado_ = EstadoCiclo::Falha;
     return;
@@ -480,6 +522,14 @@ void CicloNavegacao::decidir(IMotores& motores) {
     // Explorando, sem caminho para nenhum objetivo possível: o mapa gravado não fecha com o labirinto.
     temPasso = !navegacao_.atingiuObjetivo() && navegacao_.darPasso(proxima);
   }
+  if (!temPasso && !explorando_ && !navegacao_.atingiuObjetivo() && reiniciosDoMapa_ < config_.reiniciosDoMapaNoSemCaminho) {
+    // Sem caminho, mas o mapa pode ter uma parede falsa: apaga o que gravou e percebe de novo daqui.
+    ++reiniciosDoMapa_;
+    apagarMapaMantendoAPose();
+    motores.parar();
+    entrarEmPercepcao();
+    return;
+  }
   if (!temPasso) {
     parar(navegacao_.atingiuObjetivo() ? EstadoCiclo::ObjetivoAlcancado : EstadoCiclo::SemCaminho, motores);
     return;
@@ -492,8 +542,20 @@ void CicloNavegacao::decidir(IMotores& motores) {
     realinharOuGirar(giro);
   } else {
     executor_.iniciar(Movimento::AvancarCelula);
+    executor_.definirParedeGarantidaAdiante(destinoTerminaNaBorda());
+    perfil_.reiniciar();
+    perfilValido_ = false;
     estado_ = EstadoCiclo::Avancando;
   }
+}
+
+bool CicloNavegacao::destinoTerminaNaBorda() const {
+  PosicaoCelula destino{};
+  PosicaoCelula alem{};
+  if (!vizinha(navegacao_.obterPosicao(), direcao_, destino) || !mapa_.posValida(destino)) {
+    return false;
+  }
+  return !vizinha(destino, direcao_, alem) || !mapa_.posValida(alem);
 }
 
 void CicloNavegacao::realinharOuGirar(Movimento giro) {
@@ -529,6 +591,9 @@ void CicloNavegacao::iniciarGiro(Movimento giro) {
   if (config_.recuoAntesDoGiroMm > 0 && !recuouParaGirar_ && celulasAvancadas_ > 0 && temFrente_ &&
       ultimaFrenteMm_ < config_.frenteParaRecuarMm && executor_.iniciarRecuo(config_.recuoAntesDoGiroMm, true)) {
     recuouParaGirar_ = true;
+    // O passo já foi escolhido, mas não vai ser dado agora: sem cancelá-lo, a decisão depois do recuo
+    // acha o passo antigo pendente e conclui "sem caminho" mesmo com a passagem livre.
+    navegacao_.cancelarPasso();
     estado_ = EstadoCiclo::Recuperando;
     return;
   }
