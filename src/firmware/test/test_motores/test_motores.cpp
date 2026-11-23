@@ -76,6 +76,26 @@ void test_potencias_menores_sao_proporcionais_ao_duty_maximo() {
   TEST_ASSERT_EQUAL_UINT32(0, calcularSinaisDrv8833(0, false, DUTY_MAXIMO_MOTORES).in1);
 }
 
+void test_zona_morta_faz_qualquer_potencia_positiva_partir_do_duty_minimo() {
+  // Com a zona morta, a menor potência já entrega o duty mínimo; a máxima, o duty máximo; zero fica livre.
+  const uint32_t minimo = DUTY_MINIMO_MOTORES;
+  TEST_ASSERT_TRUE(minimo > 0 && minimo < DUTY_MAXIMO_MOTORES);
+  TEST_ASSERT_EQUAL_UINT32(0, calcularSinaisDrv8833(0, false, DUTY_MAXIMO_MOTORES, minimo).in1);
+  TEST_ASSERT_TRUE(calcularSinaisDrv8833(1, false, DUTY_MAXIMO_MOTORES, minimo).in1 >= minimo);
+  TEST_ASSERT_TRUE(calcularSinaisDrv8833(150, false, DUTY_MAXIMO_MOTORES, minimo).in1 >= minimo);
+  TEST_ASSERT_EQUAL_UINT32(DUTY_MAXIMO_MOTORES, calcularSinaisDrv8833(POTENCIA_MAXIMA, false, DUTY_MAXIMO_MOTORES, minimo).in1);
+  // Marcha a ré usa a mesma curva, na outra entrada, e a potência maior nunca dá duty menor.
+  const SinaisPonteH re = calcularSinaisDrv8833(-400, false, DUTY_MAXIMO_MOTORES, minimo);
+  TEST_ASSERT_EQUAL_UINT32(0, re.in1);
+  TEST_ASSERT_EQUAL_UINT32(calcularSinaisDrv8833(400, false, DUTY_MAXIMO_MOTORES, minimo).in1, re.in2);
+  uint32_t anterior = 0;
+  for (int16_t p = 0; p <= POTENCIA_MAXIMA; p += 50) {
+    const uint32_t duty = calcularSinaisDrv8833(p, false, DUTY_MAXIMO_MOTORES, minimo).in1;
+    TEST_ASSERT_TRUE(duty >= anterior);
+    anterior = duty;
+  }
+}
+
 void test_nenhuma_potencia_passa_do_duty_maximo() {
   for (int32_t p = -1500; p <= 1500; p += 25) {
     const SinaisPonteH s = calcularSinaisDrv8833(static_cast<int16_t>(p), p % 2 == 0, DUTY_MAXIMO_MOTORES);
@@ -225,6 +245,7 @@ int main(int, char**) {
   RUN_TEST(test_duty_maximo_em_uso_vem_da_configuracao);
   RUN_TEST(test_potencia_maxima_vira_o_duty_maximo_e_nao_100_por_cento);
   RUN_TEST(test_potencias_menores_sao_proporcionais_ao_duty_maximo);
+  RUN_TEST(test_zona_morta_faz_qualquer_potencia_positiva_partir_do_duty_minimo);
   RUN_TEST(test_nenhuma_potencia_passa_do_duty_maximo);
   RUN_TEST(test_freio_usa_o_duty_total);
   RUN_TEST(test_comandos_chegam_ao_driver_limitados);

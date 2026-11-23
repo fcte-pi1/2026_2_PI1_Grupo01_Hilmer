@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Cabecalho } from './componentes/Cabecalho';
+import { ControleRobo } from './componentes/ControleRobo';
 import { gerarCorridaExemplo } from './dados/corridaExemplo';
 import { LABIRINTOS_EXEMPLO } from './dados/labirintosExemplo';
 import { type EstadoConexao, useLabirintos } from './hooks/useLabirintos';
@@ -45,6 +46,11 @@ export function App() {
     corridaExemplo.labirinto;
   // Com uma corrida real, o cabeçalho mostra o labirinto dela, e não a escolha do modo exemplo.
   const corridaReal = aoVivo.disponivel && aoVivo.corrida !== null;
+  // O labirinto real é surpresa: o robô o descobre explorando e o informa ao banco, e só então começa a
+  // mandar posições. A corrida nasce como 4x4 (o padrão do firmware), então o tamanho só vale depois da
+  // primeira leitura ou do encerramento da corrida.
+  const labirintoDescoberto =
+    corridaReal && (aoVivo.leituras.length > 0 || aoVivo.estado === 'concluido' || aoVivo.estado === 'nao_concluido');
   const painel = aoVivo.disponivel
     ? {
         labirinto: labirintoAoVivo,
@@ -83,17 +89,22 @@ export function App() {
         tipoSelecionado={corridaReal ? labirintoAoVivo.tipo : tipo}
         aoSelecionarLabirinto={selecionarLabirinto}
         estado={painel.estado}
-        seletorTravado={corridaReal}
+        modoAoVivo={aoVivo.disponivel}
+        labirintoDescoberto={labirintoDescoberto}
       />
 
       <main className="app__conteudo">
         {aba === 'ao_vivo' ? (
-          <TelaAoVivo
-            {...painel}
-            aoVivo={aoVivo.disponivel}
-            aoIniciar={reproducao.iniciar}
-            aoResetar={resetar}
-          />
+          <>
+            <TelaAoVivo
+              {...painel}
+              aoVivo={aoVivo.disponivel}
+              labirintoDescoberto={!aoVivo.disponivel || labirintoDescoberto}
+              aoIniciar={reproducao.iniciar}
+              aoResetar={resetar}
+            />
+            <ControleRobo />
+          </>
         ) : (
           <TelaHistorico labirintos={labirintos} />
         )}

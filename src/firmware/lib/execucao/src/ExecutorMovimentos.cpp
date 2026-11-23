@@ -119,13 +119,14 @@ bool ExecutorMovimentos::iniciarRealinhamento(const PlanoRealinhamento& plano) {
   return true;
 }
 
-bool ExecutorMovimentos::iniciarRecuo(uint16_t distanciaMm) {
+bool ExecutorMovimentos::iniciarRecuo(uint16_t distanciaMm, bool ignorarCentroPelaFrente) {
   if (ocupado() || distanciaMm == 0) {
     return false;
   }
   iniciar(Movimento::AvancarCelula);  // zera o estado comum
   movimento_ = Movimento::Recuar;
   recuoUm_ = -static_cast<int32_t>(distanciaMm) * 1000;
+  recuoIgnoraCentro_ = ignorarCentroPelaFrente;
   return true;
 }
 
@@ -379,7 +380,7 @@ bool ExecutorMovimentos::noCentroPelaFrente(const DistanciasLaterais& leitura) c
 
 EstadoExecucao ExecutorMovimentos::atualizarRecuo(const EntradaExecucao& entrada, IMotores& motores) {
   tempoMs_ += entrada.dtMs;
-  if (entrada.leituraNova != nullptr && noCentroPelaFrente(*entrada.leituraNova)) {
+  if (!recuoIgnoraCentro_ && entrada.leituraNova != nullptr && noCentroPelaFrente(*entrada.leituraNova)) {
     return terminar(EstadoExecucao::Concluido, FalhaExecucao::Nenhuma, motores);
   }
   const EstadoExecucao resultado = passoDeTrecho(recuoUm_, rumoAlvoMiligraus_, entrada, motores);

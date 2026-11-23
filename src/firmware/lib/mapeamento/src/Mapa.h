@@ -24,7 +24,8 @@ enum class ResultadoRegistro : uint8_t {
   Invalida      ///< Célula fora do mapa ou estado `Desconhecido`.
 };
 
-/// Mapa de um labirinto de até `MAX_LINHAS_LABIRINTO` × `MAX_COLUNAS_LABIRINTO` células.
+/// Mapa de um labirinto de até `MAX_LINHAS_LABIRINTO` × `MAX_COLUNAS_LABIRINTO` células, ou o mapa
+/// de exploração (`DimensaoMapa::Exploracao`, 7 × 23) da largada em qualquer célula.
 ///
 /// Cada célula guarda o estado (`EstadoParede`) das suas quatro paredes. Paredes ainda não
 /// observadas ficam `Desconhecido`.
@@ -92,7 +93,8 @@ class Mapa {
   DimensaoMapa dimensao;
   uint8_t linhas;
   uint8_t colunas;
-  Celula celulas[MAX_LINHAS_LABIRINTO][MAX_COLUNAS_LABIRINTO];
+  /// Capacidade do mapa de exploração (7 × 23), que contém qualquer labirinto da competição.
+  Celula celulas[MAX_LINHAS_EXPLORACAO][MAX_COLUNAS_EXPLORACAO];
 
   void preencherPerimetro();
 };

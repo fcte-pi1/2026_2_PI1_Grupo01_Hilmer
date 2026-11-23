@@ -444,7 +444,8 @@ test("o encerramento da corrida chega ao Realtime: a tabela corridas está na pu
   const r = await db.query<{ tablename: string }>(
     "SELECT tablename FROM pg_publication_tables WHERE pubname = 'supabase_realtime' ORDER BY tablename",
   );
-  assert.deepEqual(r.rows.map((l) => l.tablename), ["corridas", "mapa_celulas", "telemetria"]);
+  // Além das três do dashboard de corridas, entram as do canal painel -> robô (comandos e logs).
+  assert.deepEqual(r.rows.map((l) => l.tablename), ["comandos_robo", "corridas", "logs_robo", "mapa_celulas", "telemetria"]);
 });
 
 test("a migração do Realtime de corridas pode rodar de novo sem erro", async () => {

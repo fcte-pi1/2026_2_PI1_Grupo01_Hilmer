@@ -12,14 +12,17 @@ test("token diferente, de outro tamanho ou com prefixo igual é recusado", () =>
   assert.equal(tokenValido("segredo-1234", "segredo-123"), false);
 });
 
-test("sem token recebido ou sem token configurado, nunca autoriza", () => {
+test("com token configurado, sem token recebido nunca autoriza", () => {
   assert.equal(tokenValido(null, "segredo"), false);
   assert.equal(tokenValido(undefined, "segredo"), false);
   assert.equal(tokenValido("", "segredo"), false);
-  assert.equal(tokenValido("segredo", undefined), false);
-  assert.equal(tokenValido("segredo", ""), false);
-  assert.equal(tokenValido("", ""), false);
-  assert.equal(tokenValido(null, null), false);
+});
+
+test("sem token configurado, o acesso é aberto (token opcional)", () => {
+  assert.equal(tokenValido("segredo", undefined), true);
+  assert.equal(tokenValido("segredo", ""), true);
+  assert.equal(tokenValido("", ""), true);
+  assert.equal(tokenValido(null, null), true);
 });
 
 test("comparação segura trata acentos (bytes UTF-8)", () => {

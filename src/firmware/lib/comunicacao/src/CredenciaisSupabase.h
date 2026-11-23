@@ -15,16 +15,20 @@ namespace micromouse {
 struct CredenciaisSupabase {
   const char* ssidWifi = nullptr;           ///< Rede Wi-Fi.
   const char* senhaWifi = nullptr;          ///< Senha da rede (pode ser vazia numa rede aberta).
+  /// Rede reserva (#491), tentada quando a principal não conecta. Vazia ou nula: só a principal.
+  const char* ssidWifiReserva = nullptr;
+  const char* senhaWifiReserva = nullptr;   ///< Senha da rede reserva.
   const char* urlProjeto = nullptr;         ///< `https://<projeto>.supabase.co`, sem `/` no fim.
-  const char* chaveAnon = nullptr;          ///< Chave `anon` (JWT), exigida pelo gateway das Edge Functions.
-  const char* tokenDispositivo = nullptr;   ///< `DEVICE_TOKEN`, conferido pelas Edge Functions.
-  const char* certificadoRaiz = nullptr;    ///< Certificado raiz (PEM) que valida o HTTPS do Supabase.
-  /// `true` só na bancada: aceita qualquer certificado (`setInsecure`), sem validar o servidor.
-  bool semValidarCertificado = false;
+  /// Chave `anon`/publishable, opcional: só vai nos cabeçalhos se existir. As funções publicadas com
+  /// `--no-verify-jwt` não a exigem.
+  const char* chaveAnon = nullptr;
+  /// `DEVICE_TOKEN`, opcional: só vai no cabeçalho se existir. As funções só o exigem se o segredo
+  /// `DEVICE_TOKEN` estiver configurado no Supabase.
+  const char* tokenDispositivo = nullptr;
 };
 
-/// `true` se dá para enviar: SSID, URL `https://`, chave `anon` e token preenchidos, e um
-/// certificado raiz (ou a exceção de bancada `semValidarCertificado`).
+/// `true` se dá para enviar: SSID e URL `https://` preenchidos. A chave, o token e o certificado são
+/// opcionais. O certificado do servidor não é validado (decisão do projeto: nada de certificado para configurar).
 bool credenciaisValidas(const CredenciaisSupabase& credenciais);
 
 /// Monta a URL de uma Edge Function: `urlProjeto` + `/functions/v1/` + `caminho` (sem barra dupla

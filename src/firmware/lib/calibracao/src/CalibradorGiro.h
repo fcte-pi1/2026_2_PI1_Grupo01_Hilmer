@@ -25,7 +25,7 @@ enum class EstadoCalibracaoGiro : uint8_t {
 ///    calibração é recusada e o viés anterior é mantido.
 /// 2. **Aplicação:** `corrigir(taxaBruta)` devolve `taxaBruta − viés`.
 ///
-/// Só usa inteiros (ESP32-C3 sem FPU).
+/// Só usa inteiros: as contas dão o mesmo resultado no computador (testes `native`) e na placa.
 class CalibradorGiro {
  public:
   explicit CalibradorGiro(const ConfiguracaoCalibracaoGiro& config = ConfiguracaoCalibracaoGiro{});

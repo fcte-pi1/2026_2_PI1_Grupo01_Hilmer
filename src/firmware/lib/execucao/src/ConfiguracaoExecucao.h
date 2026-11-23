@@ -12,6 +12,7 @@
 
 #include <stdint.h>
 
+#include "Configuracao.h"
 #include "ConfiguracaoDeslocamento.h"
 
 namespace micromouse {
@@ -82,6 +83,16 @@ constexpr uint32_t TEMPO_MINIMO_COBERTO_GATILHO_MS = 300;
 constexpr uint32_t ESPERA_APOS_GESTO_GATILHO_MS = 1000;
 
 // ---------------------------------------------------------------------------------------------
+// 5. Largada em qualquer célula
+// ---------------------------------------------------------------------------------------------
+
+/// Quantas vezes, numa corrida, a exploração da largada em qualquer célula pode recomeçar da célula
+/// atual, com o mapa limpo, quando o que foi gravado deixa de fazer sentido (nenhuma hipótese de
+/// largada sobra, ou nenhum objetivo possível é alcançável). Acontece quando a estimativa do
+/// deslocamento erra uma célula e uma parede vai para o lugar errado.
+constexpr uint8_t RELARGADAS_MAXIMAS = 3;
+
+// ---------------------------------------------------------------------------------------------
 // Parâmetros em uso (os testes alteram os campos para cobrir outros cenários)
 // ---------------------------------------------------------------------------------------------
 
@@ -95,6 +106,21 @@ struct ConfiguracaoExecucao {
   uint16_t folgaParadaNaParedeMm = FOLGA_PARADA_NA_PAREDE_MM;
   uint32_t tempoMaximoAvancoMs = TEMPO_MAXIMO_AVANCO_MS;
   uint8_t amostrasPercepcao = AMOSTRAS_PERCEPCAO;
+  /// Com `true`, o robô pode largar de qualquer célula (virado para o Norte do labirinto), sem saber
+  /// qual nem o tamanho do labirinto: o ciclo explora até se localizar (veja `CicloNavegacao`).
+  bool largadaEmQualquerCelula = LARGADA_EM_QUALQUER_CELULA;
+  uint8_t relargadasMaximas = RELARGADAS_MAXIMAS;
+  /// `true` se os ToF laterais ficam na diagonal (cerca de 45° da frente), como no robô real, e não a 90°.
+  /// De frente para uma parede próxima, eles enxergam a parede da frente em ângulo e leem "parede" mesmo
+  /// com a lateral aberta. Então, com a frente classificada como parede, as laterais daquela célula não
+  /// são gravadas no mapa (ficam desconhecidas): o robô tenta a passagem e, se bater, o mapa é corrigido.
+  /// Desligado por padrão: o modelo simulado tem os sensores a 90°.
+  bool lateraisEmDiagonal = false;
+  /// Se o ToF frontal ler menos que `frenteParaRecuarMm` na hora de girar, o robô recua `recuoAntesDoGiroMm`
+  /// em linha reta antes do giro, para o chassi ter folga para rodar sem bater nas paredes. 0 desliga.
+  /// Desligado por padrão: o modelo simulado gira no lugar sem problema.
+  uint16_t recuoAntesDoGiroMm = 0;
+  uint16_t frenteParaRecuarMm = 0;
 };
 
 /// Parâmetros do `GatilhoLargada`.

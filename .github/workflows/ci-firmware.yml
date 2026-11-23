@@ -53,6 +53,8 @@ jobs:
           retention-days: 14
 
   build:
+    # O nome continua "Build ESP32-C3" só porque a proteção da `main` exige o check com esse nome. O job
+    # compila o ESP32 DevKit V1. Quando o administrador trocar o check exigido para o nome novo, renomeie.
     name: Build ESP32-C3
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -64,16 +66,16 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ~/.platformio
-          key: pio-esp32c3-${{ runner.os }}-${{ hashFiles('src/firmware/platformio.ini') }}
-          restore-keys: pio-esp32c3-${{ runner.os }}-
+          key: pio-esp32-devkit-${{ runner.os }}-${{ hashFiles('src/firmware/platformio.ini') }}
+          restore-keys: pio-esp32-devkit-${{ runner.os }}-
       - run: pip install platformio==6.2.0
-      - run: pio run -e esp32c3
-      # Firmware de bancada: não vai para o robô, mas precisa continuar compilando com o driver.
-      - run: pio run -e bancada_tof
-      # Bancada geral (#477), na Super Mini e no ESP32 DevKit V1. O ambiente da DevKit também confere a
-      # pinagem do `Pinos.h` (os `static_assert` de GPIO repetido ou inexistente na placa).
-      - run: pio run -e bancada_geral
+      # Robô. A compilação também confere a pinagem do `Pinos.h` (os `static_assert` de GPIO repetido
+      # ou inexistente no ESP32 DevKit V1).
+      - run: pio run -e esp32_devkit
+      # Firmwares de bancada: não vão para o robô, mas precisam continuar compilando com os drivers.
+      - run: pio run -e bancada_tof_devkit
       - run: pio run -e bancada_geral_devkit
+      - run: pio run -e bancada_deslocamento_devkit
 
   scripts:
     name: Scripts de bancada

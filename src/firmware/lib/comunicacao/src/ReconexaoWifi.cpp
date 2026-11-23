@@ -19,6 +19,39 @@ void ReconexaoWifi::comecarTentativa(uint32_t agoraMs) {
   instanteMs_ = agoraMs;
 }
 
+void ReconexaoWifi::registrarConexao() {
+  estado_ = EstadoWifi::Conectado;
+  esperas_.registrarSucesso();
+  falhasNaRodada_ = 0;
+}
+
+void ReconexaoWifi::registrarTentativaEsgotada(uint32_t agoraMs) {
+  rede_.desconectar();
+  estado_ = EstadoWifi::Aguardando;
+  const uint8_t redes = rede_.quantidadeRedes() > 1 ? 2 : 1;
+  if (redes > 1) {
+    redeAtual_ = static_cast<uint8_t>((redeAtual_ + 1) % redes);
+    rede_.escolherRede(redeAtual_);
+    ++trocasDeRede_;
+  }
+  if (++falhasNaRodada_ >= redes) {
+    falhasNaRodada_ = 0;
+    instanteMs_ = agoraMs + esperas_.registrarFalha();  // todas falharam: espera crescente
+  } else {
+    instanteMs_ = agoraMs;  // ainda há rede a tentar nesta rodada: tenta já
+  }
+}
+
+void ReconexaoWifi::reiniciar() {
+  rede_.desconectar();
+  redeAtual_ = 0;
+  rede_.escolherRede(0);
+  falhasNaRodada_ = 0;
+  esperas_.registrarSucesso();
+  estado_ = EstadoWifi::Aguardando;
+  primeiraVez_ = true;
+}
+
 bool ReconexaoWifi::ciclo(uint32_t agoraMs) {
   switch (estado_) {
     case EstadoWifi::Conectado:
@@ -31,22 +64,18 @@ bool ReconexaoWifi::ciclo(uint32_t agoraMs) {
 
     case EstadoWifi::Conectando:
       if (rede_.conectada()) {
-        estado_ = EstadoWifi::Conectado;
-        esperas_.registrarSucesso();
+        registrarConexao();
         return true;
       }
       if (static_cast<uint32_t>(agoraMs - instanteMs_) >= tempoLimiteConexaoMs_) {
-        rede_.desconectar();
-        estado_ = EstadoWifi::Aguardando;
-        instanteMs_ = agoraMs + esperas_.registrarFalha();
+        registrarTentativaEsgotada(agoraMs);
       }
       return false;
 
     case EstadoWifi::Aguardando:
     default:
       if (rede_.conectada()) {  // conectou sozinho (reconexão automática do próprio Wi-Fi)
-        estado_ = EstadoWifi::Conectado;
-        esperas_.registrarSucesso();
+        registrarConexao();
         primeiraVez_ = false;
         return true;
       }

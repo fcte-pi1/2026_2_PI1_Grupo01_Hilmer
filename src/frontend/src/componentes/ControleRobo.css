@@ -1,0 +1,124 @@
+.controle {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 20px;
+}
+
+.controle__cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.controle__titulo {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.controle__senha {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--cor-texto-suave);
+  font-size: 11px;
+}
+
+.controle__senha input {
+  width: 220px;
+  padding: 8px 10px;
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+}
+
+.controle__botoes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.botao--perigo {
+  background: var(--erro-texto);
+  color: #ffffff;
+}
+
+.botao--perigo:hover {
+  background: #b91c1c;
+}
+
+.botao:disabled.botao--primario,
+.botao:disabled.botao--perigo {
+  opacity: 0.6;
+}
+
+.controle__estado {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 20px;
+}
+
+.controle__aviso,
+.controle__comando {
+  margin: 0;
+  font-size: 12px;
+  color: var(--cor-texto-suave);
+}
+
+.controle__aviso {
+  color: var(--sucesso-texto);
+}
+
+.controle__aviso--erro {
+  color: var(--erro-texto);
+}
+
+.controle__logs {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 260px;
+  margin: 0;
+  padding: 8px 10px;
+  overflow-y: auto;
+  list-style: none;
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+  background: var(--neutro-fundo);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}
+
+.controle__log {
+  display: flex;
+  gap: 10px;
+}
+
+.controle__log time {
+  flex: none;
+  color: var(--cor-texto-suave);
+  font-variant-numeric: tabular-nums;
+}
+
+.controle__log--aviso {
+  color: #b45309;
+}
+
+.controle__log--erro {
+  color: var(--erro-texto);
+  font-weight: 600;
+}
+
+.controle__vazio {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  font-size: 13px;
+}
