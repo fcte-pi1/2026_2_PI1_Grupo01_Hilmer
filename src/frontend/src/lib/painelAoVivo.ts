@@ -146,28 +146,96 @@ export function aplicarTelemetria(painel: PainelAoVivo, leitura: Telemetria): Pa
   return { ...painel, leituras, estado, tempo };
 }
 
+/** Lado de uma célula do labirinto, em metros (18 cm, regra do Micromouse). */
+export const LADO_CELULA_M = 0.18;
+
+/**
+ * Distância percorrida, em metros: cada troca de célula entre leituras seguidas vale 0,18 m.
+ * Uma leitura que pula células (o robô andou duas entre um envio e outro) conta as duas.
+ * As leituras de antes da largada entram só como ponto de partida, porque o robô está parado nelas.
+ */
+export function distanciaPercorrida(leituras: Telemetria[]): number {
+  const ordenadas = [...leituras].sort((a, b) => a.numero_sequencia - b.numero_sequencia);
+  let celulas = 0;
+  for (let i = 1; i < ordenadas.length; i++) {
+    const de = ordenadas[i - 1];
+    const para = ordenadas[i];
+    celulas += Math.abs(para.posicao_linha - de.posicao_linha) + Math.abs(para.posicao_coluna - de.posicao_coluna);
+  }
+  return celulas * LADO_CELULA_M;
+}
+
+/**
+ * Velocidade média pela distância (#557): distância percorrida ÷ tempo da corrida, em m/s.
+ * Serve quando o robô manda `velocidade = 0`. Devolve `null` sem movimento ou sem tempo.
+ *
+ * @param tempo Tempo da corrida, em segundos. Sem ele, usa o `tempo_decorrido` da última leitura.
+ */
+export function velocidadePelaDistancia(leituras: Telemetria[], tempo?: number | null): number | null {
+  const distancia = distanciaPercorrida(leituras);
+  const duracao = tempo ?? leiturasDaCorrida(leituras).reduce((maior, l) => Math.max(maior, l.tempo_decorrido), 0);
+  if (distancia <= 0 || !(duracao > 0)) return null;
+  return distancia / duracao;
+}
+
 /** Valores dos cards da tela ao vivo, calculados a partir das leituras. */
 export interface MetricasPainel {
   /** Tensão da última leitura, em V (`null` sem leituras). */
   tensao: number | null;
   /** Corrente da última leitura, em mA. */
   correnteMa: number;
-  /** Média das velocidades instantâneas das leituras, em m/s. */
-  velocidadeMedia: number;
-  /** Maior velocidade instantânea, em m/s. */
-  velocidadePico: number;
+  /**
+   * Velocidade média, em m/s: a média das velocidades instantâneas; se o robô as mandou zeradas,
+   * a distância percorrida ÷ tempo. `null` sem dado nenhum (a tela mostra "—", e não "0.00 m/s").
+   */
+  velocidadeMedia: number | null;
+  /** `true` quando a média veio da distância, e não das velocidades enviadas pelo robô. */
+  mediaPelaDistancia: boolean;
+  /** Maior velocidade instantânea, em m/s; `null` se o robô não mandou nenhuma acima de zero. */
+  velocidadePico: number | null;
 }
 
-export function calcularMetricas(leituras: Telemetria[]): MetricasPainel {
+/**
+ * @param tempo Tempo da corrida, em segundos, para a média pela distância (padrão: a última leitura).
+ */
+export function calcularMetricas(leituras: Telemetria[], tempo?: number | null): MetricasPainel {
   const ultima = leituras.at(-1); // a bateria vale também na largada
   const naCorrida = leiturasDaCorrida(leituras); // a velocidade, só depois da largada
   const soma = naCorrida.reduce((total, l) => total + l.velocidade, 0);
+  const pico = naCorrida.reduce((maximo, l) => Math.max(maximo, l.velocidade), 0);
+  const pelaDistancia = soma > 0 ? null : velocidadePelaDistancia(leituras, tempo);
   return {
     tensao: ultima ? ultima.tensao_bateria : null,
     correnteMa: Math.round((ultima?.corrente_bateria ?? 0) * 1000),
-    velocidadeMedia: naCorrida.length > 0 ? soma / naCorrida.length : 0,
-    velocidadePico: naCorrida.reduce((maximo, l) => Math.max(maximo, l.velocidade), 0),
+    velocidadeMedia: soma > 0 ? soma / naCorrida.length : pelaDistancia,
+    mediaPelaDistancia: pelaDistancia !== null,
+    velocidadePico: pico > 0 ? pico : null,
   };
+}
+
+/**
+ * Pontos do gráfico de velocidade × tempo. Se o robô mandou todas as velocidades zeradas, cada ponto
+ * passa a ser a média acumulada pela distância até aquela leitura (o gráfico não fica uma linha no zero).
+ *
+ * Custa O(n log n): uma ordenação e uma passada acumulando a distância. Os componentes a chamam dentro
+ * de `useMemo`, para não refazer a conta a cada render.
+ */
+export function serieDeVelocidade(leituras: Telemetria[]): { leituras: Telemetria[]; estimada: boolean } {
+  const naCorrida = leiturasDaCorrida(leituras);
+  if (naCorrida.some((l) => l.velocidade > 0)) return { leituras: naCorrida, estimada: false };
+  const ordenadas = [...leituras].sort((a, b) => a.numero_sequencia - b.numero_sequencia);
+  const estimadas: Telemetria[] = [];
+  let celulas = 0;
+  ordenadas.forEach((l, i) => {
+    const anterior = ordenadas[i - 1];
+    if (anterior) {
+      celulas += Math.abs(l.posicao_linha - anterior.posicao_linha) + Math.abs(l.posicao_coluna - anterior.posicao_coluna);
+    }
+    if (ehLeituraDeLargada(l)) return; // a largada só entra como ponto de partida
+    const distancia = celulas * LADO_CELULA_M;
+    estimadas.push({ ...l, velocidade: distancia > 0 && l.tempo_decorrido > 0 ? distancia / l.tempo_decorrido : 0 });
+  });
+  return { leituras: estimadas, estimada: estimadas.some((l) => l.velocidade > 0) };
 }
 
 /** Fração do limite de 10:00 já usada, entre 0 e 1, para o marcador do cronômetro. */

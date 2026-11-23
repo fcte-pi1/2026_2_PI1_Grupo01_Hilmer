@@ -215,8 +215,10 @@ describe('TelaAoVivo fora do modo ao vivo (corrida de exemplo)', () => {
     await waitFor(() => expect(cartao('Consumo de bateria').getByText('8.1V · 120 mA')).toBeInTheDocument());
 
     expect(screen.getByRole('button', { name: 'AGUARDANDO LARGADA DO ROBÔ' })).toBeDisabled();
-    expect(cartao('Velocidade média').getByText('0.00 m/s')).toBeInTheDocument();
-    expect(cartao('Velocidade média').getByText('Pico máx: 0.00 m/s')).toBeInTheDocument();
+    // Sem movimento, nada de "0.00 m/s": aparece o traço (#557).
+    expect(cartao('Velocidade média').getByText('—')).toBeInTheDocument();
+    expect(cartao('Velocidade média').getByText('Pico máx: —')).toBeInTheDocument();
+    expect(cartao('Velocidade média').queryByText(/0\.00 m\/s/)).not.toBeInTheDocument();
     expect(cartao('Tempo de conclusão').getByText('00:00.000')).toBeInTheDocument();
     expect(cartao('Tempo de conclusão').getByText(/Pronto na largada · Tentativa 2 de 3/)).toBeInTheDocument();
     expect(limite()).toHaveAttribute('aria-valuenow', '0');
