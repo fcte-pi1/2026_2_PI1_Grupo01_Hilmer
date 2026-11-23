@@ -1043,7 +1043,7 @@ DATA;
 #1023 = ORIENTED_EDGE ( 'NONE', *, *, #1241, .F. ) ;
 #1024 = LINE ( 'NONE', #861, #1928 ) ;
 #1025 = PLANE ( 'NONE',  #1824 ) ;
-#1026 = MANIFOLD_SOLID_BREP ( 'Ressalto-extrus√£o3', #416 ) ;
+#1026 = MANIFOLD_SOLID_BREP ( 'Ressalto-extrus„o3', #416 ) ;
 #1027 = FILL_AREA_STYLE ('',( #2194 ) ) ;
 #1028 = SURFACE_STYLE_USAGE ( .BOTH. , #683 ) ;
 #1029 = CIRCLE ( 'NONE', #1368, 1.499999999999999556 ) ;
