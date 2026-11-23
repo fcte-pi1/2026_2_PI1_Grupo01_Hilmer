@@ -1,6 +1,6 @@
 # Firmware
 
-Firmware do micromouse para o ESP32-C3 (Arduino Core, C++17), organizado nas camadas *sense-think-act* definidas na [arquitetura de software](../../docs/04-projeto-conceitual/software.md). O projeto usa [PlatformIO](https://platformio.org/).
+Firmware do micromouse para o ESP32 DevKit V1 (Arduino Core, C++17), organizado nas camadas *sense-think-act* definidas na [arquitetura de software](../../docs/04-projeto-conceitual/software.md). O projeto usa [PlatformIO](https://platformio.org/).
 
 A documentação detalhada do código (camadas, tipos, pinagem, interface dos sensores de distância, tarefas e testes) está em [Firmware: implementação](../../docs/04-projeto-conceitual/firmware.md). Os arquivos `.h` têm comentários de documentação no formato Doxygen (`///`).
 
@@ -8,7 +8,7 @@ A documentação detalhada do código (camadas, tipos, pinagem, interface dos se
 
 ```
 src/firmware/
-├── platformio.ini     # ambientes esp32c3 (placa), native (testes no computador), native_cobertura (testes com cobertura, usado no CI), bancada_geral, bancada_tof e bancada_deslocamento (firmwares de bancada)
+├── platformio.ini     # ambientes esp32_devkit (robô), native (testes no computador), native_cobertura (testes com cobertura, usado no CI), bancada_geral_devkit, bancada_tof_devkit e bancada_deslocamento_devkit (firmwares de bancada)
 ├── src/main.cpp       # ponto de entrada: cria as tarefas FreeRTOS (navegação e telemetria)
 ├── src/bancada/       # programas de bancada, fora do firmware do robô
 ├── lib/               # uma biblioteca por camada
@@ -40,7 +40,7 @@ src/firmware/
 - As camadas de lógica (`nucleo`, `percepcao`, `calibracao`, `mapeamento`, `navegacao`, `comunicacao`, `simulacao`) **não incluem `Arduino.h`**. Assim elas compilam e são testadas no computador, sem a placa.
 - O acesso ao hardware passa pelas interfaces de `hal`. Os drivers reais ficam em `drivers_esp32`, e `src/main.cpp` liga cada driver à sua interface.
 - Para testar a lógica sem sensor, use o `SensorDistanciaSimulado` (`lib/simulacao`): `definirLeituraFixa` repete uma leitura, `enfileirarLeitura` entrega leituras em sequência, `simularFalha(true)` faz o sensor parar de responder e, com um `LabirintoSimulado`, `posicionar` faz a leitura vir da posição do robô (veja [Labirinto simulado](#labirinto-simulado)).
-- Evite alocação dinâmica na lógica: o maior labirinto tem 12×4 células, então estruturas de tamanho fixo (`MAX_LINHAS_LABIRINTO` × `MAX_COLUNAS_LABIRINTO`) bastam.
+- Evite alocação dinâmica na lógica: o maior labirinto tem 12×4 células, então estruturas de tamanho fixo (`MAX_LINHAS_LABIRINTO` × `MAX_COLUNAS_LABIRINTO`) bastam. O `Mapa` e o Flood Fill reservam o mapa de exploração da largada em qualquer célula, 7 × 23 (`MAX_LINHAS_EXPLORACAO` × `MAX_COLUNAS_EXPLORACAO`).
 
 ## Mapa do labirinto
 
@@ -73,7 +73,7 @@ Mapa& paraNavegacao = armazenamentoMapa.mapa();                  // lê e regist
 const Mapa& paraTelemetria = armazenamentoMapa.mapa();           // só lê (pelo acesso const)
 ```
 
-O armazenamento não pode ser copiado, e o acesso `const` impede que a telemetria altere o mapa; as duas regras são conferidas em tempo de compilação. Medido no ESP32-C3, o objeto ocupa **196 bytes** de RAM estática (`.bss`): 195 do mapa e 1 do indicador de corrida.
+O armazenamento não pode ser copiado, e o acesso `const` impede que a telemetria altere o mapa; as duas regras são conferidas em tempo de compilação. Medido na placa, o objeto ocupa **196 bytes** de RAM estática (`.bss`): 195 do mapa e 1 do indicador de corrida.
 
 ## Labirinto simulado
 
@@ -258,7 +258,7 @@ O `MotoresDrv8833` (`lib/drivers_esp32`) aplica a potência com PWM de 20 kHz e 
 
 ## Motores N20 (DRV8833)
 
-Os dois motores N20 são acionados pelo DRV8833 com PWM nas quatro entradas (`MotoresDrv8833`, em `drivers_esp32`). Os pinos vêm de `Pinos.h` (Rev 2.0): IN1/IN2 = GPIO10/GPIO3 (motor esquerdo) e IN3/IN4 = GPIO20/GPIO21 (motor direito, invertido no `main.cpp` pela montagem espelhada).
+Os dois motores N20 são acionados pelo DRV8833 com PWM nas quatro entradas (`MotoresDrv8833`, em `drivers_esp32`). Os pinos vêm de `Pinos.h`: IN1/IN2 = GPIO25/GPIO26 (motor esquerdo) e IN3/IN4 = GPIO27/GPIO14 (motor direito, invertido no `main.cpp` pela montagem espelhada).
 
 | Peça | Onde | O que faz |
 |---|---|---|
@@ -274,15 +274,14 @@ Os dois motores N20 são acionados pelo DRV8833 com PWM nas quatro entradas (`Mo
 
 ### Tranco no boot
 
-GPIO20 e GPIO21 são a UART0 do ESP32-C3. Durante o reset, antes de o firmware rodar, a ROM escreve o log de boot no GPIO21 (TX), e o GPIO20 (RX) fica como entrada. Como esses pinos são o IN3/IN4 do DRV8833, **o motor direito pode receber pulsos e dar um tranco** nos primeiros instantes depois de ligar ou de um reset (cerca de 0,3 s, até o `setup()`).
+No reset do ESP32, antes de o firmware rodar, o GPIO14 (IN4 do motor direito) emite um pulso PWM curto da ROM. **O motor direito pode dar um tranco** nos primeiros instantes depois de ligar ou de um reset (até o `setup()`).
 
 O que o firmware faz: `motores.iniciar()` é a **primeira linha** do `setup()`. Ele põe os quatro pinos como saída em nível alto (freio) e só depois liga o PWM, já com duty total (freio também).
 
 O que o firmware **não** consegue evitar é o intervalo antes do `setup()`. Opções, a decidir com a eletrônica:
 
 - **Na bancada:** ligar e resetar o robô com as rodas fora do chão.
-- **No hardware:** resistores de pull-down em IN3/IN4, para os pinos ficarem em nível baixo (roda livre) enquanto a ROM não os controla. O ideal seria o nSLEEP do DRV8833 num GPIO, mas os 15 já estão em uso.
-- **Irreversível:** desligar o log da ROM pelo eFuse `UART_PRINT_CONTROL` (`espefuse.py`). Não grave sem combinar com o grupo: o eFuse não volta atrás.
+- **No hardware:** um resistor de pull-down no IN4, para o pino ficar em nível baixo (roda livre) enquanto a ROM não o controla, ou o nSLEEP do DRV8833 num GPIO livre do DevKit.
 
 ### Valores provisórios
 
@@ -350,15 +349,15 @@ Todos ficam em **`lib/deslocamento/src/ConfiguracaoDeslocamento.h`**, e cada um 
 Para conferir a estimativa com o robô montado (motores e ToF), use o menu de bancada (precisa de `pip install pyserial`):
 
 ```bash
-./scripts/bancada_deslocamento.py          # escolhe a porta; ou --porta /dev/ttyACM0 (COM5 no Windows)
+./scripts/bancada_deslocamento.py          # escolhe a porta; ou --porta /dev/ttyUSB0 (COM5 no Windows)
 ```
 
 **ATENÇÃO:** as etapas acionam os motores. Robô no chão, com espaço livre. **Ctrl+C freia na hora**, e cada movimento dura no máximo 10 s.
 
-1. **Opção 1:** grava o firmware de bancada (`pio run -e bancada_deslocamento -t upload`).
+1. **Opção 1:** grava o firmware de bancada (`pio run -e bancada_deslocamento_devkit -t upload`).
 2. **Opção 3:** roteiro completo. Em cada etapa o menu explica o que montar, aciona o robô e mostra o log ao vivo (posição estimada, célula, `pose_valida`, distância sem correção, ToF e cada correção aplicada), pede a medida da régua e dá APROVADO, REPROVADO ou OBSERVADO.
 3. **Logs:** cada movimento vira um CSV numa pasta `bancada_deslocamento_<data>/`, junto com o `relatorio.md`, para registrar em `docs/07-testes/software.md`.
-4. Ao terminar, grave de volta o firmware do robô: `pio run -e esp32c3 -t upload`.
+4. Ao terminar, grave de volta o firmware do robô: `pio run -e esp32_devkit -t upload`.
 
 | Etapa | O que verifica |
 |---|---|
@@ -369,7 +368,7 @@ Para conferir a estimativa com o robô montado (motores e ToF), use o menu de ba
 | 5. Confiança | ~450 mm sem correção: `pose_valida` falso; `ZERAR` devolve a confiança |
 | 6. Giro de 90° | Direção estimada Leste e giro real de 90 ± 20° |
 
-Há ainda **movimento livre** (potência, duração e correção à escolha, com o log ao vivo) e **ver o estado atual**. Os critérios ficam no topo do script e são provisórios. O firmware também funciona direto no `pio device monitor -e bancada_deslocamento`: `AJUDA` lista `INFO`, `VEL`, `ZERAR`, `CORRECAO`, `ANDAR`, `GIRAR` e `LER`.
+Há ainda **movimento livre** (potência, duração e correção à escolha, com o log ao vivo) e **ver o estado atual**. Os critérios ficam no topo do script e são provisórios. O firmware também funciona direto no `pio device monitor -e bancada_deslocamento_devkit`: `AJUDA` lista `INFO`, `VEL`, `ZERAR`, `CORRECAO`, `ANDAR`, `GIRAR` e `LER`.
 
 ## Detecção do objetivo e conclusão do desafio
 
@@ -396,6 +395,37 @@ if (detector.processarChegada(pose, motores, &armazenamentoMapa)) {
 > **Sincronização entre tarefas:** `processarChegada`, `consumirEventoChegada` e `resetar` acessam o estado de detecção e odometria sob a seção crítica `travaOdometria`, garantindo thread-safety entre `tarefaNavegacao` (10 ms) e `tarefaTelemetria` (100 ms).
 >
 > **Arquitetura dos detectores:** atualmente coexistem duas instâncias (`Navegacao::detector_` para planejamento BFS/Flood Fill e `detectorObjetivo` em `main.cpp` para o laço do firmware). Ambas serão unificadas e a API de construtores será simplificada quando `Navegacao` for incorporada diretamente ao laço da tarefa FreeRTOS.
+
+### Largada em qualquer célula
+
+O robô pode ser posto em **qualquer célula** do labirinto, sem saber qual nem o tamanho do labirinto (4×4, 8×4 ou 12×4). A única exigência é estar **virado para o Norte do labirinto**, o mesmo lado da largada oficial em (0, 0). Com a direção livre, não há solução: um labirinto girado 90° mostra as mesmas paredes ao robô, e o "canto do objetivo" passaria a ser outro canto. O objetivo continua o canto Nordeste, (3, colunas − 1).
+
+O modo vem da macro `MICROMOUSE_LARGADA_EM_QUALQUER_CELULA`, ligada (`=1`) no ambiente `esp32_devkit`. Com `=0`, volta a largada fixa em (0, 0). Nos testes `native`, o modo é pedido pela configuração (`ConfiguracaoExecucao::largadaEmQualquerCelula`).
+
+| Etapa | Como funciona |
+|---|---|
+| Começo | O `CicloNavegacao` troca o mapa pelo **mapa de exploração** de 7 × 23 células (`DimensaoMapa::Exploracao`) e põe o robô no meio dele, em (3, 11). Qualquer posição real da largada cabe nele. A odometria fica nesse referencial a corrida toda |
+| Hipóteses | O `LocalizadorLargada` (`lib/navegacao`) começa com as 96 explicações possíveis: 4 linhas × (4 + 8 + 12) colunas de largada |
+| Descarte | A cada célula percebida, descarta a hipótese em que (1) alguma célula visitada fica fora do labirinto, (2) alguma parede vista como livre fica no perímetro ou (3) alguma célula do labirinto fica inalcançável pelas paredes já vistas (labirinto de micromouse não tem célula isolada; se essa regra descartar todas, ela é desligada) |
+| Exploração | O Flood Fill vai ao objetivo **ainda não visitado** mais próximo entre os das hipóteses vivas (`Navegacao::definirObjetivos`). Os caminhos até eles passam pelas paredes desconhecidas do perímetro, e vê-las descarta as hipóteses erradas |
+| Localização | Quando sobra uma hipótese, ou quando o robô está na célula que é o objetivo de todas, o ciclo monta o mapa real com as paredes já vistas (`LocalizadorLargada::mapaReal`), passa a navegação para ele e converte a pose da odometria para o labirinto (`poseNoLabirinto`). Daí em diante, a corrida é a normal |
+| Recomeço | Se o mapa deixar de fazer sentido (nenhuma hipótese sobra, ou nenhum objetivo possível é alcançável), a exploração recomeça da célula atual com o mapa limpo, até `RELARGADAS_MAXIMAS` (3) vezes. Acontece quando a estimativa do deslocamento erra uma célula e grava uma parede no lugar errado. A direção continua valendo, porque vem do giroscópio |
+| Telemetria e chegada | Antes de o robô se localizar, `pose_valida` sai `false` e o `detectorObjetivo` não age. Depois, ambos usam a pose convertida e o tamanho descoberto |
+| Tamanho no banco | A corrida nasce como 4x4 (o padrão do firmware), para o painel já ver o robô na espera. Quando o robô se localiza, a tarefa de rede informa o tamanho que ele descobriu (`POST /corridas/{id}/labirinto`), o banco troca o labirinto da corrida e renumera a tentativa, e **só então** a telemetria passa a sair (uma posição fora da malha 4x4 faria o banco recusar o lote). Falha de rede repete a cada 2 s; recusa do banco (`409`) é registrada (`falha_definir_labirinto`) e não repete. O `Z` (robô recolocado) refaz o processo |
+| Calibração do boot | Sem parede a uma distância conhecida, calibra só o giroscópio (`REFERENCIAS_TOF_SEM_PAREDE`): os ToF ficam sem correção de desvio |
+
+Duas largadas podem levar ao mesmo canto sem que o robô saiba o tamanho exato: largar em (0, 1) de um 4×4 e em (0, 5) de um 8×4, por exemplo. Ao chegar a esse canto, o robô para (ele é o objetivo nos dois casos) e adota a hipótese de menos colunas para o mapa da telemetria. No 4×4, o único labirinto montado, essa escolha é a certa.
+
+Na simulação (`test_integracao_execucao`, testes `test_largada_em_qualquer_celula_*`), o robô larga de cada célula dos três labirintos de exemplo:
+
+| Cenário | Chegaram | Tempo médio | Pior tempo |
+|---|---|---|---|
+| 4×4, robô ideal | 16 de 16 | 56 s | 96 s |
+| 8×4, robô ideal | 32 de 32 | 37 s | 78 s |
+| 12×4, robô ideal | 48 de 48 | 43 s | 101 s |
+| 4×4, rodas 8% e 3% mais lentas, com detecção de colisão | 16 de 16 | 82 s | 141 s |
+
+O último cenário é o robô imperfeito: as rodas desiguais acumulam erro na estimativa sem encoder, e a localização faz o robô andar mais que na largada conhecida (média de 18 s no mesmo cenário). Nele, nenhuma largada encostou nas paredes. Esses números são da simulação, com paredes que não bloqueiam o robô; no robô real, a precisão do giro (folga de 6 mm, veja `test_folga_do_giro_no_lugar`) e da estimativa decidem.
 
 ### Telemetria e compatibilidade com o banco de dados
 
@@ -455,7 +485,7 @@ Se o robô bate numa parede que não viu, ele detecta a batida, recua até o cen
 
 ## Sensores de distância (VL53L0X)
 
-Na Rev 2.0 do hardware, o LiDAR deu lugar a 3 VL53L0X no I²C (esquerdo, frontal e direito). O `TofVl53l0x` (`lib/drivers_esp32`) implementa o `ISensorDistancia`, então mapa, percepção e navegação não mudaram ([#344](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344)). A regra de validade fica no `CombinadorTof` (`lib/tof`), testado no `native`; a biblioteca `pololu/VL53L0X` só entra no `esp32c3`.
+Na Rev 2.0 do hardware, o LiDAR deu lugar a 3 VL53L0X no I²C (esquerdo, frontal e direito). O `TofVl53l0x` (`lib/drivers_esp32`) implementa o `ISensorDistancia`, então mapa, percepção e navegação não mudaram ([#344](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/344)). A regra de validade fica no `CombinadorTof` (`lib/tof`), testado no `native`; a biblioteca `pololu/VL53L0X` só entra nos ambientes da placa (`esp32_devkit` e as bancadas).
 
 ```cpp
 Wire.begin(pinos::I2C_SDA, pinos::I2C_SCL);   // barramento compartilhado com o MPU6050
@@ -484,13 +514,13 @@ No computador, o `TofSimulado` (`lib/simulacao`) faz o papel do driver: gera a a
 
 ### Bancada geral: menu de sensores e motores
 
-Para conferir o robô montado (sensores, motores e encoders) sem escrever código, grave o firmware de bancada geral e use o menu pelo monitor serial. Ele usa os mesmos drivers do robô (`TofVl53l0x`, `ImuMpu6050` e `MotoresDrv8833`) e a pinagem do `Pinos.h`.
+Para conferir o robô montado (sensores, motores, encoders, bateria e telemetria) sem escrever código, grave o firmware de bancada geral e use o menu pelo monitor serial. Ele usa os mesmos drivers do robô (`TofVl53l0x`, `ImuMpu6050` e `MotoresDrv8833`) e a pinagem do `Pinos.h`.
 
 ```bash
-pio run -e bancada_geral -t upload && pio device monitor -e bancada_geral
+pio run -e bancada_geral_devkit -t upload && pio device monitor -e bancada_geral_devkit
 ```
 
-**Guia completo, para Windows, macOS e Linux, com instalação, solução de problemas e exemplos de diagnóstico:** [Guia da bancada geral](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/docs/07-testes/guia-bancada-geral.md). Digite só a tecla do menu, sem Enter. O menu aparece sozinho quando o monitor abre, e Enter mostra o menu de novo (para sair do monitor, `Ctrl+C`).
+**Guia completo, para Windows, macOS e Linux, com instalação, solução de problemas e exemplos de diagnóstico:** [Guia da bancada geral](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/docs/07-testes/guia-bancada-geral.md). Digite só a tecla do menu, sem Enter. Abrir o monitor reinicia a placa e o menu aparece sozinho; Enter mostra o menu de novo (para sair do monitor, `Ctrl+C`).
 
 | Tecla | O que faz |
 |:-:|---|
@@ -502,47 +532,40 @@ pio run -e bancada_geral -t upload && pio device monitor -e bancada_geral
 | `7` | Abre o menu de motores |
 | `8` | Mostra a pinagem em uso |
 | `9` / `0` | Encoders: contagem contínua dos dois (gire a roda à mão) / zera a contagem |
-| `i` | **Teste integrado**: liga os dois motores por 5 s e lê ToF, MPU6050 e encoders ao mesmo tempo. Mostra se os dois giram juntos, se o PWM derruba algum sensor e, no DevKit, quanto a bateria cai |
+| `i` | **Teste integrado**: liga os dois motores por 5 s e lê ToF, MPU6050 e encoders ao mesmo tempo. Mostra se os dois giram juntos, se o PWM derruba algum sensor e quanto a bateria cai |
 | `r` | Reinicia a placa por software (não precisa do botão RESET) |
 
 Os testes `t` e `i` terminam com uma linha `REGISTRO: ...` com os números e o veredito, para colar direto no registro de testes (`docs/07-testes/hardware.md`).
 
-No menu de motores, as teclas `1` a `8` acionam o motor esquerdo, o direito, os dois e os giros no lugar, para a frente e para trás; `c` abre o modo contínuo (até 60 s): o motor fica ligado e a tela mostra os pulsos e a velocidade ao vivo, e dá para trocar o motor (`e`, `d`, `b`), o sentido (`r`) e a potência (`+`, `-`) sem parar; qualquer outra tecla freia, e na Super Mini fechar o monitor também; no DevKit (UART) o programa não percebe o monitor fechar, então o modo pede a tecla `m` a cada 10 s e, sem ela, freia sozinho; `9` e `a` fazem uma rampa no motor esquerdo ou no direito (sobe a potência de 100 a 1000 em degraus de 0,3 s e diz em qual a roda começou a girar, pelo encoder); `+` e `-` mudam a potência (100 a 1000, começa em 300), `l` e `k` mudam o limite de duty (de 10% a 100%, começa nos 70% do robô; o multímetro no motor lê duty × VM, então com VM de 6 V e 70% o máximo é 4,2 V, e acima disso é só para teste) e `0` volta. Cada teste dura no máximo 2 s (a rampa, até 6 s) e qualquer tecla freia os motores. Com VM de 5 V, a potência 300 equivale a um duty de só 21% (cerca de 1 V no motor), que costuma ficar abaixo da zona morta do N20: se a roda não gira, suba a potência ou use a rampa. Ao fim de cada teste, o programa mostra os pulsos de cada encoder e compara o sinal com o do comando: sem pulsos, sinal coerente ou **sinal oposto** (nesse caso, se a roda andou ao contrário o motor está invertido; se andou para o lado certo, o encoder está com A e B trocados). Os motores ficam freados no boot e fora desse menu.
+No menu de motores, as teclas `1` a `8` acionam o motor esquerdo, o direito, os dois e os giros no lugar, para a frente e para trás; `c` abre o modo contínuo (até 60 s): o motor fica ligado e a tela mostra os pulsos e a velocidade ao vivo, e dá para trocar o motor (`e`, `d`, `b`), o sentido (`r`) e a potência (`+`, `-`) sem parar; qualquer outra tecla freia; como o programa (pela UART) não percebe o monitor fechar, então o modo pede a tecla `m` a cada 10 s e, sem ela, freia sozinho; `9` e `a` fazem uma rampa no motor esquerdo ou no direito (sobe a potência de 100 a 1000 em degraus de 0,3 s e diz em qual a roda começou a girar, pelo encoder); `+` e `-` mudam a potência (100 a 1000, começa em 300), `l` e `k` mudam o limite de duty (de 10% a 100%, começa nos 70% do robô; o multímetro no motor lê duty × VM, então com VM de 6 V e 70% o máximo é 4,2 V, e acima disso é só para teste) e `0` volta. Cada teste dura no máximo 2 s (a rampa, até 6 s) e qualquer tecla freia os motores. Com VM de 5 V, a potência 300 equivale a um duty de só 21% (cerca de 1 V no motor), que costuma ficar abaixo da zona morta do N20: se a roda não gira, suba a potência ou use a rampa. Ao fim de cada teste, o programa mostra os pulsos de cada encoder e compara o sinal com o do comando: sem pulsos, sinal coerente ou **sinal oposto** (nesse caso, se a roda andou ao contrário o motor está invertido; se andou para o lado certo, o encoder está com A e B trocados). Os motores ficam freados no boot e fora desse menu.
 
 > **Segurança:** faça o primeiro teste de motor com as rodas fora do chão. A potência 1000 já fica limitada pelo driver ao duty de `LIMITE_DUTY_MOTORES_MILESIMOS` (`ConfiguracaoMotores.h`).
 
-Os encoders usam a mesma inversão do `main.cpp` (esquerdo normal, direito invertido) e entradas com pull-up: o sinal dos canais A e B não pode passar de 3,3 V. Esse programa só compila e roda na placa, então não tem teste automatizado. O CI não o compila hoje; para conferir, rode `pio run -e bancada_geral`.
+Os encoders usam a mesma inversão do `main.cpp` (esquerdo normal, direito invertido) e entradas com pull-up: o sinal dos canais A e B não pode passar de 3,3 V. Esse programa só compila e roda na placa, então não tem teste automatizado; o CI confere que ele compila (`pio run -e bancada_geral_devkit`).
 
-#### Bancada geral no ESP32 DevKit (bancada_geral_devkit)
-
-A mesma bancada, para o ESP32 DevKit V1 da bancada integrada, no ambiente `bancada_geral_devkit`. A pinagem vem de `lib/nucleo/src/Pinos.h`, no bloco ativado por `-DPLACA_ESP32_DEVKIT`:
-
-| Sinal | GPIO | Sinal | GPIO |
-|---|---|---|---|
-| I²C SDA / SCL | 21 / 22 | Motor esquerdo IN1 / IN2 | 25 / 26 |
-| XSHUT esquerdo / frontal / direito | 16 / 17 / 4 | Motor direito IN3 / IN4 | 27 / 14 |
-| Encoder esquerdo A / B | 32 / 33 | Botão BTN_START | 23 |
-| Encoder direito A / B | 18 / 19 | Bateria (ADC, divisor 100 k / 33 k) | 34 |
-
-```bash
-pio run -e bancada_geral_devkit -t upload && pio device monitor -e bancada_geral_devkit
-```
-
-Ao abrir o monitor, a placa reinicia e o menu aparece sozinho. Além das teclas acima, o DevKit tem `a` (tensão da bateria pelo divisor do GPIO34), `b` (botão de largada ao vivo, qualquer tecla para), o autoteste com bateria e botão, a queda da bateria durante os testes de motor e `w` (telemetria). No reset, o GPIO14 (IN4 do motor direito) emite um pulso PWM curto, e a roda direita pode dar um tranco.
+Além das teclas acima, o menu principal tem `a` (tensão da bateria pelo divisor do GPIO34) e `w` (telemetria, com os testes de operação remota `o` e do painel `k`); o autoteste confere também a bateria, e os testes de motor mostram a queda da bateria. No reset, o GPIO14 (IN4 do motor direito) emite um pulso PWM curto, e a roda direita pode dar um tranco (veja [Tranco no boot](#tranco-no-boot)).
 
 ##### Telemetria na bancada (tecla `w`)
 
-O firmware do robô só cria a corrida depois da calibração, que exige o autoteste dos sensores. A tecla `w` abre um submenu que testa o Wi-Fi e a gravação no banco sem depender dos sensores, com o mesmo cliente HTTP (`EnvioHttpSupabase`) do robô. Antes de gravar, copie `include/credenciais.exemplo.h` para `include/credenciais.h` (o Git ignora o arquivo), preencha os campos e, na bancada, use `CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1`. Sem o arquivo, o firmware compila e o submenu explica o que fazer.
+O firmware do robô só cria a corrida depois da calibração, que exige o autoteste dos sensores. A tecla `w` abre um submenu que testa o Wi-Fi e a gravação no banco sem depender dos sensores, com o mesmo cliente HTTP (`EnvioHttpSupabase`) do robô. Antes de gravar, copie `include/credenciais.exemplo.h` para `include/credenciais.h` (o Git ignora o arquivo), preencha os campos e, na bancada, use `CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1`. Sem o arquivo, o firmware compila e o Wi-Fi funciona pela tecla `p` (escolher a rede pela serial), mas as teclas que falam com o banco explicam o que falta.
 
 | Tecla | O que faz |
 |---|---|
 | `a` | Fluxo completo: Wi-Fi, DNS, criar corrida, enviar lote, reenviar o lote (confere que não duplica) e encerrar. Termina com `RESULTADO` |
-| `w` / `d` | Conecta no Wi-Fi (mostra IP e sinal) / resolve o nome do Supabase |
+| `p` | **Escolher a rede pela serial:** varre as redes, mostra as 20 de sinal mais forte numeradas e pede o número (ou o nome exato) e a senha, que aparece como `*`. Conectando, pergunta se salva a rede na flash da placa (NVS): salva, ela é a principal da bancada a cada boot, no lugar da principal do `credenciais.h`; a reserva do `credenciais.h` continua valendo. Não precisa regravar a placa. O firmware do robô não lê essa rede |
+| `f` | Esquece a rede salva pela tecla `p` e volta à principal do `credenciais.h` |
+| `w` / `d` | Conecta no Wi-Fi (mostra a rede, principal ou reserva, o IP e o sinal) / resolve o nome do Supabase |
 | `c` / `l` / `r` / `e` | Cria a corrida / envia 5 amostras de teste / reenvia o último lote / encerra como `nao_concluida` |
-| `b` | **Teste de reenvio com queda de Wi-Fi (#478):** 60 s de amostras (1 por segundo) pelo `ControladorEnvio` do robô; desligue o hotspot por cerca de 30 s no meio e religue. No fim, confere as contagens (confirmadas, existentes, descartadas, perdidas, reenvios), dá a consulta SQL para conferir o banco e a linha `REGISTRO` |
-| `s` / `0` | Status / volta ao menu principal |
+| `b` | **Teste de reenvio com queda de Wi-Fi (#478):** amostras (1 por segundo) pelo `ControladorEnvio` do robô até o Wi-Fi cair e voltar: quando quiser, desligue os hotspots (a principal e a reserva) por cerca de 30 s e religue. O teste termina 15 s depois de o Wi-Fi voltar (pelo menos 60 s, no máximo 5 min). No fim, confere as quedas e o tempo sem conexão deste teste, as contagens (confirmadas, existentes, descartadas, perdidas, reenvios), dá a consulta SQL para conferir o banco e a linha `REGISTRO` |
+| `v` | **Varredura (#491):** lista as redes de 2,4 GHz que a placa enxerga e marca a principal e a reserva do `credenciais.h`. Avisa quando o nome só bate sem diferenciar maiúsculas (o hotspot do iPhone se chama `iPhone`, e `Iphone` não conecta) |
+| `m` | **Sinal ao vivo (#491):** a cada 0,5 s mostra a rede, o RSSI (bom a partir de -67 dBm, aceitável até -75, fraco até -80, crítico abaixo) e o mínimo, a média e o máximo. Segue reconectando como o robô: desligue o hotspot principal e a troca para a reserva aparece na tela. Qualquer tecla para e imprime a linha `REGISTRO: sinal` |
+| `n` | **Corrida sem rede (#491):** cria a corrida, desliga o Wi-Fi, põe 600 amostras (10 min a 1 por segundo) no buffer do robô, religa o Wi-Fi e espera tudo chegar e a corrida encerrar. Nada pode se perder. Termina com a consulta SQL e a linha `REGISTRO: sem_rede` |
+| `x` | **Buffer cheio (#478):** o mesmo, com 650 amostras. As 50 mais antigas têm de ser descartadas (`perdidas no buffer 50`) e o banco fica com as sequências 51 a 650 |
+| `s` / `0` | Status (com as redes do `credenciais.h` e as trocas de rede) / volta ao menu principal |
 
-Cada etapa sai como `[OK]` ou `[FALHA]`, com o código HTTP, a resposta do servidor e a dica do que conferir (senha, 2,4 GHz, token, função não publicada, migração não aplicada). **Grava linhas reais no banco do `credenciais.h`**: use o projeto de testes ou apague a corrida depois. O ESP32-C3 não enxerga redes de 5 GHz; o hotspot do celular precisa estar em 2,4 GHz.
+Cada etapa sai como `[OK]` ou `[FALHA]`, com o código HTTP, a resposta do servidor e a dica do que conferir (senha, 2,4 GHz, token, função não publicada, migração não aplicada). **Grava linhas reais no banco do `credenciais.h`**: use o projeto de testes ou apague a corrida depois. O ESP32 não enxerga redes de 5 GHz; o hotspot do celular precisa estar em 2,4 GHz.
+
+Em `n` e `x`, as amostras são geradas em poucos segundos (o `tempo_decorrido_ms` de cada uma simula 1 por segundo): o buffer conta amostras, não tempo, e o teste não precisa durar 10 minutos. Para uma corrida em tempo real sem rede, use `b` com os dois hotspots desligados.
 
 #### Como acrescentar um componente ao menu
 
@@ -550,35 +573,78 @@ A bancada é uma ferramenta de equipe: ao mudar um driver, um pino ou a arquitet
 
 1. **Reuse o driver do robô** (`lib/drivers_esp32`) e os pinos do `Pinos.h`. A bancada não define pinos próprios: assim, uma mudança de pino aparece nela automaticamente.
 2. **Crie o objeto no topo** de `src/bancada/bancada_geral.cpp`, como os de `imu`, `tof` e `encoderEsq`, e inicie-o no `setup()`.
-3. **Escreva uma função por teste**, no `namespace` anônimo, que imprima o resultado em uma ou poucas linhas, sem acentos (a USB CDC e alguns terminais do Windows quebram caracteres acentuados).
+3. **Escreva uma função por teste**, no `namespace` anônimo, que imprima o resultado em uma ou poucas linhas, sem acentos (alguns terminais do Windows quebram caracteres acentuados).
 4. **Ligue uma tecla** em `executarPrincipal()` (ou em `executarMotores()`, se for atuador) e descreva-a em `imprimirMenuPrincipal()`. Funções que ficam em laço devem terminar com `teclaPressionada()`.
 5. **Se o componente se move ou esquenta**, limite a duração (como `DURACAO_TESTE_MOTOR_MS`), freie no fim e deixe qualquer tecla interromper.
 6. **Se for um sensor**, inclua um item em `autoteste()` com `registrar(...)`, informando a dica de diagnóstico para o caso de falha.
-7. Rode `pio run -e bancada_geral` (sem warnings), teste na placa, descreva a tecla na tabela acima e no guia da bancada.
+7. Rode `pio run -e bancada_geral_devkit` (sem warnings), teste na placa, descreva a tecla na tabela acima e no guia da bancada.
 
-Exemplo: ler um botão de largada em um pino novo `BOTAO_LARGADA` (declarado no `Pinos.h`):
+Exemplo: ler um pino digital novo `PINO_EXEMPLO` (declarado no `Pinos.h`):
 
 ```cpp
-void lerBotao() {
-  Serial.printf("Botao de largada: %s\n", digitalRead(pinos::BOTAO_LARGADA) == LOW ? "pressionado" : "solto");
+void lerPino() {
+  Serial.printf("Pino de exemplo: %s\n", digitalRead(pinos::PINO_EXEMPLO) == LOW ? "baixo" : "alto");
 }
-// em executarPrincipal(): case 'b': lerBotao(); break;
-// em imprimirMenuPrincipal(): Serial.println(" b  botao de largada");
+// em executarPrincipal(): case 'p': lerPino(); break;
+// em imprimirMenuPrincipal(): Serial.println(" p  pino de exemplo");
 ```
+
+### Bancada geral sem cabo: telnet e gravação pelo Wi-Fi
+
+Com uma rede salva (tecla `p`) ou no `credenciais.h`, a bancada geral liga o Wi-Fi já no boot e, ao conectar, abre dois serviços e imprime o IP no monitor:
+
+| Serviço | Como usar |
+| :--- | :--- |
+| **Telnet** (porta 23) | Espelha tudo que a serial mostra e aceita as mesmas teclas do menu. `pio device monitor --port socket://IP:23` (manda cada tecla na hora) ou `nc IP 23` (precisa de Enter depois da tecla). Um cliente por vez. |
+| **OTA** (gravação sem cabo) | Depois de gravar uma vez por cabo, grave de novo pelo Wi-Fi: `pio run -e bancada_geral_devkit_ota -t upload --upload-port IP` (ou `micromouse.local`). Senha padrão `micromouse` (`MICROMOUSE_SENHA_OTA`). |
+
+O computador precisa estar na mesma rede da placa; alguns hotspots isolam os aparelhos entre si (nesse caso, use o notebook no mesmo hotspot). A tecla `s` do submenu de telemetria mostra o IP e se há cliente conectado. O telnet não tem senha: use só na rede do laboratório e com as rodas fora do chão. Os motores são freados no começo da gravação OTA. O telnet existe só no `bancada_geral_devkit`. O robô também tem OTA: depois de uma gravação por cabo, ou de uma feita pela bancada geral, grave o robô pelo Wi-Fi com `pio run -e esp32_devkit_ota -t upload --upload-port IP`. Quando a gravação começa, os motores são travados; só grave com o robô parado.
+
+#### Teste de operação remota (submenu de telemetria, tecla `o`)
+
+Confere, na bancada, o que o robô precisa fazer na pista: andar, continuar conectado ao computador e mandar a telemetria ao banco. O teste:
+
+1. Conecta o Wi-Fi e espera o computador conectar por telnet (`nc IP 23`).
+2. Cria uma corrida no banco **de verdade** (use o projeto Supabase de testes) e espera o comando `G` **pelo telnet** (um `G` pela serial é recusado).
+3. Liga os dois motores por 15 s. Nesse tempo, o laço de controle gira a cada 10 ms lendo ToF, MPU6050 e a bateria, gera 1 amostra por segundo (com a tensão da bateria) e a envia ao banco por uma tarefa de rede à parte, como no robô. `X` ou qualquer tecla freia na hora.
+4. Encerra a corrida, espera o buffer esvaziar e dá o veredito.
+
+| Item conferido | O que reprova |
+|---|---|
+| O comando do telnet ligou os dois motores | Rodas sem pulso depois do `G` |
+| O telnet ficou conectado | O cliente caiu com o robô andando |
+| O Wi-Fi não caiu | Queda de Wi-Fi com os motores ligados (ruído ou queda de tensão) |
+| O laço de controle nunca passou de 100 ms | A rede (HTTPS espera o servidor por vários segundos) prendeu o controle |
+| Telemetria | Amostra perdida, ou o banco gravou menos que o gerado |
+| Corrida encerrada | O servidor não fechou a corrida a tempo |
+| ToF e MPU6050 sem falhas | Ruído do Wi-Fi transmitindo junto com o motor |
+| Queda da bateria de até 1 V | A fonte não aguenta motores e Wi-Fi juntos |
+
+#### Teste do painel (submenu de telemetria, tecla `k`)
+
+Confere o canal painel ↔ robô com o mesmo cliente HTTPS do robô. Antes, publique a função `robo` e aplique a migração dos comandos e logs (veja o README do backend). O teste:
+
+1. Conecta o Wi-Fi e busca o comando a cada 1,5 s por até 60 s. Nesse tempo, clique em INICIAR, PARAR ou ZERAR no painel (ou use o `curl` do README do backend).
+2. Confere que o comando chegou, que a busca seguinte **não** o traz de novo (entrega uma só vez) e que nenhuma busca levou mais de 2,5 s.
+3. Envia 3 linhas de log (`{"status":"teste_bancada",...}`) e dá o veredito. No painel, o bloco de logs deve mostrar as 3 linhas.
+
+Uma resposta `401` é o `DEVICE_TOKEN` errado; `404`, a função `robo` não publicada; `5xx`, a migração não aplicada. A linha `REGISTRO: painel | ...` resume os números.
+
+A linha `REGISTRO: operacao_remota | ...` resume os números para o relatório de testes. No banco, confira com `select count(*), min(tensao_bateria), max(tensao_bateria) from telemetria where corrida_id = N`.
 
 ### Bancada dos VL53L0X
 
 Para conferir o driver no hardware montado, junto com a eletrônica, use o menu de bancada (precisa de `pip install pyserial`):
 
 ```bash
-./scripts/bancada_tof.py                   # escolhe a porta; ou --porta /dev/ttyACM0 (COM5 no Windows)
+./scripts/bancada_tof.py                   # escolhe a porta; ou --porta /dev/ttyUSB0 (COM5 no Windows)
 ```
 
-1. **Opção 1:** grava o firmware de bancada (`pio run -e bancada_tof -t upload`). Ele mantém os motores freados o tempo todo.
+1. **Opção 1:** grava o firmware de bancada (`pio run -e bancada_tof_devkit -t upload`). Ele mantém os motores freados o tempo todo.
 2. **Opção 3:** roteiro completo, com APROVADO, REPROVADO ou OBSERVADO em cada verificação, e um relatório em Markdown no fim, para registrar em `docs/07-testes/software.md`.
-3. Ao terminar, grave de volta o firmware do robô: `pio run -e esp32c3 -t upload`.
+3. Ao terminar, grave de volta o firmware do robô: `pio run -e esp32_devkit -t upload`.
 
-O CI compila o `bancada_tof` junto com o firmware do robô e roda os testes do menu (`scripts/testes/test_bancada_tof.py`), que conferem cada etapa com respostas falsas da placa, sem hardware nem `pyserial`. Para rodar localmente: `python3 -m unittest discover -s scripts/testes -v`.
+O CI compila o `bancada_tof_devkit` junto com o firmware do robô e roda os testes do menu (`scripts/testes/test_bancada_tof.py`), que conferem cada etapa com respostas falsas da placa, sem hardware nem `pyserial`. Para rodar localmente: `python3 -m unittest discover -s scripts/testes -v`.
 
 | Etapa | O que verifica |
 |---|---|
@@ -589,7 +655,7 @@ O CI compila o `bancada_tof` junto com o firmware do robô e roda os testes do m
 | 5. Fora da faixa | Sensor sem alvo e sensor encostado: leitura válida, limitada a 1200 mm ou 30 mm, com o motivo na amostra |
 | 6. Sensor ausente | Um sensor desconectado (com a placa desligada) não impede os outros |
 
-Os critérios ficam no topo do script e são provisórios. O firmware de bancada também funciona direto no monitor serial: `pio device monitor -e bancada_tof` e o comando `AJUDA` listam `SCAN`, `ISOLAR`, `INIT`, `LER`, `FLUXO` e `ESTAT`; cada resposta é uma linha JSON.
+Os critérios ficam no topo do script e são provisórios. O firmware de bancada também funciona direto no monitor serial: `pio device monitor -e bancada_tof_devkit` e o comando `AJUDA` listam `SCAN`, `ISOLAR`, `INIT`, `LER`, `FLUXO` e `ESTAT`; cada resposta é uma linha JSON.
 
 ## Boot e autoteste
 
@@ -625,9 +691,9 @@ Exemplo do relatório:
 {"tipo":"boot","ok":false,"motores_liberados":false,"falhas":"tof_frontal","boot_ms":412,"prazo_ms":2000,"no_prazo":true,"dispositivos":{"tof_esquerdo":"ok","tof_frontal":"ausente","tof_direito":"ok","mpu6050":"ok"},"tof_0x29":false,"mpu6050_who_am_i":104,"inesperados":[],"inesperados_total":0}
 ```
 
-**Na USB nativa, a linha do boot se perde se o monitor abrir depois do reset.** Por isso a telemetria repete `boot_ok`, `boot_falhas` e `boot_ms` em todo pacote, e o comando `B` no monitor serial reimprime o relatório.
+**A linha do boot se perde se ninguém estiver lendo a serial no reset** (por exemplo, no robô sem computador). Por isso a telemetria repete `boot_ok`, `boot_falhas` e `boot_ms` em todo pacote, e o comando `B` no monitor serial reimprime o relatório.
 
-O `boot_ms` é o `millis()` no fim do `setup()`, contado desde o início do programa: a ROM e o bootloader do ESP32-C3 rodam antes e ficam de fora. Para o tempo desde o ligar, meça na bancada.
+O `boot_ms` é o `millis()` no fim do `setup()`, contado desde o início do programa: a ROM e o bootloader do ESP32 rodam antes e ficam de fora. Para o tempo desde o ligar, meça na bancada.
 
 Os parâmetros ficam em `lib/inicializacao/src/ConfiguracaoBoot.h`. O `WHO_AM_I` esperado é **provisório**: módulos com clone do MPU6050 respondem outro valor (0x70, 0x72, 0x98); se a bancada mostrar um desses em `mpu6050_who_am_i`, confirme com a eletrônica e troque lá. O boot confere o barramento uma vez; durante a corrida, quem cuida das falhas é a seção seguinte.
 
@@ -694,7 +760,7 @@ flowchart LR
 |---|---|---|
 | `ControladorEnvio`, `BufferCircular`, `PoliticaReenvio` | `lib/comunicacao` | Guardam as amostras até o servidor confirmar, reenviam em ordem com espera crescente e classificam as respostas |
 | `ContratoTelemetria` | `lib/comunicacao` | JSON do lote, da criação e do encerramento da corrida, e a leitura das respostas |
-| `ReconexaoWifi` | `lib/comunicacao` | Conecta e reconecta o Wi-Fi com espera crescente (1 s até 30 s), sem travar a tarefa |
+| `ReconexaoWifi` | `lib/comunicacao` | Conecta e reconecta o Wi-Fi com espera crescente (1 s até 30 s), sem travar a tarefa, e passa para a rede reserva quando a principal não conecta (#491) |
 | `CredenciaisSupabase` | `lib/comunicacao` | Confere as credenciais e monta as URLs das funções |
 | `EnvioHttpSupabase` | `lib/drivers_esp32` | `IEnvioTelemetria` real: `HTTPClient` com `WiFiClientSecure`, cabeçalhos `apikey`, `Authorization` e `x-device-token` |
 | `RedeWifiEsp32`, `TravaSecaoCritica` | `lib/drivers_esp32` | O Wi-Fi do ESP32 e a `ITrava` real (seção crítica do FreeRTOS) |
@@ -704,25 +770,108 @@ flowchart LR
 
 ### Credenciais
 
-As credenciais **não vão para o Git**. Copie `include/credenciais.exemplo.h` para `include/credenciais.h` (ignorado pelo Git) e preencha:
+O **Wi-Fi (principal e reserva) e a URL do Supabase** já vêm no firmware, em `include/credenciais_padrao.h` (versionado), então quem compila não precisa de arquivo nenhum para conectar, gravar pelo Wi-Fi e **enviar a telemetria**. O `DEVICE_TOKEN` e a chave do Supabase são **opcionais**: o robô só os envia se existirem. As Edge Functions publicadas com `--no-verify-jwt` e sem o segredo `DEVICE_TOKEN` aceitam o robô só com a URL (veja `src/backend/README.md`). Se o seu projeto ainda exige a chave `anon`/publishable ou o token, ponha-os em `include/credenciais.h` (ignorado pelo Git; modelo em `credenciais.exemplo.h`, que também troca a rede só no seu computador). A chave `sb_secret_`/`service_role` nunca entra em firmware nem em repositório.
 
-| Campo | De onde vem |
+| Campo | Onde fica |
 |---|---|
-| `CREDENCIAL_WIFI_SSID` e `CREDENCIAL_WIFI_SENHA` | Rede de 2,4 GHz do laboratório |
-| `CREDENCIAL_SUPABASE_URL` | Supabase → Settings → API → Project URL |
-| `CREDENCIAL_SUPABASE_ANON` | Supabase → Settings → API → chave `anon` |
-| `CREDENCIAL_DEVICE_TOKEN` | O mesmo `DEVICE_TOKEN` dos segredos das Edge Functions (peça a quem administra o Supabase) |
-| `CREDENCIAL_CERTIFICADO_RAIZ` | Certificado raiz do HTTPS do projeto, em PEM (cadeado do navegador → certificado → o primeiro da cadeia → exportar) |
+| Wi-Fi principal e reserva (2,4 GHz) | `credenciais_padrao.h` (versionado); `credenciais.h` troca só no seu computador |
+| `CREDENCIAL_SUPABASE_URL` | `credenciais_padrao.h` |
+| `CREDENCIAL_SUPABASE_ANON` (opcional) | só `credenciais.h` |
+| `CREDENCIAL_DEVICE_TOKEN` (opcional) | só `credenciais.h` |
 
-Sem `include/credenciais.h`, o firmware compila, inicia e não envia nada: o log mostra `{"status":"envio_desligado","motivo":"sem_credenciais"}`. `CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1` aceita qualquer servidor (`setInsecure`): **só na bancada**, nunca na versão da competição (o log avisa com `https_sem_validar_certificado`).
+**Certificado:** não existe nada para configurar. O robô fala HTTPS com o Supabase sem conferir o certificado do servidor (decisão do projeto, para não ter atrito; o tráfego continua cifrado). Sem a URL, o robô ainda conecta no Wi-Fi e aceita gravação pelo Wi-Fi (`envio_desligado`).
+
+### Rede da demonstração e plano B (#491)
+
+As redes institucionais não servem: o portal cativo pede login no navegador e o WPA2 corporativo pede usuário, e o ESP32 não faz nenhum dos dois. Por isso a telemetria usa o hotspot de um celular, com um segundo celular de reserva. O resultado dos testes (qual celular é a principal e o sinal medido na pista) fica em `docs/07-testes/integracao.md`.
+
+**Como o robô escolhe a rede.** Começa pela principal. Uma tentativa que não conecta em 10 s passa para a reserva na hora; só depois de as duas falharem seguidas o robô espera 1 s, 2 s, 4 s... até 30 s e recomeça pela principal. Se a conexão cair, ele tenta primeiro a mesma rede e, se ela não voltar em 10 s, a outra. Conectado na reserva, ele fica nela, mesmo que a principal volte. Sem nenhuma rede, a corrida segue: as amostras ficam no buffer (600, 10 minutos) e vão todas, em ordem, quando a rede volta.
+
+**Hotspot.** Precisa estar em 2,4 GHz: no iPhone, ative **Maximizar Compatibilidade** no Acesso Pessoal; no Android, escolha a banda de 2,4 GHz nas opções do ponto de acesso. Deixe o celular desbloqueado e na tomada ou com bateria cheia (alguns desligam o hotspot sem clientes ou com a tela bloqueada), com dados móveis ligados e longe de outros hotspots na mesma sala.
+
+**Roteiro de troca de rede no dia (menos de 5 minutos).**
+
+1. Ligue o hotspot do celular que vai entrar, em 2,4 GHz, e confira nele o nome e a senha.
+2. No computador da bancada, abra `src/firmware/include/credenciais.h` e troque `CREDENCIAL_WIFI_SSID` e `CREDENCIAL_WIFI_SENHA` (ou os campos da reserva). Não mexa nos outros campos.
+3. Conecte o robô pela USB e grave: `pio run -e esp32_devkit -t upload` (cerca de 1 minuto).
+4. Abra o monitor (`pio device monitor -e esp32_devkit`) e espere `{"status":"wifi_conectado","rede":"principal",...}` com `rssi` acima de -75; depois, `corrida_criada`.
+5. Se não conectar em 30 s: confira os 2,4 GHz e a senha no celular e repita o passo 3. Para diagnosticar sem o robô, grave a bancada (`pio run -e bancada_geral_devkit -t upload`), tecle `w` e depois `v`: a varredura mostra o nome exato de cada rede visível (o SSID diferencia maiúsculas) e se a principal e a reserva aparecem. Na bancada, `p` conecta numa rede visível sem regravar; no robô, a rede vem só do `credenciais.h`.
+
+Se a principal cair durante a corrida, não é preciso fazer nada: o robô passa para a reserva sozinho, e o que ficou no buffer vai junto.
+
+### Operação remota: painel, telnet e bateria
+
+Com a chave geral ligando toda a energia do robô, não há cabo USB na pista. O robô se conecta ao Wi-Fi, abre um **telnet na porta 23** (`ConsoleRemoto`) e o computador o acompanha e ativa à distância, enquanto a tarefa de rede continua enviando a telemetria ao banco. O IP sai no log (`wifi_conectado`, com `ip` e `telnet`) e no comando `E`.
+
+```bash
+nc IP_DO_ROBO 23
+```
+
+Os comandos são de uma letra, os mesmos na serial e no telnet (no `nc`, depois de cada letra, Enter):
+
+| Comando | O que faz |
+|---|---|
+| `L` | Libera a largada sem o gesto; vale quando o robô estiver pronto (boot aprovado e giroscópio calibrado), por até 30 s (`LARGADA_PENDENTE_MAXIMA_MS`): depois o pedido expira (`largada_expirada`) |
+| `X` | **Parada de emergência:** freia na hora, tira a largada e volta a esperar. Larga de novo pelo painel, com `L` ou o gesto |
+| `Z` | Para o robô recolocado na partida à mão: zera a estimativa, volta ao centro da célula e a aguardar a largada |
+| `B` | Repete o relatório do boot |
+| `E` | Estado em uma linha: fase, etapa do ciclo, largada liberada, bateria (mV e %), Wi-Fi, IP, telnet e linhas de log descartadas |
+
+Como funciona sem atrapalhar a navegação:
+
+- **O robô nunca espera a rede para escrever o log.** `println` e `printf` do `ConsoleRemoto` mandam o texto para a serial e para uma fila de 2 KB na memória. Só a **tarefa do console** (prioridade 1, a cada 20 ms) fala com o cliente telnet. Se o Wi-Fi ou o cliente travarem, a fila enche e o texto novo é descartado (e contado em `console_descartados`), mas a navegação (prioridade 2, a cada 10 ms) segue sem esperar.
+- **Comandos agem em até cerca de 20 ms**, na tarefa do console, e não esperam o ciclo de 1 s da telemetria nem a chamada HTTPS da tarefa de rede (que pode esperar o servidor por até 5 s).
+- **Um cliente por vez**; um novo derruba o anterior. A fila só recebe texto com um cliente conectado. O telnet não tem senha: use só na rede do laboratório.
+- **Wi-Fi sem economia de energia** (`WiFi.setSleep(false)`), para o telnet e o envio terem menos latência e perdas.
+
+**Bateria.** O `BateriaAdc` lê o GPIO34 (ADC1, que funciona com o Wi-Fi ligado) pelo divisor de 100 kΩ / 33 kΩ, média de 16 leituras a cada ciclo da telemetria. A tensão vai em `tensao_bateria` da telemetria serial e do banco (em mV nas amostras; `0` sem medida, que o banco ignora). Abaixo de 6,6 V, o log traz `{"status":"bateria","situacao":"fraca","mv":...}`, e volta a `ok` só acima de 6,8 V (histerese de 200 mV, para a queda dos motores não fazer o aviso piscar). Com o robô só na USB (chave geral desligada), a leitura é 0 (`sem_medida`). O robô **não** trava os motores por bateria fraca: o aviso é para recarregar.
+
+**Sem botão de largada.** A chave geral liga a energia direto da bateria, e o robô não tem o BTN_START (o GPIO23 ficou livre). Veja também a [largada em qualquer célula](#largada-em-qualquer-célula): o robô pode ser posto em qualquer célula, e o painel mostra o labirinto que ele descobriu. Depois de ligado, ele faz o boot, calibra e espera a largada, que vem do **painel**, do telnet (`L`) ou do gesto da mão.
+
+#### Painel: largar, parar e ver os logs (Supabase)
+
+O painel web ([`src/frontend`](../frontend/README.md)) tem o bloco "Controle e logs do robô", com os botões **INICIAR**, **PARAR** e **ZERAR** e os logs do robô ao vivo. Não precisa de telnet nem do computador na mesma rede do robô: o robô só precisa de Wi-Fi com internet.
+
+```text
+painel --POST /robo/comandos (x-painel-token)--> Supabase <--POST /robo/comandos/proximo (x-device-token)-- robô
+painel <--Realtime (logs_robo, comandos_robo)-- Supabase <--POST /robo/logs (x-device-token)----------------- robô
+```
+
+- **Comandos.** A tarefa de rede busca o próximo comando a cada 1,5 s (`PERIODO_CONSULTA_COMANDO_MS`), na mesma conexão HTTPS da telemetria. `iniciar` faz o mesmo que o `L`, `parar` o que o `X` e `zerar` o que o `Z`. O atraso típico entre o clique e o robô agir é de 1,5 s, mais a chamada. O comando é entregue **uma vez só** e **vale 30 s** no servidor: um `iniciar` esquecido não larga o robô minutos depois. Um `parar` cancela o `iniciar` pendente e passa na frente dos outros.
+- **Logs.** As linhas de evento `{"status":"..."}` (largada, colisão, falha do I²C, bateria fraca, parada, calibração...) vão para uma fila de 24 linhas e a tarefa de rede as envia ao banco a cada 2 s, em lotes de até 10 (`PERIODO_ENVIO_LOGS_MS`). Os contadores `envio` (a cada 10 s) e a telemetria de 1 s não entram. É de melhor esforço: se o envio falha, as linhas se perdem, e o comando `E` mostra `logs_painel_perdidos` e `logs_painel_descartados` (fila cheia). Os logs com mais de 7 dias são apagados.
+- **Segurança.** Os comandos exigem a senha do painel (`x-painel-token`, o segredo `PAINEL_TOKEN` no Supabase), que é outra credencial que o `DEVICE_TOKEN` do robô: o token de um não vale na rota do outro. O painel só **lê** as tabelas (RLS). Veja a [função `robo`](../backend/README.md#edge-function-robo-comandos-do-painel-e-logs-do-robô).
+- **Parar sempre vale.** O `PARAR` do painel leva até 1,5 s mais a chamada HTTPS (até 5 s no pior caso, com a rede lenta). Para parar na hora, use o telnet (`X`, cerca de 20 ms) ou a chave geral. O painel não substitui a chave geral como parada de emergência.
+
+#### Pelo terminal (`scripts/robo.py`)
+
+O mesmo canal do painel, sem abrir o navegador, para testes e scripts. Só usa a biblioteca padrão do Python (sem `pip install`), a partir de `src/firmware`:
+
+```bash
+export SUPABASE_URL=https://xxxx.supabase.co SUPABASE_ANON_KEY=... PAINEL_TOKEN=...   # ou --env ../backend/.env
+./scripts/robo.py iniciar --esperar   # larga o robô e diz em quantos segundos ele buscou o comando
+./scripts/robo.py parar               # freia e volta a esperar a largada
+./scripts/robo.py zerar               # robô recolocado na partida
+./scripts/robo.py logs --seguir       # acompanha os logs ao vivo (Ctrl+C sai); `logs -n 50` mostra os últimos 50
+./scripts/robo.py estado              # último comando (entregue ou não) e os últimos logs
+```
+
+Os comandos usam a senha `PAINEL_TOKEN` (a mesma do painel); ler os logs só precisa da chave `anon`, como o painel. O código de saída é 0 se deu certo e 1 se falhou (senha errada, função não publicada, robô que não buscou o comando em 30 s com `--esperar`), então serve em scripts de teste, por exemplo `./scripts/robo.py iniciar --esperar && sleep 20 && ./scripts/robo.py parar`. O `--esperar` conta o tempo até o robô **buscar** o comando, não até ele andar: os logs (`largada_liberada`) mostram quando ele largou. Tem testes em `scripts/testes/test_robo.py`, sem rede nem Supabase.
+
+Estas partes foram testadas no computador (fila, filtro do telnet, bateria, contrato do painel) e na bancada geral (`o` e `k` no submenu de telemetria). O teste no robô, com a pista, é: publicar a função `robo`, ligar a chave, esperar `wifi_conectado`, ver os logs no painel, clicar INICIAR e, com o robô andando, PARAR (e, em paralelo, `E` e `X` pelo telnet).
 
 ### Log
 
 | Mensagem | Quando |
 |---|---|
+| `wifi_redes` (com a `quantidade`) | Na partida da tarefa de rede: 1 (só a principal) ou 2 (com a reserva) |
+| `wifi_conectado` (com a `rede`, o `rssi`, o `ip` e a porta do `telnet`) | O Wi-Fi conectou, na `principal` ou na `reserva` |
+| `bateria` (com a `situacao` e os `mv`) | A bateria ficou `fraca` (abaixo de 6,6 V), voltou a `ok` ou ficou `sem_medida` (chave geral desligada) |
+| `largada_pedida`, `largada_liberada`, `largada_expirada`, `parada_remota`, `estado` | Os comandos `L`, `X` e `E`, a largada liberada (pelo gesto, pelo painel ou pelo `L`) e o pedido de largada que expirou (o robô não ficou pronto em 30 s) |
+| `comando_do_painel` (com o `comando`) | A tarefa de rede buscou um comando do painel e o executou |
+| `wifi_caiu` (com a `rede`) | A conexão caiu; o robô tenta de novo a mesma rede e depois a outra |
 | `corrida_criada` (com o `corrida_id`) | O servidor criou a corrida; a coleta começa |
 | `falha_criar_corrida` (com o `codigo`) | Não criou; tenta de novo em 1 s, 2 s, 4 s... até 30 s |
-| `envio` (a cada 10 s) | Contadores: `ocupacao` do buffer, `perdidas` por buffer cheio, `confirmadas`, `existentes` (reenvios que o servidor já tinha), `descartadas`, `tentativas`, `falhas`, `reenvios`, `wifi_quedas` e `pausado` |
+| `envio` (a cada 10 s) | Contadores: `ocupacao` do buffer, `perdidas` por buffer cheio, `confirmadas`, `existentes` (reenvios que o servidor já tinha), `descartadas`, `tentativas`, `falhas`, `reenvios`, `wifi_quedas`, `wifi_rede` (`principal` ou `reserva`), `wifi_trocas` (passagens de uma rede para a outra), `rssi` (0 sem conexão) e `pausado` |
 | `envio_pausado` | O servidor respondeu `401`/`403` (a chave ou o token estão errados) ou um código que não se resolve sozinho, como um `3xx` de URL errada; o envio para. O `motivo` sai como `credenciais_recusadas` nos dois casos |
 | `corrida_encerrada` | O servidor confirmou o encerramento |
 
@@ -736,10 +885,10 @@ Sem `include/credenciais.h`, o firmware compila, inicia e não envia nada: o log
 | Tempo limite do encerramento | `ConfiguracaoReenvio.h` | 10 s (depois disso o robô pode seguir; o envio continua tentando) |
 | Tempo limite de uma chamada HTTPS | `ConfiguracaoRede.h` | 5 s |
 | Ciclo da tarefa de rede | `ConfiguracaoRede.h` | 100 ms (um lote por ciclo, no máximo) |
-| Tempo para o Wi-Fi conectar e esperas entre tentativas | `ConfiguracaoRede.h` | 10 s; 1 s dobrando até 30 s |
+| Tempo para o Wi-Fi conectar e esperas entre tentativas | `ConfiguracaoRede.h` | 10 s por rede; com a reserva, a espera (1 s dobrando até 30 s) só entra depois de as duas falharem |
 | Espaço do JSON do lote | `ConfiguracaoRede.h` | 280 bytes por amostra, cerca de 28 KB reservados no cliente HTTP |
 
-O envio ocupa cerca de 45 KB de RAM fixa (buffer, cópia do lote e JSON), de 320 KB do ESP32-C3.
+O envio ocupa cerca de 45 KB de RAM fixa (buffer, cópia do lote e JSON), de cerca de 320 KB de RAM de dados do ESP32.
 
 **Ainda falta, fora deste firmware:** a Edge Function `telemetria` (#229), que recebe o lote e responde `{"gravadas": n, "existentes": m}`. Enquanto ela não existir, o servidor responde `404` e o `ControladorEnvio` descarta os lotes (contados em `descartadas`). A velocidade vai zerada até o cálculo da velocidade instantânea entrar na telemetria, e a tensão e a corrente vão zeradas porque a Rev 2.0 não mede a bateria.
 
@@ -787,30 +936,31 @@ Execute os comandos dentro de `src/firmware`:
 
 | Objetivo | Comando |
 |---|---|
-| Compilar para o ESP32-C3 | `pio run -e esp32c3` |
-| Gravar na placa | `pio run -e esp32c3 -t upload` |
-| Gravar a bancada geral (menu de sensores e motores) | `pio run -e bancada_geral -t upload && pio device monitor -e bancada_geral` |
-| Gravar o firmware de bancada dos VL53L0X | `pio run -e bancada_tof -t upload` (ou pelo `scripts/bancada_tof.py`) |
-| Gravar o firmware de bancada do deslocamento | `pio run -e bancada_deslocamento -t upload` (ou pelo `scripts/bancada_deslocamento.py`) |
+| Compilar para a placa (ESP32 DevKit V1) | `pio run -e esp32_devkit` |
+| Gravar na placa | `pio run -e esp32_devkit -t upload` |
+| Gravar a bancada geral (menu de sensores, motores e telemetria) | `pio run -e bancada_geral_devkit -t upload && pio device monitor -e bancada_geral_devkit` |
+| Gravar o firmware de bancada dos VL53L0X | `pio run -e bancada_tof_devkit -t upload` (ou pelo `scripts/bancada_tof.py`) |
+| Gravar o firmware de bancada do deslocamento | `pio run -e bancada_deslocamento_devkit -t upload` (ou pelo `scripts/bancada_deslocamento.py`) |
 | Abrir o monitor serial | `pio device monitor` (`B` repete o relatório do boot; `Z` zera os encoders) |
+| Largada fixa em (0, 0) em vez de qualquer célula | troque `-DMICROMOUSE_LARGADA_EM_QUALQUER_CELULA=1` por `=0` no `platformio.ini` |
 | Rodar os testes no computador | `pio test -e native` |
 | Rodar um teste específico | `pio test -e native -f test_nucleo` |
 
-## Pinagem e log serial (Rev 2.0)
+## Pinagem e log serial
 
-A placa é a **ESP32-C3 Super Mini** (esquemático Rev 2.0 de 21/10/2026). Todos os 15 GPIOs do ESP32-C3 estão em uso:
+A placa é o **ESP32 DevKit V1** (ESP32 clássico), com a pinagem da tabela de fiação da bancada integrada. A ESP32-C3 Super Mini do esquemático Rev 2.0 saiu do projeto. Os números estão em `lib/nucleo/src/Pinos.h`, conferidos pelo `test_pinos` e por `static_assert` na compilação (GPIO repetido ou que não existe no DevKit reprova o build):
 
 | Função | GPIO |
 |---|---|
-| I²C: SDA / SCL (3 VL53L0X e MPU6050) | 9 / 8 |
-| XSHUT dos VL53L0X: esquerdo / frontal / direito | 0 / 1 / 2 |
-| Motor esquerdo no DRV8833: IN1 / IN2 | 10 / 3 |
-| Motor direito no DRV8833: IN3 / IN4 | 20 / 21 |
-| Encoder esquerdo: A / B (reservado, ainda não instalado) | 4 / 5 |
-| Encoder direito: A / B (reservado, ainda não instalado) | 6 / 7 |
-| USB nativa: D− / D+ (log e gravação) | 18 / 19 |
+| I²C: SDA / SCL (3 VL53L0X e MPU6050) | 21 / 22 |
+| XSHUT dos VL53L0X: esquerdo / frontal / direito | 16 / 17 / 4 |
+| Motor esquerdo no DRV8833: IN1 / IN2 | 25 / 26 |
+| Motor direito no DRV8833: IN3 / IN4 | 27 / 14 |
+| Encoder esquerdo: A / B | 32 / 33 |
+| Encoder direito: A / B | 18 / 19 |
+| Bateria (ADC1, divisor 100 kΩ / 33 kΩ) | 34 |
 
-O **log serial sai pela USB nativa** (`ARDUINO_USB_MODE=1` e `ARDUINO_USB_CDC_ON_BOOT=1` no `platformio.ini`), porque GPIO20/21, a UART0, são as entradas do driver dos motores. O `main.cpp` não compila sem essas opções. Ao ligar, a ROM do ESP32-C3 ainda escreve no GPIO21 durante o reset: a montagem precisa manter o driver desabilitado no boot (validação da eletrônica na bancada; veja [Tranco no boot](#tranco-no-boot)). A porta serial aparece no computador como um dispositivo USB (`pio device monitor` a encontra sozinho); sem um computador conectado, o log é descartado.
+O **log serial sai pela UART0** (GPIO1/GPIO3), pelo conversor USB da placa (CP210x ou CH340): a porta aparece como `/dev/ttyUSB0` no Linux, `/dev/cu.usbserial-*` ou `/dev/cu.wchusbserial-*` no macOS e `COMx` no Windows. Abrir o monitor reinicia a placa. Sem computador conectado, a UART transmite do mesmo jeito e o log se perde, sem atrasar o firmware. GPIO6 a GPIO11 (flash) e GPIO1/GPIO3 (UART0) ficam livres de periféricos.
 
 ## IMU (MPU6050) e barramento I²C
 
@@ -892,7 +1042,7 @@ Todo PR para a `main` (e todo push nela) roda o workflow **CI Firmware** (`.gith
 | Check | O que faz | Reprova quando |
 |---|---|---|
 | **Testes nativos** | Roda `pio test -e native_cobertura` (os testes do `native` com medição de cobertura) e gera o relatório com o `gcovr` | Algum teste falha ou a cobertura das linhas de `lib/` fica abaixo de 80% |
-| **Build ESP32-C3** | Roda `pio run -e esp32c3` | O firmware não compila para a placa |
+| **Build ESP32-C3** (nome mantido por causa da proteção da `main`; o job compila o ESP32 DevKit V1) | Roda `pio run` no robô (`esp32_devkit`) e nas bancadas (`bancada_tof_devkit`, `bancada_geral_devkit` e `bancada_deslocamento_devkit`) | Algum firmware não compila para a placa |
 
 A cobertura mede só o código compilado nos testes nativos (`lib/`, sem `drivers_esp32`); `src/main.cpp` fica de fora. Código novo em `lib/` sem teste derruba a cobertura e reprova o PR.
 
@@ -902,7 +1052,7 @@ A cobertura mede só o código compilado nos testes nativos (`lib/`, sem `driver
 2. Clique no job com ✗ e expanda o passo que falhou:
    - **Rodar os testes com cobertura:** procure a linha `FAIL`. Ela mostra o arquivo, a linha e a mensagem do Unity, por exemplo `Expected 2 Was 1`.
    - **Exigir cobertura mínima de 80%:** a cobertura ficou abaixo da meta. Veja na tabela do resumo quais arquivos têm linhas sem teste.
-   - **`pio run -e esp32c3`:** erro de compilação. A mensagem do compilador indica o arquivo e a linha.
+   - **`pio run -e esp32_devkit`** (ou de uma bancada): erro de compilação. A mensagem do compilador indica o arquivo e a linha.
 3. A tabela de cobertura aparece no **Summary** do workflow. O relatório HTML linha a linha fica no artefato **cobertura-firmware** (no fim da página do Summary, disponível por 14 dias): baixe, descompacte e abra o `index.html`.
 
 ### Rodar localmente antes de abrir o PR
@@ -914,6 +1064,6 @@ Dentro de `src/firmware`:
 | Mesmos testes do CI, com cobertura | `pio test -e native_cobertura` |
 | Ver a cobertura (precisa de `pip install gcovr`) | `gcovr --root . --filter 'lib/' --object-directory .pio/build/native_cobertura --txt` |
 | Conferir a meta de 80% | `gcovr --root . --filter 'lib/' --object-directory .pio/build/native_cobertura --fail-under-line 80` |
-| Mesmo build do CI | `pio run -e esp32c3` |
+| Mesmo build do CI | `pio run -e esp32_devkit` (e os três `bancada_*_devkit`) |
 
 O resultado esperado hoje é **10 testes aprovados** e cobertura de 100%. A pasta `cobertura/` é ignorada pelo Git.

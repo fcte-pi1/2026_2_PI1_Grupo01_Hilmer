@@ -3,10 +3,9 @@
 /// @file ConfiguracaoOdometria.h
 /// @brief Parâmetros da odometria diferencial: conversão de pulsos, giro e tamanho da célula.
 ///
-/// ATENÇÃO: `PULSOS_DIFERENCIAIS_POR_90_GRAUS_PROVISORIO` é PROVISÓRIO e ilustrativo. Depende da
-/// distância entre as rodas (bitola), que ainda não consta em nenhum documento: com 100 mm, o giro
-/// de 90° pede uma diferença de π/2 × 100 mm = 157 mm entre as rodas, ou 625 pulsos. Meça na
-/// bancada (issue #187): gire o robô 90° no lugar e leia `contagemEsquerda - contagemDireita`.
+/// `PULSOS_DIFERENCIAIS_POR_90_GRAUS_PROVISORIO` foi medido no robô: girando-o 90° no lugar, a diferença
+/// `contagemEsquerda - contagemDireita` variou 1803 pulsos (bitola efetiva ~83 mm com 72,7 µm por pulso).
+/// Fica provisório porque o giro foi feito à mão; refaça se a bitola ou as rodas mudarem.
 
 #include <stdint.h>
 
@@ -17,7 +16,7 @@ namespace micromouse {
 
 /// Diferença de pulsos entre as rodas (esquerda menos direita) que corresponde a um giro de 90°
 /// para a direita. É a bitola em pulsos: `bitola × π/2 / distância por pulso`.
-constexpr uint32_t PULSOS_DIFERENCIAIS_POR_90_GRAUS_PROVISORIO = 625;
+constexpr uint32_t PULSOS_DIFERENCIAIS_POR_90_GRAUS_PROVISORIO = 1803;
 
 /// Parâmetros usados pela `Odometria`.
 struct ConfiguracaoOdometria {

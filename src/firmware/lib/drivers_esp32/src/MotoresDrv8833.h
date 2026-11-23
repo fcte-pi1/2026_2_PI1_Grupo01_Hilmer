@@ -1,7 +1,7 @@
 #pragma once
 
 /// @file MotoresDrv8833.h
-/// @brief Driver dos dois motores de tração pelo DRV8833, com PWM (LEDC) do ESP32-C3.
+/// @brief Driver dos dois motores de tração pelo DRV8833, com PWM (LEDC) do ESP32.
 ///
 /// Implementa `IMotores` (camada `hal`). O cálculo dos sinais fica em `SinaisDrv8833.h`
 /// (camada `atuacao`), testado no computador; aqui só se escreve o PWM nos pinos.
@@ -38,7 +38,7 @@ class MotoresDrv8833 : public IMotores {
                  bool inverterEsquerda, bool inverterDireita);
 
   /// Freia os motores e configura o PWM dos quatro pinos. Chame na **primeira linha** do `setup()`:
-  /// até lá, GPIO20/21 (UART0) ficam com o que a ROM deixou (ver README, "Tranco no boot").
+  /// até lá, o GPIO14 (IN4) fica com o pulso que a ROM emite no reset (ver README, "Tranco no boot").
   void iniciar();
 
   /// @copydoc IMotores::definirPotencia
