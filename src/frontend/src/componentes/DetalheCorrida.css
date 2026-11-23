@@ -1,0 +1,127 @@
+/* Detalhe de uma corrida do histórico (#557). */
+.detalhe {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detalhe__topo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.detalhe__voltar,
+.detalhe__reproduzir {
+  padding: 6px 12px;
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  color: var(--cor-texto);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.detalhe__voltar:hover,
+.detalhe__reproduzir:hover {
+  border-color: var(--neutro-texto);
+}
+
+.detalhe__reproduzir {
+  align-self: flex-start;
+}
+
+.detalhe__titulo {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.detalhe__data {
+  color: var(--cor-texto-suave);
+  font-size: 12px;
+}
+
+.detalhe__corpo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 16px;
+  align-items: start;
+}
+
+.detalhe__mapa {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+}
+
+.detalhe__grafico {
+  padding-top: 16px;
+  border-top: 1px solid var(--cor-borda);
+}
+
+.detalhe__lateral {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detalhe__logs {
+  padding: 16px;
+}
+
+.detalhe__lista-logs {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 280px;
+  margin: 0;
+  padding: 8px 10px;
+  overflow-y: auto;
+  list-style: none;
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+  background: var(--neutro-fundo);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}
+
+.detalhe__log {
+  display: flex;
+  gap: 10px;
+}
+
+.detalhe__log time {
+  flex: none;
+  color: var(--cor-texto-suave);
+  font-variant-numeric: tabular-nums;
+}
+
+.detalhe__log--aviso {
+  color: #b45309;
+}
+
+.detalhe__log--erro {
+  color: var(--erro-texto);
+  font-weight: 600;
+}
+
+.detalhe__nota {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  font-size: 13px;
+}
+
+.detalhe__nota--erro {
+  color: var(--erro-texto);
+}
+
+@media (max-width: 900px) {
+  .detalhe__corpo {
+    grid-template-columns: 1fr;
+  }
+}

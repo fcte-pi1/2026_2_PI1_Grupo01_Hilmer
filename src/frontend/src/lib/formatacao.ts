@@ -43,6 +43,38 @@ export function formatarVelocidade(metrosPorSegundo: number): string {
   return `${metrosPorSegundo.toFixed(2)} m/s`;
 }
 
+/** Traço das células sem dado. */
+export const TRACO = '—';
+
+/**
+ * Velocidade para a tela, sem nunca mostrar "0.00 m/s" (#557):
+ * - `null`, zero ou valor inválido viram "—" (sem dado);
+ * - um valor positivo que arredondaria para 0.00 (a média de uma corrida em que o robô andou pouco e
+ *   ficou parado até o tempo esgotar, por exemplo) vira "< 0.01 m/s": houve movimento.
+ */
+export function formatarVelocidadeOuTraco(metrosPorSegundo: number | null | undefined): string {
+  if (metrosPorSegundo == null || !(metrosPorSegundo > 0)) return TRACO;
+  return metrosPorSegundo < 0.005 ? '< 0.01 m/s' : formatarVelocidade(metrosPorSegundo);
+}
+
+/**
+ * Bateria restante ao fim da corrida, a partir de `corridas.consumo_bateria`.
+ *
+ * O esquema (#228) admite "mAh ou % consumida", mas quem preenche a coluna é o banco: a função
+ * `metricas_da_telemetria` (migração 20261023100000) grava o **percentual consumido** da LiPo 2S,
+ * de 0 a 100, pela primeira e pela última tensão. O firmware não envia esse campo. Se algum dia vier
+ * um valor fora de 0 a 100 (mAh, por exemplo), aparece "—" em vez de uma porcentagem errada.
+ */
+export function bateriaRestante(consumoBateria: number | null | undefined): string {
+  if (consumoBateria == null || consumoBateria < 0 || consumoBateria > 100) return TRACO;
+  return `${Math.round(100 - consumoBateria)}%`;
+}
+
+/** "Sim", "Não" ou "—" (em andamento) para a coluna "Desafio cumprido (S/N)" do histórico. */
+export function desafioCumprido(status: StatusCorrida): string {
+  return status === 'concluida' ? 'Sim' : status === 'nao_concluida' ? 'Não' : TRACO;
+}
+
 /**
  * Carga restante (0 a 100 %) estimada pela tensão, linear entre o corte e a carga plena.
  * Provisório: a curva real da LiPo não é linear; a HU-08 define o cálculo final.
