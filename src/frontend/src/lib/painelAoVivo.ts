@@ -216,14 +216,24 @@ export function calcularMetricas(leituras: Telemetria[], tempo?: number | null):
 /**
  * Pontos do gráfico de velocidade × tempo. Se o robô mandou todas as velocidades zeradas, cada ponto
  * passa a ser a média acumulada pela distância até aquela leitura (o gráfico não fica uma linha no zero).
+ *
+ * Custa O(n log n): uma ordenação e uma passada acumulando a distância. Os componentes a chamam dentro
+ * de `useMemo`, para não refazer a conta a cada render.
  */
 export function serieDeVelocidade(leituras: Telemetria[]): { leituras: Telemetria[]; estimada: boolean } {
   const naCorrida = leiturasDaCorrida(leituras);
   if (naCorrida.some((l) => l.velocidade > 0)) return { leituras: naCorrida, estimada: false };
   const ordenadas = [...leituras].sort((a, b) => a.numero_sequencia - b.numero_sequencia);
-  const estimadas = naCorrida.map((l) => {
-    const ate = ordenadas.filter((o) => o.numero_sequencia <= l.numero_sequencia);
-    return { ...l, velocidade: velocidadePelaDistancia(ate, l.tempo_decorrido) ?? 0 };
+  const estimadas: Telemetria[] = [];
+  let celulas = 0;
+  ordenadas.forEach((l, i) => {
+    const anterior = ordenadas[i - 1];
+    if (anterior) {
+      celulas += Math.abs(l.posicao_linha - anterior.posicao_linha) + Math.abs(l.posicao_coluna - anterior.posicao_coluna);
+    }
+    if (ehLeituraDeLargada(l)) return; // a largada só entra como ponto de partida
+    const distancia = celulas * LADO_CELULA_M;
+    estimadas.push({ ...l, velocidade: distancia > 0 && l.tempo_decorrido > 0 ? distancia / l.tempo_decorrido : 0 });
   });
   return { leituras: estimadas, estimada: estimadas.some((l) => l.velocidade > 0) };
 }

@@ -1,5 +1,6 @@
 import {
   TRACO,
+  bateriaRestante,
   descreverTentativa,
   desafioCumprido,
   formatarDataHora,
@@ -63,9 +64,7 @@ export function TabelaHistorico({ corridas, labirintos, filtroAtivo = false, aoS
                 <td>{descreverTentativa(corrida.numero_tentativa, corrida.status)}</td>
                 <td className="numero">{corrida.tempo_final != null ? formatarTempo(corrida.tempo_final) : TRACO}</td>
                 <td className="numero">{formatarVelocidadeOuTraco(corrida.velocidade_media)}</td>
-                <td className="numero">
-                  {corrida.consumo_bateria != null ? `${Math.round(100 - corrida.consumo_bateria)}%` : TRACO}
-                </td>
+                <td className="numero">{bateriaRestante(corrida.consumo_bateria)}</td>
                 <td>{desafioCumprido(corrida.status)}</td>
                 <td>
                   <BadgeDesafio status={corrida.status} />

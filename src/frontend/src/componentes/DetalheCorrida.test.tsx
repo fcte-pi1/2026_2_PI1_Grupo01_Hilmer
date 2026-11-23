@@ -130,6 +130,16 @@ describe('Detalhe da corrida no histórico (#557)', () => {
     expect(screen.getByRole('table')).toBeInTheDocument();
   });
 
+  it('corrida que andou pouco e esgotou o tempo não mostra 0.00 m/s', async () => {
+    const user = userEvent.setup();
+    clienteSimulado.definirTabela('corridas', [{ ...concluida, velocidade_media: 0.004, velocidade_pico: 0.15 }, antiga]);
+    const detalhe = await abrirDetalhe(user, 'Labirinto 1 (4×4)');
+    const cartao = within(within(detalhe).getByRole('region', { name: 'Velocidade média' }));
+    expect(cartao.getByText('< 0.01 m/s')).toBeInTheDocument();
+    expect(cartao.getByText('Pico máx: 0.15 m/s')).toBeInTheDocument();
+    expect(within(detalhe).queryByText(/0\.00 m\/s/)).not.toBeInTheDocument();
+  });
+
   it('corrida sem telemetria e sem logs mostra mensagens claras, sem quebrar a tela', async () => {
     const user = userEvent.setup();
     const detalhe = await abrirDetalhe(user, 'Labirinto 2 (8×4)');
@@ -170,5 +180,27 @@ describe('Detalhe da corrida no histórico (#557)', () => {
     await waitFor(() => expect(screen.getByText('1 corrida')).toBeInTheDocument());
     expect(screen.queryByRole('region', { name: 'Detalhe da corrida' })).not.toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'Labirinto 2 (8×4)' })).toBeInTheDocument();
+  });
+
+  it('voltar ao filtro anterior não reabre o detalhe sozinho', async () => {
+    const user = userEvent.setup();
+    await abrirDetalhe(user, 'Labirinto 1 (4×4)');
+    await user.click(screen.getByRole('button', { name: 'Labirinto 2 (8×4)' }));
+    await waitFor(() => expect(screen.getByText('1 corrida')).toBeInTheDocument());
+    await user.click(screen.getByRole('button', { name: 'Todos os Labirintos' }));
+    await waitFor(() => expect(screen.getByText('2 corridas')).toBeInTheDocument());
+    expect(screen.queryByRole('region', { name: 'Detalhe da corrida' })).not.toBeInTheDocument();
+    expect(screen.getByRole('table')).toBeInTheDocument();
+  });
+
+  it('o detalhe aberto mostra a versão atual da corrida depois de "Atualizar"', async () => {
+    const user = userEvent.setup();
+    const detalhe = await abrirDetalhe(user, 'Labirinto 1 (4×4)');
+    const tempoFinal = () => within(within(detalhe).getByRole('region', { name: 'Tempo final' }));
+    await waitFor(() => expect(tempoFinal().getByText('00:04.000')).toBeInTheDocument());
+
+    clienteSimulado.definirTabela('corridas', [{ ...concluida, tempo_final: 5.5 }, antiga]);
+    await user.click(screen.getByRole('button', { name: 'Atualizar' }));
+    await waitFor(() => expect(tempoFinal().getByText('00:05.500')).toBeInTheDocument());
   });
 });

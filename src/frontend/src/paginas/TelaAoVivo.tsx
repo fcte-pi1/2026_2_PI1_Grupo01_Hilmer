@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useMemo } from 'react';
 import { CartaoMetrica } from '../componentes/CartaoMetrica';
 import { GradeLabirinto } from '../componentes/GradeLabirinto';
 import {
@@ -81,7 +81,7 @@ export function TelaAoVivo({
   // cards de velocidade e tempo só passam a contar depois dela (#242).
   const leiturasNaCorrida = leiturasDaCorrida(leituras);
   // Com o robô mandando velocidade 0, o gráfico mostra a média acumulada pela distância (#557).
-  const serie = serieDeVelocidade(leituras);
+  const serie = useMemo(() => serieDeVelocidade(leituras), [leituras]);
 
   const detalheTempo =
     estado === 'concluido'

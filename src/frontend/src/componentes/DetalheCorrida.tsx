@@ -1,9 +1,10 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useMemo } from 'react';
 import { useDetalheCorrida } from '../hooks/useDetalheCorrida';
 import { useReproducaoCorrida } from '../hooks/useReproducaoCorrida';
 import {
   LIMITE_TEMPO_S,
   TRACO,
+  bateriaRestante,
   descreverTentativa,
   formatarDataHora,
   formatarMinutos,
@@ -66,11 +67,11 @@ export function DetalheCorrida({ corrida, labirintos, aoVoltar }: DetalheCorrida
     corrida.velocidade_pico != null && corrida.velocidade_pico > 0 ? corrida.velocidade_pico : metricas.velocidadePico;
   const bateria =
     corrida.consumo_bateria != null
-      ? `${Math.round(100 - corrida.consumo_bateria)}%`
+      ? bateriaRestante(corrida.consumo_bateria)
       : metricas.tensao !== null
         ? `${percentualBateria(metricas.tensao)}%`
         : TRACO;
-  const serie = serieDeVelocidade(leituras);
+  const serie = useMemo(() => serieDeVelocidade(leituras), [leituras]);
   const semTelemetria = !carregando && !erro && leituras.length === 0;
 
   return (
