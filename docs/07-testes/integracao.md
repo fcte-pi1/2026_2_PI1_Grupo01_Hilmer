@@ -10,7 +10,7 @@ Confiram as regras de avaliação dos testes de integração no [documento do te
 | 5.4 | | | | | | | | | | |
 | 5.5 | | | | | | | | | | |
 | 5.6 | | | | | | | | | | |
-| 5.7 | | | | | | | | | | |
+| 5.7 | [Integração dos motores de tração (DRV8833, N20 e operação autônoma)](integracao/integracao-motores.md) | 19/11/2026 | 23/11/2026 | Energia, Eletrônica, Estrutura e Software | Paulo Melo | Acionamento simultâneo dos dois N20 pelo `DRV8833` na `ESP32 DevKit V1` com LiPo 2S ($V_M = 6{,}0\text{ V}$ / $6{,}6\text{ V}$ na PCB), realizando avanço reto, giro no eixo e freio ativo sem *brownout* (`#483`) | Os dois N20 operaram juntos no robô autônomo (sem USB) em avanço reto, giro contínuo no eixo e parada limpa (PWM $20\text{ kHz}$, zona morta $60\%$, limite $80\%$). Na `main`, concluiu corridas 4×4 ($21{,}8\text{ s}$–$31{,}2\text{ s}$) | S | — | Fecha `#483` da `5.1` (`5.3`–`5.6` reservadas a Energia e Software). Resumo abaixo para PDF; detalhes em [7.5.3](integracao/integracao-motores.md) |
 | 5.8 | | | | | | | | | | |
 | 5.9 | | | | | | | | | | |
 | 5.10 | | | | | | | | | | |
@@ -20,3 +20,14 @@ Confiram as regras de avaliação dos testes de integração no [documento do te
 | 5.14 | | | | | | | | | | |
 | 5.15 | | | | | | | | | | |
 | 5.16 | | | | | | | | | | |
+
+---
+
+## Parte de motores na integração (5.7)
+
+Fecha a pendência `#483` da `5.1`, validando o acionamento conjunto dos dois micromotores N20 pelo `DRV8833` na `ESP32 DevKit V1` com bateria LiPo 2S embarcada. Detalhes em [7.5.3](integracao/integracao-motores.md).
+
+* **Elétrica e pinagem:** `VM` em $6{,}0\text{ V}$ na protoboard (`5.1`) / $6{,}6\text{ V}$ na PCB (`5.3`), `nSLEEP` em $3{,}3\text{ V}$; motor esquerdo em `GPIO 25/26` (`IN1/IN2`) e direito em `GPIO 27/14` (`IN3/IN4`, invertido por software; Rev 2.1 prevê `GPIO 13`, firmware usa `GPIO 14` com freio na 1ª linha do `setup()`).
+* **PWM e proteção:** $20\text{ kHz}$, $10\text{ bits}$, zona morta em $60\%$, limite em $80\%$, freio ativo em $100\%$ e travas de segurança (`#50` boot I²C, `#341` motor travado em $500\text{ ms}$, `#241` falha I²C).
+* **Ensaio autônomo (19/11/2026):** sem cabo USB, o robô executou avanço reto (`00:00–00:02`), giro diferencial contínuo no próprio eixo (`00:04–00:13`) e parada limpa sem *brownout*. Vídeo: [`docs/videos/integracao-motores.mp4`](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/docs/videos/integracao-motores.mp4).
+* **Pista 4×4 (`main` / `#185`):** corridas autônomas concluídas nos dois desenhos de labirinto ($21{,}8\text{ s}$–$22{,}9\text{ s}$ no 1º; $31{,}2\text{ s}$ no 2º), após ajustes de desvio de quina, recuo antes do giro ($45\text{ mm}$), parada frontal ($105\text{ mm}$), tratamento de ré e cálculo da velocidade real pelas rodas.
