@@ -2322,7 +2322,7 @@
 
 
 <h1 id="guia-da-bancada-geral">Guia da bancada geral<a class="headerlink" href="#guia-da-bancada-geral" title="Permanent link">&para;</a></h1>
-<p>A <strong>bancada geral</strong> é um programa para o ESP32 DevKit V1, a placa do robô, que mostra um menu no terminal do computador. Com a placa ligada por um cabo USB, você aperta uma tecla e o programa lê os sensores, aciona os motores, confere os encoders, a bateria e o botão, e testa a telemetria, usando os mesmos drivers do robô. Serve para testar os componentes sem escrever código e para investigar o que deu errado.</p>
+<p>A <strong>bancada geral</strong> é um programa para o ESP32 DevKit V1, a placa do robô, que mostra um menu no terminal do computador. Com a placa ligada por um cabo USB, você aperta uma tecla e o programa lê os sensores, aciona os motores, confere os encoders e a bateria, e testa a telemetria, usando os mesmos drivers do robô. Serve para testar os componentes sem escrever código e para investigar o que deu errado.</p>
 <p>Este guia funciona em <strong>Windows, macOS e Linux</strong> e não exige conhecimento prévio do firmware.</p>
 <div class="admonition warning">
 <p class="admonition-title">Antes de acionar qualquer motor</p>
@@ -2362,8 +2362,8 @@
 <td>Tecla <code>i</code> (teste integrado)</td>
 </tr>
 <tr>
-<td>Ver a tensão da bateria e se o botão de largada funciona</td>
-<td>Teclas <code>a</code> e <code>b</code></td>
+<td>Ver a tensão da bateria</td>
+<td>Tecla <code>a</code></td>
 </tr>
 <tr>
 <td>Conferir se a placa conecta no Wi-Fi e grava a telemetria no banco</td>
@@ -2576,12 +2576,11 @@
 <a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>4) Encoders (parados)
 <a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>  [OK]    encoder esquerdo estavel (0 pulsos, 0 transicoes invalidas)
 <a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>  [OK]    encoder direito estavel (0 pulsos, 0 transicoes invalidas)
-<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a>5) Bateria e botao
+<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a>5) Bateria
 <a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a>  [OK]    bateria 7.62 V
-<a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a>  [OK]    botao BTN_START solto (nivel alto)
-<a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a>RESULTADO: 15 OK, 0 FALHA(S).
-<a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a>REGISTRO: autoteste | ok=15 falhas=0 | veredito=OK
-<a id="__codelineno-12-24" name="__codelineno-12-24" href="#__codelineno-12-24"></a>Nao verificado aqui: motores (tecla 7), o sentido dos encoders (gire a roda a mao com a tecla 9) e o aperto do botao (tecla b).
+<a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a>RESULTADO: 15 OK, 0 FALHA(S).
+<a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a>REGISTRO: autoteste | ok=15 falhas=0 | veredito=OK
+<a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a>Nao verificado aqui: motores (tecla 7), o sentido dos encoders (gire a roda a mao com a tecla 9).
 </code></pre></div>
 <p>Os valores são um exemplo. A linha <code>REGISTRO</code> é a que se cola no registro de testes.</p>
 <p><strong>7. Para testar a telemetria</strong>, copie <code>include/credenciais.exemplo.h</code> para <code>include/credenciais.h</code> (o Git ignora esse arquivo), preencha o Wi-Fi, a URL do Supabase, a chave <code>anon</code> (nunca a <code>sb_secret</code>), o <code>DEVICE_TOKEN</code> e, na bancada, <code>CREDENCIAL_SEM_VALIDAR_CERTIFICADO 1</code>. Grave de novo, tecle <code>w</code> e depois <code>a</code>. Veja a <a href="#telemetria-tecla-w">tabela da telemetria</a>.</p>
@@ -2633,8 +2632,8 @@
 <td><strong>Teste integrado</strong>: liga os dois motores por 5 s e lê ToF, MPU6050 e encoders ao mesmo tempo. Diz se os dois giram, se o PWM derruba algum sensor e quanto a bateria cai. Termina com uma linha <code>REGISTRO</code></td>
 </tr>
 <tr>
-<td style="text-align: center;"><code>a</code> / <code>b</code></td>
-<td>Tensão da bateria pelo divisor do GPIO34 / botão de largada ao vivo (aperte e solte; qualquer tecla para)</td>
+<td style="text-align: center;"><code>a</code></td>
+<td>Tensão da bateria pelo divisor do GPIO34</td>
 </tr>
 <tr>
 <td style="text-align: center;"><code>w</code></td>

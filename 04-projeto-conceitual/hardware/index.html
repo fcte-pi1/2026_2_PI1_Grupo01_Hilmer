@@ -2416,7 +2416,7 @@
 <p>Com a bateria em <strong>8,4 V</strong>, a tensão calculada no nó de medição é de aproximadamente <strong>2,084 V</strong>.</p>
 <h2 id="4-esquematico-eletrico">4. Esquemático elétrico<a class="headerlink" href="#4-esquematico-eletrico" title="Permanent link">&para;</a></h2>
 <p>O esquemático principal é a <strong>Rev 2.1 de 03/11/2026</strong>, para ESP32 DevKit V1. A representação é uma interface elétrica de módulos por redes nomeadas, com símbolos incorporados e sem footprints; os números de U3 identificam GPIOs lógicos, não pads físicos.</p>
-<p>A folha A3 horizontal reúne quatro blocos: <strong>alimentação e proteção</strong>, <strong>acionamento e encoders</strong>, <strong>controle, START e bateria</strong> e <strong>sensores I²C</strong>. Os componentes discretos usam símbolos elétricos, e as conexões são apresentadas por fios, rótulos de rede e símbolos de alimentação. A moldura e o carimbo identificam projeto, revisão, data e folha. Essa reorganização visual preserva as redes e a pinagem da Rev 2.1.</p>
+<p>A folha A3 horizontal reúne quatro blocos: <strong>alimentação e proteção</strong>, <strong>acionamento e encoders</strong>, <strong>controle e bateria</strong> e <strong>sensores I²C</strong>. Os componentes discretos usam símbolos elétricos, e as conexões são apresentadas por fios, rótulos de rede e símbolos de alimentação. A moldura e o carimbo identificam projeto, revisão, data e folha. Essa reorganização visual preserva as redes e a pinagem da Rev 2.1.</p>
 <p><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/Micromouse.pdf"><img alt="Esquemático elétrico do Micromouse Rev 2.1" src="../../figs/hardware-esquematico.png" /></a></p>
 <p><strong>Figura 2.</strong> Rev 2.1: <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/Micromouse.pdf">PDF</a> e <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/Micromouse.kicad_sch">KiCad editável</a>. Ambos representam as mesmas conexões da Rev 2.1. Após editar o esquema no KiCad, atualizar o PDF e a figura publicada nesta página. Conferir a ordem física e a serigrafia dos módulos antes de fabricar; esta publicação não comprova validação de PCB ou da bancada modificada.</p>
 <h3 id="41-conexoes-principais">4.1 Conexões principais<a class="headerlink" href="#41-conexoes-principais" title="Permanent link">&para;</a></h3>
@@ -2478,7 +2478,7 @@
 </table>
 <h3 id="42-pinagem-do-esp32-devkit-v1">4.2 Pinagem do ESP32 DevKit V1<a class="headerlink" href="#42-pinagem-do-esp32-devkit-v1" title="Permanent link">&para;</a></h3>
 <p>A pinagem de Hardware da Rev 2.1 está definida no CSV <code>hw/diagramas/pinagem.csv</code> e apresentada na tabela abaixo. Os nomes da primeira coluna são as constantes reais do bloco <code>PLACA_ESP32_DEVKIT</code> de <code>Pinos.h</code> na <code>main</code>. Ao alterar a pinagem, manter esta tabela, o CSV e o esquemático consistentes por conferência manual.</p>
-<p><strong>Sincronização com Software:</strong> o bloco <code>PLACA_ESP32_DEVKIT</code> de <code>src/firmware/lib/nucleo/src/Pinos.h</code> e o ambiente de bancada <code>bancada_geral_devkit</code> já estão na <code>main</code>, integrados pela <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/485">#485</a>. A comparação dos 15 sinais abaixo com esse bloco encontrou uma única divergência: <code>MOTOR_DIR_IN4</code> ainda usa GPIO14 e deve passar para GPIO13. Os demais 14 GPIOs coincidem. Após essa correção, repetir a conferência linha a linha e compilar <code>bancada_geral_devkit</code>. A migração do firmware completo do robô para DevKit será tratada na <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/489">#489</a>. Não há confirmação de envio externo do aviso.</p>
+<p><strong>Sincronização com Software:</strong> dos 14 sinais ativos da tabela, 13 coincidem com o <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/main/src/firmware/lib/nucleo/src/Pinos.h"><code>Pinos.h</code> da <code>main</code></a>. A divergência de <code>MOTOR_DIR_IN4</code> permanece: GPIO13 no esquemático e GPIO14 no firmware.</p>
 <table>
 <thead>
 <tr>
@@ -2554,9 +2554,9 @@
 <td style="text-align: left;">Encoder direito C2/B</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>BOTAO_START</code></td>
+<td style="text-align: left;">—</td>
 <td style="text-align: center;"><strong>GPIO23</strong></td>
-<td style="text-align: left;">START — INPUT_PULLUP; botão normalmente aberto para GND</td>
+<td style="text-align: left;">Livre, sem conexão na placa final</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>BATERIA_ADC</code></td>
@@ -2565,13 +2565,13 @@
 </tr>
 </tbody>
 </table>
-<p>As redes <code>BTN_START</code> e <code>BAT_ADC</code> do esquemático correspondem às constantes <code>BOTAO_START</code> e <code>BATERIA_ADC</code>, respectivamente. Os nomes de rede são preservados nos diagramas.</p>
+<p>A rede <code>BAT_ADC</code> do esquemático corresponde à constante <code>BATERIA_ADC</code>. O robô não tem botão físico de largada. A largada é dada pelo painel, pelo comando <code>L</code> via Telnet ou por um gesto diante do sensor frontal. A chave geral SW1 continua ligando a alimentação.</p>
 <h3 id="43-alimentacao-inicializacao-e-restricoes">4.3 Alimentação, inicialização e restrições<a class="headerlink" href="#43-alimentacao-inicializacao-e-restricoes" title="Permanent link">&para;</a></h3>
 <p><strong>U2 → VIN / 5V:</strong> ajustar U2 para 5,0 V antes de conectar U3. O LDO da DevKit gera o seu próprio 3V3. <strong>Não interligar o terminal 3V3 da DevKit ao trilho <code>+3V3_SENS</code> de U5</strong>; são saídas de reguladores diferentes. U5 alimenta ToF, IMU, encoders e o pull-up R4 de nSLEEP. Todos compartilham GND.</p>
 <p><strong>USB e VIN:</strong> usar uma fonte de alimentação da DevKit por vez. Para gravação/log com USB comum (VBUS presente), desconectar a saída de U2 do VIN. Uso simultâneo exige isolamento de VBUS ou seleção de fontes comprovada para o exemplar da DevKit; não presumir proteção contra retorno de corrente. A <a href="https://docs.espressif.com/projects/esp-idf/en/v5.0.4/esp32/hw-reference/esp32/get-started-devkitc.html#power-supply-options">orientação da Espressif para DevKitC</a> trata as fontes como mutuamente exclusivas; conferir o circuito específico da DevKit V1 adquirida.</p>
 <p><strong>Decisão de 03/11/2026: trocar IN4 de GPIO14 para GPIO13.</strong> GPIO13 está livre nesta distribuição, permite PWM e não é strapping. É também MTCK: não usar JTAG nesse terminal. A motivação é o risco relatado de pulso/tranco no reset em GPIO14; a forma de onda ainda deve ser medida na placa real. Não tratar isso como frequência/duração de PWM garantida pelo fabricante. Ver <a href="../../hw/REVISAO-2.1.md">registro da decisão e aviso ao Software</a> e <a href="https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/peripherals/gpio.html">GPIOs oficiais da Espressif</a>.</p>
 <p><strong>Ação de bancada obrigatória:</strong> com alimentação desligada, mover o fio de IN4 de GPIO14 para GPIO13 e corrigir <code>MOTOR_DIR_IN4</code> em <code>Pinos.h</code> para GPIO13 antes de compilar e gravar <code>bancada_geral_devkit</code> (<code>pio run -e bancada_geral_devkit -t upload</code>, em <code>src/firmware</code>). GPIO14 fica sem conexão. Testar energização, reset por EN, reinicialização por software e gravação, com rodas suspensas; medir entradas e saídas do driver. A troca não comprova ausência de trancos. R4 mantém nSLEEP habilitado e não é intertravamento de partida.</p>
-<p>O log usa UART0 por conversor USB–serial da DevKit; GPIO18/19 pertencem ao encoder direito, sem USB nativa. GPIO16/17 pressupõem módulo ESP32-WROOM, sem PSRAM nesses terminais. GPIO34 é somente entrada e não tem pull-up interno; o divisor fornece sua polarização. START usa INPUT_PULLUP. A bancada <code>bancada_geral_devkit</code> integrada na #485 já permite testar ToF/IMU, ADC e botão START; a integração dessas funções ao firmware completo do robô na DevKit pertence à #489.</p>
+<p>O log usa UART0 por conversor USB–serial da DevKit; GPIO18/19 pertencem ao encoder direito, sem USB nativa. GPIO16/17 pressupõem módulo ESP32-WROOM, sem PSRAM nesses terminais. GPIO34 é somente entrada e não tem pull-up interno; o divisor fornece sua polarização. A bancada <code>bancada_geral_devkit</code> permite testar ToF, IMU e ADC.</p>
 <h2 id="5-integracao-e-sequencia-de-montagem">5. Integração e sequência de montagem<a class="headerlink" href="#5-integracao-e-sequencia-de-montagem" title="Permanent link">&para;</a></h2>
 <p>A montagem organiza a bateria, os conversores, a placa de controle e o driver no chassi, com os motores nas laterais. Os sensores de distância devem manter seus campos de medição desobstruídos nas direções frontal e laterais, e a IMU deve permanecer fixada à estrutura para acompanhar o movimento do robô.</p>
 <p>O relatório técnico estabelece a seguinte sequência de montagem e verificação:</p>
@@ -2608,11 +2608,6 @@
 <td style="text-align: left;">Chave geral</td>
 <td style="text-align: center;">1</td>
 <td style="text-align: left;">SW1.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Botão START normalmente aberto</td>
-<td style="text-align: center;">1</td>
-<td style="text-align: left;">SW2, entre BTN_START e GND.</td>
 </tr>
 <tr>
 <td style="text-align: left;">Conversor MP1584EN de 5 V</td>
@@ -2707,6 +2702,12 @@
 <td style="text-align: center;">10/11/2026</td>
 <td style="text-align: left;">C4 mantido em 100 µF conforme confirmação com Energia informada pelo responsável; removida a pendência de troca para 470 µF.</td>
 <td style="text-align: left;">Eduardo Gaspar</td>
+</tr>
+<tr>
+<td style="text-align: center;">2.1 (remoção do botão de largada)</td>
+<td style="text-align: center;">24/11/2026</td>
+<td style="text-align: left;">GPIO23 livre e remoção de SW2 do esquemático, da pinagem e da lista de materiais.</td>
+<td style="text-align: left;">—</td>
 </tr>
 </tbody>
 </table>

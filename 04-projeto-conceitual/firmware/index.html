@@ -4831,8 +4831,8 @@
 <td>18 / 19</td>
 </tr>
 <tr>
-<td>Botão de largada <code>BTN_START</code> (para o GND, <code>INPUT_PULLUP</code>)</td>
-<td>Entrada</td>
+<td>GPIO livre na placa final</td>
+<td>Sem conexão</td>
 <td>23</td>
 </tr>
 <tr>
@@ -4847,7 +4847,7 @@
 </tr>
 </tbody>
 </table>
-<p>Os 15 GPIOs do <code>Pinos.h</code> são os da tabela de fiação da bancada integrada. O teste <code>test_pinos</code> e um <code>static_assert</code> no próprio <code>Pinos.h</code> reprovam a compilação se um GPIO se repetir ou não existir no DevKit (o GPIO6 a GPIO11 são da Flash e o GPIO20 não é exposto).</p>
+<p>O <code>Pinos.h</code> da <code>main</code> lista 14 GPIOs ativos, além dos pinos dedicados à UART0 indicados na tabela. O teste <code>test_pinos</code> e um <code>static_assert</code> no próprio <code>Pinos.h</code> reprovam a compilação se um GPIO se repetir ou não existir no DevKit (o GPIO6 a GPIO11 são da Flash e o GPIO20 não é exposto).</p>
 <div class="admonition note">
 <p class="admonition-title">Cuidados da pinagem</p>
 <ul>
@@ -6481,13 +6481,13 @@ A inicialização com <code>Labirinto4x4</code> no <code>main.cpp</code> é <str
 </tbody>
 </table>
 <h3 id="gatilho-da-largada">Gatilho da largada<a class="headerlink" href="#gatilho-da-largada" title="Permanent link">&para;</a></h3>
-<p>O firmware do robô ainda não lê o botão <code>BTN_START</code> do DevKit (GPIO23, usado só pela bancada geral), e o dashboard ainda não manda comandos ao robô. A largada é dada por um <strong>gesto na frente do ToF frontal</strong>, o truque clássico de micromouse, ou pelo comando serial <code>L</code> na bancada:</p>
+<p>O GPIO23 está livre. A largada pode ser dada pelo painel, pelo comando <code>L</code> via Telnet ou por um gesto diante do ToF frontal:</p>
 <ol>
 <li>Com o robô pronto (boot aprovado e giroscópio calibrado), a frente precisa estar livre (100 mm ou mais) para o gatilho armar.</li>
 <li>A mão cobre o sensor (50 mm ou menos) por pelo menos 300 ms. Um vulto mais curto é ignorado.</li>
 <li>A mão sai, e o robô espera 1 s antes de largar. Se a mão voltar nesse tempo, o gesto recomeça.</li>
 </ol>
-<p>Com uma parede parada logo à frente da partida, o gatilho nunca arma: a largada fica só pelo comando <code>L</code>. Os limiares estão em <code>ConfiguracaoExecucao.h</code> e precisam ser conferidos com a mão e o VL53L0X montado.</p>
+<p>Com uma parede parada logo à frente da partida, o gatilho nunca arma: use o painel ou o comando <code>L</code>. Os limiares estão em <code>ConfiguracaoExecucao.h</code> e precisam ser conferidos com a mão e o VL53L0X montado.</p>
 <h3 id="interface-das-classes_5">Interface das Classes<a class="headerlink" href="#interface-das-classes_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong><code>ExecutorMovimentos::iniciar(Movimento)</code>:</strong> começa <code>AvancarCelula</code>, <code>Girar90Esquerda</code>, <code>Girar90Direita</code> ou <code>Girar180</code>; recusa se outro estiver em andamento. O <code>Realinhar</code> da <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/188">#188</a> precisa de um plano e começa por <code>iniciarRealinhamento(plano)</code> (veja <a href="#localizacao-correcao-do-erro-acumulado-pelas-paredes">Correção pelas paredes</a>).</li>
