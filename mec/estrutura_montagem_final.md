@@ -21,14 +21,14 @@ Realizar a montagem e a fixação mecânica definitiva de todos os suportes (PCB
 | :--- | :--- |
 | O suporte da PCB deve ser montado na posição definida no desenho mecânico. | Referência: MM-01, MM-05 e MM-06 em [`estrutura_entregaveis.pdf`](estrutura_entregaveis.pdf) |
 | O suporte da bateria deve ser montado na posição definida, com acesso para troca/retirada. | Considerar o centro de massa |
-| Os suportes dos sensores devem ser montados com a orientação e a distância especificadas. | Tolerância: `± mm` |
+| Os suportes dos sensores devem ser montados com a orientação e a distância especificadas. | Tolerância: a preencher na inspeção final ([#546](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/546), até 01/12/2026) |
 | Todos os suportes devem ser fixados diretamente à estrutura principal do chassi. | Sem fixações provisórias |
 
 ### 3.2 Requisitos de fixação
 | Requisito | Observação |
 | :--- | :--- |
-| Utilizar elementos de fixação conforme especificação (tipo, bitola, material). | M3 × 8 (esferas e espaçadores na base), M3 × 10 (espaçadores no 2º andar e suportes da PCB), M2 × 8 (presilhas da PCB) e arruelas M3 DIN 433. Lista completa em [`estrutura_modelo_final/README.md`](estrutura_modelo_final/README.md) |
-| Aplicar torque de aperto especificado, quando aplicável. | `[Nm]` |
+| Utilizar elementos de fixação conforme especificação (tipo, bitola, material). | M3 × 8 (esferas e espaçadores na base), M3 × 10 (espaçadores no 2º andar e suportes da PCB), M2 × 8 (presilhas da PCB). Lista completa em [`estrutura_modelo_final/README.md`](estrutura_modelo_final/README.md) |
+| Aplicar torque de aperto especificado, quando aplicável. | Torque: a preencher na inspeção final ([#546](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/546), até 01/12/2026) |
 | Utilizar trava química ou arruela de pressão/trava onde houver vibração. | Conforme projeto |
 | Nenhum suporte pode apresentar movimento perceptível após a fixação. | Verificar manualmente |
 
@@ -86,7 +86,7 @@ Fabricar ou imprimir de forma definitiva os suportes dos componentes (PCB, bater
 | Fabricar/imprimir os suportes da PCB, da bateria e dos sensores a partir dos modelos CAD validados. | Modelo final: [`estrutura_modelo_final/`](estrutura_modelo_final/) |
 | Seguir os desenhos técnicos finais (dimensões, furos, tolerâncias). | Desenhos MM-01 a MM-07 em [`estrutura_entregaveis.pdf`](estrutura_entregaveis.pdf) |
 | Utilizar o material definitivo conforme especificação. | Material: `PETG` |
-| Definir e registrar os parâmetros de fabricação/impressão. | `[Preenchimento, camadas, orientação, temperatura]` |
+| Definir e registrar os parâmetros de fabricação/impressão. | Preenchimento, altura de camada, orientação e temperatura: a preencher na inspeção final ([#546](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/546), até 01/12/2026) |
 | Identificar cada suporte fabricado (componente e lote). | Facilita a rastreabilidade |
 
 ### 9.2 Critérios de pronto
