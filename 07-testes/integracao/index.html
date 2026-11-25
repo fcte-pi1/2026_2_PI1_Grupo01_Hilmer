@@ -1357,6 +1357,12 @@
       
         
       
+        
+      
+        
+      
+        
+      
     
     
     
@@ -1477,6 +1483,34 @@
     
   
     7.2.1 Ensaio de Bancada de Baterias
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../energia/integracao-pcb-alimentacao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2.2 Integração de Energia na PCB e Sistema
   
 
     
@@ -1674,6 +1708,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5 Integração
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -1690,6 +1742,47 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#parte-de-software-na-integracao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parte de software na integração
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parte-de-motores-na-integracao-57" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parte de motores na integração (5.7)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1739,6 +1832,62 @@
     
   
     7.5.2 Telemetria por Wi-Fi e rede reserva
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="integracao-motores/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5.3 Integração dos motores de tração
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../corrida-completa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.6 Corrida completa
   
 
     
@@ -1833,6 +1982,36 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#parte-de-software-na-integracao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parte de software na integração
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parte-de-motores-na-integracao-57" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parte de motores na integração (5.7)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1903,188 +2082,133 @@
 </tr>
 <tr>
 <td style="text-align: center;">5.3</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
+<td><a href="../energia/integracao-pcb-alimentacao/">Integração de Energia na PCB Física, Segurança Elétrica e Alimentação do Sistema</a></td>
+<td>17/11/2026</td>
+<td>19/11/2026</td>
+<td>Energia, Eletrônica e Software</td>
+<td>Elias, Cláudio, Bruno, Aline, Ana Carolina e Paulo</td>
+<td>PCB física soldada (3× Bucks MP1584EN, MPU6050, DRV8833, soquete removível para ESP32 DevKit V1, chicote XT60 e conectores de 6 pinos) sem curtos entre barramentos; polaridade e chave geral validadas com checklist; LiPo 2S alimentando ESP32 (via <code>VIN</code> sem USB), sensores, driver e motores com tensões estáveis</td>
+<td>PCB soldada e validada sem curtos entre barramentos; ESP32 DevKit V1 montada em dois barramentos fêmea removíveis; chicote XT60 polarizado e chave geral conferidos com checklist pré-corrida; sistema alimentado pela LiPo 2S sem cabo USB com saídas estáveis em <strong>3,3 V</strong>, <strong>5,1 V</strong> e <strong>6,6 V</strong> (folga positiva para os motores, pequenas variações dentro do esperado). Sem LM2596/BMS/PPTC e INA226 desconectado</td>
+<td style="text-align: center;">S</td>
+<td style="text-align: center;">—</td>
+<td>Issues <code>#212</code>, <code>#537</code> e <code>#103</code>. Detalhamento completo, checklist pré-corrida e espaço para evidências em <a href="../energia/integracao-pcb-alimentacao/">7.2.2 Integração de Energia na PCB e Sistema</a></td>
 </tr>
 <tr>
 <td style="text-align: center;">5.4</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
+<td><a href="../corrida-completa/">Corrida autônoma no labirinto 4×4 com o sistema completo</a></td>
+<td>21/11/2026</td>
+<td>23/11/2026</td>
+<td>Software, Eletrônica, Energia e Estrutura</td>
+<td>Cláudio Henrique</td>
+<td>O robô sai da célula de largada, descobre as paredes e chega ao canto oposto sem intervenção, dentro de 10 minutos; ao esgotar o tempo, a corrida é encerrada como não concluída</td>
+<td>Corridas concluídas nos dois desenhos de labirinto, em 21,8 s a 22,9 s no primeiro e 31,2 s no segundo; corridas que passaram de 10 minutos foram registradas como não concluídas</td>
+<td style="text-align: center;">S</td>
+<td style="text-align: center;">—</td>
+<td>Issue <code>#185</code>. As conclusões vieram após tentativas de ajuste; ainda não há série de repetições com o firmware final</td>
 </tr>
 <tr>
 <td style="text-align: center;">5.5</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
+<td><a href="../corrida-completa/#teste-ponta-a-ponta-esp32-ate-o-dashboard-232">Ponta a ponta: robô, banco de dados e dashboard</a></td>
+<td>21/11/2026</td>
+<td>23/11/2026</td>
+<td>Software</td>
+<td>Cláudio Henrique</td>
+<td>A largada é dada pelo dashboard; telemetria, logs e mapa aparecem ao vivo durante a corrida; ao final, a corrida fica no histórico com tempo, velocidade média, bateria e situação</td>
+<td>Largada pelo botão INICIAR sem tocar no robô; dados ao vivo no painel; corridas gravadas no histórico com os campos esperados</td>
+<td style="text-align: center;">S</td>
+<td style="text-align: center;">—</td>
+<td>Issue <code>#232</code></td>
 </tr>
 <tr>
 <td style="text-align: center;">5.6</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
+<td><a href="../corrida-completa/#completude-do-labirinto-mapa-descoberto-pelo-robo">Mapeamento de um labirinto com becos e entradas laterais</a></td>
+<td>21/11/2026</td>
+<td>23/11/2026</td>
+<td>Software e Eletrônica</td>
+<td>Cláudio Henrique</td>
+<td>O mapa é montado durante a corrida, com paredes e aberturas, e exibido no dashboard junto com o trajeto</td>
+<td>No segundo desenho, o mapa se completou até o objetivo, com as entradas laterais e o beco sem saída registrados</td>
+<td style="text-align: center;">S</td>
+<td style="text-align: center;">—</td>
+<td>Exigiu ajustar o limiar de abertura lateral para 190 mm</td>
 </tr>
 <tr>
 <td style="text-align: center;">5.7</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
-</tr>
-<tr>
-<td style="text-align: center;">5.8</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
-</tr>
-<tr>
-<td style="text-align: center;">5.9</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
-</tr>
-<tr>
-<td style="text-align: center;">5.10</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
-</tr>
-<tr>
-<td style="text-align: center;">5.11</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
-</tr>
-<tr>
-<td style="text-align: center;">5.12</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
-</tr>
-<tr>
-<td style="text-align: center;">5.13</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
-</tr>
-<tr>
-<td style="text-align: center;">5.14</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
-</tr>
-<tr>
-<td style="text-align: center;">5.15</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
-</tr>
-<tr>
-<td style="text-align: center;">5.16</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
+<td><a href="integracao-motores/">Integração dos motores de tração (DRV8833, N20 e operação autônoma)</a></td>
+<td>19/11/2026</td>
+<td>23/11/2026</td>
+<td>Energia, Eletrônica, Estrutura e Software</td>
+<td>Paulo Melo</td>
+<td>Acionamento simultâneo dos dois N20 pelo <code>DRV8833</code> na <code>ESP32 DevKit V1</code> com LiPo 2S (<span class="arithmatex">\(V_M = 6{,}0\text{ V}\)</span> / <span class="arithmatex">\(6{,}6\text{ V}\)</span> na PCB), realizando avanço reto, giro no eixo e freio ativo sem <em>brownout</em> (<code>#483</code>)</td>
+<td>Os dois N20 operaram juntos no robô autônomo (sem USB) em avanço reto, giro contínuo no eixo e parada limpa (PWM <span class="arithmatex">\(20\text{ kHz}\)</span>, zona morta <span class="arithmatex">\(60\%\)</span>, limite <span class="arithmatex">\(80\%\)</span>). Na <code>main</code>, concluiu corridas 4×4 (<span class="arithmatex">\(21{,}8\text{ s}\)</span>–<span class="arithmatex">\(31{,}2\text{ s}\)</span>)</td>
+<td style="text-align: center;">S</td>
+<td style="text-align: center;">—</td>
+<td>Fecha <code>#483</code> da <code>5.1</code>. Resumo abaixo; detalhes em <a href="integracao-motores/">7.5.3</a></td>
 </tr>
 </tbody>
 </table>
+<h2 id="parte-de-software-na-integracao">Parte de software na integração<a class="headerlink" href="#parte-de-software-na-integracao" title="Permanent link">&para;</a></h2>
+<p>O teste de integração avalia o sistema completo resolvendo um labirinto, com os dados exibidos no software. O caminho dos dados é:</p>
+<ol>
+<li>O robô (ESP32 DevKit V1) lê os sensores, decide o movimento e monta o mapa.</li>
+<li>A telemetria segue por Wi-Fi para as Edge Functions do Supabase, que gravam no banco. Sem rede, as amostras ficam no buffer e são reenviadas (<a href="telemetria-wifi-rede-reserva/">7.5.2</a>).</li>
+<li>O dashboard recebe os dados em tempo real, guarda o histórico e envia os comandos de largada ao robô.</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Dado ou função exigida no tema</th>
+<th>Onde aparece</th>
+<th>Verificação</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tipo do labirinto</td>
+<td>Painel ao vivo e histórico</td>
+<td>Corridas no robô real (5.5)</td>
+</tr>
+<tr>
+<td>Trajeto no labirinto</td>
+<td>Mapa descoberto pelo robô</td>
+<td>Corridas no robô real (5.6)</td>
+</tr>
+<tr>
+<td>Consumo de bateria</td>
+<td>Painel ao vivo e histórico</td>
+<td>Campo exibido nas corridas (5.5)</td>
+</tr>
+<tr>
+<td>Velocidade média</td>
+<td>Painel ao vivo e histórico</td>
+<td>Corridas no robô real (5.5)</td>
+</tr>
+<tr>
+<td>Tempo de conclusão</td>
+<td>Painel ao vivo e histórico</td>
+<td>Corridas no robô real (5.4)</td>
+</tr>
+<tr>
+<td>Desafio cumprido (S/N)</td>
+<td>Histórico</td>
+<td>Corridas no robô real (5.4)</td>
+</tr>
+<tr>
+<td>Consulta por um labirinto ou por todos</td>
+<td>Filtro do histórico</td>
+<td>Testes automatizados do frontend</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="parte-de-motores-na-integracao-57">Parte de motores na integração (5.7)<a class="headerlink" href="#parte-de-motores-na-integracao-57" title="Permanent link">&para;</a></h2>
+<p>Fecha a pendência <code>#483</code> da <code>5.1</code>, validando o acionamento conjunto dos dois micromotores N20 pelo <code>DRV8833</code> na <code>ESP32 DevKit V1</code> com bateria LiPo 2S embarcada. Detalhes em <a href="integracao-motores/">7.5.3</a>.</p>
+<ul>
+<li><strong>Elétrica e pinagem:</strong> <code>VM</code> em <span class="arithmatex">\(6{,}0\text{ V}\)</span> na protoboard (<code>5.1</code>) / <span class="arithmatex">\(6{,}6\text{ V}\)</span> na PCB (<code>5.3</code>), <code>nSLEEP</code> em <span class="arithmatex">\(3{,}3\text{ V}\)</span>; motor esquerdo em <code>GPIO 25/26</code> (<code>IN1/IN2</code>) e direito em <code>GPIO 27/14</code> (<code>IN3/IN4</code>, invertido por software; Rev 2.1 prevê <code>GPIO 13</code>, firmware usa <code>GPIO 14</code> com freio na 1ª linha do <code>setup()</code>).</li>
+<li><strong>PWM e proteção:</strong> <span class="arithmatex">\(20\text{ kHz}\)</span>, <span class="arithmatex">\(10\text{ bits}\)</span>, zona morta em <span class="arithmatex">\(60\%\)</span>, limite em <span class="arithmatex">\(80\%\)</span>, freio ativo em <span class="arithmatex">\(100\%\)</span> e travas de segurança (<code>#50</code> boot I²C, <code>#341</code> motor travado em <span class="arithmatex">\(500\text{ ms}\)</span>, <code>#241</code> falha I²C).</li>
+<li><strong>Ensaio autônomo (19/11/2026):</strong> sem cabo USB, o robô executou avanço reto (<code>00:00–00:02</code>), giro diferencial contínuo no próprio eixo (<code>00:04–00:13</code>) e parada limpa sem <em>brownout</em>. Vídeo: <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/docs/videos/integracao-motores.mp4"><code>docs/videos/integracao-motores.mp4</code></a>.</li>
+<li><strong>Pista 4×4 (<code>main</code> / <code>#185</code>):</strong> corridas autônomas concluídas nos dois desenhos de labirinto (<span class="arithmatex">\(21{,}8\text{ s}\)</span>–<span class="arithmatex">\(22{,}9\text{ s}\)</span> no 1º; <span class="arithmatex">\(31{,}2\text{ s}\)</span> no 2º), após ajustes de desvio de quina, recuo antes do giro (<span class="arithmatex">\(45\text{ mm}\)</span>), parada frontal (<span class="arithmatex">\(105\text{ mm}\)</span>), tratamento de ré e cálculo da velocidade real pelas rodas.</li>
+</ul>
 
 
 

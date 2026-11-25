@@ -1459,6 +1459,12 @@
       
         
       
+        
+      
+        
+      
+        
+      
     
     
     
@@ -1579,6 +1585,34 @@
     
   
     7.2.1 Ensaio de Bancada de Baterias
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-testes/energia/integracao-pcb-alimentacao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2.2 Integração de Energia na PCB e Sistema
   
 
     
@@ -1844,6 +1878,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-testes/integracao/integracao-motores/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5.3 Integração dos motores de tração
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../07-testes/corrida-completa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.6 Corrida completa
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2058,7 +2148,7 @@
 <td style="text-align: center;">2</td>
 <td>Alimentação errada: tensão incorreta, trilhos de 3,3 V unidos sem querer, ou USB e VIN ligados juntos sem isolamento</td>
 <td>Pode queimar o ESP32, os sensores ou os reguladores</td>
-<td>O esquema mantém separados os trilhos de 3,3 V da DevKit e dos sensores. A placa deve ser alimentada por VIN ou USB com VBUS, pois o isolamento para uso simultâneo ainda não foi validado. A causa da falha da ESP32 registrada no risco 12 segue sem confirmação.</td>
+<td>O esquema mantém separados os trilhos de 3,3 V da DevKit e dos sensores. A placa deve ser alimentada por VIN ou USB com VBUS, pois o isolamento para uso simultâneo ainda não foi validado. A causa da queima do pino da ESP32, registrada no risco 12, segue sem confirmação.</td>
 <td style="text-align: center;">Possível (3)</td>
 <td style="text-align: center;">Muito alto (5)</td>
 <td style="text-align: center;"><span class="nota nota-critica">15</span></td>
@@ -2146,9 +2236,9 @@
 </tr>
 <tr>
 <td style="text-align: center;">12</td>
-<td>Perda de resposta dos sensores com suspeita de falha na ESP32</td>
+<td>Perda de resposta dos sensores por pino queimado na ESP32</td>
 <td>Sem leituras, o robô perde a referência das paredes e da orientação e pode interromper a corrida.</td>
-<td>O <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/relatorios/troca-esp32.md">relato da troca da ESP32</a> registra que os sensores continuaram sem responder após os testes individuais, e a equipe substituiu a placa. A queima de um pino é uma hipótese. O pino e a causa da falha ainda não foram confirmados.</td>
+<td>O <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/relatorios/troca-esp32.md">relato da troca da ESP32</a> registra que um pino da ESP32 queimou e a placa deixou de reconhecer os sensores; a equipe substituiu a placa. O que provocou a queima ainda é hipótese.</td>
 <td style="text-align: center;">Possível (3)</td>
 <td style="text-align: center;">Muito alto (5)</td>
 <td style="text-align: center;"><span class="nota nota-critica">15</span></td>
@@ -2223,7 +2313,7 @@
 <tr>
 <td style="text-align: center;">12</td>
 <td>Perda de resposta dos sensores</td>
-<td>Conferir alimentação, terra e continuidade do barramento I²C. Testar cada sensor em uma placa de referência e comparar a resposta do barramento nas duas placas. Registrar as medições, o resultado da troca e o pino afetado se o dano for confirmado. Validar os três VL53L0X e a IMU juntos na montagem final.</td>
+<td>Conferir alimentação, terra e continuidade do barramento I²C. Testar cada sensor em uma placa de referência e comparar a resposta do barramento nas duas placas. Registrar as medições, o resultado da troca e o pino afetado. Validar os três VL53L0X e a IMU juntos na montagem final.</td>
 </tr>
 </tbody>
 </table>
@@ -2343,12 +2433,12 @@
 </tr>
 <tr>
 <td style="text-align: center;">12</td>
-<td>Perda de resposta dos sensores com suspeita de falha na ESP32</td>
+<td>Perda de resposta dos sensores por pino queimado na ESP32</td>
 <td style="text-align: center;">—</td>
 <td>—</td>
 <td>—</td>
 <td>—</td>
-<td>15. Incidente registrado. Hipótese de dano em um pino sem confirmação.</td>
+<td>15. Incidente registrado: pino queimado e placa substituída; a causa da queima segue como hipótese.</td>
 </tr>
 </tbody>
 </table>

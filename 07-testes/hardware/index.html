@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://fcte-pi1.github.io/2026_2_PI1_Grupo01_Hilmer/07-testes/hardware/">
       
       
-        <link rel="prev" href="../energia/teste-componentes/bateria/teste-bancada-bateria/">
+        <link rel="prev" href="../energia/integracao-pcb-alimentacao/">
       
       
         <link rel="next" href="calibracao-vl53l0x/">
@@ -1357,6 +1357,12 @@
       
         
       
+        
+      
+        
+      
+        
+      
     
     
     
@@ -1477,6 +1483,34 @@
     
   
     7.2.1 Ensaio de Bancada de Baterias
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../energia/integracao-pcb-alimentacao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2.2 Integração de Energia na PCB e Sistema
   
 
     
@@ -2127,6 +2161,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integracao/integracao-motores/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5.3 Integração dos motores de tração
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../corrida-completa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.6 Corrida completa
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2632,6 +2722,18 @@
 <td>Estabilidade das linhas confirmada pela equipe executora. Referência ao <a href="../energia/">teste 2.3 de inspeção e carga da bateria em Energia</a>.</td>
 </tr>
 <tr>
+<td style="text-align: center;">3.2</td>
+<td>Sensores de Distância ToF VL53L0X (I2C)</td>
+<td></td>
+<td></td>
+<td></td>
+<td>Reconhecimento dos três sensores no barramento I2C, com endereços distintos, e leitura de distância frontal, esquerda e direita</td>
+<td>Coberto em parte pelo teste 3.8 (protoboard): os três sensores responderam juntos, nos endereços 0x30, 0x31 e 0x29 atribuídos pelo firmware, sem nenhuma falha de leitura em 499 amostras. Falta a varredura I²C registrada e a resposta do sensor da direita</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td>Sensores J3, J4 e J5, alimentados em 3,3 V. Ver <a href="integracao-sensores-i2c/">teste 3.8</a>.</td>
+</tr>
+<tr>
 <td style="text-align: center;">3.3</td>
 <td>Acionamento dos Motores (DRV8833)</td>
 <td>22/10/2026</td>
@@ -2639,7 +2741,7 @@
 <td>Aline / Equipe</td>
 <td>Resposta PWM nos canais A e B</td>
 <td>Alimentação direta dos motores a 6 V realizada, com corrente registrada de 22 mA; integração do acionamento em protoboard com driver alimentado a 5 V não funcionou</td>
-<td style="text-align: center;">S</td>
+<td style="text-align: center;">N</td>
 <td style="text-align: center;">S</td>
 <td>Resposta PWM não comprovada. Ver procedimento 3.3. Causa da falha identificada em 26/10/2026: conector mini do encoder do N20 (ver <a href="#registro-de-26102026-prototipo-em-protoboard-e-situacao-dos-testes">registro de 26/10</a>).</td>
 </tr>
@@ -2753,6 +2855,18 @@
 </tr>
 <tr>
 <td style="text-align: center;">3.13</td>
+<td><a href="../energia/#procedimento-de-teste-210-ensaio-integrado-de-alimentacao-do-sistema-completo-na-pcb-issue-103">Alimentação integrada do sistema completo na PCB física (ESP32 DevKit V1)</a></td>
+<td>17/11/2026</td>
+<td>19/11/2026</td>
+<td>Elias, Cláudio, Bruno, Aline, Ana Carolina e Paulo</td>
+<td>Bateria LiPo 2S alimentando ESP32 (<code>VIN</code>, sem USB), sensores, DRV8833 e motores juntos com tensões estáveis</td>
+<td>Sistema alimentado sem USB pela LiPo 2S; saídas dos Bucks MP1584EN ajustadas e estáveis em 3,3 V, 5,1 V e 6,6 V (com folga positiva para os motores), apresentando pequenas variações dentro do esperado</td>
+<td style="text-align: center;">S</td>
+<td style="text-align: center;"></td>
+<td>Consolidado com a soldagem da PCB (#212) e verificação de polaridade/chave (#537) em <a href="../energia/">Energia</a></td>
+</tr>
+<tr>
+<td style="text-align: center;">3.14</td>
 <td><a href="#integracao-na-placa-final">Integração na placa final</a></td>
 <td>21/11/2026</td>
 <td>21/11/2026</td>
@@ -3122,7 +3236,7 @@
 <td style="text-align: left;"><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/103">#103 Alimentação → Sistema</a></td>
 <td style="text-align: left;">Atividade</td>
 <td style="text-align: center;">Aberta</td>
-<td style="text-align: left;">Teste 3.1 e ensaios 2.5 e 2.7 de energia</td>
+<td style="text-align: left;">Teste 3.13 e ensaios 2.8, 2.9 e 2.10 em <a href="../energia/">Energia</a></td>
 </tr>
 <tr>
 <td style="text-align: left;"><a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/104">#104 Testes de Hardware</a></td>
@@ -3269,7 +3383,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
         
           
-          <a href="../energia/teste-componentes/bateria/teste-bancada-bateria/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: 7.2.1 Ensaio de Bancada de Baterias">
+          <a href="../energia/integracao-pcb-alimentacao/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: 7.2.2 Integração de Energia na PCB e Sistema">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3279,7 +3393,7 @@
                 Anterior
               </span>
               <div class="md-ellipsis">
-                7.2.1 Ensaio de Bancada de Baterias
+                7.2.2 Integração de Energia na PCB e Sistema
               </div>
             </div>
           </a>

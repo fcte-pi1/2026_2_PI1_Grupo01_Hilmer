@@ -1357,6 +1357,12 @@
       
         
       
+        
+      
+        
+      
+        
+      
     
     
     
@@ -1722,6 +1728,34 @@
   
   
     <li class="md-nav__item">
+      <a href="integracao-pcb-alimentacao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2.2 Integração de Energia na PCB e Sistema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../hardware/" class="md-nav__link">
         
   
@@ -1954,6 +1988,62 @@
     
   
     7.5.2 Telemetria por Wi-Fi e rede reserva
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integracao/integracao-motores/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5.3 Integração dos motores de tração
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../corrida-completa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.6 Corrida completa
   
 
     
@@ -2362,52 +2452,40 @@
 <td>Detalhado abaixo (Procedimento 2.6) / Especificado em <a href="../04-projeto-conceitual/energia/chaves-conectores.md">4.2.7 Chaves e Conectores</a></td>
 </tr>
 <tr>
-<td style="text-align: center;">2.7</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
-</tr>
-<tr>
 <td style="text-align: center;">2.8</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
+<td><a href="integracao-pcb-alimentacao/#1-soldagem-e-integracao-fisica-dos-barramentos-na-pcb-issue-212">Soldagem e conexão física dos barramentos de alimentação na PCB integrada</a> — <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/212">#212</a></td>
+<td>17/11/2026</td>
+<td>19/11/2026</td>
+<td>Elias, Cláudio, Bruno, Aline, Ana Carolina e Paulo</td>
+<td>Chicote polarizado firme, componentes de potência soldados na PCB, soquete removível para ESP32 e ausência de curto entre barramentos</td>
+<td>Aprovado com adaptações: PCB soldada com 3× Bucks MP1584EN, IMU e DRV8833; soquete de 2 barramentos para ESP32 DevKit V1; chicote polarizado XT60 e conectores fêmea de 6 pinos para sensores. Sem curto-circuito entre barramentos. INA226 desconectado; sem BMS/fusível nem LM2596</td>
+<td style="text-align: center;">S</td>
+<td style="text-align: center;">—</td>
+<td>Detalhado em <a href="integracao-pcb-alimentacao/">7.2.2 Integração de Energia na PCB e Sistema</a></td>
 </tr>
 <tr>
 <td style="text-align: center;">2.9</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
+<td><a href="integracao-pcb-alimentacao/#2-verificacao-de-polaridade-protecoes-e-checklist-de-energizacao-issue-537">Verificação de polaridade, proteções, chave geral e checklist de energização no robô montado</a> — <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/537">#537</a></td>
+<td>17/11/2026</td>
+<td>19/11/2026</td>
+<td>Elias, Cláudio, Bruno, Aline, Ana Carolina e Paulo</td>
+<td>Polaridade XT60 conferida (encaixe único), continuidade/isolamento da chave geral no robô montado, soldas inspecionadas e checklist de energização aplicado</td>
+<td>Aprovado: polaridade e travamento mecânico do XT60 validados, chave geral e caminho de potência sem curtos, soldas inspecionadas e checklist pré-corrida elaborado. PPTC/BMS ausentes nesta montagem (mitigado por XT60 + checklist)</td>
+<td style="text-align: center;">S</td>
+<td style="text-align: center;">—</td>
+<td>Detalhado em <a href="integracao-pcb-alimentacao/">7.2.2 Integração de Energia na PCB e Sistema</a> (inclui Checklist de Energização)</td>
 </tr>
 <tr>
 <td style="text-align: center;">2.10</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td></td>
+<td><a href="integracao-pcb-alimentacao/#3-alimentacao-integrada-do-sistema-completo-issue-103">Ensaio integrado de alimentação do sistema completo (LiPo 2S → Bucks → ESP32 DevKit V1, sensores, DRV8833 e motores)</a> — <a href="https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/103">#103</a></td>
+<td>17/11/2026</td>
+<td>19/11/2026</td>
+<td>Elias, Cláudio, Bruno, Aline, Ana Carolina e Paulo</td>
+<td>Bateria alimentando MCU via <code>VIN</code> (sem USB), sensores, driver e motores juntos; saídas reguladas estáveis e sem reinício/queda sob carga</td>
+<td>Aprovado: sistema completo alimentado pela LiPo 2S sem cabo USB; saídas aferidas em <strong>3,3 V</strong>, <strong>5,1 V</strong> e <strong>6,6 V</strong> (folga positiva para torque dos motores N20), com pequenas variações dentro do esperado sob carga</td>
+<td style="text-align: center;">S</td>
+<td style="text-align: center;">—</td>
+<td>Detalhado em <a href="integracao-pcb-alimentacao/">7.2.2 Integração de Energia na PCB e Sistema</a> (links de vídeo em substituição)</td>
 </tr>
 <tr>
 <td style="text-align: center;">2.12</td>
@@ -2752,6 +2830,13 @@
 <td style="text-align: left;">Inclusão do ensaio em bancada de continuidade e isolamento da chave geral SW1 e caminho de potência (Procedimento 2.6 — Issue #204)</td>
 <td style="text-align: left;">Daniel Rodrigues e Paulo Melo</td>
 <td style="text-align: left;">Equipe de Energia</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.6</td>
+<td style="text-align: center;">23/11/2026</td>
+<td style="text-align: left;">Referência na matriz aos testes integrados na PCB física (17 a 19/11) detalhados em <a href="integracao-pcb-alimentacao/">7.2.2 Integração de Energia na PCB e Sistema</a> (#212, #537, #103)</td>
+<td style="text-align: left;">Elias, Cláudio, Bruno, Aline, Ana Carolina e Paulo</td>
+<td style="text-align: left;">Equipe de Energia e Hardware</td>
 </tr>
 </tbody>
 </table>
