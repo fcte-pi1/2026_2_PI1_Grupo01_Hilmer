@@ -15,4 +15,5 @@ Esta seção reúne os planos e resultados de testes do produto, por área:
 - [7.5 Integração](integracao.md)
   - [7.5.1 Ensaio Integrado em Protoboard](integracao/ensaio-integrado-protoboard.md)
   - [7.5.2 Telemetria por Wi-Fi e rede reserva](integracao/telemetria-wifi-rede-reserva.md)
+  - [7.5.3 Integração dos motores de tração](integracao/integracao-motores.md)
 - [7.6 Corrida completa e ponta a ponta](corrida-completa.md)
