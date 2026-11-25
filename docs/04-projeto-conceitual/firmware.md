@@ -169,11 +169,11 @@ Definida em `lib/nucleo/src/Pinos.h`, conforme a [tabela de fiação da bancada 
 | DRV8833, motor direito | IN3 / IN4 | 27 / 14 |
 | Encoder esquerdo | A / B | 32 / 33 |
 | Encoder direito | A / B | 18 / 19 |
-| Botão de largada `BTN_START` (para o GND, `INPUT_PULLUP`) | Entrada | 23 |
+| GPIO livre na placa final | Sem conexão | 23 |
 | Bateria (ADC1, divisor 100 kΩ / 33 kΩ) | Entrada analógica | 34 |
 | UART0 (log e gravação, pelo conversor USB da placa) | TX / RX | 1 / 3 |
 
-Os 15 GPIOs do `Pinos.h` são os da tabela de fiação da bancada integrada. O teste `test_pinos` e um `static_assert` no próprio `Pinos.h` reprovam a compilação se um GPIO se repetir ou não existir no DevKit (o GPIO6 a GPIO11 são da Flash e o GPIO20 não é exposto).
+O `Pinos.h` da `main` lista 14 GPIOs ativos, além dos pinos dedicados à UART0 indicados na tabela. O teste `test_pinos` e um `static_assert` no próprio `Pinos.h` reprovam a compilação se um GPIO se repetir ou não existir no DevKit (o GPIO6 a GPIO11 são da Flash e o GPIO20 não é exposto).
 
 !!! note "Cuidados da pinagem"
     - **Log pela UART0.** O `Serial` sai pelo GPIO1/GPIO3 e chega ao computador pelo conversor USB da placa (CP210x ou CH340): `/dev/ttyUSB0` no Linux, `/dev/cu.usbserial-*` ou `/dev/cu.wchusbserial-*` no macOS e `COMx` no Windows. Abrir o monitor serial reinicia a placa. Sem computador, a UART transmite do mesmo jeito e o log se perde, sem atrasar o firmware.
@@ -1213,13 +1213,13 @@ stateDiagram-v2
 
 ### Gatilho da largada
 
-O firmware do robô ainda não lê o botão `BTN_START` do DevKit (GPIO23, usado só pela bancada geral), e o dashboard ainda não manda comandos ao robô. A largada é dada por um **gesto na frente do ToF frontal**, o truque clássico de micromouse, ou pelo comando serial `L` na bancada:
+O GPIO23 está livre. A largada pode ser dada pelo painel, pelo comando `L` via Telnet ou por um gesto diante do ToF frontal:
 
 1. Com o robô pronto (boot aprovado e giroscópio calibrado), a frente precisa estar livre (100 mm ou mais) para o gatilho armar.
 2. A mão cobre o sensor (50 mm ou menos) por pelo menos 300 ms. Um vulto mais curto é ignorado.
 3. A mão sai, e o robô espera 1 s antes de largar. Se a mão voltar nesse tempo, o gesto recomeça.
 
-Com uma parede parada logo à frente da partida, o gatilho nunca arma: a largada fica só pelo comando `L`. Os limiares estão em `ConfiguracaoExecucao.h` e precisam ser conferidos com a mão e o VL53L0X montado.
+Com uma parede parada logo à frente da partida, o gatilho nunca arma: use o painel ou o comando `L`. Os limiares estão em `ConfiguracaoExecucao.h` e precisam ser conferidos com a mão e o VL53L0X montado.
 
 ### Interface das Classes
 

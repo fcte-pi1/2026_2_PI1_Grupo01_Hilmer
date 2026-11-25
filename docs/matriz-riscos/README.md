@@ -5,7 +5,7 @@ Esta seção reúne os riscos do projeto: o que pode dar errado, o tamanho do es
 | **Frente** | **Gerente** | **Riscos** | **Maiores notas** |
 |------------|-------------|:----------:|-----------------|
 | [Software](software.md) | Cláudio Henrique | 12 | Parâmetros provisórios (3) e perda de posição por erro acumulado (12): nota 16; firmware falhar no teste completo (10): nota 15 |
-| [Eletrônica](eletronica.md) | Aline de Carvalho Rodrigues | 11 | Conectores dos motores e encoders (3): nota 16; alimentação errada (2): nota 15 |
+| [Eletrônica](eletronica.md) | Aline de Carvalho Rodrigues | 12 | Alimentação errada (2) e perda de resposta dos sensores com suspeita de falha na ESP32 (12), ambas com nota 15 |
 | [Energia](energia.md) | Paulo Henrique Melo de Souza | 9 | Corte por subtensão não funcionar (3): nota 12 |
 | [Estrutura](estrutura.md) | Ana Carolina Nunes | 8 | Peças que não encaixam nos componentes reais (1): nota 12 |
 

@@ -115,7 +115,7 @@ Com a bateria em **8,4 V**, a tensão calculada no nó de medição é de aproxi
 
 O esquemático principal é a **Rev 2.1 de 03/11/2026**, para ESP32 DevKit V1. A representação é uma interface elétrica de módulos por redes nomeadas, com símbolos incorporados e sem footprints; os números de U3 identificam GPIOs lógicos, não pads físicos.
 
-A folha A3 horizontal reúne quatro blocos: **alimentação e proteção**, **acionamento e encoders**, **controle, START e bateria** e **sensores I²C**. Os componentes discretos usam símbolos elétricos, e as conexões são apresentadas por fios, rótulos de rede e símbolos de alimentação. A moldura e o carimbo identificam projeto, revisão, data e folha. Essa reorganização visual preserva as redes e a pinagem da Rev 2.1.
+A folha A3 horizontal reúne quatro blocos: **alimentação e proteção**, **acionamento e encoders**, **controle e bateria** e **sensores I²C**. Os componentes discretos usam símbolos elétricos, e as conexões são apresentadas por fios, rótulos de rede e símbolos de alimentação. A moldura e o carimbo identificam projeto, revisão, data e folha. Essa reorganização visual preserva as redes e a pinagem da Rev 2.1.
 
 [![Esquemático elétrico do Micromouse Rev 2.1](../figs/hardware-esquematico.png)](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/Micromouse.pdf)
 
@@ -139,7 +139,7 @@ A folha A3 horizontal reúne quatro blocos: **alimentação e proteção**, **ac
 
 A pinagem de Hardware da Rev 2.1 está definida no CSV `hw/diagramas/pinagem.csv` e apresentada na tabela abaixo. Os nomes da primeira coluna são as constantes reais do bloco `PLACA_ESP32_DEVKIT` de `Pinos.h` na `main`. Ao alterar a pinagem, manter esta tabela, o CSV e o esquemático consistentes por conferência manual.
 
-**Sincronização com Software:** o bloco `PLACA_ESP32_DEVKIT` de `src/firmware/lib/nucleo/src/Pinos.h` e o ambiente de bancada `bancada_geral_devkit` já estão na `main`, integrados pela [#485](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/485). A comparação dos 15 sinais abaixo com esse bloco encontrou uma única divergência: `MOTOR_DIR_IN4` ainda usa GPIO14 e deve passar para GPIO13. Os demais 14 GPIOs coincidem. Após essa correção, repetir a conferência linha a linha e compilar `bancada_geral_devkit`. A migração do firmware completo do robô para DevKit será tratada na [#489](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/489). Não há confirmação de envio externo do aviso.
+**Sincronização com Software:** dos 14 sinais ativos da tabela, 13 coincidem com o [`Pinos.h` da `main`](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/main/src/firmware/lib/nucleo/src/Pinos.h). A divergência de `MOTOR_DIR_IN4` permanece: GPIO13 no esquemático e GPIO14 no firmware.
 
 | Constante em `Pinos.h` | GPIO | Ligação / função |
 | :--- | :---: | :--- |
@@ -156,10 +156,10 @@ A pinagem de Hardware da Rev 2.1 está definida no CSV `hw/diagramas/pinagem.csv
 | `ENCODER_ESQ_B` | **GPIO33** | Encoder esquerdo C2/B |
 | `ENCODER_DIR_A` | **GPIO18** | Encoder direito C1/A |
 | `ENCODER_DIR_B` | **GPIO19** | Encoder direito C2/B |
-| `BOTAO_START` | **GPIO23** | START — INPUT_PULLUP; botão normalmente aberto para GND |
+| — | **GPIO23** | Livre, sem conexão na placa final |
 | `BATERIA_ADC` | **GPIO34** | ADC1_CH6 — nó R1 (100 kΩ) / R2 (33 kΩ) / C5 (100 nF); somente entrada |
 
-As redes `BTN_START` e `BAT_ADC` do esquemático correspondem às constantes `BOTAO_START` e `BATERIA_ADC`, respectivamente. Os nomes de rede são preservados nos diagramas.
+A rede `BAT_ADC` do esquemático corresponde à constante `BATERIA_ADC`. O robô não tem botão físico de largada. A largada é dada pelo painel, pelo comando `L` via Telnet ou por um gesto diante do sensor frontal. A chave geral SW1 continua ligando a alimentação.
 
 ### 4.3 Alimentação, inicialização e restrições
 
@@ -171,7 +171,7 @@ As redes `BTN_START` e `BAT_ADC` do esquemático correspondem às constantes `BO
 
 **Ação de bancada obrigatória:** com alimentação desligada, mover o fio de IN4 de GPIO14 para GPIO13 e corrigir `MOTOR_DIR_IN4` em `Pinos.h` para GPIO13 antes de compilar e gravar `bancada_geral_devkit` (`pio run -e bancada_geral_devkit -t upload`, em `src/firmware`). GPIO14 fica sem conexão. Testar energização, reset por EN, reinicialização por software e gravação, com rodas suspensas; medir entradas e saídas do driver. A troca não comprova ausência de trancos. R4 mantém nSLEEP habilitado e não é intertravamento de partida.
 
-O log usa UART0 por conversor USB–serial da DevKit; GPIO18/19 pertencem ao encoder direito, sem USB nativa. GPIO16/17 pressupõem módulo ESP32-WROOM, sem PSRAM nesses terminais. GPIO34 é somente entrada e não tem pull-up interno; o divisor fornece sua polarização. START usa INPUT_PULLUP. A bancada `bancada_geral_devkit` integrada na #485 já permite testar ToF/IMU, ADC e botão START; a integração dessas funções ao firmware completo do robô na DevKit pertence à #489.
+O log usa UART0 por conversor USB–serial da DevKit; GPIO18/19 pertencem ao encoder direito, sem USB nativa. GPIO16/17 pressupõem módulo ESP32-WROOM, sem PSRAM nesses terminais. GPIO34 é somente entrada e não tem pull-up interno; o divisor fornece sua polarização. A bancada `bancada_geral_devkit` permite testar ToF, IMU e ADC.
 
 ## 5. Integração e sequência de montagem
 
@@ -194,7 +194,6 @@ O relatório técnico estabelece a seguinte sequência de montagem e verificaç�
 | Bateria LiPo 2S | 1 | BT1. |
 | PPTC Bourns MF-R185 | 1 | F1: Ihold 1,85 A; Itrip 3,7 A a 25 °C. |
 | Chave geral | 1 | SW1. |
-| Botão START normalmente aberto | 1 | SW2, entre BTN_START e GND. |
 | Conversor MP1584EN de 5 V | 1 | U2. |
 | Conversor MP1584EN de 3,3 V | 1 | U5. |
 | Conversor MP1584EN de 6 V | 1 | U4. |
@@ -219,3 +218,4 @@ O código **GA12-N20-S0310D-E** e a tensão nominal de **6 V** foram transcritos
 | 2.1 | 03/11/2026 | Migração para DevKit V1; tabela conforme o CSV de Hardware, IN4 em GPIO13, encoders e START, BAT_ADC em ADC1_CH6, trilhos 3V3 separados e nSLEEP em 3,3 V. Sincronização pelo Software e validação física pendentes. | Eduardo Gaspar |
 | 2.1 (correção documental) | 09/11/2026 | Referência à #485 e ao ambiente bancada_geral_devkit; nomes reais de Pinos.h; única divergência de GPIO em MOTOR_DIR_IN4; requisito de bulk de 470 µF Low-ESR da #216 registrado como adequação pendente. | Eduardo Gaspar |
 | 2.1 (confirmação de C4) | 10/11/2026 | C4 mantido em 100 µF conforme confirmação com Energia informada pelo responsável; removida a pendência de troca para 470 µF. | Eduardo Gaspar |
+| 2.1 (remoção do botão de largada) | 24/11/2026 | GPIO23 livre e remoção de SW2 do esquemático, da pinagem e da lista de materiais. | — |
