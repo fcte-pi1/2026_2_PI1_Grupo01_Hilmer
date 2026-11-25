@@ -21,15 +21,15 @@ Com a alimentação desligada, mover **DRV8833 IN4/BIN2: GPIO14 → GPIO13**. De
 
 ## Sincronização com Software — atualizado em 09/11/2026
 
-**Especificação de Hardware: IN4 muda de GPIO14 para GPIO13.** A `main` já contém o bloco `PLACA_ESP32_DEVKIT` em `src/firmware/lib/nucleo/src/Pinos.h` e o ambiente `bancada_geral_devkit` em `src/firmware/platformio.ini`, integrados pela [#485](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/485). A conferência dos 15 sinais do CSV `diagramas/pinagem.csv` com esse bloco encontrou uma única divergência de GPIO: `MOTOR_DIR_IN4` ainda está em GPIO14 e deve mudar para GPIO13. Os outros 14 sinais coincidem. Não é necessário criar o bloco nem o ambiente de bancada; a migração do firmware completo do robô é a [#489](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/489). GPIO18/19 pertencem ao encoder direito; o log usa UART0 pelo conversor USB–serial.
+**Especificação de Hardware: IN4 muda de GPIO14 para GPIO13.** Entre os 14 sinais ativos do CSV, 13 coincidem com o `Pinos.h` da `main`. A divergência de IN4 permanece. O ambiente `bancada_geral_devkit` veio na [#485](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/pull/485) e a migração do firmware do robô foi registrada na [#489](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/489). GPIO18/19 pertencem ao encoder direito e o log usa UART0 pelo conversor USB–serial.
 
-Esta nota contém o aviso preparado para encaminhamento; **não há confirmação de envio externo nem de recebimento pelo Software**. Encaminhar o link deste arquivo no canal da equipe no mesmo dia da aplicação da alteração. Após a troca de `MOTOR_DIR_IN4`, repetir a conferência dos 15 sinais e validar a compilação de `bancada_geral_devkit`.
+Esta nota contém o aviso preparado para encaminhamento; **não há confirmação de envio externo nem de recebimento pelo Software**. Encaminhar o link deste arquivo no canal da equipe no mesmo dia da aplicação da alteração. Após a troca de `MOTOR_DIR_IN4`, repetir a conferência dos 14 sinais ativos e validar a compilação de `bancada_geral_devkit`.
 
 ## Artefatos e verificação
 
-`Micromouse.kicad_sch` e `Micromouse.pdf` foram redesenhados como interface elétrica de módulos por redes nomeadas, sem footprints. Os identificadores IOxx em U3 são GPIOs lógicos, não números de pads. J1/J2 agora incluem motor e encoder em seis vias; os conectores ToF/IMU exigem conferência da ordem física. Os passivos e valores foram preservados; SW2 foi acrescentado para START. Q1, D_Z1 e R_G1 continuam somente em `protecao_entrada.kicad_sch`, conforme observações na BOM.
+`Micromouse.kicad_sch` e `Micromouse.pdf` foram redesenhados como interface elétrica de módulos por redes nomeadas, sem footprints. Os identificadores IOxx em U3 são GPIOs lógicos, não números de pads. J1/J2 agora incluem motor e encoder em seis vias; os conectores ToF/IMU exigem conferência da ordem física. Os passivos e valores foram preservados. O GPIO23 está livre e a chave geral SW1 continua no circuito. Q1, D_Z1 e R_G1 continuam somente em `protecao_entrada.kicad_sch`, conforme observações na BOM.
 
-A manutenção dos artefatos é manual: editar o esquema no KiCad, manter a tabela de `hardware.md` e o CSV `diagramas/pinagem.csv` consistentes, exportar o PDF e atualizar a figura da documentação. A tabela e o CSV usam os nomes reais das constantes do firmware; as redes `BTN_START` e `BAT_ADC` do esquema correspondem a `BOTAO_START` e `BATERIA_ADC`. Repetir a conferência dos 15 sinais, linha a linha, com o bloco DevKit existente após corrigir IN4.
+A manutenção dos artefatos é manual: editar o esquema no KiCad, manter a tabela de `hardware.md` e o CSV `diagramas/pinagem.csv` consistentes, exportar o PDF e atualizar a figura da documentação. A tabela e o CSV usam os nomes reais das constantes do firmware; a rede `BAT_ADC` do esquema corresponde a `BATERIA_ADC`. Repetir a conferência dos 14 sinais ativos, linha a linha, com o bloco DevKit existente após corrigir IN4.
 
 ### Alinhamento com Energia — C4 no VM
 
@@ -39,17 +39,17 @@ Os scripts auxiliares de geração e verificação foram removidos a pedido do r
 
 ## Apresentação gráfica — 03/11/2026
 
-A folha foi reorganizada em **A3 horizontal**, com moldura, zonas, carimbo e quatro blocos: alimentação/proteção, acionamento/encoders, controle/START/bateria e sensores I²C. Bateria, PPTC, chaves, resistores e capacitores passam a usar símbolos elétricos; módulos usam terminais, fios, rótulos de rede e marcações de não conexão. A DevKit tem uma representação gráfica simplificada, sem compromisso com a posição física dos terminais.
+A folha foi reorganizada em **A3 horizontal**, com moldura, zonas, carimbo e quatro blocos: alimentação/proteção, acionamento/encoders, controle/bateria e sensores I²C. Bateria, PPTC, chaves, resistores e capacitores passam a usar símbolos elétricos; módulos usam terminais, fios, rótulos de rede e marcações de não conexão. A DevKit tem uma representação gráfica simplificada, sem compromisso com a posição física dos terminais.
 
-A alteração mantém a **revisão elétrica 2.1**: todos os terminais foram comparados com o esquema anterior e preservaram suas redes, incluindo IN4 em GPIO13, ADC em GPIO34 e 3V3 da DevKit sem conexão ao trilho de U5. Os 25 componentes e as 27 redes seguem conferidos com a BOM. O arquivo KiCad permanece editável; a figura publicada em `docs/figs/hardware-esquematico.png` foi atualizada e inspecionada.
+A alteração mantém a **revisão elétrica 2.1**: as conexões de controle, alimentação e sensoriamento foram preservadas, incluindo IN4 em GPIO13, ADC em GPIO34 e 3V3 da DevKit sem conexão ao trilho de U5. Os 24 componentes e as 26 redes seguem conferidos com a BOM. O arquivo KiCad permanece editável; a figura publicada em `docs/figs/hardware-esquematico.png` foi atualizada e inspecionada.
 
 A verificação estrutural e de conectividade não substitui ERC: abertura/ERC no KiCad e os ensaios físicos permanecem pendentes. A imagem fornecida pelo usuário orientou apenas a organização visual; as ligações e os componentes vêm dos arquivos desta revisão do repositório.
 
 ## Estado de entrega — escopo apenas Hardware
 
 - [x] Esquemático, PDF, BOM e figura da Rev 2.1 preparados em `hw/` e `docs/figs/`.
-- [x] Tabela e esquema conferidos com os 15 sinais do CSV de Hardware.
-- [x] CSV e tabela comparados com o bloco DevKit da `main` (#485): 14 GPIOs coincidem; IN4 requer GPIO14 → GPIO13.
+- [x] Tabela e esquema conferidos com os 14 sinais ativos do CSV de Hardware.
+- [x] CSV e tabela comparados com o bloco DevKit da `main` (#485): 13 GPIOs coincidem; IN4 requer GPIO14 → GPIO13.
 - [x] Decisão GPIO14 → GPIO13 registrada.
 - [x] Trilhos 3V3 separados, VIN por U2 e restrição de USB documentados.
 - [ ] Software avisado no mesmo dia e `Pinos.h` sincronizado linha a linha.

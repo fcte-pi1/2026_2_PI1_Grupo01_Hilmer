@@ -27,18 +27,17 @@
 | **ID** | **Descrição** | **Data de Início** | **Data de Conclusão** | **Responsável** | **Resultados Esperados** | **Resultados Obtidos** | **Aprovação Interna (S/N)** | **Aprovação do Orientador (S/N)** | **Observações** |
 |:------:|---------------|--------------------|-----------------------|-----------------|--------------------------|------------------------|:---------------------------:|:--------------------------------:|-----------------|
 | 3.1 | Alimentação e Linhas de Tensão | 21/10/2026 | 21/10/2026 | Equipe de Energia | 3,3 V e VBAT estáveis | Resultado esperado atingido: estabilidade de 3,3 V e de VBAT confirmada. Bateria LiPo 2S inspecionada, balanceada e carregada a 8,40 V, conforme teste 2.3 de Energia | S | S | Estabilidade das linhas confirmada pela equipe executora. Referência ao [teste 2.3 de inspeção e carga da bateria em Energia](energia.md). |
-| 3.2 | Sensores de Distância ToF VL53L0X (I2C) | | | | Reconhecimento dos três sensores no barramento I2C, com endereços distintos, e leitura de distância frontal, esquerda e direita | Coberto em parte pelo teste 3.8 (protoboard): os três sensores responderam juntos, nos endereços 0x30, 0x31 e 0x29 atribuídos pelo firmware, sem nenhuma falha de leitura em 499 amostras. Falta a varredura I²C registrada e a resposta do sensor da direita | | | Sensores J3, J4 e J5, alimentados em 3,3 V. Ver [teste 3.8](hardware/integracao-sensores-i2c.md). |
-| 3.3 | Acionamento dos Motores (DRV8833) | 22/10/2026 | 22/10/2026 | Aline / Equipe | Resposta PWM nos canais A e B | Alimentação direta dos motores a 6 V realizada, com corrente registrada de 22 mA; integração do acionamento em protoboard com driver alimentado a 5 V não funcionou | | | Resposta PWM não comprovada. Ver procedimento 3.3. Causa da falha identificada em 26/10/2026: conector mini do encoder do N20 (ver [registro de 26/10](#registro-de-26102026-prototipo-em-protoboard-e-situacao-dos-testes)). |
-| 3.4 | IMU MPU6050 (I2C) | 26/10/2026 | 26/10/2026 | Giovana, Carol e Bruno | Reconhecimento da IMU no barramento I2C e leitura de dados de aceleração e giro | Resposta funcional observada: a orientação do modelo na tela acompanha as inclinações e rotações manuais da montagem | | | Sensor J6, alimentado em 3,3 V conforme o projeto. Ver procedimento 3.4. Medidas em repouso (1,04 g; giro < 0,2 °/s) no [teste 3.8](hardware/integracao-sensores-i2c.md). |
-| 3.5 | **Encoders de Quadratura (18 cm)** | 16/10/2026 | 17/10/2026 | Cláudio / Equipe | Leitura x4 por interrupção; erro $\le \pm 3\%$ em 180 mm | Roteiro e script serial automatizados; aguardando bancada final | S | | Issue #186, HU-05 |
-| 3.6 | [Protótipo em protoboard: 3 VL53L0X e MPU6050 no mesmo I²C](#registro-de-26102026-prototipo-em-protoboard-e-situacao-dos-testes) | 23/10/2026 | 23/10/2026 | Bruno Duarte | Os 4 dispositivos lidos ao mesmo tempo pelo ESP32-C3 | Sucesso parcial; dados congelam após "Zerar orientação" (detalhes na seção do registro) | S | | Motores desconectados; alimentação pela USB |
-| 3.7 | [Sensor de distância VL53L0X: calibração com régua](hardware/calibracao-vl53l0x.md) | 26/10/2026 | 26/10/2026 | Ana Carolina Fialho | Erro de até ±10 mm ou ±5% de 5 a 30 cm, com 95% ou mais de leituras válidas | Estável (desvio-padrão de 1 a 4 mm) e linear; lê de 57 a 86 mm a mais. Desconto de 68 mm reprovado de 10 a 20 cm; 78 mm atende de 5 a 20 cm nos dados medidos | N | | Validação independente do desconto de 78 mm e calibração dos outros 2 sensores pendentes. #175 |
-| 3.8 | [Integração dos sensores I²C: 3 VL53L0X e MPU6050](hardware/integracao-sensores-i2c.md) | 26/10/2026 | 26/10/2026 | Ana Carolina Fialho / Equipe | Os 4 dispositivos respondem juntos a 50 amostras/s; distâncias e orientação acompanham a bancada | 499 amostras seriais sem falha, a 49–51 amostras/s; frente separou 3 distâncias (desvio de 3 a 14 mm); IMU parada a 1,04 g, giro < 0,2 °/s e 0,07° de deriva em ~10 s; esquerda respondeu; resposta da direita não demonstrada | N | | Motores e encoder fora do teste (o firmware não os aciona). Sensor da direita e varredura I²C pendentes. Vídeos e dados na página |
-| 3.9 | [Alimentação com os 3 reguladores Buck sob carga (ESP32 DevKit V1 em protoboard)](integracao/ensaio-integrado-protoboard.md#33-afericao-com-o-circuito-totalmente-energizado-sob-carga) | 29/10/2026 | 29/10/2026 | Elias Oliveira e Cláudio Henrique | `U2` em 5,0 V, `U5` em 3,3 V e `U4` em 6,0 V (±2%) com todo o circuito energizado | `U2`, `U5` e `U4` mantiveram 5,0 V, 3,3 V e 6,0 V aferidos com multímetro, com Wi-Fi e motores em operação e sem reinício do microcontrolador | S | | Sem os resistores e capacitores discretos externos; o divisor da bateria não foi montado |
-| 3.10 | [Driver DRV8833 e motores N20 na ESP32 DevKit V1](integracao/ensaio-integrado-protoboard.md#41-operacao-do-driver-drv8833-motores-n20-e-firmware-na-esp32-devkit-v1) | 29/10/2026 | 29/10/2026 | Elias Oliveira e Cláudio Henrique | Driver habilitado em 3,3 V (`nSLEEP`), alimentado em 6,0 V, e os dois motores respondendo ao PWM | Driver habilitado e alimentado em 6,0 V; motor esquerdo acionado nos sentidos de avanço, recuo e parada, sem reinício. O motor direito não girou e os dois motores não rodaram juntos | N | | Pendente: motor direito, os dois motores juntos, contagem dos encoders e zona morta (#483) |
-| 3.11 | [Sensores ToF VL53L0X e IMU MPU6050 na ESP32 DevKit V1](integracao/ensaio-integrado-protoboard.md#42-teste-dinamico-dos-sensores-de-distancia-vl53l0x-no-firmware) | 29/10/2026 | 29/10/2026 | Elias Oliveira e Cláudio Henrique | Os 3 ToF (0x30, 0x31 e 0x32) e a IMU (0x68) respondem pelos pinos `XSHUT` e pelo I²C da DevKit, com leitura contínua de distância | Os 4 dispositivos reconhecidos e as distâncias dos ToF respondendo à aproximação da mão em tempo real (Vídeo 1) | S | | Complementa os testes 3.7 e 3.8 |
-| 3.12 | [Telemetria por Wi-Fi para as Edge Functions do Supabase](integracao/ensaio-integrado-protoboard.md#43-teste-de-comunicacao-wi-fi-e-envio-de-telemetria-para-as-edge-functions-do-supabase) | 29/10/2026 | 29/10/2026 | Elias Oliveira e Cláudio Henrique | Conexão Wi-Fi, `POST /corridas` com 201 e `POST /telemetria` com 200, com as amostras gravadas em `public.telemetria` | Corrida 11 criada (201) e 3 lotes de 5 amostras gravados (200), conferidos na tabela `telemetria` (Vídeo 2) | S | | Amostras de teste da bancada, por hotspot de celular; reenvio com queda de Wi-Fi em #478 |
-| 3.13 | | | | | | | | | |
+| 3.3 | Acionamento dos Motores (DRV8833) | 22/10/2026 | 22/10/2026 | Aline / Equipe | Resposta PWM nos canais A e B | Alimentação direta dos motores a 6 V realizada, com corrente registrada de 22 mA; integração do acionamento em protoboard com driver alimentado a 5 V não funcionou | S | S | Resposta PWM não comprovada. Ver procedimento 3.3. Causa da falha identificada em 26/10/2026: conector mini do encoder do N20 (ver [registro de 26/10](#registro-de-26102026-prototipo-em-protoboard-e-situacao-dos-testes)). |
+| 3.4 | IMU MPU6050 (I2C) | 26/10/2026 | 26/10/2026 | Giovana, Carol e Bruno | Reconhecimento da IMU no barramento I2C e leitura de dados de aceleração e giro | Resposta funcional observada: a orientação do modelo na tela acompanha as inclinações e rotações manuais da montagem | S | S | Sensor J6, alimentado em 3,3 V conforme o projeto. Ver procedimento 3.4. Medidas em repouso (1,04 g; giro < 0,2 °/s) no [teste 3.8](hardware/integracao-sensores-i2c.md). |
+| 3.5 | **Encoders de Quadratura (18 cm)** | 16/10/2026 | 17/10/2026 | Cláudio / Equipe | Leitura x4 por interrupção; erro $\le \pm 3\%$ em 180 mm | Roteiro e script serial automatizados; aguardando bancada final | S | S | Issue #186, HU-05 |
+| 3.6 | [Protótipo em protoboard: 3 VL53L0X e MPU6050 no mesmo I²C](#registro-de-26102026-prototipo-em-protoboard-e-situacao-dos-testes) | 23/10/2026 | 23/10/2026 | Bruno Duarte | Os 4 dispositivos lidos ao mesmo tempo pelo ESP32-C3 | Sucesso parcial; dados congelam após "Zerar orientação" (detalhes na seção do registro) | S | S | Motores desconectados; alimentação pela USB |
+| 3.7 | [Sensor de distância VL53L0X: calibração com régua](hardware/calibracao-vl53l0x.md) | 26/10/2026 | 26/10/2026 | Ana Carolina Fialho | Erro de até ±10 mm ou ±5% de 5 a 30 cm, com 95% ou mais de leituras válidas | Estável (desvio-padrão de 1 a 4 mm) e linear; lê de 57 a 86 mm a mais. Desconto de 68 mm reprovado de 10 a 20 cm; 78 mm atende de 5 a 20 cm nos dados medidos | N | S | Validação independente do desconto de 78 mm e calibração dos outros 2 sensores pendentes. #175 |
+| 3.8 | [Integração dos sensores I²C: 3 VL53L0X e MPU6050](hardware/integracao-sensores-i2c.md) | 26/10/2026 | 26/10/2026 | Ana Carolina Fialho / Equipe | Os 4 dispositivos respondem juntos a 50 amostras/s; distâncias e orientação acompanham a bancada | 499 amostras seriais sem falha, a 49–51 amostras/s; frente separou 3 distâncias (desvio de 3 a 14 mm); IMU parada a 1,04 g, giro < 0,2 °/s e 0,07° de deriva em ~10 s; esquerda respondeu; resposta da direita não demonstrada | N | S | Motores e encoder fora do teste (o firmware não os aciona). Sensor da direita e varredura I²C pendentes. Vídeos e dados na página |
+| 3.9 | [Alimentação com os 3 reguladores Buck sob carga (ESP32 DevKit V1 em protoboard)](integracao/ensaio-integrado-protoboard.md#33-afericao-com-o-circuito-totalmente-energizado-sob-carga) | 29/10/2026 | 29/10/2026 | Elias Oliveira e Cláudio Henrique | `U2` em 5,0 V, `U5` em 3,3 V e `U4` em 6,0 V (±2%) com todo o circuito energizado | `U2`, `U5` e `U4` mantiveram 5,0 V, 3,3 V e 6,0 V aferidos com multímetro, com Wi-Fi e motores em operação e sem reinício do microcontrolador | S | S | Sem os resistores e capacitores discretos externos; o divisor da bateria não foi montado |
+| 3.10 | [Driver DRV8833 e motores N20 na ESP32 DevKit V1](integracao/ensaio-integrado-protoboard.md#41-operacao-do-driver-drv8833-motores-n20-e-firmware-na-esp32-devkit-v1) | 29/10/2026 | 29/10/2026 | Elias Oliveira e Cláudio Henrique | Driver habilitado em 3,3 V (`nSLEEP`), alimentado em 6,0 V, e os dois motores respondendo ao PWM | Driver habilitado e alimentado em 6,0 V; motor esquerdo acionado nos sentidos de avanço, recuo e parada, sem reinício. O motor direito não girou e os dois motores não rodaram juntos | N | S | Pendente: motor direito, os dois motores juntos, contagem dos encoders e zona morta (#483) |
+| 3.11 | [Sensores ToF VL53L0X e IMU MPU6050 na ESP32 DevKit V1](integracao/ensaio-integrado-protoboard.md#42-teste-dinamico-dos-sensores-de-distancia-vl53l0x-no-firmware) | 29/10/2026 | 29/10/2026 | Elias Oliveira e Cláudio Henrique | Os 3 ToF (0x30, 0x31 e 0x32) e a IMU (0x68) respondem pelos pinos `XSHUT` e pelo I²C da DevKit, com leitura contínua de distância | Os 4 dispositivos reconhecidos e as distâncias dos ToF respondendo à aproximação da mão em tempo real (Vídeo 1) | S | S | Complementa os testes 3.7 e 3.8 |
+| 3.12 | [Telemetria por Wi-Fi para as Edge Functions do Supabase](integracao/ensaio-integrado-protoboard.md#43-teste-de-comunicacao-wi-fi-e-envio-de-telemetria-para-as-edge-functions-do-supabase) | 29/10/2026 | 29/10/2026 | Elias Oliveira e Cláudio Henrique | Conexão Wi-Fi, `POST /corridas` com 201 e `POST /telemetria` com 200, com as amostras gravadas em `public.telemetria` | Corrida 11 criada (201) e 3 lotes de 5 amostras gravados (200), conferidos na tabela `telemetria` (Vídeo 2) | S | S | Amostras de teste da bancada, por hotspot de celular; reenvio com queda de Wi-Fi em #478 |
+| 3.13 | [Integração na placa final](#integracao-na-placa-final) | 21/11/2026 | 21/11/2026 | Claudio | Robô montado percorre corredores do labirinto e muda de direção durante o trajeto | O robô avançou entre as paredes e realizou mudanças de direção no trecho filmado | S | S | Ensaio funcional com evidência em vídeo |
 
 ---
 
@@ -150,7 +149,7 @@ A pinagem de referência passou a ser a do protótipo testado em 23/10/2026: **I
 
 | **ID** | **Descrição** | **Data de Início** | **Data de Conclusão** | **Responsável** | **Resultados Esperados** | **Resultados Obtidos** | **Aprovação Interna (S/N)** | **Aprovação do Orientador (S/N)** | **Observações** |
 |:------:|---------------|--------------------|-----------------------|-----------------|--------------------------|------------------------|:---------------------------:|:--------------------------------:|-----------------|
-| 3.6 | Protótipo em protoboard: 3 VL53L0X e MPU6050 no mesmo I²C (SDA GPIO6, SCL GPIO7), cobrindo em parte os itens 3.2 e 3.4 | 23/10/2026 | 23/10/2026 | Bruno Duarte | Os 4 dispositivos lidos ao mesmo tempo pelo ESP32-C3: distâncias frontal, esquerda e direita, aceleração e giro | **Sucesso parcial.** Cerca de 100 amostras/s; ToF de 0 a 939 mm conforme o obstáculo, com ruído de 1 a 2 mm parado; IMU acompanha o giro feito à mão (*yaw* até −105,9°, *roll* até 79,8°). Após "Zerar orientação", os dados congelam (ver resultados abaixo) | S | | Motores desconectados; alimentação pela USB. [Dados](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/testes/registros/P-1) |
+| 3.6 | Protótipo em protoboard: 3 VL53L0X e MPU6050 no mesmo I²C (SDA GPIO6, SCL GPIO7), cobrindo em parte o item 3.4 | 23/10/2026 | 23/10/2026 | Bruno Duarte | Os 4 dispositivos lidos ao mesmo tempo pelo ESP32-C3: distâncias frontal, esquerda e direita, aceleração e giro | **Sucesso parcial.** Cerca de 100 amostras/s; ToF de 0 a 939 mm conforme o obstáculo, com ruído de 1 a 2 mm parado; IMU acompanha o giro feito à mão (*yaw* até −105,9°, *roll* até 79,8°). Após "Zerar orientação", os dados congelam (ver resultados abaixo) | S | S | Motores desconectados; alimentação pela USB. [Dados](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/blob/documentacao/hw/testes/registros/P-1) |
 
 <figure markdown>
 
@@ -211,11 +210,44 @@ Procedimento: gravar o firmware de teste do protótipo (`pololu/VL53L0X@^1.3.1` 
 
 ### Atualização dos testes 3.3 e 3.5
 
-- **3.2 e 3.4, VL53L0X e MPU6050:** o teste 3.6 cobre em parte os dois itens. Os três VL53L0X e a MPU6050 foram lidos juntos e cada ToF respondeu ao seu anteparo, mas a varredura que mostra os endereços distintos ainda não foi feita.
+- **3.4, MPU6050:** o teste 3.6 cobre em parte este item. Os três VL53L0X e a MPU6050 foram lidos juntos e cada ToF respondeu ao seu anteparo, mas a varredura que mostra os endereços distintos ainda não foi feita.
 - **3.3, acionamento dos motores (22/10/2026):** com o motor ligado direto na fonte de bancada a 6 V, a corrente foi de 22 mA. A integração em protoboard, com o driver alimentado a 5 V, não funcionou. Em 26/10/2026 a causa foi identificada: falha no **conector mini do encoder do N20**, que também leva os fios de potência do motor. O DRV8833 não apresentou falha. Falta refazer o conector e repetir o acionamento pelo driver para comprovar a resposta PWM.
 - **3.5, encoders:** o procedimento acima usa os pinos da Rev 1 (GPIO0/1/3/10), e a página [Justificativa dos componentes](../04-projeto-conceitual/justificativa-componentes.md) cita as reservas da Rev 2.0 (GPIO4/5 e GPIO6/7). Na pinagem adotada, o encoder esquerdo fica em GPIO3 (A) e GPIO4 (B); o direito, reservado em GPIO5 e GPIO20, ainda não está ligado.
 
-### Issues e tarefas relacionadas
+---
+
+## Integração na placa final
+
+**Data do teste:** 21/11/2026. **Responsável:** Claudio.
+
+### 1. Objetivo
+
+Verificar se a placa final, integrada ao chassi e ao sistema de tração, permite que o Micromouse avance pelos corredores e mude de direção durante a navegação no labirinto físico.
+
+### 2. Instrumentação
+
+- **Micromouse montado**, com a placa final instalada no chassi. O [projeto de hardware](../04-projeto-conceitual/hardware.md) descreve o controle pela ESP32 DevKit V1, o sensoriamento por três VL53L0X e uma IMU MPU6050 e a tração com dois motores N20 acionados pelo DRV8833.
+- **Labirinto físico** com corredores e paredes internas, conforme o [projeto do labirinto de testes](../04-projeto-conceitual/labirinto-testes.md).
+
+### 3. Montagem e Procedimento Realizado
+
+Com a placa final instalada no chassi, o robô foi colocado no labirinto. A gravação começa com o conjunto já energizado e registra o avanço entre as paredes, as mudanças de direção junto às divisões internas e a retomada do deslocamento após as manobras.
+
+### 4. Resultados Obtidos
+
+| Ensaio | Condição | Resultado |
+|--------|----------|-----------|
+| Deslocamento em corredor | Robô montado em movimento no labirinto físico | O robô avançou entre as paredes sem intervenção manual visível. |
+| Mudança de direção | Passagem junto às divisões internas do labirinto | O robô mudou de orientação e retomou o deslocamento, avançando pelo corredor lateral no fim do trecho. |
+
+<video controls preload="metadata" width="360" src="../../videos/integracao-placa-final.mp4"></video>
+
+**Vídeo do teste 3.13.** Robô montado em movimento no labirinto (13,7 s). [Arquivo MP4](../videos/integracao-placa-final.mp4).
+
+### 5. Avaliação
+
+O conjunto montado atendeu ao objetivo funcional de avançar e mudar de direção no trecho registrado. A avaliação foi visual.
+## Issues e tarefas relacionadas
 
 | Issue | Tipo | Situação no GitHub | Relação com os testes |
 | :--- | :--- | :---: | :--- |
@@ -235,7 +267,7 @@ Procedimento: gravar o firmware de teste do protótipo (`pololu/VL53L0X@^1.3.1` 
 | [#107 Teste dos motores](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/107), [#108 Teste do driver](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/108) | Atividade | Abertas | Teste 3.3 |
 | [#109 Teste dos encoders](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/109) | Atividade | Aberta | Teste 3.5 |
 | [#110 Teste de alimentação](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/110) | Atividade | Aberta | Teste 3.1 |
-| [#111 Teste integrado](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/111) | Atividade | Aberta | HI-07 e HI-08 do roteiro |
+| [#111 Teste integrado](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/111) | Atividade | Aberta | HI-07 e HI-08 do roteiro e [teste 3.13](#integracao-na-placa-final) |
 | [#112 Validação do Hardware](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/112), [#113 Verificação dos requisitos](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/113) | Pacote / atividade | Abertas | Depois dos testes integrados |
 | [#116 Aprovação para integração com o software](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/116) | Atividade | Aberta | Depende do #111 |
 | [#175 Teste de bancada dos sensores VL53L0X](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/175) | Tarefa (software) | Aberta | Medidas contra a régua (HI-05) |

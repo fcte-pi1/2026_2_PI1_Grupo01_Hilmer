@@ -1,6 +1,6 @@
 # Guia da bancada geral
 
-A **bancada geral** é um programa para o ESP32 DevKit V1, a placa do robô, que mostra um menu no terminal do computador. Com a placa ligada por um cabo USB, você aperta uma tecla e o programa lê os sensores, aciona os motores, confere os encoders, a bateria e o botão, e testa a telemetria, usando os mesmos drivers do robô. Serve para testar os componentes sem escrever código e para investigar o que deu errado.
+A **bancada geral** é um programa para o ESP32 DevKit V1, a placa do robô, que mostra um menu no terminal do computador. Com a placa ligada por um cabo USB, você aperta uma tecla e o programa lê os sensores, aciona os motores, confere os encoders e a bateria, e testa a telemetria, usando os mesmos drivers do robô. Serve para testar os componentes sem escrever código e para investigar o que deu errado.
 
 Este guia funciona em **Windows, macOS e Linux** e não exige conhecimento prévio do firmware.
 
@@ -17,7 +17,7 @@ Este guia funciona em **Windows, macOS e Linux** e não exige conhecimento prév
 | Girar um motor, achar a potência em que ele começa a andar, ver a velocidade ao vivo | Tecla `7` (menu de motores) |
 | Conferir se o encoder conta para o lado certo | Tecla `9` e os testes de motor |
 | Ligar os dois motores e ver se os sensores aguentam o ruído e a bateria aguenta a corrente | Tecla `i` (teste integrado) |
-| Ver a tensão da bateria e se o botão de largada funciona | Teclas `a` e `b` |
+| Ver a tensão da bateria | Tecla `a` |
 | Conferir se a placa conecta no Wi-Fi e grava a telemetria no banco | Tecla `w` |
 
 A bancada **não é o firmware do robô**. Ela não faz a corrida, só testa componentes. Para voltar ao robô, grave o ambiente dele: `pio run -e esp32_devkit -t upload`.
@@ -184,12 +184,11 @@ AUTOTESTE (robo parado; os motores nao sao acionados)
 4) Encoders (parados)
   [OK]    encoder esquerdo estavel (0 pulsos, 0 transicoes invalidas)
   [OK]    encoder direito estavel (0 pulsos, 0 transicoes invalidas)
-5) Bateria e botao
+5) Bateria
   [OK]    bateria 7.62 V
-  [OK]    botao BTN_START solto (nivel alto)
 RESULTADO: 15 OK, 0 FALHA(S).
 REGISTRO: autoteste | ok=15 falhas=0 | veredito=OK
-Nao verificado aqui: motores (tecla 7), o sentido dos encoders (gire a roda a mao com a tecla 9) e o aperto do botao (tecla b).
+Nao verificado aqui: motores (tecla 7), o sentido dos encoders (gire a roda a mao com a tecla 9).
 ```
 
 Os valores são um exemplo. A linha `REGISTRO` é a que se cola no registro de testes.
@@ -213,7 +212,7 @@ Os valores são um exemplo. A linha `REGISTRO` é a que se cola no registro de t
 | `8` | Mostra a pinagem em uso |
 | `9` / `0` | Encoders: contagem ao vivo (gire a roda à mão) / zerar a contagem |
 | `i` | **Teste integrado**: liga os dois motores por 5 s e lê ToF, MPU6050 e encoders ao mesmo tempo. Diz se os dois giram, se o PWM derruba algum sensor e quanto a bateria cai. Termina com uma linha `REGISTRO` |
-| `a` / `b` | Tensão da bateria pelo divisor do GPIO34 / botão de largada ao vivo (aperte e solte; qualquer tecla para) |
+| `a` | Tensão da bateria pelo divisor do GPIO34 |
 | `w` | Abre o submenu de telemetria (Wi-Fi e banco) |
 | `r` | Reinicia a placa por software |
 | Enter | Mostra o menu de novo |

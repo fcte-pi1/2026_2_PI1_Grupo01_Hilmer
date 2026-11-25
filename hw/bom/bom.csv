@@ -26,4 +26,3 @@ C5,1,Filtro do divisor da bateria,100 nF,-,BAT_ADC / ADC1_CH6,-,Rev 2.1: ligado 
 C6,1,Capacitor do buck 5 V,10 uF,5 V,-,-,
 C7,1,Capacitor de saida do buck 3.3 V,100 nF,3.3 V,-,-,Valor preservado da Rev 2.0; confirmar desacoplamento do modulo em bancada
 C8,1,Capacitor do buck 3.3 V,10 uF,3.3 V,-,-,
-SW2,1,Botao START normalmente aberto,Push button NA,3.3 V logico,BTN_START para GND,-,Entrada INPUT_PULLUP; pinagem em hardware.md 4.2
