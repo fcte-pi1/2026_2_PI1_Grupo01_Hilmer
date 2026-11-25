@@ -75,7 +75,9 @@ Abaixo estão as tabelas de fiação pino a pino utilizadas como referência par
 | **Buck `U4` (6,0 V)** | `OUT+` | **Driver DRV8833** | Pino `VM` | $+6{,}0\text{ V}$ | Alimentação de potência dos motores DC |
 | **Buck `U4` (6,0 V)** | `OUT-` | **Driver DRV8833** | Pino `GND` (Potência) | $0{,}0\text{ V}$ | Retorno de potência dos motores DC |
 
-### 2.3. Circuito Divisor de Tensão (`R1`, `R2` e `C5`, *omitidos no ensaio*) e Botão (`BTN_START`)
+### 2.3. Circuito Divisor de Tensão e botão da bancada de 29/10
+
+O divisor `R1/R2/C5` foi omitido no ensaio. O botão no GPIO23 faz parte do plano de ligação daquela bancada. Na [placa final](../../04-projeto-conceitual/hardware.md#42-pinagem-do-esp32-devkit-v1), o GPIO23 está livre.
 
 | Componente de Origem | Terminal / Pino (Origem) | Componente de Destino | Terminal / Pino (Destino) | Nível de Tensão | Descrição / Função |
 | :--- | :--- | :--- | :--- | :---: | :--- |
