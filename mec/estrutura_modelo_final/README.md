@@ -39,8 +39,6 @@ Modelo final do robô: base e 2º andar ligados por 4 espaçadores de 55 mm, bat
 | Parafuso M2 × 8 | 4 | Presilhas da PCB |
 | Abraçadeira de nylon | 2 | Bateria |
 
-## Conferir antes de montar
+## Conferência pré-montagem
 
-- **Furo da placa metálica da esfera:** no modelo ele tem Ø2,5 mm. Se o real for igual, abra com broca de 3,2 mm para o M3 passar.
 - **Esfera:** a esfera de 3/8" (9,53 mm) passa do limite de 9 mm. A equipe manteve essa esfera e compensou a diferença no próprio chassi: o alojamento do suporte da esfera "subiu" para dentro da base (rebaixo na face de baixo), sem arruelas e sem trocar a esfera. A esfera dianteira foi fixada com silicone, para garantir a aderência das rodas motrizes e evitar giros em falso. Validado no teste de integração de 24/11/2026 e registrado na [#543](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/issues/543).
-- **Ordem de montagem:** parafuse as esferas antes de montar o 2º andar, porque a bateria fica por cima delas.
