@@ -578,4 +578,3 @@ O [Projeto conceitual de estruturas](../04-projeto-conceitual/estruturas.md) ([#
 | v4 | 11/11/2026 | Eixo no centro, 2º andar com espaçadores de 35 mm, bateria suspensa, PCB presa por 6 clipes de encaixe | Histórico da pasta [`mec/`](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/tree/main/mec) |
 | v10 (atual) | 23/11/2026 | Espaçadores de 55 mm, PCB em suportes parafusados com presilhas, esferas embutidas, eixo das rodas na altura real | [`mec/estrutura_modelo_final/`](https://github.com/fcte-pi1/2026_2_PI1_Grupo01_Hilmer/tree/main/mec/estrutura_modelo_final) e esta página |
 
-**Observação:** o [Projeto conceitual de estruturas](../04-projeto-conceitual/estruturas.md) ainda descreve o LiDAR, a ESP32-C3 e a bateria Li-ion. Recomenda-se acrescentar nele uma nota que remeta a esta seção.
